@@ -1,3 +1,6 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 // 1. Initialize Lenis Smooth Scrolling
 const lenis = new Lenis({
     duration: 1.2,
@@ -156,3 +159,52 @@ if (toggleAuthMode) {
         document.getElementById('toggleAuthMode').addEventListener('click', toggleMode);
     });
 }
+
+// -----------------------------------------------------------------------------
+// FIREBASE AUTHENTICATION
+// -----------------------------------------------------------------------------
+const firebaseConfig = {
+    apiKey: "AIzaSyAcRknk1UALIeqOnxwVVMHjEbuIsLWEjRM",
+    authDomain: "synaps-3d138.firebaseapp.com",
+    projectId: "synaps-3d138",
+    storageBucket: "synaps-3d138.firebasestorage.app",
+    messagingSenderId: "122307686567",
+    appId: "1:122307686567:web:4af124889a9e8316426b82"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const googleBtn = document.querySelector('.google-btn');
+const linkedinBtn = document.querySelector('.linkedin-btn');
+
+if (googleBtn) {
+    googleBtn.addEventListener('click', async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            console.log("Google sign-in successful:", result.user);
+            alert(`Welcome, ${result.user.displayName || result.user.email}!`);
+            closeModalFunc();
+        } catch (error) {
+            console.error("Google sign-in error:", error);
+            alert(error.message);
+        }
+    });
+}
+
+if (linkedinBtn) {
+    linkedinBtn.addEventListener('click', async () => {
+        const provider = new OAuthProvider('linkedin.com');
+        try {
+            const result = await signInWithPopup(auth, provider);
+            console.log("LinkedIn sign-in successful:", result.user);
+            alert(`Welcome, ${result.user.displayName || result.user.email}!`);
+            closeModalFunc();
+        } catch (error) {
+            console.error("LinkedIn sign-in error:", error);
+            alert(error.message);
+        }
+    });
+}
+
