@@ -34,6 +34,7 @@ function animateTextReveal(triggerElement) {
     const words = triggerElement.querySelectorAll('.word');
     const fades = triggerElement.querySelectorAll('.fade-text');
     const lists = triggerElement.querySelectorAll('.feature-list');
+    const bubbles = triggerElement.querySelectorAll('.comic-bubble');
     
     gsap.to(words, {
         y: 0,
@@ -65,6 +66,17 @@ function animateTextReveal(triggerElement) {
             opacity: 1,
             duration: 1,
             delay: 0.4,
+            scrollTrigger: { trigger: triggerElement, start: 'top 75%', toggleActions: 'play none none reverse' }
+        })
+    }
+
+    if(bubbles.length) {
+        gsap.to(bubbles, {
+            scale: 1,
+            opacity: 1,
+            duration: 1,
+            ease: 'elastic.out(1, 0.6)',
+            delay: 0.6,
             scrollTrigger: { trigger: triggerElement, start: 'top 75%', toggleActions: 'play none none reverse' }
         })
     }
@@ -161,6 +173,67 @@ if (toggleAuthMode) {
 }
 
 // -----------------------------------------------------------------------------
+// FLOATING INTERACTIVE ELEMENTS
+// -----------------------------------------------------------------------------
+const floatingElements = [
+    '<div class="float-pill bg-primary">SQL Synced</div>',
+    '<div class="float-pill bg-secondary">CRM Connected</div>',
+    '<div class="float-pill bg-accent">Anomaly Detected</div>',
+    '<div class="float-pill bg-info">+45% Efficiency</div>',
+    '<div class="float-pill bg-success">AI Mapping...</div>'
+];
+
+document.addEventListener("click", function (event) {
+    // Don't spawn if clicking a button or link or inside modal
+    if (event.target.closest('button, a, .auth-modal-content, .auth-modal-overlay')) return;
+    
+    const itemHTML = floatingElements[Math.floor(Math.random() * floatingElements.length)];
+    let container = document.createElement("div");
+    container.innerHTML = itemHTML;
+    const appendedElement = container.firstChild;
+    
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "fixed";
+    wrapper.style.left = `${event.clientX}px`;
+    wrapper.style.top = `${event.clientY}px`;
+    wrapper.style.pointerEvents = "none";
+    wrapper.style.zIndex = "999";
+    wrapper.appendChild(appendedElement);
+    
+    document.body.appendChild(wrapper);
+
+    const randomRotation = Math.random() * 20 - 10;
+    
+    gsap.set(wrapper, {
+        scale: 0,
+        rotation: randomRotation,
+        xPercent: -50,
+        yPercent: -50,
+        transformOrigin: "center",
+    });
+
+    const tl = gsap.timeline();
+    const randomScale = Math.random() * 0.4 + 0.8;
+    
+    tl.to(wrapper, {
+        scale: randomScale,
+        duration: 0.5,
+        ease: "back.out(1.7)"
+    });
+
+    tl.to(wrapper, {
+        y: () => `-=${Math.random() * 200 + 200}`,
+        x: () => `+=${Math.random() * 100 - 50}`,
+        opacity: 0,
+        duration: 3,
+        ease: "power1.out",
+        onComplete: () => {
+            if(wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+        }
+    }, "-=0.2");
+});
+
+// -----------------------------------------------------------------------------
 // FIREBASE AUTHENTICATION
 // -----------------------------------------------------------------------------
 const firebaseConfig = {
@@ -205,4 +278,91 @@ if (linkedinBtn) {
         }
     });
 }
+
+
+// -----------------------------------------------------------------------------
+// STACK SCROLL LOGIC
+// -----------------------------------------------------------------------------
+const stackCards = gsap.utils.toArray(".card");
+if (stackCards.length) {
+    const PEEK = 42;
+    const SCALE_STEP = 0.045;
+
+    function stackPose(index) {
+        return {
+            y: index * PEEK,
+            scale: 1 - index * SCALE_STEP,
+        };
+    }
+
+    stackCards.forEach((card, i) => {
+        gsap.set(card, {
+            zIndex: stackCards.length - i,
+            y: window.innerHeight * 0.72 + i * PEEK,
+            scale: stackPose(i).scale * 0.9,
+            rotate: 0,
+            transformOrigin: "50% 0%",
+        });
+    });
+
+    const stackTl = gsap.timeline({
+        scrollTrigger: {
+            trigger: "#stack",
+            start: "top top",
+            end: () => `+=${stackCards.length * window.innerHeight}`,
+            pin: true,
+            scrub: true,
+            invalidateOnRefresh: true,
+        },
+    });
+
+    stackCards.forEach((card, i) => {
+        stackTl.to(card, { ...stackPose(i), ease: "power3.out", duration: 1.35 }, i * 0.06);
+    });
+
+    stackTl.to({}, { duration: 0.35 });
+
+    const flyAt = stackTl.duration();
+    const flying = stackCards.slice(0, -1);
+
+    flying.forEach((card, i) => {
+        const time = flyAt + i;
+        const behind = stackCards.slice(i + 1);
+
+        stackTl.to(card, {
+            y: () => -window.innerHeight * 1.15,
+            rotate: -15,
+            scale: 0.94,
+            ease: "none",
+            duration: 1,
+        }, time);
+
+        stackTl.to(behind, {
+            y: (index) => stackPose(index).y,
+            scale: (index) => stackPose(index).scale,
+            ease: "none",
+            duration: 1,
+        }, time);
+    });
+
+    stackTl.to({}, { duration: 0.4 });
+}
+
+
+// -----------------------------------------------------------------------------
+// DEEP MOUSE PARALLAX (Mohitvirli Style)
+// -----------------------------------------------------------------------------
+const parallaxTargets = document.querySelectorAll(".ambient-particles, .data-rain, .comic-bubble, .alert-ui, .card");
+document.addEventListener("mousemove", (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 20;
+    const y = (e.clientY / window.innerHeight - 0.5) * 20;
+    
+    gsap.to(parallaxTargets, {
+        x: x,
+        y: y,
+        duration: 1,
+        ease: "power2.out",
+        stagger: 0.05
+    });
+});
 
