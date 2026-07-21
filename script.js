@@ -184,8 +184,7 @@ if (googleBtn) {
         try {
             const result = await signInWithPopup(auth, provider);
             console.log("Google sign-in successful:", result.user);
-            alert(`Welcome, ${result.user.displayName || result.user.email}!`);
-            closeModalFunc();
+            window.location.href = '/dashboard';
         } catch (error) {
             console.error("Google sign-in error:", error);
             alert(error.message);
@@ -199,8 +198,7 @@ if (linkedinBtn) {
         try {
             const result = await signInWithPopup(auth, provider);
             console.log("LinkedIn sign-in successful:", result.user);
-            alert(`Welcome, ${result.user.displayName || result.user.email}!`);
-            closeModalFunc();
+            window.location.href = '/dashboard';
         } catch (error) {
             console.error("LinkedIn sign-in error:", error);
             alert(error.message);
