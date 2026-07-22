@@ -310,7 +310,7 @@ This Data Processing Notice forms part of the master enterprise agreement for Cu
 Synaps engages the following infrastructure providers:
 * **Google Cloud Platform (GCP):** Primary cloud compute and database hosting.
 * **Supabase Inc:** Encrypted blob and document storage.
-* **API Vault:** Multi-agent LLM routing proxy (`apivault.dev`).
+* **API Vault:** Multi-agent LLM routing proxy ('apivault.dev').
 
 ---
 
