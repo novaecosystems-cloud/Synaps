@@ -216,19 +216,7 @@ export default function ClientLayout({ children, user }: { children: React.React
 
         {/* Bottom Section */}
         <div className="space-y-4 mt-8">
-          
-          {/* Team Plan Widget */}
-          <div className="bg-white/5 border border-white/5 rounded-xl p-4 glass-panel">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Team Plan</h4>
-            <p className="text-sm font-bold text-foreground mb-2">Pro Plan</p>
-            <p className="text-xs text-muted-foreground mb-2">12 / 25 members</p>
-            <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden mb-3">
-              <div className="bg-primary h-full w-[48%] shadow-[0_0_10px_rgba(139,92,246,0.5)]"></div>
-            </div>
-            <button className="text-xs font-medium text-foreground hover:text-primary transition-colors flex justify-between w-full items-center">
-              Manage Plan <ChevronRight className="h-3 w-3" />
-            </button>
-          </div>
+          {/* Team Plan Widget Removed */}
 
           <div className="space-y-1">
             <Link
