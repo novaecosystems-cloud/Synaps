@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+export const maxDuration = 300; // Allow long execution for orchestration
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ratelimit } from '@/lib/ratelimit';
