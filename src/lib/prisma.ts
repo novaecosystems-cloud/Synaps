@@ -3,14 +3,17 @@ import { cookies } from 'next/headers';
 import { verifySessionCookie } from './auth-server';
 
 
-// Fallback alias resolution for environment variable typos on Vercel
-if (!process.env.DATABASE_URL) {
-  const envAny = process.env as any;
-  process.env.DATABASE_URL = envAny.databseurl1 || envAny['databseurl1'] || envAny['databseurl 1'] || envAny['DATABASE_URL1'] || envAny['DATABASEURL1'];
+// Fallback alias resolution for environment variable names on Vercel
+const envAny = process.env as any;
+if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes('localhost')) {
+  if (envAny.DATABASE_URL_2 || envAny.databseurl1 || envAny.DATABASE_URL1) {
+    process.env.DATABASE_URL = envAny.DATABASE_URL_2 || envAny.databseurl1 || envAny['databseurl1'] || envAny['databseurl 1'] || envAny.DATABASE_URL1 || envAny.DATABASEURL1;
+  }
 }
-if (!process.env.DIRECT_URL) {
-  const envAny = process.env as any;
-  process.env.DIRECT_URL = envAny['direct url 2'] || envAny['directurl2'] || envAny['DIRECT_URL2'] || envAny['DIRECTURL2'] || process.env.DATABASE_URL;
+if (!process.env.DIRECT_URL || process.env.DIRECT_URL.includes('localhost')) {
+  if (envAny.DIRECT_URL_2 || envAny['direct url 2'] || envAny.DIRECT_URL1) {
+    process.env.DIRECT_URL = envAny.DIRECT_URL_2 || envAny['direct url 2'] || envAny.directurl2 || envAny.DIRECT_URL1 || process.env.DATABASE_URL;
+  }
 }
 
 const globalForPrisma = globalThis as unknown as { 
