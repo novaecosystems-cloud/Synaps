@@ -7,7 +7,8 @@ import {
   ChevronRight, Calendar, Info, Mail, Lock, ExternalLink
 } from 'lucide-react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -30,7 +31,7 @@ export default function LegalDocPage({ params }: PageProps) {
     );
   }
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handlePrint = () => {
     window.print();
@@ -105,46 +106,31 @@ export default function LegalDocPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Document Body */}
-            <div className="prose prose-invert max-w-none text-sm text-slate-300 leading-relaxed space-y-4 font-normal">
-              {doc.contentMd.split('\n\n').map((paragraph, idx) => {
-                if (paragraph.startsWith('# ')) {
-                  return null; // Skip duplicate h1
-                }
-                if (paragraph.startsWith('## ')) {
-                  const headingText = paragraph.replace('## ', '');
-                  const idMatch = headingText.match(/\{#(.*?)\}/);
-                  const cleanText = headingText.replace(/\{#(.*?)\}/, '').trim();
-                  const id = idMatch ? idMatch[1] : cleanText.toLowerCase().replace(/\s+/g, '-');
-                  return (
-                    <h2 key={idx} id={id} className="text-xl font-bold text-white pt-6 border-t border-slate-800/80 mt-6 scroll-mt-24">
-                      {cleanText}
-                    </h2>
-                  );
-                }
-                if (paragraph.startsWith('### ')) {
-                  return (
-                    <h3 key={idx} className="text-base font-bold text-indigo-300 pt-3">
-                      {paragraph.replace('### ', '')}
-                    </h3>
-                  );
-                }
-                if (paragraph.startsWith('* ') || paragraph.startsWith('- ')) {
-                  const items = paragraph.split('\n');
-                  return (
-                    <ul key={idx} className="list-disc pl-5 space-y-1 text-slate-300">
-                      {items.map((it, i) => (
-                        <li key={i}>{it.replace(/^[\*\-]\s*/, '')}</li>
-                      ))}
-                    </ul>
-                  );
-                }
-                return (
-                  <p key={idx} className="text-slate-300 leading-relaxed">
-                    {paragraph}
-                  </p>
-                );
-              })}
+            {/* Document Body rendered with ReactMarkdown */}
+            <div className="prose prose-invert max-w-none text-sm text-slate-300 leading-relaxed font-normal">
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h1: ({ node, ...props }) => <h1 className="text-2xl font-bold text-white mb-4" {...props} />,
+                  h2: ({ node, ...props }) => {
+                    const text = String(props.children);
+                    const idMatch = text.match(/\{#(.*?)\}/);
+                    const cleanText = text.replace(/\{#(.*?)\}/, '').trim();
+                    const id = idMatch ? idMatch[1] : cleanText.toLowerCase().replace(/\s+/g, '-');
+                    return <h2 id={id} className="text-xl font-bold text-white pt-6 border-t border-slate-800 mt-6 mb-3 scroll-mt-24">{cleanText}</h2>;
+                  },
+                  h3: ({ node, ...props }) => <h3 className="text-base font-bold text-indigo-300 mt-4 mb-2" {...props} />,
+                  p: ({ node, ...props }) => <p className="text-slate-300 leading-relaxed mb-4" {...props} />,
+                  ul: ({ node, ...props }) => <ul className="list-disc pl-6 space-y-2 mb-4 text-slate-300" {...props} />,
+                  ol: ({ node, ...props }) => <ol className="list-decimal pl-6 space-y-2 mb-4 text-slate-300" {...props} />,
+                  li: ({ node, ...props }) => <li className="text-slate-300" {...props} />,
+                  strong: ({ node, ...props }) => <strong className="text-white font-bold" {...props} />,
+                  code: ({ node, ...props }) => <code className="bg-slate-800 text-indigo-300 px-1.5 py-0.5 rounded font-mono text-xs" {...props} />,
+                  hr: () => <hr className="border-slate-800 my-6" />
+                }}
+              >
+                {doc.contentMd}
+              </ReactMarkdown>
             </div>
 
           </div>
