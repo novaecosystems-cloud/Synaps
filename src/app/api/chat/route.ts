@@ -20,7 +20,12 @@ export async function POST(req: NextRequest) {
     const decoded = await verifySessionCookie(sessionCookie);
     if (!decoded) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    const organizationId = decoded.organizationId;
+    const dbUser = await prisma.user.findUnique({
+      where: { id: decoded.uid },
+      select: { organizationId: true }
+    });
+    
+    const organizationId = dbUser?.organizationId;
     if (!organizationId) return NextResponse.json({ success: false, error: 'User must belong to an organization' }, { status: 403 });
 
     // Rate Limiting
