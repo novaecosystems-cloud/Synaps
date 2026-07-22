@@ -643,3 +643,12 @@ body {
 .uiverse-action-card .list:last-child .element:hover {
   background-color: rgba(56, 45, 71, 0.836);
 }
+
+@media print {
+  @page {
+    margin: 0;
+  }
+  body {
+    margin: 1cm;
+  }
+}

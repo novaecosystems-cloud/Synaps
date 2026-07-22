@@ -40,7 +40,7 @@ export default function WorkflowPanel({ proposalId, organizationId, userId }: { 
     const res = await fetch(`/api/audit?entityId=${proposalId}&organizationId=${organizationId}`);
     if (res.ok) {
       const data = await res.json();
-      setAuditLogs(data);
+      setAuditLogs(data.logs || []);
     }
   };
 
@@ -57,6 +57,9 @@ export default function WorkflowPanel({ proposalId, organizationId, userId }: { 
   };
 
   const changeStatus = async (newStatus: string) => {
+    const prevStatus = status;
+    setStatus(newStatus as ProposalStatus);
+    
     const res = await fetch('/api/workflows', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -83,6 +86,8 @@ export default function WorkflowPanel({ proposalId, organizationId, userId }: { 
   };
 
   const updateApproval = async (requestId: string, approvalStatus: string) => {
+    setRequests(reqs => reqs.map(r => r.id === requestId ? { ...r, status: approvalStatus } : r));
+    
     const res = await fetch('/api/workflows', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

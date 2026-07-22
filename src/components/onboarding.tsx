@@ -26,7 +26,7 @@ export function OnboardingHints() {
   if (!showSearchHint) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 fade-in duration-500">
+    <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 fade-in duration-500 print:hidden">
       <div className="bg-primary/95 text-primary-foreground p-4 rounded-xl shadow-2xl shadow-primary/20 max-w-sm border border-primary/20 relative">
         <button 
           onClick={dismissSearchHint}
