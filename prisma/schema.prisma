@@ -238,6 +238,8 @@ model Document {
   connector        Connector?        @relation("ConnectorDocuments", fields: [connectorId], references: [id])
   citations        MessageCitation[]
   workspaceDocuments ProjectDocument[]
+  graphEntities    GraphEntity[]
+  graphRelationships GraphRelationship[]
 
   @@index([organizationId])
   @@index([projectId])
@@ -941,9 +943,15 @@ model GraphEntity {
   id              String        @id @default(uuid())
   organizationId  String
   organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  documentId      String?
+  document        Document?     @relation(fields: [documentId], references: [id], onDelete: SetNull)
   name            String
-  type            String        // e.g., "PERSON", "ORGANIZATION", "CONCEPT"
+  type            String        // e.g., "DOCUMENT", "EMPLOYEE", "DEPARTMENT", "PROJECT", "BUDGET", "DECISION", "MEETING", "CONTRACT", "CUSTOMER", "INVOICE", "VENDOR", "POLICY", "COMPLIANCE_REQUIREMENT", "SOP", "REPORT"
   description     String        @db.Text
+  metadata        Json?         @default("{}") // summary, keywords, timeline, topics
+  properties      Json?         @default("{}") // entity specific attributes
+  confidenceScore Float         @default(1.0)
+  sourceReferences Json?        @default("[]")
   embedding       Unsupported("vector(1536)")?
 
   sourceRelations GraphRelationship[] @relation("SourceEntity")
@@ -954,12 +962,16 @@ model GraphEntity {
 
   @@index([organizationId])
   @@index([name])
+  @@index([type])
+  @@index([documentId])
 }
 
 model GraphRelationship {
   id              String        @id @default(uuid())
   organizationId  String
   organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  documentId      String?
+  document        Document?     @relation(fields: [documentId], references: [id], onDelete: SetNull)
   
   sourceEntityId  String
   sourceEntity    GraphEntity   @relation("SourceEntity", fields: [sourceEntityId], references: [id], onDelete: Cascade)
@@ -967,12 +979,15 @@ model GraphRelationship {
   targetEntityId  String
   targetEntity    GraphEntity   @relation("TargetEntity", fields: [targetEntityId], references: [id], onDelete: Cascade)
   
-  relationType    String        // e.g., "WORKS_FOR", "IMPLEMENTS"
+  relationType    String        // e.g., "BELONGS_TO", "HAS_BUDGET", "SIGNED_BY", "APPLIES_TO", "ISSUED_BY"
   description     String        @db.Text
+  evidence        String?       @db.Text
+  confidenceScore Float         @default(1.0)
   
   createdAt       DateTime      @default(now())
 
   @@index([organizationId])
   @@index([sourceEntityId])
   @@index([targetEntityId])
+  @@index([documentId])
 }

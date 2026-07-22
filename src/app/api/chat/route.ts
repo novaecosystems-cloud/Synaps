@@ -94,8 +94,27 @@ export async function POST(req: NextRequest) {
       };
     });
 
-    // 3. Generate chat response using Gemini
-    const aiResponse = await generateChatResponse(messages, enhancedChunks);
+    // Fetch Memory Graph Entity Relationships for the organization
+    const graphRelationships = await prisma.graphRelationship.findMany({
+      where: { organizationId },
+      take: 15,
+      include: {
+        sourceEntity: { select: { name: true, type: true } },
+        targetEntity: { select: { name: true, type: true } }
+      }
+    });
+
+    const graphChunks = graphRelationships.map(r => ({
+      id: r.id,
+      documentId: r.documentId || 'graph-memory',
+      name: `Memory Graph (${r.sourceEntity.type} → ${r.targetEntity.type})`,
+      text: `[Enterprise Memory Graph] ${r.sourceEntity.name} (${r.sourceEntity.type}) ${r.relationType} ${r.targetEntity.name} (${r.targetEntity.type}). Description: ${r.description}. Evidence: ${r.evidence || 'Document Entity Connection'}`
+    }));
+
+    const combinedEvidence = [...enhancedChunks, ...graphChunks];
+
+    // 3. Generate chat response using Gemini + Memory Graph Reasoning
+    const aiResponse = await generateChatResponse(messages, combinedEvidence);
 
     return NextResponse.json({
       success: true,

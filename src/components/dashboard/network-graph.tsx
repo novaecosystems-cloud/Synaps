@@ -5,7 +5,8 @@ import ForceGraph3D from 'react-force-graph-3d';
 import * as THREE from 'three';
 import { 
   X, ExternalLink, Send, FileText, FolderKanban, ShieldCheck,
-  Command
+  Command, Sparkles, Network, Calendar, Tag, Layers, CheckCircle2,
+  HelpCircle, ArrowRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -37,22 +38,17 @@ varying vec3 vNormal;
 varying vec3 vPosition;
 
 void main() {
-  // Prevent negative values in pow() which causes invisible/black materials
   float fresnel = max(0.0, 0.8 - dot(vNormal, vec3(0.0, 0.0, 1.0)));
   float intensity = pow(fresnel, 2.0);
   
-  // Energy flow bands
   float bands = sin(vPosition.y * 5.0 - uTime * 2.0) * sin(vPosition.x * 5.0 + uTime);
   bands = smoothstep(0.8, 1.0, bands);
   
-  // Base coloring
   vec3 glow = uColor * intensity * 2.0;
   vec3 energy = vec3(1.0) * bands * (0.3 + uHover * 0.7);
   
-  // Core highlight on hover
   vec3 core = mix(uColor, vec3(1.0), uHover * 0.8);
   
-  // Final mix
   vec3 finalColor = glow + energy + (core * 0.4);
   float alpha = clamp(intensity * 1.5 + bands + uHover, 0.3, 1.0);
   
@@ -67,18 +63,25 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
   const [hoverNode, setHoverNode] = useState<any | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  // Graph Reasoning AI State
+  const [queryInput, setQueryInput] = useState('');
+  const [reasoningResult, setReasoningResult] = useState<any | null>(null);
+  const [isReasoning, setIsReasoning] = useState(false);
+
+  // Node type filter
+  const [selectedTypeFilter, setSelectedTypeFilter] = useState<string | null>(null);
+
   useEffect(() => {
     setMounted(true);
     const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
     window.addEventListener('resize', handleResize);
+    setDimensions({ width: window.innerWidth, height: window.innerHeight });
     
-    // Initial camera zoom and lighting
     setTimeout(() => {
       if (fgRef.current) {
         fgRef.current.d3Force('charge')?.strength(-400);
         fgRef.current.cameraPosition({ z: 400 });
         
-        // Add custom lighting to the scene for the 3D materials
         const scene = fgRef.current.scene();
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -92,37 +95,54 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
   }, []);
 
   const getNodeColor = (type: string) => {
-    switch (type) {
-      case 'organization': return '#eab308'; // yellow/gold
-      case 'project': return '#a855f7'; // purple
-      case 'user': return '#3b82f6'; // blue
-      case 'document': return '#10b981'; // emerald/green
-      default: return '#ffffff';
+    const t = (type || '').toUpperCase();
+    switch (t) {
+      case 'DOCUMENT': return '#10b981'; // emerald
+      case 'CONTRACT': return '#f59e0b'; // amber
+      case 'INVOICE': return '#ef4444'; // red
+      case 'VENDOR':
+      case 'CUSTOMER': return '#ec4899'; // pink
+      case 'PROJECT':
+      case 'BUDGET': return '#8b5cf6'; // purple
+      case 'EMPLOYEE':
+      case 'DEPARTMENT': return '#3b82f6'; // blue
+      case 'DECISION':
+      case 'MEETING': return '#eab308'; // yellow
+      case 'POLICY':
+      case 'COMPLIANCE_REQUIREMENT':
+      case 'SOP': return '#06b6d4'; // cyan
+      default: return '#a855f7';
     }
   };
 
+  const filteredData = React.useMemo(() => {
+    if (!selectedTypeFilter) return data;
+    const nodes = data.nodes.filter(n => (n.type || '').toUpperCase() === selectedTypeFilter);
+    const nodeIds = new Set(nodes.map(n => n.id));
+    const links = data.links.filter(l => 
+      nodeIds.has(typeof l.source === 'object' ? l.source.id : l.source) &&
+      nodeIds.has(typeof l.target === 'object' ? l.target.id : l.target)
+    );
+    return { nodes, links };
+  }, [data, selectedTypeFilter]);
+
   const handleNodeClick = useCallback((node: any) => {
     setSelectedNode(node);
-    
-    // Slide camera flat over the node without twisting the angle
     fgRef.current?.cameraPosition(
-      { x: node.x, y: node.y, z: 250 }, // Position directly above
-      { x: node.x, y: node.y, z: 0 },   // Look straight down at it
-      1000  // ms transition
+      { x: node.x, y: node.y, z: 250 },
+      { x: node.x, y: node.y, z: 0 },
+      1000
     );
   }, []);
 
-  // Shared geometry to save memory (memoized to prevent GPU memory leak on re-render)
   const sphereGeometry = React.useMemo(() => new THREE.SphereGeometry(1, 32, 32), []);
 
-  // Construct 3D Mesh for each node
   const nodeThreeObject = useCallback((node: any) => {
     const r = Math.sqrt(Math.max(0, node.val || 1)) * 1.5;
     const color = getNodeColor(node.type);
     
     const group = new THREE.Group();
 
-    // The Shader Sphere
     const material = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
@@ -140,34 +160,30 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
     sphere.scale.set(r, r, r);
     group.add(sphere);
 
-    // Text Label
     const sprite = new SpriteText(node.name);
-    sprite.color = 'rgba(255, 255, 255, 0.8)';
+    sprite.color = 'rgba(255, 255, 255, 0.85)';
     sprite.textHeight = 3.5;
     sprite.position.set(0, -(r + 6), 0);
     group.add(sprite);
 
-    node.__material = material; // Store reference for GPU animation loop
+    node.__material = material;
     return group;
   }, [sphereGeometry]);
 
   // GPU Animation Loop
   useEffect(() => {
-    if (!mounted || !data.nodes) return;
+    if (!mounted || !filteredData.nodes) return;
     
     let animationFrameId: number;
     const animate = () => {
       const time = performance.now() * 0.001;
       
-      data.nodes.forEach(node => {
+      filteredData.nodes.forEach(node => {
         if (node.__material) {
           const isHovered = hoverNode?.id === node.id;
           const isSelected = selectedNode?.id === node.id;
           
-          // Update Time for Shader
           node.__material.uniforms.uTime.value = time;
-
-          // Smooth interpolation for hover state
           const targetHover = (isHovered || isSelected) ? 1.0 : 0.0;
           node.__material.uniforms.uHover.value += (targetHover - node.__material.uniforms.uHover.value) * 0.1;
         }
@@ -177,15 +193,39 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
     animate();
     
     return () => cancelAnimationFrame(animationFrameId);
-  }, [mounted, data, hoverNode, selectedNode]);
+  }, [mounted, filteredData, hoverNode, selectedNode]);
+
+  const handleReasoningQuery = async () => {
+    if (!queryInput.trim() || isReasoning) return;
+    setIsReasoning(true);
+    try {
+      const res = await fetch('/api/graph/reason', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: queryInput })
+      });
+      const json = await res.json();
+      if (json.success) {
+        setReasoningResult(json);
+      } else {
+        setReasoningResult({ answer: `Error: ${json.error}`, relationshipPaths: [], confidenceScore: 0 });
+      }
+    } catch (e: any) {
+      setReasoningResult({ answer: `Error: ${e.message}`, relationshipPaths: [], confidenceScore: 0 });
+    } finally {
+      setIsReasoning(false);
+    }
+  };
 
   if (!mounted) return null;
 
+  const entityTypes = Array.from(new Set(data.nodes.map(n => (n.type || 'UNKNOWN').toUpperCase())));
+
   return (
-    <div className="relative w-full h-full font-sans">
+    <div className="relative w-full h-full font-sans overflow-hidden">
       
       {/* Background Radial Gradient */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-teal-900/10 via-[#020204] to-[#010102] z-0"></div>
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-950/20 via-[#020204] to-[#010102] z-0"></div>
 
       {/* 3D Force Graph */}
       <div className="absolute inset-0 z-10 cursor-crosshair">
@@ -193,224 +233,233 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
           ref={fgRef}
           width={dimensions.width}
           height={dimensions.height}
-          graphData={data}
+          graphData={filteredData}
           nodeThreeObject={nodeThreeObject}
-          linkWidth={0.5}
+          linkWidth={0.6}
           linkColor={(link: any) => {
-            const isHighlighted = selectedNode && (link.source.id === selectedNode.id || link.target.id === selectedNode.id);
-            return isHighlighted ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.1)';
+            const isHighlighted = selectedNode && (
+              (typeof link.source === 'object' ? link.source.id : link.source) === selectedNode.id ||
+              (typeof link.target === 'object' ? link.target.id : link.target) === selectedNode.id
+            );
+            return isHighlighted ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.12)';
           }}
           onNodeClick={handleNodeClick}
           onNodeHover={setHoverNode}
           onBackgroundClick={() => setSelectedNode(null)}
           d3AlphaDecay={0.05}
           d3VelocityDecay={0.4}
-          backgroundColor="rgba(0,0,0,0)" // Transparent to let the CSS gradient show
+          backgroundColor="rgba(0,0,0,0)"
         />
       </div>
 
-      {/* Floating Header / Navigation */}
+      {/* Floating Header */}
       <div className="absolute top-6 left-6 z-50 flex items-center gap-4">
         <Link href="/dashboard" className="flex items-center gap-3 glass-panel px-4 py-2 rounded-full border border-white/10 hover:bg-white/5 transition-colors group">
           <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-[0_0_15px_rgba(139,92,246,0.5)] group-hover:scale-105 transition-transform">
             S
           </div>
-          <span className="font-bold text-sm tracking-tight text-white uppercase">Sisyphus</span>
+          <span className="font-bold text-sm tracking-tight text-white uppercase">Synaps Memory Graph</span>
         </Link>
         <div className="h-6 w-px bg-white/20"></div>
-        <Link href="/dashboard/projects" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Projects</Link>
-        <Link href="/dashboard/documents" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Documents</Link>
-      </div>
-
-      {/* Glassmorphic Legend (Left side) */}
-      <div className="absolute bottom-24 left-6 z-50 glass-panel border border-white/10 rounded-xl p-4 bg-black/40 backdrop-blur-md w-48 shadow-2xl">
-        <h4 className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-3">Legend</h4>
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full shadow-[0_0_10px_#eab308]" style={{ background: '#eab308' }}></div>
-            <span className="text-xs text-white/80 font-medium">Organization</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full shadow-[0_0_10px_#a855f7]" style={{ background: '#a855f7' }}></div>
-            <span className="text-xs text-white/80 font-medium">Projects</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full shadow-[0_0_10px_#10b981]" style={{ background: '#10b981' }}></div>
-            <span className="text-xs text-white/80 font-medium">Documents</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full shadow-[0_0_10px_#3b82f6]" style={{ background: '#3b82f6' }}></div>
-            <span className="text-xs text-white/80 font-medium">Team Members</span>
-          </div>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => setSelectedTypeFilter(null)}
+            className={cn("px-3 py-1 rounded-full text-xs font-semibold transition-all", !selectedTypeFilter ? "bg-primary text-white" : "bg-white/5 text-white/60 hover:text-white")}
+          >
+            All Nodes ({data.nodes.length})
+          </button>
+          {entityTypes.slice(0, 4).map(type => (
+            <button
+              key={type}
+              onClick={() => setSelectedTypeFilter(selectedTypeFilter === type ? null : type)}
+              className={cn("px-3 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 border", 
+                selectedTypeFilter === type ? "bg-white text-black font-semibold" : "bg-white/5 border-white/10 text-white/70 hover:text-white"
+              )}
+            >
+              <span className="w-2 h-2 rounded-full" style={{ background: getNodeColor(type) }}></span>
+              {type}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Right Detail Panel (Animated conditionally) */}
+      {/* Glassmorphic Legend */}
+      <div className="absolute bottom-24 left-6 z-40 glass-panel border border-white/10 rounded-xl p-4 bg-black/40 backdrop-blur-md w-52 shadow-2xl">
+        <h4 className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-3">Enterprise Node Types</h4>
+        <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+          {[
+            { label: 'Document', type: 'DOCUMENT' },
+            { label: 'Contract', type: 'CONTRACT' },
+            { label: 'Invoice / Vendor', type: 'INVOICE' },
+            { label: 'Project / Budget', type: 'PROJECT' },
+            { label: 'Employee / Dept', type: 'EMPLOYEE' },
+            { label: 'Decision / Meeting', type: 'DECISION' },
+            { label: 'Policy / Compliance', type: 'POLICY' },
+          ].map(item => (
+            <div key={item.type} className="flex items-center gap-2.5 text-xs text-white/80">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ background: getNodeColor(item.type) }}></div>
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right Detail Inspector Panel */}
       <div className={cn(
         "absolute right-6 top-6 bottom-24 w-96 z-50 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]",
         selectedNode ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
       )}>
         {selectedNode && (
-          <div className="w-full h-full glass-panel border border-white/10 rounded-2xl bg-black/50 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden">
+          <div className="w-full h-full glass-panel border border-white/10 rounded-2xl bg-black/60 backdrop-blur-2xl shadow-2xl flex flex-col overflow-hidden">
             
             {/* Header */}
             <div className="p-6 border-b border-white/10 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-10 blur-xl">
-                <div className="w-24 h-24 rounded-full" style={{ background: getNodeColor(selectedNode.type) }}></div>
+              <div className="absolute top-0 right-0 p-4 opacity-20 blur-2xl">
+                <div className="w-32 h-32 rounded-full" style={{ background: getNodeColor(selectedNode.type) }}></div>
               </div>
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border" style={{ 
+                  <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border" style={{ 
                     borderColor: `${getNodeColor(selectedNode.type)}40`,
                     color: getNodeColor(selectedNode.type),
-                    backgroundColor: `${getNodeColor(selectedNode.type)}10`
+                    backgroundColor: `${getNodeColor(selectedNode.type)}15`
                   }}>
                     {selectedNode.type}
                   </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-medium border border-white/10 text-white/70 bg-white/5">
-                    Active
-                  </span>
+                  {selectedNode.confidenceScore && (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-medium border border-emerald-500/30 text-emerald-400 bg-emerald-500/10 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> {(selectedNode.confidenceScore * 100).toFixed(0)}% Confidence
+                    </span>
+                  )}
                 </div>
-                <h2 className="text-2xl font-bold text-white leading-tight mb-2">{selectedNode.name}</h2>
-                <p className="text-xs text-white/50 flex items-center gap-1">
-                  ID: {selectedNode.id.split('-').pop()}
-                </p>
+                <h2 className="text-xl font-bold text-white leading-tight mb-1">{selectedNode.name}</h2>
+                <p className="text-xs text-white/60 line-clamp-2">{selectedNode.description}</p>
               </div>
               <button onClick={() => setSelectedNode(null)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors z-20">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Dynamic Content Body */}
+            {/* Content Inspector */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
               
-              {/* Type Specific Metric Blocks */}
-              {selectedNode.type === 'document' && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="glass-panel border border-white/10 bg-white/5 rounded-xl p-4">
-                    <p className="text-xs text-white/50 mb-1">File Type</p>
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-medium text-white truncate">{selectedNode.mimeType}</span>
-                    </div>
-                  </div>
-                  <div className="glass-panel border border-white/10 bg-white/5 rounded-xl p-4">
-                    <p className="text-xs text-white/50 mb-1">File Size</p>
-                    <p className="text-lg font-medium text-white">{(selectedNode.sizeBytes / 1024 / 1024).toFixed(2)} MB</p>
-                  </div>
-                </div>
-              )}
-
-              {selectedNode.type === 'project' && (
-                <div className="glass-panel border border-white/10 bg-white/5 rounded-xl p-5 relative overflow-hidden">
-                   <div className="flex justify-between items-end mb-4">
-                     <div>
-                       <p className="text-sm text-white/60 mb-1">Completion Rate</p>
-                       <h3 className="text-3xl font-bold text-white flex items-baseline gap-1">
-                         65<span className="text-lg text-white/40">%</span>
-                       </h3>
-                     </div>
-                     <span className="text-xs text-emerald-400 flex items-center gap-1 bg-emerald-400/10 px-2 py-1 rounded">
-                       +12% <span className="opacity-50">mo</span>
-                     </span>
-                   </div>
-                   
-                   {/* Fake bar chart */}
-                   <div className="flex items-end justify-between h-12 gap-1 w-full opacity-60">
-                     {[20, 35, 25, 45, 60, 40, 75, 50, 85, 65, 45, 70].map((h, i) => (
-                       <div key={i} className="w-full bg-primary/40 rounded-t-sm" style={{ height: `${h}%` }}></div>
-                     ))}
-                   </div>
-                </div>
-              )}
-
-              {/* Analysis Block */}
-              <div className="glass-panel border border-red-500/20 bg-red-500/5 rounded-xl p-5 relative overflow-hidden group hover:border-red-500/40 transition-colors">
-                <div className="absolute top-0 left-0 w-1 h-full bg-red-500/50 group-hover:bg-red-500 transition-colors"></div>
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-bold text-red-400 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4" /> AI Analysis Flag
+              {/* Summary / Metadata */}
+              {selectedNode.metadata?.summary && (
+                <div>
+                  <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2 flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-indigo-400" /> AI Executive Summary
                   </h4>
-                  <ExternalLink className="w-4 h-4 text-red-400/50" />
+                  <p className="text-xs text-white/80 leading-relaxed glass-panel p-3 border border-white/10 rounded-xl bg-white/5">
+                    {selectedNode.metadata.summary}
+                  </p>
                 </div>
-                <p className="text-xs text-white/70 leading-relaxed">
-                  Multiple dependencies were found to be out of date or require compliance review within the context of this node. Proceed with caution.
-                </p>
-              </div>
+              )}
 
-              {/* Related Stats Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="glass-panel border border-white/10 bg-black/40 rounded-xl p-4 hover:bg-white/5 transition-colors cursor-pointer">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-1.5 rounded-full border border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
-                      <FolderKanban className="w-4 h-4" />
-                    </div>
-                    <span className="text-xl font-bold text-white">12</span>
+              {/* Keywords */}
+              {selectedNode.metadata?.keywords && selectedNode.metadata.keywords.length > 0 && (
+                <div>
+                  <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2 flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-amber-400" /> Extracted Keywords
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedNode.metadata.keywords.map((kw: string, i: number) => (
+                      <span key={i} className="px-2 py-1 rounded bg-white/5 border border-white/10 text-[11px] text-white/80">
+                        #{kw}
+                      </span>
+                    ))}
                   </div>
-                  <p className="text-[10px] text-white/50 uppercase tracking-wider">Related Items</p>
                 </div>
-                
-                <div className="glass-panel border border-white/10 bg-black/40 rounded-xl p-4 hover:bg-white/5 transition-colors cursor-pointer">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-1.5 rounded-full border border-blue-500/30 text-blue-400 bg-blue-500/10">
-                      <FileText className="w-4 h-4" />
-                    </div>
-                    <span className="text-xl font-bold text-white">4</span>
+              )}
+
+              {/* Timeline */}
+              {selectedNode.metadata?.timeline && selectedNode.metadata.timeline.length > 0 && (
+                <div>
+                  <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-cyan-400" /> Timeline Events
+                  </h4>
+                  <div className="space-y-2">
+                    {selectedNode.metadata.timeline.map((ev: any, i: number) => (
+                      <div key={i} className="flex gap-2 text-xs glass-panel p-2.5 border border-white/10 rounded-lg bg-white/5">
+                        <span className="font-semibold text-cyan-400 text-[11px] whitespace-nowrap">{ev.date || 'Event'}</span>
+                        <span className="text-white/70">{ev.event}</span>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-[10px] text-white/50 uppercase tracking-wider">Documents</p>
                 </div>
-              </div>
-            </div>
-            
-            {/* Action Footer */}
-            <div className="p-6 border-t border-white/10 bg-black/40">
-              <Button className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/10">
-                Explore Details
-              </Button>
+              )}
+
+              {/* Source Document */}
+              {selectedNode.document && (
+                <div className="glass-panel p-3 border border-emerald-500/20 bg-emerald-500/5 rounded-xl">
+                  <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block mb-1">Source Document</span>
+                  <p className="text-xs font-semibold text-white truncate">{selectedNode.document.name}</p>
+                </div>
+              )}
+
             </div>
           </div>
         )}
       </div>
 
-      {/* Bottom Command Bar */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-6">
-        {/* Top metrics bar above search */}
-        <div className="flex items-center justify-between mb-4 px-4">
-          <div className="flex items-center gap-8">
-            <div>
-              <p className="text-[10px] text-white/50 uppercase tracking-wider mb-1">Compliance Rate</p>
-              <p className="text-lg font-bold text-emerald-400 flex items-center gap-2">
-                <span className="text-sm bg-emerald-400/20 px-1.5 py-0.5 rounded">↑</span> 98%
-              </p>
+      {/* Graph Reasoning Result Floating Modal */}
+      {reasoningResult && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+          <div className="glass-panel border border-indigo-500/40 bg-black/80 backdrop-blur-2xl rounded-2xl p-6 shadow-2xl relative text-white">
+            <button 
+              onClick={() => setReasoningResult(null)} 
+              className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/10 text-white/50 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
+              <h3 className="font-bold text-sm text-indigo-300 uppercase tracking-wider">Enterprise Graph Reasoning Answer</h3>
+              <span className="ml-auto text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">
+                {reasoningResult.confidenceScore}% Confidence
+              </span>
             </div>
-            <div>
-              <p className="text-[10px] text-white/50 uppercase tracking-wider mb-1">Total Nodes</p>
-              <div className="text-lg font-bold text-cyan-400 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-cyan-400"></span> {data.nodes.length}
+            <div className="text-sm leading-relaxed text-slate-200 mb-4 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+              {reasoningResult.answer}
+            </div>
+            {reasoningResult.relationshipPaths && reasoningResult.relationshipPaths.length > 0 && (
+              <div className="border-t border-white/10 pt-3">
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-1.5">Graph Traversal Paths</span>
+                <div className="space-y-1">
+                  {reasoningResult.relationshipPaths.map((pathStr: string, idx: number) => (
+                    <div key={idx} className="text-xs text-indigo-300 bg-indigo-950/40 border border-indigo-500/20 p-2 rounded flex items-center gap-2">
+                      <ArrowRight className="w-3 h-3 text-indigo-400 shrink-0" />
+                      <span>{pathStr}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-[10px] text-white/50 uppercase tracking-wider mb-1">Implementation</p>
-              <p className="text-lg font-bold text-blue-400 flex items-center gap-2">
-                <span className="text-sm bg-blue-400/20 px-1.5 py-0.5 rounded">👍</span> 57%
-              </p>
-            </div>
+            )}
           </div>
         </div>
-        
-        {/* Search/Chat Input */}
-        <div className="w-full glass-panel border border-white/20 bg-white/5 backdrop-blur-xl rounded-full p-2 flex items-center gap-3 shadow-2xl">
+      )}
+
+      {/* Bottom Command Bar */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-4xl px-6">
+        <div className="w-full glass-panel border border-white/20 bg-black/60 backdrop-blur-2xl rounded-full p-2 flex items-center gap-3 shadow-2xl">
           <div className="flex items-center gap-2 pl-4 pr-2 py-2 border-r border-white/10">
-            <Command className="w-4 h-4 text-white/50" />
-            <span className="text-sm font-medium text-white/80">AI Agent</span>
+            <Sparkles className="w-4 h-4 text-indigo-400" />
+            <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">Graph RAG</span>
           </div>
           <input 
             type="text" 
-            placeholder="Ask a question about the organization data..." 
+            value={queryInput}
+            onChange={(e) => setQueryInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleReasoningQuery()}
+            placeholder="Ask anything (e.g. Which vendor holds Contract X for Project Y?)..." 
             className="flex-1 bg-transparent border-none text-white outline-none placeholder:text-white/40 text-sm px-2"
           />
-          <button className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white hover:bg-primary/90 transition-colors shrink-0">
-            <Send className="w-4 h-4 ml-0.5" />
+          <button 
+            onClick={handleReasoningQuery}
+            disabled={isReasoning}
+            className="h-10 px-5 rounded-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium text-xs flex items-center gap-2 transition-colors shrink-0 shadow-lg"
+          >
+            {isReasoning ? <Sparkles className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            <span>{isReasoning ? 'Reasoning...' : 'Ask Memory Graph'}</span>
           </button>
         </div>
       </div>

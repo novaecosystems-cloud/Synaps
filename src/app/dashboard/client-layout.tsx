@@ -20,7 +20,8 @@ import {
   TrendingUp,
   Download,
   Menu,
-  X
+  X,
+  Network
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
@@ -49,6 +50,7 @@ type MenuItem = {
 
 const sidebarLinks: MenuItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Memory Graph', href: '/dashboard/graph', icon: Network },
   { name: 'AI Workspace', href: '/dashboard/workspace', icon: BrainCircuit },
   { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
   { 

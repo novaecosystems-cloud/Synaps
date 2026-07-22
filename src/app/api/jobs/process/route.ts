@@ -12,6 +12,7 @@ import { generateChunks } from '@/lib/chunking';
 
 import { verifySessionCookie } from '@/lib/auth-server';
 import { rawPrisma as prisma } from '@/lib/prisma';
+import { extractGraphFromDocument } from '@/lib/memory-graph';
 
 export async function GET(request: NextRequest) {
   // 1. Authenticate Request — allow CRON_SECRET or user session
@@ -234,6 +235,15 @@ export async function GET(request: NextRequest) {
           }
         });
       });
+
+      // Extract Memory Graph Entities and Relationships (Async/Non-blocking error handling)
+      if (doc.organizationId && extractedText.length > 50) {
+        try {
+          await extractGraphFromDocument(doc.id, extractedText, doc.organizationId);
+        } catch (graphErr) {
+          console.warn("Memory graph extraction non-fatal warning:", graphErr);
+        }
+      }
 
       return NextResponse.json({ success: true, message: `Processed job ${job.id}` }, { status: 200 });
 
