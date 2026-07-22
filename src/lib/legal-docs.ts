@@ -403,6 +403,64 @@ If you believe content hosted on Synaps infringes your copyright, send a written
 `
   },
 
+  'ip-infringement': {
+    slug: 'ip-infringement',
+    title: 'IP Infringement Policy',
+    category: 'Legal',
+    lastUpdated: 'July 22, 2026',
+    summary: 'Comprehensive policy governing copyright, trademark, patent, and trade secret infringement notices.',
+    tableOfContents: [
+      { id: 'ip-policy', title: '1. Intellectual Property Protection & Scope' },
+      { id: 'infringement-claims', title: '2. Submitting an IP Infringement Claim' },
+      { id: 'counter-notice', title: '3. Counter-Notification Procedure' },
+      { id: 'repeat-infringers', title: '4. Repeat Infringer Account Termination' },
+      { id: 'designated-agent', title: '5. Designated IP Agent Contact' }
+    ],
+    contentMd: `
+# Intellectual Property Infringement Policy
+
+**Effective Date:** July 22, 2026
+
+## 1. Intellectual Property Protection & Scope {#ip-policy}
+Synaps Inc ("Synaps") respects the intellectual property rights of third parties and expects all users, enterprise tenants, and API consumers of the Synaps Platform to do the same. This Policy covers claims of infringement involving **Copyrights, Trademarks, Patents, and Trade Secrets**.
+
+---
+
+## 2. Submitting an IP Infringement Claim {#infringement-claims}
+If you are an intellectual property rights owner or an authorized agent thereof and believe that any content, document, data, or output processed within Synaps infringes upon your IP rights, you may submit a formal Notice of Infringement to our designated IP Agent.
+
+Your notice MUST contain the following information:
+1. **Identification of the Protected Work:** Description of the copyrighted work, registered trademark, patent number, or trade secret claimed to be infringed.
+2. **Identification of the Infringement:** Exact location or URL of the material on Synaps claimed to be infringing.
+3. **Contact Details:** Your full legal name, company name, address, telephone number, and email address.
+4. **Good Faith Statement:** A statement that you have a good faith belief that use of the material is not authorized by the IP owner, its agent, or the law.
+5. **Perjury Statement:** A statement made under penalty of perjury that the information in the notification is accurate and that you are authorized to act on behalf of the IP owner.
+6. **Signature:** Physical or electronic signature of the IP owner or authorized representative.
+
+---
+
+## 3. Counter-Notification Procedure {#counter-notice}
+If an enterprise tenant or user receives a notice that content uploaded by them has been removed due to an IP claim, and believes the removal was due to mistake or misidentification, a Counter-Notification may be submitted to our IP Agent containing:
+* Identification of the material removed and its former location.
+* A statement under penalty of perjury that the user has a good faith belief that the material was removed or disabled as a result of mistake or misidentification.
+* Consent to jurisdiction in federal or national court.
+
+---
+
+## 4. Repeat Infringer Account Termination {#repeat-infringers}
+In accordance with applicable global IP laws, Synaps maintains a strict **Repeat Infringer Policy**. Accounts of enterprise tenants or individual users who repeatedly infringe upon third-party intellectual property rights will be subject to immediate account suspension or permanent termination.
+
+---
+
+## 5. Designated IP Agent Contact {#designated-agent}
+All IP Infringement notices and counter-notifications should be sent to our designated IP Enforcement Agent:
+
+* **Email:** ip@synaps.ai or legal@synaps.ai
+* **Attn:** Designated Intellectual Property & DMCA Compliance Officer
+* **Postal Address:** Synaps Inc, Corporate Legal Dept, Suite 800, Tech Tower, Delaware, USA.
+`
+  },
+
   contact: {
     slug: 'contact',
     title: 'Contact Us',
