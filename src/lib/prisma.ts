@@ -102,11 +102,6 @@ const createExtendedClient = () => rawPrisma.$extends({
 
 type ExtendedPrismaClient = ReturnType<typeof createExtendedClient>;
 
-const globalForPrisma = global as unknown as { 
-  prisma: ExtendedPrismaClient,
-  rawPrisma: PrismaClient
-};
-
 export const prisma = globalForPrisma.prisma || createExtendedClient();
 
 if (process.env.NODE_ENV !== 'production') {
