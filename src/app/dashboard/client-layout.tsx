@@ -26,7 +26,8 @@ import {
   GitBranch,
   Scale,
   Building2,
-  ShieldAlert
+  ShieldAlert,
+  Compass
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
@@ -56,6 +57,7 @@ type MenuItem = {
 const sidebarLinks: MenuItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Memory Graph', href: '/dashboard/graph', icon: Network },
+  { name: 'Strategy Studio', href: '/dashboard/strategy', icon: Compass },
   { name: 'Risk Center', href: '/dashboard/risk-center', icon: ShieldAlert },
   { name: 'Simulation Engine', href: '/dashboard/simulations', icon: Activity },
   { name: 'AI Boardroom', href: '/dashboard/boardroom', icon: Building2 },
