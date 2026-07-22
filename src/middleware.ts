@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
   if (path.startsWith('/legal') || path === '/' || path === '/index.html') {
     const res = NextResponse.next();
     res.headers.set('X-Content-Type-Options', 'nosniff');
-    res.headers.set('X-Frame-Options', 'DENY');
+    res.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     return res;
   }
 
@@ -33,7 +33,7 @@ export function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
   response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   return response;

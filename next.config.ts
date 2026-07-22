@@ -3,15 +3,11 @@ import type { NextConfig } from "next";
 const securityHeaders = [
   {
     key: "Content-Security-Policy",
-    value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' https: data:; connect-src 'self' https: wss:; frame-ancestors 'none';"
+    value: "default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: https://*.firebaseapp.com https://apis.google.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' https: data:; connect-src 'self' https: wss: https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://synaps-3d138.firebaseapp.com; frame-src 'self' https://synaps-3d138.firebaseapp.com https://*.firebaseapp.com https://accounts.google.com https://*.google.com; frame-ancestors 'self';"
   },
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload"
-  },
-  {
-    key: "X-Frame-Options",
-    value: "DENY"
   },
   {
     key: "X-Content-Type-Options",
@@ -26,8 +22,8 @@ const securityHeaders = [
     value: "camera=(), microphone=(), geolocation=(), interest-cohort=()"
   },
   {
-    key: "X-XSS-Protection",
-    value: "1; mode=block"
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin-allow-popups"
   }
 ];
 
