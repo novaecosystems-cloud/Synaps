@@ -25,8 +25,7 @@ import {
   Users,
   GitBranch,
   Scale,
-  Building2,
-  Activity
+  Building2
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
