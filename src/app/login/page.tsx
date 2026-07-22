@@ -62,13 +62,12 @@ export default function LoginPage() {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // ── Client-side email validation (runs before any network call) ──
     if (!email.trim()) {
       setEmailError('Email is required.');
       return;
     }
     if (!isValidEmail(email)) {
-      setEmailError('Please enter a valid email address (e.g. you@company.com).');
+      setEmailError('Please enter a valid email address.');
       return;
     }
     setEmailError('');
@@ -78,12 +77,18 @@ export default function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
       const token = await userCredential.user.getIdToken();
       
-      const syncResult = await syncUserAction(token);
-      if (syncResult.success) {
+      const res = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: token })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
         router.push('/dashboard');
       } else {
-        toast({ title: 'Error', description: syncResult.error, variant: 'destructive' });
+        toast({ title: 'Error', description: data.error || 'Authentication failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
       const msg = (error as any)?.code === 'auth/invalid-credential'
@@ -103,12 +108,18 @@ export default function LoginPage() {
       const userCredential = await signInWithPopup(auth, provider);
       const token = await userCredential.user.getIdToken();
       
-      const syncResult = await syncUserAction(token);
-      if (syncResult.success) {
+      const res = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: token })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
         router.push('/dashboard');
       } else {
-        toast({ title: 'Error', description: syncResult.error, variant: 'destructive' });
+        toast({ title: 'Error', description: data.error || 'Google sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
       const err = error as any;
@@ -131,12 +142,18 @@ export default function LoginPage() {
       const userCredential = await signInWithPopup(auth, provider);
       const token = await userCredential.user.getIdToken();
       
-      const syncResult = await syncUserAction(token);
-      if (syncResult.success) {
+      const res = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: token })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
         router.push('/dashboard');
       } else {
-        toast({ title: 'Error', description: syncResult.error, variant: 'destructive' });
+        toast({ title: 'Error', description: data.error || 'LinkedIn sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
       const err = error as any;

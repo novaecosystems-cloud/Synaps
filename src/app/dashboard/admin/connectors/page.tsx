@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Database, Globe, Github, Plus, RefreshCw } from "lucide-react";
+import { Database, Globe, GitBranch, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -29,7 +29,7 @@ export default function AdminConnectorsPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  {connector.type === "WEB_SCRAPER" ? <Globe className="w-5 h-5 text-blue-500" /> : <Github className="w-5 h-5 text-slate-700" />}
+                  {connector.type === "WEB_SCRAPER" ? <Globe className="w-5 h-5 text-blue-500" /> : <GitBranch className="w-5 h-5 text-slate-700" />}
                   {connector.name}
                 </CardTitle>
                 <div className={`px-2 py-1 rounded text-xs font-semibold ${connector.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>

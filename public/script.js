@@ -321,8 +321,24 @@ if (authForm) {
                 userCredential = await createUserWithEmailAndPassword(auth, email, password);
             }
 
-            showToast("Authenticated! Loading dashboard...");
-            window.location.href = '/dashboard';
+            const token = await userCredential.user.getIdToken();
+            const res = await fetch('/api/auth/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: token })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                showToast("Authenticated! Loading dashboard...");
+                window.location.href = '/dashboard';
+            } else {
+                showToast(data.error || 'Failed to initialize session.');
+                if (authSubmitBtn) {
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.textContent = isLoginMode ? "Sign In" : "Create Account";
+                }
+            }
         } catch (error) {
             console.error("Auth error:", error);
             const msg = getFriendlyAuthErrorMessage(error);
@@ -346,8 +362,24 @@ if (googleBtn) {
         const provider = new GoogleAuthProvider();
         try {
             const result = await signInWithPopup(auth, provider);
-            showToast("Google sign-in verified! Redirecting...");
-            window.location.href = '/dashboard';
+            const token = await result.user.getIdToken();
+
+            const res = await fetch('/api/auth/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: token })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                showToast("Google sign-in verified! Redirecting...");
+                window.location.href = '/dashboard';
+            } else {
+                showToast(data.error || 'Google sign-in failed.');
+                googleBtn.style.opacity = '1';
+                googleBtn.style.pointerEvents = 'auto';
+                googleBtn.innerHTML = originalText;
+            }
         } catch (error) {
             console.error("Google sign-in error:", error);
             const msg = getFriendlyAuthErrorMessage(error);
@@ -370,8 +402,24 @@ if (linkedinBtn) {
         const provider = new OAuthProvider('linkedin.com');
         try {
             const result = await signInWithPopup(auth, provider);
-            showToast("LinkedIn sign-in verified! Redirecting...");
-            window.location.href = '/dashboard';
+            const token = await result.user.getIdToken();
+
+            const res = await fetch('/api/auth/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: token })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                showToast("LinkedIn sign-in verified! Redirecting...");
+                window.location.href = '/dashboard';
+            } else {
+                showToast(data.error || 'LinkedIn sign-in failed.');
+                linkedinBtn.style.opacity = '1';
+                linkedinBtn.style.pointerEvents = 'auto';
+                linkedinBtn.innerHTML = originalText;
+            }
         } catch (error) {
             console.error("LinkedIn sign-in error:", error);
             const msg = getFriendlyAuthErrorMessage(error);

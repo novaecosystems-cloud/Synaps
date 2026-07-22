@@ -25,12 +25,18 @@ export default function RegisterPage() {
       await updateProfile(userCredential.user, { displayName: name });
       const token = await userCredential.user.getIdToken(true);
       
-      const syncResult = await syncUserAction(token);
-      if (syncResult.success) {
+      const res = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: token })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Account created successfully.' });
         router.push('/dashboard');
       } else {
-        toast({ title: 'Error', description: syncResult.error, variant: 'destructive' });
+        toast({ title: 'Error', description: data.error || 'Account creation failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
       toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
@@ -47,15 +53,24 @@ export default function RegisterPage() {
       const userCredential = await signInWithPopup(auth, provider);
       const token = await userCredential.user.getIdToken();
       
-      const syncResult = await syncUserAction(token);
-      if (syncResult.success) {
+      const res = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: token })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
         router.push('/dashboard');
       } else {
-        toast({ title: 'Error', description: syncResult.error, variant: 'destructive' });
+        toast({ title: 'Error', description: data.error || 'Google sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+      const err = error as any;
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+        toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+      }
     } finally {
       setLoading(false);
     }
@@ -69,15 +84,24 @@ export default function RegisterPage() {
       const userCredential = await signInWithPopup(auth, provider);
       const token = await userCredential.user.getIdToken();
       
-      const syncResult = await syncUserAction(token);
-      if (syncResult.success) {
+      const res = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: token })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Account created successfully.' });
         router.push('/dashboard');
       } else {
-        toast({ title: 'Error', description: syncResult.error, variant: 'destructive' });
+        toast({ title: 'Error', description: data.error || 'LinkedIn sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+      const err = error as any;
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+        toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+      }
     } finally {
       setLoading(false);
     }
