@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateEmbedding, generateChatResponse } from '@/lib/embeddings';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
+import { ratelimit } from '@/lib/ratelimit';
 
 // Bypass local SSL inspection/proxy issues causing fetch failed
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -13,7 +14,7 @@ import prisma from '@/lib/prisma';
 export async function POST(req: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('session')?.value;
+    const sessionCookie = cookieStore.get('synaps-session')?.value;
     if (!sessionCookie) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
     const decoded = await verifySessionCookie(sessionCookie);
@@ -21,6 +22,20 @@ export async function POST(req: NextRequest) {
 
     const organizationId = decoded.organizationId;
     if (!organizationId) return NextResponse.json({ success: false, error: 'User must belong to an organization' }, { status: 403 });
+
+    // Rate Limiting
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const { success, limit, reset, remaining } = await ratelimit.limit(`chat_${decoded.uid}_${ip}`);
+    if (!success) {
+      return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': limit.toString(),
+          'X-RateLimit-Remaining': remaining.toString(),
+          'X-RateLimit-Reset': reset.toString()
+        }
+      });
+    }
 
     const { messages } = await req.json();
 

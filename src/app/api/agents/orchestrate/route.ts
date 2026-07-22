@@ -2,6 +2,9 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { ratelimit } from '@/lib/ratelimit';
+import { cookies } from 'next/headers';
+import { verifySessionCookie } from '@/lib/auth-server';
 
 const AGENTS = [
   { id: 'doc_analyst', name: 'Document Analyst', action: 'Analyzing raw document structure...' },
@@ -15,6 +18,31 @@ const AGENTS = [
 export async function POST(req: NextRequest) {
   const { documentId, mode = 'detailed' } = await req.json();
   if (!documentId) return NextResponse.json({ error: 'Missing documentId' }, { status: 400 });
+
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('synaps-session')?.value;
+    if (!sessionCookie) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
+    const decoded = await verifySessionCookie(sessionCookie);
+    if (!decoded) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
+    // Rate Limiting
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const { success, limit, reset, remaining } = await ratelimit.limit(`orchestrate_${decoded.uid}_${ip}`);
+    if (!success) {
+      return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': limit.toString(),
+          'X-RateLimit-Remaining': remaining.toString(),
+          'X-RateLimit-Reset': reset.toString()
+        }
+      });
+    }
+  } catch (error) {
+    return NextResponse.json({ success: false, error: 'Authorization error' }, { status: 401 });
+  }
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
