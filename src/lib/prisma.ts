@@ -3,9 +3,18 @@ import { cookies } from 'next/headers';
 import { verifySessionCookie } from './auth-server';
 
 
-const rawPrisma = new PrismaClient({
+const globalForPrisma = globalThis as unknown as { 
+  prisma?: ExtendedPrismaClient;
+  rawPrisma?: PrismaClient;
+};
+
+const rawPrisma = globalForPrisma.rawPrisma || new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
 });
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.rawPrisma = rawPrisma;
+}
 
 export const getOrgId = async () => {
   try {
