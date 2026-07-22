@@ -19,7 +19,19 @@
     <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
 </head>
 <body>
-    <div id="smooth-wrapper">
+    <!-- Top Navigation Header -->
+    <header style="position: fixed; top: 0; left: 0; width: 100%; z-index: 100; backdrop-filter: blur(16px); background: rgba(3, 7, 18, 0.75); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="/" style="text-decoration: none; color: #6366f1; font-weight: 800; font-size: 20px; letter-spacing: 1.5px;">SYNAPS</a>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a5b4fc; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); padding: 3px 8px; border-radius: 9999px; font-weight: 600;">Enterprise OS</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <a href="/login" style="color: #e2e8f0; text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.05); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Sign In</a>
+            <button class="cta pulse-cta" style="font-size: 13px; font-weight: 700; padding: 8px 18px; border-radius: 10px; border: none; cursor: pointer;">Request Early Access</button>
+        </div>
+    </header>
+
+    <div id="smooth-wrapper" style="padding-top: 60px;">
         <div id="smooth-content">
             
             <!-- Frame 1 -->
