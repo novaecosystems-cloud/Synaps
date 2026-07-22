@@ -5,7 +5,7 @@ import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { generateUploadUrl, generateDownloadUrl, deleteFile } from '@/lib/storage';
 
-import prisma from '@/lib/prisma';
+import prisma, { rawPrisma } from '@/lib/prisma';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024; // 10GB
 const ALLOWED_MIME_TYPES = [
@@ -83,7 +83,7 @@ export async function confirmUpload(
   if (!user || user.organizationId !== organizationId) return { success: false, error: 'Unauthorized' };
 
   try {
-    const document = await prisma.$transaction(async (tx) => {
+    const document = await rawPrisma.$transaction(async (tx) => {
       // Create Document root
       const doc = await tx.document.create({
         data: {
@@ -101,6 +101,7 @@ export async function confirmUpload(
       const version = await tx.documentVersion.create({
         data: {
           documentId: doc.id,
+          organizationId,
           versionNum: 1,
           storagePath: gcsPath,
           originalName: name,
@@ -122,6 +123,7 @@ export async function confirmUpload(
       await tx.processingJob.create({
         data: {
           documentId: doc.id,
+          organizationId,
           status: 'PENDING',
           progress: 0
         }
@@ -131,9 +133,9 @@ export async function confirmUpload(
     });
 
     return { success: true, document };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error confirming upload:', error);
-    return { success: false, error: 'Failed to save document metadata.' };
+    return { success: false, error: 'Failed to save document metadata: ' + (error.message || String(error)) };
   }
 }
 
