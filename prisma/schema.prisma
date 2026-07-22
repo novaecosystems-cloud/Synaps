@@ -54,6 +54,8 @@ model Organization {
   modelSettings           ModelSetting[]
   graphEntities           GraphEntity[]
   graphRelationships      GraphRelationship[]
+  meetings                Meeting[]
+  timelineEvents          TimelineEvent[]
 }
 
 model User {
@@ -240,6 +242,8 @@ model Document {
   workspaceDocuments ProjectDocument[]
   graphEntities    GraphEntity[]
   graphRelationships GraphRelationship[]
+  meetings         Meeting[]
+  timelineEvents   TimelineEvent[]
 
   @@index([organizationId])
   @@index([projectId])
@@ -990,4 +994,69 @@ model GraphRelationship {
   @@index([sourceEntityId])
   @@index([targetEntityId])
   @@index([documentId])
+}
+
+model Meeting {
+  id             String        @id @default(uuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  documentId     String?
+  document       Document?     @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  title          String
+  date           DateTime      @default(now())
+  rawContent     String        @db.Text
+  transcript     String        @db.Text
+  summary        String        @db.Text
+  
+  speakers       Json          @default("[]") // Array of { name, role, wordCount }
+  decisions      Json          @default("[]") // Array of { decision, rationale }
+  actionItems    Json          @default("[]") // Array of { item, owner, deadline, priority }
+  risks          Json          @default("[]") // Array of { risk, impact, mitigation }
+  followUps      Json          @default("[]") // Array of { topic, owner }
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  timelineEvents TimelineEvent[]
+
+  @@index([organizationId])
+  @@index([documentId])
+}
+
+enum TimelineCategory {
+  HIRING
+  PROJECT
+  POLICY_CHANGE
+  MEETING
+  CONTRACT
+  CUSTOMER
+  DECISION
+  INCIDENT
+  PRODUCT_LAUNCH
+}
+
+model TimelineEvent {
+  id             String           @id @default(uuid())
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  commitHash     String           @default(uuid()) // Git-style commit identifier
+  title          String
+  description    String           @db.Text
+  category       TimelineCategory @default(MEETING)
+  eventDate      DateTime         @default(now())
+  metadata       Json?            @default("{}")
+
+  documentId     String?
+  document       Document?        @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  
+  meetingId      String?
+  meeting        Meeting?         @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+
+  createdAt      DateTime         @default(now())
+
+  @@index([organizationId])
+  @@index([category])
+  @@index([eventDate])
+  @@index([commitHash])
 }
