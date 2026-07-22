@@ -25,7 +25,8 @@ import {
   Users,
   GitBranch,
   Scale,
-  Building2
+  Building2,
+  Activity
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
@@ -55,6 +56,7 @@ type MenuItem = {
 const sidebarLinks: MenuItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Memory Graph', href: '/dashboard/graph', icon: Network },
+  { name: 'Simulation Engine', href: '/dashboard/simulations', icon: Activity },
   { name: 'AI Boardroom', href: '/dashboard/boardroom', icon: Building2 },
   { name: 'Decision Memory', href: '/dashboard/decisions', icon: Scale },
   { name: 'Meetings', href: '/dashboard/meetings', icon: Users },
