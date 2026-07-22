@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, OAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // 1. Initialize Lenis Smooth Scrolling
 const lenis = new Lenis({
@@ -99,7 +99,6 @@ gsap.to(".screen-overlay", {
 });
 
 // Frame 8: Color Grade Shift (Night to Morning)
-// Fade in the morning image over the night image smoothly as they scroll
 gsap.to("#frame8 .morning-bg", {
     opacity: 1, 
     ease: "power1.inOut",
@@ -123,14 +122,17 @@ const nameGroup = document.getElementById('nameGroup');
 const authSubmitBtn = document.getElementById('authSubmitBtn');
 const toggleText = document.getElementById('toggleText');
 const nameInput = document.getElementById('name');
+const authForm = document.getElementById('authForm');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
 
 let isLoginMode = true;
 
-// Open Modal
+// Open Modal on CTA click
 ctaButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
         if(modal) modal.classList.add('active');
-        // Disable Lenis scroll while modal is open
         if(typeof lenis !== 'undefined') lenis.stop();
     });
 });
@@ -138,7 +140,6 @@ ctaButtons.forEach(btn => {
 // Close Modal
 const closeModalFunc = () => {
     if(modal) modal.classList.remove('active');
-    // Re-enable Lenis scroll
     if(typeof lenis !== 'undefined') lenis.start();
 };
 if (closeBtn) closeBtn.addEventListener('click', closeModalFunc);
@@ -160,15 +161,15 @@ if (toggleAuthMode) {
             toggleText.innerHTML = `Don't have an account? <span class="toggle-link" id="toggleAuthMode">Request Access</span>`;
         } else {
             modalTitle.textContent = 'Request Access';
-            modalSubtitle.textContent = 'Join the waitlist for SYNAPS Early Access.';
+            modalSubtitle.textContent = 'Join SYNAPS Early Access.';
             nameGroup.style.display = 'block';
             nameInput.setAttribute('required', 'true');
-            authSubmitBtn.textContent = 'Submit Request';
+            authSubmitBtn.textContent = 'Create Account';
             toggleText.innerHTML = `Already have an account? <span class="toggle-link" id="toggleAuthMode">Sign In</span>`;
         }
         
-        // Re-bind the event listener to the newly created span
-        document.getElementById('toggleAuthMode').addEventListener('click', toggleMode);
+        const newToggle = document.getElementById('toggleAuthMode');
+        if (newToggle) newToggle.addEventListener('click', toggleMode);
     });
 }
 
@@ -184,7 +185,6 @@ const floatingElements = [
 ];
 
 document.addEventListener("click", function (event) {
-    // Don't spawn if clicking a button or link or inside modal
     if (event.target.closest('button, a, .auth-modal-content, .auth-modal-overlay')) return;
     
     const itemHTML = floatingElements[Math.floor(Math.random() * floatingElements.length)];
@@ -234,7 +234,7 @@ document.addEventListener("click", function (event) {
 });
 
 // -----------------------------------------------------------------------------
-// FIREBASE AUTHENTICATION
+// FIREBASE AUTHENTICATION (FAST SINGLE SIGN-IN)
 // -----------------------------------------------------------------------------
 const firebaseConfig = {
     apiKey: "AIzaSyAcRknk1UALIeqOnxwVVMHjEbuIsLWEjRM",
@@ -251,64 +251,117 @@ const auth = getAuth(app);
 const googleBtn = document.querySelector('.google-btn');
 const linkedinBtn = document.querySelector('.linkedin-btn');
 
-// Toast Notification Logic
 function showToast(message) {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:10000;display:flex;flex-direction:column;gap:8px;';
+        document.body.appendChild(container);
+    }
 
     const toast = document.createElement('div');
     toast.className = 'toast-message';
+    toast.style.cssText = 'background:#1e1b4b;color:#a5b4fc;padding:12px 20px;border-radius:12px;border:1px solid #4338ca;font-size:13px;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.5);opacity:0;transform:translateY(20px);';
     toast.textContent = message;
     container.appendChild(toast);
 
-    gsap.to(toast, {
-        opacity: 1,
-        y: 0,
-        duration: 0.3,
-        ease: 'power2.out'
-    });
+    gsap.to(toast, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
 
     setTimeout(() => {
         gsap.to(toast, {
-            opacity: 0,
-            y: 20,
-            duration: 0.3,
-            ease: 'power2.in',
-            onComplete: () => {
-                if(toast.parentNode) toast.parentNode.removeChild(toast);
-            }
+            opacity: 0, y: 20, duration: 0.3, ease: 'power2.in',
+            onComplete: () => { if(toast.parentNode) toast.parentNode.removeChild(toast); }
         });
     }, 4000);
 }
 
+// Handle Form Submission (Email / Password)
+if (authForm) {
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = emailInput?.value?.trim();
+        const password = passwordInput?.value;
+
+        if (!email || !password) {
+            showToast("Please enter your email and password.");
+            return;
+        }
+
+        if (authSubmitBtn) {
+            authSubmitBtn.disabled = true;
+            authSubmitBtn.textContent = isLoginMode ? "Signing In..." : "Creating Account...";
+        }
+
+        try {
+            let userCredential;
+            if (isLoginMode) {
+                userCredential = await signInWithEmailAndPassword(auth, email, password);
+            } else {
+                userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            }
+
+            showToast("Authenticated! Loading dashboard...");
+            window.location.href = '/dashboard';
+        } catch (error) {
+            console.error("Auth error:", error);
+            const msg = error.code === 'auth/invalid-credential' 
+                ? 'Incorrect email or password.' 
+                : error.message || 'Authentication failed.';
+            showToast(msg);
+            if (authSubmitBtn) {
+                authSubmitBtn.disabled = false;
+                authSubmitBtn.textContent = isLoginMode ? "Sign In" : "Create Account";
+            }
+        }
+    });
+}
+
+// Fast Google Sign-in
 if (googleBtn) {
-    googleBtn.addEventListener('click', async () => {
+    googleBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const originalText = googleBtn.innerHTML;
+        googleBtn.style.opacity = '0.7';
+        googleBtn.style.pointerEvents = 'none';
+
         const provider = new GoogleAuthProvider();
         try {
             const result = await signInWithPopup(auth, provider);
-            console.log("Google sign-in successful:", result.user);
+            showToast("Google sign-in verified! Redirecting...");
             window.location.href = '/dashboard';
         } catch (error) {
             console.error("Google sign-in error:", error);
-            showToast(error.message);
+            showToast(error.message || 'Google sign-in failed.');
+            googleBtn.style.opacity = '1';
+            googleBtn.style.pointerEvents = 'auto';
+            googleBtn.innerHTML = originalText;
         }
     });
 }
 
+// Fast LinkedIn Sign-in
 if (linkedinBtn) {
-    linkedinBtn.addEventListener('click', async () => {
+    linkedinBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const originalText = linkedinBtn.innerHTML;
+        linkedinBtn.style.opacity = '0.7';
+        linkedinBtn.style.pointerEvents = 'none';
+
         const provider = new OAuthProvider('linkedin.com');
         try {
             const result = await signInWithPopup(auth, provider);
-            console.log("LinkedIn sign-in successful:", result.user);
+            showToast("LinkedIn sign-in verified! Redirecting...");
             window.location.href = '/dashboard';
         } catch (error) {
             console.error("LinkedIn sign-in error:", error);
-            showToast(error.message);
+            showToast(error.message || 'LinkedIn sign-in failed.');
+            linkedinBtn.style.opacity = '1';
+            linkedinBtn.style.pointerEvents = 'auto';
+            linkedinBtn.innerHTML = originalText;
         }
     });
 }
-
 
 // -----------------------------------------------------------------------------
 // STACK SCROLL LOGIC
@@ -378,10 +431,7 @@ if (stackCards.length) {
     stackTl.to({}, { duration: 0.4 });
 }
 
-
-// -----------------------------------------------------------------------------
-// DEEP MOUSE PARALLAX (Mohitvirli Style)
-// -----------------------------------------------------------------------------
+// DEEP MOUSE PARALLAX
 const parallaxTargets = document.querySelectorAll(".ambient-particles, .data-rain, .comic-bubble, .alert-ui, .card");
 document.addEventListener("mousemove", (e) => {
     const x = (e.clientX / window.innerWidth - 0.5) * 20;
@@ -395,4 +445,3 @@ document.addEventListener("mousemove", (e) => {
         stagger: 0.05
     });
 });
-
