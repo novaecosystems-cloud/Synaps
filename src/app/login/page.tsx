@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, isSignInWithEmailLink, signInWithEmailLink, OAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, isSignInWithEmailLink, signInWithEmailLink, OAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { syncUserAction } from '@/app/actions/auth';
@@ -25,7 +25,31 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const handleEmailLinkSignIn = async () => {
+    const processRedirectAndEmailLink = async () => {
+      // 1. Process Google/LinkedIn redirect results
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          console.log('[AUTH] Captured OAuth redirect result for UID:', result.user.uid);
+          setLoading(true);
+          const token = await result.user.getIdToken();
+          const res = await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: token })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            toast({ title: 'Success', description: 'Logged in successfully.' });
+            window.location.href = '/dashboard';
+            return;
+          }
+        }
+      } catch (err: any) {
+        console.error('[AUTH] Redirect result error:', err);
+      }
+
+      // 2. Email link sign in
       if (isSignInWithEmailLink(auth, window.location.href)) {
         let savedEmail = window.localStorage.getItem('emailForSignIn');
         if (!savedEmail) {
@@ -43,7 +67,7 @@ export default function LoginPage() {
             
             if (syncResult.success) {
               toast({ title: 'Success', description: 'Joined successfully.' });
-              router.push('/dashboard');
+              window.location.href = '/dashboard';
             } else {
               toast({ title: 'Error', description: syncResult.error, variant: 'destructive' });
             }
@@ -56,7 +80,7 @@ export default function LoginPage() {
       }
     };
     
-    handleEmailLinkSignIn();
+    processRedirectAndEmailLink();
   }, [router, toast]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -110,12 +134,11 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     console.log('[AUTH] Google OAuth started');
+    const provider = new GoogleAuthProvider();
     try {
-      const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       console.log('[AUTH] Google provider returned user:', userCredential.user.uid);
       const token = await userCredential.user.getIdToken();
-      console.log('[AUTH] Received ID Token length:', token.length);
       
       const res = await fetch('/api/auth/session', {
         method: 'POST',
@@ -123,22 +146,27 @@ export default function LoginPage() {
         body: JSON.stringify({ idToken: token })
       });
       const data = await res.json();
-      console.log('[AUTH] Backend session response:', data);
 
       if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
-        console.log('[AUTH] Redirecting to /dashboard...');
         window.location.href = '/dashboard';
       } else {
         toast({ title: 'Error', description: data.error || 'Google sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
-      console.error('[AUTH] Google login error:', error);
       const err = error as any;
-      const msg = err?.code === 'auth/popup-blocked' 
-        ? 'Sign-in popup was blocked by browser. Please allow popups.' 
-        : err?.message || 'Authentication failed.';
-      toast({ title: 'Error', description: msg, variant: 'destructive' });
+      console.warn('[AUTH] Google popup error/cancel:', err?.code);
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        // Suppress raw error toast when user closes popup window cleanly
+        setLoading(false);
+        return;
+      }
+      if (err?.code === 'auth/popup-blocked') {
+        console.log('[AUTH] Popup blocked, triggering signInWithRedirect fallback...');
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+      toast({ title: 'Error', description: err?.message || 'Authentication failed.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -148,12 +176,11 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     console.log('[AUTH] LinkedIn OAuth started');
+    const provider = new OAuthProvider('linkedin.com');
     try {
-      const provider = new OAuthProvider('linkedin.com');
       const userCredential = await signInWithPopup(auth, provider);
       console.log('[AUTH] LinkedIn provider returned user:', userCredential.user.uid);
       const token = await userCredential.user.getIdToken();
-      console.log('[AUTH] Received ID Token length:', token.length);
       
       const res = await fetch('/api/auth/session', {
         method: 'POST',
@@ -161,22 +188,27 @@ export default function LoginPage() {
         body: JSON.stringify({ idToken: token })
       });
       const data = await res.json();
-      console.log('[AUTH] Backend session response:', data);
 
       if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
-        console.log('[AUTH] Redirecting to /dashboard...');
         window.location.href = '/dashboard';
       } else {
         toast({ title: 'Error', description: data.error || 'LinkedIn sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
-      console.error('[AUTH] LinkedIn login error:', error);
       const err = error as any;
-      const msg = err?.code === 'auth/popup-blocked' 
-        ? 'Sign-in popup was blocked by browser. Please allow popups.' 
-        : err?.message || 'Authentication failed.';
-      toast({ title: 'Error', description: msg, variant: 'destructive' });
+      console.warn('[AUTH] LinkedIn popup error/cancel:', err?.code);
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        // Suppress raw error toast when user closes popup window cleanly
+        setLoading(false);
+        return;
+      }
+      if (err?.code === 'auth/popup-blocked') {
+        console.log('[AUTH] Popup blocked, triggering signInWithRedirect fallback...');
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+      toast({ title: 'Error', description: err?.message || 'Authentication failed.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }

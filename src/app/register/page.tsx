@@ -78,9 +78,11 @@ export default function RegisterPage() {
         toast({ title: 'Error', description: data.error || 'Google sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
-      console.error('[AUTH] Google register error:', error);
+      console.warn('[AUTH] Google register error:', error);
       const err = error as any;
-      toast({ title: 'Error', description: err?.message || 'Authentication failed', variant: 'destructive' });
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+        toast({ title: 'Error', description: err?.message || 'Authentication failed', variant: 'destructive' });
+      }
     } finally {
       setLoading(false);
     }
@@ -113,9 +115,11 @@ export default function RegisterPage() {
         toast({ title: 'Error', description: data.error || 'LinkedIn sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
-      console.error('[AUTH] LinkedIn register error:', error);
+      console.warn('[AUTH] LinkedIn register error:', error);
       const err = error as any;
-      toast({ title: 'Error', description: err?.message || 'Authentication failed', variant: 'destructive' });
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+        toast({ title: 'Error', description: err?.message || 'Authentication failed', variant: 'destructive' });
+      }
     } finally {
       setLoading(false);
     }
