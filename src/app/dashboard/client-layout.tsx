@@ -57,6 +57,7 @@ type MenuItem = {
 const sidebarLinks: MenuItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Memory Graph', href: '/dashboard/graph', icon: Network },
+  { name: 'Enterprise Assistant', href: '/dashboard/assistant', icon: BrainCircuit },
   { name: 'Strategy Studio', href: '/dashboard/strategy', icon: Compass },
   { name: 'Risk Center', href: '/dashboard/risk-center', icon: ShieldAlert },
   { name: 'Simulation Engine', href: '/dashboard/simulations', icon: Activity },
