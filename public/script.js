@@ -276,6 +276,26 @@ function showToast(message) {
     }, 4000);
 }
 
+function getFriendlyAuthErrorMessage(error) {
+    const code = error?.code || '';
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+        return null; // Silently suppress when user closes popup window
+    }
+    if (code === 'auth/popup-blocked') {
+        return 'Sign-in popup was blocked by your browser. Please enable popups.';
+    }
+    if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+        return 'Incorrect email or password.';
+    }
+    if (code === 'auth/email-already-in-use') {
+        return 'An account with this email already exists. Please sign in instead.';
+    }
+    if (code === 'auth/network-request-failed') {
+        return 'Network connection error. Please try again.';
+    }
+    return error?.message || 'Authentication failed. Please try again.';
+}
+
 // Handle Form Submission (Email / Password)
 if (authForm) {
     authForm.addEventListener('submit', async (e) => {
@@ -305,10 +325,8 @@ if (authForm) {
             window.location.href = '/dashboard';
         } catch (error) {
             console.error("Auth error:", error);
-            const msg = error.code === 'auth/invalid-credential' 
-                ? 'Incorrect email or password.' 
-                : error.message || 'Authentication failed.';
-            showToast(msg);
+            const msg = getFriendlyAuthErrorMessage(error);
+            if (msg) showToast(msg);
             if (authSubmitBtn) {
                 authSubmitBtn.disabled = false;
                 authSubmitBtn.textContent = isLoginMode ? "Sign In" : "Create Account";
@@ -332,7 +350,8 @@ if (googleBtn) {
             window.location.href = '/dashboard';
         } catch (error) {
             console.error("Google sign-in error:", error);
-            showToast(error.message || 'Google sign-in failed.');
+            const msg = getFriendlyAuthErrorMessage(error);
+            if (msg) showToast(msg);
             googleBtn.style.opacity = '1';
             googleBtn.style.pointerEvents = 'auto';
             googleBtn.innerHTML = originalText;
@@ -355,7 +374,8 @@ if (linkedinBtn) {
             window.location.href = '/dashboard';
         } catch (error) {
             console.error("LinkedIn sign-in error:", error);
-            showToast(error.message || 'LinkedIn sign-in failed.');
+            const msg = getFriendlyAuthErrorMessage(error);
+            if (msg) showToast(msg);
             linkedinBtn.style.opacity = '1';
             linkedinBtn.style.pointerEvents = 'auto';
             linkedinBtn.innerHTML = originalText;

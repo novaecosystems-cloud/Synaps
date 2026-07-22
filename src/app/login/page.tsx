@@ -111,7 +111,13 @@ export default function LoginPage() {
         toast({ title: 'Error', description: syncResult.error, variant: 'destructive' });
       }
     } catch (error: unknown) {
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+      const err = error as any;
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+        const msg = err?.code === 'auth/popup-blocked' 
+          ? 'Sign-in popup was blocked by browser. Please allow popups.' 
+          : err?.message || 'Authentication failed.';
+        toast({ title: 'Error', description: msg, variant: 'destructive' });
+      }
     } finally {
       setLoading(false);
     }
@@ -133,7 +139,13 @@ export default function LoginPage() {
         toast({ title: 'Error', description: syncResult.error, variant: 'destructive' });
       }
     } catch (error: unknown) {
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+      const err = error as any;
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+        const msg = err?.code === 'auth/popup-blocked' 
+          ? 'Sign-in popup was blocked by browser. Please allow popups.' 
+          : err?.message || 'Authentication failed.';
+        toast({ title: 'Error', description: msg, variant: 'destructive' });
+      }
     } finally {
       setLoading(false);
     }
