@@ -73,9 +73,12 @@ export default function LoginPage() {
     setEmailError('');
 
     setLoading(true);
+    console.log('[AUTH] Email login started for:', email);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
+      console.log('[AUTH] Firebase auth returned user:', userCredential.user.uid);
       const token = await userCredential.user.getIdToken();
+      console.log('[AUTH] Received ID token length:', token.length);
       
       const res = await fetch('/api/auth/session', {
         method: 'POST',
@@ -83,14 +86,17 @@ export default function LoginPage() {
         body: JSON.stringify({ idToken: token })
       });
       const data = await res.json();
+      console.log('[AUTH] Backend session response:', data);
 
       if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
-        router.push('/dashboard');
+        console.log('[AUTH] Redirecting to /dashboard...');
+        window.location.href = '/dashboard';
       } else {
         toast({ title: 'Error', description: data.error || 'Authentication failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
+      console.error('[AUTH] Email login error:', error);
       const msg = (error as any)?.code === 'auth/invalid-credential'
         ? 'Incorrect email or password.'
         : (error as Error).message;
@@ -103,10 +109,13 @@ export default function LoginPage() {
   const handleGoogleLogin = async (e: React.MouseEvent) => {
     e.preventDefault();
     setLoading(true);
+    console.log('[AUTH] Google OAuth started');
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
+      console.log('[AUTH] Google provider returned user:', userCredential.user.uid);
       const token = await userCredential.user.getIdToken();
+      console.log('[AUTH] Received ID Token length:', token.length);
       
       const res = await fetch('/api/auth/session', {
         method: 'POST',
@@ -114,21 +123,22 @@ export default function LoginPage() {
         body: JSON.stringify({ idToken: token })
       });
       const data = await res.json();
+      console.log('[AUTH] Backend session response:', data);
 
       if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
-        router.push('/dashboard');
+        console.log('[AUTH] Redirecting to /dashboard...');
+        window.location.href = '/dashboard';
       } else {
         toast({ title: 'Error', description: data.error || 'Google sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
+      console.error('[AUTH] Google login error:', error);
       const err = error as any;
-      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
-        const msg = err?.code === 'auth/popup-blocked' 
-          ? 'Sign-in popup was blocked by browser. Please allow popups.' 
-          : err?.message || 'Authentication failed.';
-        toast({ title: 'Error', description: msg, variant: 'destructive' });
-      }
+      const msg = err?.code === 'auth/popup-blocked' 
+        ? 'Sign-in popup was blocked by browser. Please allow popups.' 
+        : err?.message || 'Authentication failed.';
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -137,10 +147,13 @@ export default function LoginPage() {
   const handleLinkedInLogin = async (e: React.MouseEvent) => {
     e.preventDefault();
     setLoading(true);
+    console.log('[AUTH] LinkedIn OAuth started');
     try {
       const provider = new OAuthProvider('linkedin.com');
       const userCredential = await signInWithPopup(auth, provider);
+      console.log('[AUTH] LinkedIn provider returned user:', userCredential.user.uid);
       const token = await userCredential.user.getIdToken();
+      console.log('[AUTH] Received ID Token length:', token.length);
       
       const res = await fetch('/api/auth/session', {
         method: 'POST',
@@ -148,21 +161,22 @@ export default function LoginPage() {
         body: JSON.stringify({ idToken: token })
       });
       const data = await res.json();
+      console.log('[AUTH] Backend session response:', data);
 
       if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
-        router.push('/dashboard');
+        console.log('[AUTH] Redirecting to /dashboard...');
+        window.location.href = '/dashboard';
       } else {
         toast({ title: 'Error', description: data.error || 'LinkedIn sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
+      console.error('[AUTH] LinkedIn login error:', error);
       const err = error as any;
-      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
-        const msg = err?.code === 'auth/popup-blocked' 
-          ? 'Sign-in popup was blocked by browser. Please allow popups.' 
-          : err?.message || 'Authentication failed.';
-        toast({ title: 'Error', description: msg, variant: 'destructive' });
-      }
+      const msg = err?.code === 'auth/popup-blocked' 
+        ? 'Sign-in popup was blocked by browser. Please allow popups.' 
+        : err?.message || 'Authentication failed.';
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setLoading(false);
     }

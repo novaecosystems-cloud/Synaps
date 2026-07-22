@@ -20,10 +20,13 @@ export default function RegisterPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    console.log('[AUTH] Registration started for:', email);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: name });
+      console.log('[AUTH] User created in Firebase:', userCredential.user.uid);
       const token = await userCredential.user.getIdToken(true);
+      console.log('[AUTH] Received ID Token length:', token.length);
       
       const res = await fetch('/api/auth/session', {
         method: 'POST',
@@ -31,14 +34,17 @@ export default function RegisterPage() {
         body: JSON.stringify({ idToken: token })
       });
       const data = await res.json();
+      console.log('[AUTH] Backend session response:', data);
 
       if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Account created successfully.' });
-        router.push('/dashboard');
+        console.log('[AUTH] Redirecting to /dashboard...');
+        window.location.href = '/dashboard';
       } else {
         toast({ title: 'Error', description: data.error || 'Account creation failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
+      console.error('[AUTH] Registration error:', error);
       toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
     } finally {
       setLoading(false);
@@ -48,10 +54,13 @@ export default function RegisterPage() {
   const handleGoogleLogin = async (e: React.MouseEvent) => {
     e.preventDefault();
     setLoading(true);
+    console.log('[AUTH] Google OAuth started from register');
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
+      console.log('[AUTH] Google returned user:', userCredential.user.uid);
       const token = await userCredential.user.getIdToken();
+      console.log('[AUTH] Received ID Token length:', token.length);
       
       const res = await fetch('/api/auth/session', {
         method: 'POST',
@@ -59,18 +68,19 @@ export default function RegisterPage() {
         body: JSON.stringify({ idToken: token })
       });
       const data = await res.json();
+      console.log('[AUTH] Backend session response:', data);
 
       if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Logged in successfully.' });
-        router.push('/dashboard');
+        console.log('[AUTH] Redirecting to /dashboard...');
+        window.location.href = '/dashboard';
       } else {
         toast({ title: 'Error', description: data.error || 'Google sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
+      console.error('[AUTH] Google register error:', error);
       const err = error as any;
-      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
-        toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
-      }
+      toast({ title: 'Error', description: err?.message || 'Authentication failed', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -79,10 +89,13 @@ export default function RegisterPage() {
   const handleLinkedInLogin = async (e: React.MouseEvent) => {
     e.preventDefault();
     setLoading(true);
+    console.log('[AUTH] LinkedIn OAuth started from register');
     try {
       const provider = new OAuthProvider('linkedin.com');
       const userCredential = await signInWithPopup(auth, provider);
+      console.log('[AUTH] LinkedIn returned user:', userCredential.user.uid);
       const token = await userCredential.user.getIdToken();
+      console.log('[AUTH] Received ID Token length:', token.length);
       
       const res = await fetch('/api/auth/session', {
         method: 'POST',
@@ -90,18 +103,19 @@ export default function RegisterPage() {
         body: JSON.stringify({ idToken: token })
       });
       const data = await res.json();
+      console.log('[AUTH] Backend session response:', data);
 
       if (res.ok && data.success) {
         toast({ title: 'Success', description: 'Account created successfully.' });
-        router.push('/dashboard');
+        console.log('[AUTH] Redirecting to /dashboard...');
+        window.location.href = '/dashboard';
       } else {
         toast({ title: 'Error', description: data.error || 'LinkedIn sign-in failed', variant: 'destructive' });
       }
     } catch (error: unknown) {
+      console.error('[AUTH] LinkedIn register error:', error);
       const err = error as any;
-      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
-        toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
-      }
+      toast({ title: 'Error', description: err?.message || 'Authentication failed', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
