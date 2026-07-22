@@ -92,7 +92,7 @@ Synaps partners with SOC2 and ISO27001 certified sub-processors to deliver core 
 ## 7. Contacting Our Data Protection Officer (DPO) {#contact-dpo}
 If you have questions regarding this Privacy Policy or wish to exercise your statutory rights, please contact our Data Protection Officer:
 
-* **Email:** \`dpo@synaps.ai\` or \`privacy@synaps.ai\`
+* **Email:** dpo@synaps.ai or privacy@synaps.ai
 * **Postal Address:** Synaps Inc., Attn: Data Protection Officer, Enterprise Legal Dept, D-Block Corporate Tower, India / International Offices.
 `
   },
@@ -161,7 +161,7 @@ To the maximum extent permitted by applicable law:
 ## 7. Governing Law & Dispute Resolution {#governing-law}
 These Terms shall be governed by and construed in accordance with the laws of Delaware, USA (or applicable corporate jurisdiction), without regard to conflict of law principles. Any dispute arising out of these Terms shall be resolved via binding arbitration.
 
-**Contact:** Legal queries should be submitted to \`legal@synaps.ai\`.
+**Contact:** Legal queries should be submitted to legal@synaps.ai.
 `
   },
 
@@ -204,7 +204,7 @@ When interacting with Synaps AI Agents, Executive Boardroom models, or Digital T
 ## 4. Monitoring & Enforcement {#enforcement}
 Synaps automatically monitors application telemetry for security threats. Violations may result in temporary account suspension or permanent termination without refund.
 
-Report abuse to: \`abuse@synaps.ai\`.
+Report abuse to: abuse@synaps.ai.
 `
   },
 
@@ -230,16 +230,16 @@ Cookies are small text files stored on your device when visiting websites. Synap
 ---
 
 ## 2. Cookies We Deploy {#cookies-we-use}
-* **\`synaps-session\` (Strictly Necessary):** Encrypted Firebase session cookie used to authenticate enterprise users and enforce HttpOnly, SameSite=Lax security.
-* **\`synaps-csrf\` (Security):** Double-submit CSRF protection token for API state modifications.
-* **\`synaps-theme\` (Functional):** Remembers dark mode vs light mode theme selection.
+* **synaps-session (Strictly Necessary):** Encrypted Firebase session cookie used to authenticate enterprise users and enforce HttpOnly, SameSite=Lax security.
+* **synaps-csrf (Security):** Double-submit CSRF protection token for API state modifications.
+* **synaps-theme (Functional):** Remembers dark mode vs light mode theme selection.
 
 **No Third-Party Advertising Cookies:** Synaps does NOT deploy ad-tracking or cross-site commercial cookies.
 
 ---
 
 ## 3. Managing Your Preferences {#managing-cookies}
-You can block or clear cookies via your browser settings. However, disabling essential session cookies will prevent login access to `/dashboard`.
+You can block or clear cookies via your browser settings. However, disabling essential session cookies will prevent login access to dashboard.
 `
   },
 
@@ -281,7 +281,7 @@ Synaps implements zero-trust authorization. Access to enterprise organization da
 ## 4. Incident Response Plan {#incident-response}
 In the event of a confirmed security incident affecting customer data, Synaps will notify affected enterprise administrators within 72 hours in compliance with GDPR and global breach notification standards.
 
-Security Security Team Contact: \`security@synaps.ai\`.
+Security Team Contact: security@synaps.ai.
 `
   },
 
@@ -398,7 +398,7 @@ While Synaps employs state-of-the-art verification and graph grounding, business
 ## 2. DMCA Takedown Notice Procedure {#dmca}
 If you believe content hosted on Synaps infringes your copyright, send a written DMCA notice to our designated Copyright Agent:
 
-* **Email:** \`copyright@synaps.ai\`
+* **Email:** copyright@synaps.ai
 * **Required Info:** Description of copyrighted work, URL/location of infringing material, your contact details, and a statement under penalty of perjury.
 `
   },
@@ -419,11 +419,11 @@ If you believe content hosted on Synaps infringes your copyright, send a written
 We welcome your inquiries, feedback, and enterprise partnership requests.
 
 ## 1. Corporate Communications Directory {#directory}
-* **General Inquiries:** \`contact@synaps.ai\`
-* **Enterprise Sales:** \`sales@synaps.ai\`
-* **Legal & Privacy:** \`legal@synaps.ai\` / \`dpo@synaps.ai\`
-* **Security Reporting:** \`security@synaps.ai\`
-* **Customer Support:** \`support@synaps.ai\`
+* **General Inquiries:** contact@synaps.ai
+* **Enterprise Sales:** sales@synaps.ai
+* **Legal & Privacy:** legal@synaps.ai / dpo@synaps.ai
+* **Security Reporting:** security@synaps.ai
+* **Customer Support:** support@synaps.ai
 
 ---
 
@@ -450,8 +450,8 @@ We welcome your inquiries, feedback, and enterprise partnership requests.
 
 ## 1. Support Channels {#channels}
 Enterprise users access 24/7 priority support via:
-* In-app Assistant Console: \`/dashboard/assistant\`
-* Priority Ticket System: \`support@synaps.ai\`
+* In-app Assistant Console: /dashboard/assistant
+* Priority Ticket System: support@synaps.ai
 
 ---
 
@@ -487,7 +487,7 @@ Researchers agree to:
 ---
 
 ## 2. How to Report {#submission-guidelines}
-Send encrypted vulnerability reports to \`security@synaps.ai\`. Include:
+Send encrypted vulnerability reports to security@synaps.ai. Include:
 * Vulnerability type (e.g. CSRF, XSS, SSRF, Access Control).
 * Step-by-step proof of concept (PoC).
 * Affected API endpoint or URL.
