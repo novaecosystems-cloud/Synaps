@@ -477,20 +477,40 @@ model Decision {
   documentId     String?       @unique
   document       Document?     @relation(fields: [documentId], references: [id])
 
-  recommendation DecisionRecommendation
+  title          String        @default("Untitled Decision")
+  problem        String?       @db.Text
+  context        String?       @db.Text
+  peopleInvolved Json?         @default("[]") // Array of { name, role }
+  alternativesConsidered Json? @default("[]") // Array of { alternative, pros, cons }
+  risks          Json?         @default("[]") // Array of { risk, severity, mitigation }
+
+  recommendation DecisionRecommendation @default(GO)
   status         DecisionStatus         @default(DRAFT)
 
-  executiveSummary String @db.Text
-  businessImpact   String @db.Text
-  technicalRisk    String @db.Text
-  complianceRisk   String @db.Text
-  timelineRisk     String @db.Text
-  financialRisk    String @db.Text
+  executiveSummary String? @db.Text
+  businessImpact   String? @db.Text
+  technicalRisk    String? @db.Text
+  complianceRisk   String? @db.Text
+  timelineRisk     String? @db.Text
+  financialRisk    String? @db.Text
+
+  expectedOutcome  String? @db.Text
+  actualOutcome    String? @db.Text
+  lessonsLearned   String? @db.Text
+
+  // AI Decision Review Fields
+  logicEvaluation  String? @db.Text
+  missingInformation Json? @default("[]") // Array of strings
+  biasFlags        Json?   @default("[]") // Array of { bias, description }
+  financialImpact  String? @db.Text
+  operationalImpact String? @db.Text
+  complianceIssues Json?   @default("[]") // Array of strings
+  similarDecisionIds String[] @default([])
 
   confidence                Int    @default(0)
-  supportingEvidence        String @db.Text
-  counterarguments          String @db.Text
-  alternativeRecommendation String @db.Text
+  supportingEvidence        String? @db.Text
+  counterarguments          String? @db.Text
+  alternativeRecommendation String? @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
