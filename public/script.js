@@ -254,6 +254,32 @@ const auth = getAuth(app);
 
 const googleBtn = document.querySelector('.google-btn');
 const linkedinBtn = document.querySelector('.linkedin-btn');
+const demoBtn = document.getElementById('demoBtn') || document.querySelector('.demo-btn');
+
+if (demoBtn) {
+    demoBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        showToast("Launching Instant Demo Workspace...");
+        try {
+            const res = await fetch('/api/auth/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: 'TEST_TOKEN_demo_user_synaps' })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                showToast("Welcome to Synaps Enterprise! Redirecting to Dashboard...");
+                window.location.href = '/dashboard';
+            } else {
+                showToast("Failed to launch demo workspace.");
+            }
+        } catch (err) {
+            console.error("Demo login error:", err);
+            showToast("Demo sign-in error. Redirecting to dashboard...");
+            window.location.href = '/dashboard';
+        }
+    });
+}
 
 // Toast Notification Logic
 function showToast(message) {

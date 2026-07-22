@@ -235,6 +235,36 @@ export default function LoginPage() {
 
           <button 
             type="button" 
+            className="btn btn-accent w-full rounded-xl font-bold shadow-lg shadow-accent/20 text-accent-content mb-3" 
+            onClick={async () => {
+              setLoading(true);
+              try {
+                // Instant Demo session setup
+                const res = await fetch('/api/auth/session', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ idToken: 'TEST_TOKEN_demo_user_synaps' })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                  toast({ title: 'Welcome to Synaps', description: 'Signed in as Enterprise Admin.' });
+                  router.push('/dashboard');
+                } else {
+                  toast({ title: 'Error', description: 'Failed to launch demo.', variant: 'destructive' });
+                }
+              } catch (err: any) {
+                toast({ title: 'Error', description: err.message, variant: 'destructive' });
+              } finally {
+                setLoading(false);
+              }
+            }} 
+            disabled={loading}
+          >
+            ⚡ Instant Guest / Demo Sign In
+          </button>
+
+          <button 
+            type="button" 
             className="btn btn-outline w-full rounded-xl hover:bg-base-200 hover:text-base-content border-base-300 font-medium" 
             onClick={handleGoogleLogin} 
             disabled={loading}
