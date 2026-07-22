@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({ where: { id: decodedToken.uid } });
     if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    const { documentId } = await req.json();
+    const { documentId, mode = 'detailed' } = await req.json();
     if (!documentId) return NextResponse.json({ success: false, error: 'Document ID required' }, { status: 400 });
 
     const doc = await prisma.document.findUnique({ where: { id: documentId } });
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const decText = decision ? `Recommendation: ${decision.recommendation}\nSummary: ${decision.executiveSummary}` : '';
 
     // Generate sections via AI
-    const sectionsData = await generateProposalSections(documentId, reqText, gapsText, decText);
+    const sectionsData = await generateProposalSections(documentId, reqText, gapsText, decText, mode);
 
     // Upsert Proposal
     let proposal = await prisma.proposal.findUnique({ where: { documentId } });

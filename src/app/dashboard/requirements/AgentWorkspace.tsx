@@ -22,6 +22,7 @@ export default function AgentWorkspace({ documentId, onComplete }: { documentId:
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [mode, setMode] = useState<'concise' | 'detailed'>('detailed');
   
   const logsEndRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +44,7 @@ export default function AgentWorkspace({ documentId, onComplete }: { documentId:
     fetch('/api/agents/orchestrate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ documentId })
+      body: JSON.stringify({ documentId, mode })
     }).then(async response => {
       if (!response.body) throw new Error("No body");
       
@@ -119,13 +120,29 @@ export default function AgentWorkspace({ documentId, onComplete }: { documentId:
             <BrainCircuit className="w-5 h-5 text-indigo-500" /> 
             Agent Workspace
           </h2>
-          <p className="text-sm text-muted-foreground ml-7">Multi-Agent System Orchestrator</p>
+          <p className="text-sm text-muted-foreground ml-7">Multi-Agent System Orchestrator. <span className="text-indigo-500 font-medium">Runs in background — safe to navigate away.</span></p>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-col sm:flex-row gap-3 items-center">
+          <div className="flex bg-slate-100 p-1 rounded-md text-sm border border-slate-200">
+            <button 
+              onClick={() => setMode('concise')}
+              disabled={isRunning}
+              className={`px-3 py-1.5 rounded-sm transition-all duration-200 disabled:opacity-50 ${mode === 'concise' ? 'bg-white shadow-sm font-semibold text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Concise
+            </button>
+            <button 
+              onClick={() => setMode('detailed')}
+              disabled={isRunning}
+              className={`px-3 py-1.5 rounded-sm transition-all duration-200 disabled:opacity-50 ${mode === 'detailed' ? 'bg-white shadow-sm font-semibold text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Detailed
+            </button>
+          </div>
           <button 
              onClick={startOrchestration}
              disabled={isRunning}
-             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md transition-colors font-medium flex items-center gap-2"
+             className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md transition-colors font-medium flex items-center gap-2 shadow-sm"
            >
              {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : (isComplete ? <Sparkles className="w-4 h-4" /> : <Play className="w-4 h-4" />)}
              {isRunning ? 'Orchestrating...' : (isComplete ? 'Run Again' : 'Start Automated Pipeline')}

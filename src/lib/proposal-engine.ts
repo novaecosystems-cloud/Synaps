@@ -16,13 +16,14 @@ const DEFAULT_SECTIONS = [
   "Appendix"
 ];
 
-export async function generateProposalSections(documentId: string, requirementsText: string, gapsText: string, decisionText: string) {
+export async function generateProposalSections(documentId: string, requirementsText: string, gapsText: string, decisionText: string, mode: 'concise' | 'detailed' = 'detailed') {
   const sectionsData: any[] = [];
 
   for (let i = 0; i < DEFAULT_SECTIONS.length; i++) {
     const sectionTitle = DEFAULT_SECTIONS[i];
     const systemInstruction = `You are an expert Proposal Writer. Write the "${sectionTitle}" section for a business proposal responding to an RFP.
 Use professional, persuasive business language.
+${mode === 'concise' ? 'Keep your writing highly concise, short, and strictly accurate. Provide only the essential information without any fluff or filler.' : 'Provide long, detailed, and highly comprehensive explanations. Expand thoroughly on every aspect to create a deeply informative section.'}
 Format the output strictly in clean Markdown. Do NOT wrap the entire response in a markdown block, just output the raw markdown text.
 Base your writing heavily on the provided Requirements, Gap Analysis, and Final Decision Context.
 Cite specific requirements or evidence where appropriate.

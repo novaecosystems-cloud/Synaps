@@ -13,15 +13,19 @@ const AGENTS = [
 ];
 
 export async function POST(req: NextRequest) {
-  const { documentId } = await req.json();
+  const { documentId, mode = 'detailed' } = await req.json();
   if (!documentId) return NextResponse.json({ error: 'Missing documentId' }, { status: 400 });
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       const sendEvent = (type: string, agentId: string, message: string, data?: any) => {
-        const payload = JSON.stringify({ type, agentId, message, data, timestamp: new Date().toISOString() });
-        controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+        try {
+          const payload = JSON.stringify({ type, agentId, message, data, timestamp: new Date().toISOString() });
+          controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+        } catch (e) {
+          // Ignore errors if the client disconnects, allow background processing to continue
+        }
       };
 
       try {
@@ -128,7 +132,7 @@ export async function POST(req: NextRequest) {
             'Content-Type': 'application/json',
             'Cookie': req.headers.get('cookie') || ''
           },
-          body: JSON.stringify({ documentId })
+          body: JSON.stringify({ documentId, mode })
         }).then(r => r.json());
         if (!propRes.success) throw new Error(typeof propRes.error === 'object' ? JSON.stringify(propRes.error) : propRes.error);
         sendEvent('log', 'prop_writer', `Proposal drafted successfully with ${propRes.proposal?.sections?.length || 0} sections.`);
