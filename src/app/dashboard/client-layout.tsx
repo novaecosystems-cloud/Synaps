@@ -27,7 +27,8 @@ import {
   Scale,
   Building2,
   ShieldAlert,
-  Compass
+  Compass,
+  Cpu
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
@@ -56,6 +57,7 @@ type MenuItem = {
 
 const sidebarLinks: MenuItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Digital Twin OS', href: '/dashboard/digital-twin', icon: Cpu },
   { name: 'Memory Graph', href: '/dashboard/graph', icon: Network },
   { name: 'Enterprise Assistant', href: '/dashboard/assistant', icon: BrainCircuit },
   { name: 'Strategy Studio', href: '/dashboard/strategy', icon: Compass },
