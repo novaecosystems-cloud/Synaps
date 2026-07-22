@@ -56,6 +56,8 @@ model Organization {
   graphRelationships      GraphRelationship[]
   meetings                Meeting[]
   timelineEvents          TimelineEvent[]
+  enterpriseRisks         EnterpriseRisk[]
+  enterprisePredictions   EnterprisePrediction[]
 }
 
 model User {
@@ -244,6 +246,7 @@ model Document {
   graphRelationships GraphRelationship[]
   meetings         Meeting[]
   timelineEvents   TimelineEvent[]
+  enterpriseRisks  EnterpriseRisk[]
 
   @@index([organizationId])
   @@index([projectId])
@@ -1079,4 +1082,90 @@ model TimelineEvent {
   @@index([category])
   @@index([eventDate])
   @@index([commitHash])
+}
+
+enum RiskCategory {
+  MISSING_SIGNATURE
+  POLICY_CONFLICT
+  FINANCIAL_RISK
+  LEGAL_RISK
+  SECURITY_ISSUE
+  COMPLIANCE_VIOLATION
+  INCOMPLETE_SOP
+  DUPLICATE_PROCESS
+}
+
+enum RiskSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum RiskStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+}
+
+model EnterpriseRisk {
+  id                      String        @id @default(uuid())
+  organizationId          String
+  organization            Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  documentId              String?
+  document                Document?     @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  category                RiskCategory  @default(POLICY_CONFLICT)
+  severity                RiskSeverity  @default(MEDIUM)
+  title                   String
+  description             String        @db.Text
+  supportingEvidence      String        @db.Text
+  mitigationRecommendation String        @db.Text
+  status                  RiskStatus    @default(OPEN)
+
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  @@index([organizationId])
+  @@index([category])
+  @@index([severity])
+  @@index([status])
+}
+
+enum PredictionTarget {
+  CUSTOMER_CHURN
+  REVENUE_CHANGE
+  PROJECT_DELAY
+  BUDGET_OVERRUN
+  CONTRACT_EXPIRY
+  EMPLOYEE_ATTRITION
+  COMPLIANCE_FAILURE
+  KNOWLEDGE_GAP
+}
+
+enum PredictionTrend {
+  UP
+  DOWN
+  STABLE
+}
+
+model EnterprisePrediction {
+  id                 String           @id @default(uuid())
+  organizationId     String
+  organization       Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  targetMetric       PredictionTarget @default(CUSTOMER_CHURN)
+  predictedValue     String
+  trend              PredictionTrend  @default(STABLE)
+  confidenceScore    Float            @default(0.85)
+
+  explanation        String           @db.Text
+  supportingEvidence Json             @default("[]") // Array of evidence string citations
+
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([organizationId])
+  @@index([targetMetric])
 }
