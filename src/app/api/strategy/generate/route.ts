@@ -23,7 +23,12 @@ export async function POST(req: NextRequest) {
       });
     } catch (e) {}
 
-    const organizationId = dbUser?.organizationId || 'default_org';
+    // Daily AI Credit Limit Check
+    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1);
+    if (!creditCheck.success) {
+      return NextResponse.json({ success: false, error: creditCheck.error, creditCheck }, { status: 429 });
+    }
 
     const { objective } = await req.json();
     if (!objective) {

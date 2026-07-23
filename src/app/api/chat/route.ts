@@ -28,18 +28,12 @@ export async function POST(req: NextRequest) {
     const organizationId = dbUser?.organizationId;
     if (!organizationId) return NextResponse.json({ success: false, error: 'User must belong to an organization' }, { status: 403 });
 
-    // Rate Limiting
-    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
-    const { success, limit, reset, remaining } = await ratelimit.limit(`chat_${decoded.uid}_${ip}`);
-    if (!success) {
-      return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, {
-        status: 429,
-        headers: {
-          'X-RateLimit-Limit': limit.toString(),
-          'X-RateLimit-Remaining': remaining.toString(),
-          'X-RateLimit-Reset': reset.toString()
-        }
-      });
+    // Rate & Daily AI Credit Limiting
+    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1);
+
+    if (!creditCheck.success) {
+      return NextResponse.json({ success: false, error: creditCheck.error, creditCheck }, { status: 429 });
     }
 
     const { messages } = await req.json();

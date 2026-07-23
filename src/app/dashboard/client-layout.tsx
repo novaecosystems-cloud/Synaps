@@ -40,6 +40,7 @@ const OnboardingHints = dynamic(() => import('@/components/onboarding').then(mod
 const TourGuide = dynamic(() => import('@/components/TourGuide'), { ssr: false });
 const OrganizationModal = dynamic(() => import('@/components/OrganizationModal'), { ssr: false });
 const FirstTimeOnboarding = dynamic(() => import('@/components/FirstTimeOnboarding'), { ssr: false });
+const AiCreditBadge = dynamic(() => import('@/components/AiCreditBadge'), { ssr: false });
 
 type SubMenuItem = {
   name: string;
@@ -340,6 +341,7 @@ export default function ClientLayout({ children, user }: { children: React.React
 
           {/* Top Actions */}
           <div className="flex items-center gap-3">
+            <AiCreditBadge />
             <ThemeToggle />
             <NotificationDropdown userId={user?.id} organizationId={user?.organizationId} />
             
