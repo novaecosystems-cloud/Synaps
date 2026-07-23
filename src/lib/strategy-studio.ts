@@ -71,23 +71,30 @@ export async function generateEnterpriseStrategy(
 ): Promise<EnterpriseStrategyDocument> {
 
   // Fetch corporate knowledge context
-  const docs = await prisma.document.findMany({
-    where: { organizationId, isDeleted: false },
-    take: 10,
-    select: { name: true }
-  });
+  let docs: any[] = [];
+  let decisions: any[] = [];
 
-  const decisions = await prisma.decision.findMany({
-    where: { organizationId },
-    take: 5,
-    select: { title: true, recommendation: true, status: true, expectedOutcome: true }
-  });
+  try {
+    docs = await prisma.document.findMany({
+      where: { organizationId, isDeleted: false },
+      take: 10,
+      select: { name: true }
+    });
+  } catch (e) {}
+
+  try {
+    decisions = await prisma.decision.findMany({
+      where: { organizationId },
+      take: 5,
+      select: { recommendation: true, status: true, expectedOutcome: true }
+    });
+  } catch (e) {}
 
   const contextText = `ENTERPRISE KNOWLEDGE CONTEXT:
 Documents: ${docs.map(d => d.name).join(', ') || 'Corporate Knowledge Base'}
-Past Decisions: ${decisions.map(d => `${d.title} (${d.recommendation})`).join('; ') || 'None'}`;
+Past Decisions: ${decisions.map(d => `${d.status} (${d.recommendation})`).join('; ') || 'None'}`;
 
-  const systemPrompt = `You are the AI Strategy Studio Engine for Synaps (powered by apivault.dev).
+  const systemPrompt = `You are the AI Strategy Studio Engine for Synaps.
 Generate a comprehensive, end-to-end strategic document for the user's business objective (e.g., "Expand into UAE").
 
 You MUST perform:

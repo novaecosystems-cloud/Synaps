@@ -85,7 +85,7 @@ Synaps partners with SOC2 and ISO27001 certified sub-processors to deliver core 
 * **Cloud Infrastructure:** Google Cloud Platform (GCP) & AWS.
 * **Authentication:** Firebase Authentication (Google Cloud).
 * **Database & Vector Storage:** PostgreSQL (Prisma) & Supabase Storage.
-* **AI Routing Engines:** API Vault ('https://apivault.dev'), Groq, OpenRouter.
+* **AI Routing Engines:** Synaps AI Multi-Agent Engine, Groq, OpenRouter.
 
 ---
 

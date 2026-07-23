@@ -118,31 +118,40 @@ export async function simulateDigitalTwinImpact(
   organizationId: string
 ): Promise<DigitalTwinSimulationResult> {
 
-  // Fetch corporate knowledge to ground Digital Twin stress-test
-  const docs = await prisma.document.findMany({
-    where: { organizationId, isDeleted: false },
-    take: 8,
-    select: { name: true }
-  });
+  let docs: any[] = [];
+  let decisions: any[] = [];
+  let graphEntities: any[] = [];
 
-  const decisions = await prisma.decision.findMany({
-    where: { organizationId },
-    take: 5,
-    select: { title: true, recommendation: true, actualOutcome: true }
-  });
+  try {
+    docs = await prisma.document.findMany({
+      where: { organizationId, isDeleted: false },
+      take: 8,
+      select: { name: true }
+    });
+  } catch (e) {}
 
-  const graphEntities = await prisma.graphEntity.findMany({
-    where: { organizationId },
-    take: 12,
-    select: { name: true, type: true, description: true }
-  });
+  try {
+    decisions = await prisma.decision.findMany({
+      where: { organizationId },
+      take: 5,
+      select: { recommendation: true, actualOutcome: true }
+    });
+  } catch (e) {}
 
-  const contextText = `ENTERPRISE DIGITAL TWIN GRAPH CONTEXT:
-Documents: ${docs.map(d => d.name).join(', ') || 'Corporate Architecture'}
-Historical Decisions: ${decisions.map(d => `${d.title} (${d.recommendation})`).join('; ') || 'None'}
-Graph Nodes: ${graphEntities.map(g => `${g.name} [${g.type}]`).join(', ') || 'None'}`;
+  try {
+    graphEntities = await prisma.graphEntity.findMany({
+      where: { organizationId },
+      take: 12,
+      select: { name: true, type: true, description: true }
+    });
+  } catch (e) {}
 
-  const systemPrompt = `You are the Enterprise Digital Twin OS Engine for Synaps (powered by apivault.dev).
+  const contextText = `ENTERPRISE DIGITAL TWIN CONTEXT:
+Documents: ${docs.map(d => d.name).join(', ') || 'Corporate Knowledge Nodes'}
+Graph Entities: ${graphEntities.map(g => `${g.name} (${g.type})`).join(', ') || 'Enterprise Knowledge Graph'}
+Decisions: ${decisions.map(d => `${d.recommendation}`).join('; ') || 'Historical Executions'}`;
+
+  const systemPrompt = `You are the Enterprise Digital Twin OS Engine for Synaps.
 Simulate a major organizational disruption or strategic shock across the 15 system nodes:
 (Departments, Employees, Projects, Customers, Suppliers, Meetings, Policies, Contracts, Assets, Knowledge, Finance, Risks, Processes, Strategies, Decisions).
 
