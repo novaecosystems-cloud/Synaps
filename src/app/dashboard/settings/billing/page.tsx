@@ -3,30 +3,75 @@
 import React, { useState } from 'react';
 import { 
   Zap, ShieldCheck, Check, Sparkles, Building2, Crown, 
-  CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers
+  CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers, Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import PayPalCheckoutModal from '@/components/PayPalCheckoutModal';
 
+type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'INR';
+
+interface CurrencyConfig {
+  code: CurrencyCode;
+  symbol: string;
+  label: string;
+  rates: {
+    free: number;
+    proMonthly: number;
+    proYearly: number;
+    enterpriseMonthly: number;
+    enterpriseYearly: number;
+  };
+}
+
+const CURRENCIES: CurrencyConfig[] = [
+  {
+    code: 'USD',
+    symbol: '$',
+    label: 'USD ($)',
+    rates: { free: 0, proMonthly: 7, proYearly: 5, enterpriseMonthly: 20, enterpriseYearly: 16 }
+  },
+  {
+    code: 'EUR',
+    symbol: '€',
+    label: 'EUR (€)',
+    rates: { free: 0, proMonthly: 6.5, proYearly: 4.5, enterpriseMonthly: 18.5, enterpriseYearly: 15 }
+  },
+  {
+    code: 'GBP',
+    symbol: '£',
+    label: 'GBP (£)',
+    rates: { free: 0, proMonthly: 5.5, proYearly: 4, enterpriseMonthly: 16, enterpriseYearly: 13 }
+  },
+  {
+    code: 'INR',
+    symbol: '₹',
+    label: 'INR (₹)',
+    rates: { free: 0, proMonthly: 599, proYearly: 449, enterpriseMonthly: 1699, enterpriseYearly: 1399 }
+  }
+];
+
 export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState<string>('free');
-  const [activeModalPlan, setActiveModalPlan] = useState<{ name: string; price: number } | null>(null);
+  const [currency, setCurrency] = useState<CurrencyCode>('USD');
+  const [activePlanId, setActivePlanId] = useState<string>('free');
+  const [activeModalPlan, setActiveModalPlan] = useState<{ id: string; name: string; price: number } | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const activeCurrency = CURRENCIES.find(c => c.code === currency) || CURRENCIES[0];
 
   const plans = [
     {
       id: 'free',
       name: 'Starter',
-      priceMonthly: 0,
-      priceYearly: 0,
-      badge: 'Current Plan',
-      description: 'Ideal for small teams exploring AI document intelligence.',
+      priceMonthly: activeCurrency.rates.free,
+      priceYearly: activeCurrency.rates.free,
+      badge: 'Free Tier',
+      description: 'Ideal for testing AI document search and baseline queries.',
       icon: Zap,
       color: 'border-base-300',
       buttonVariant: 'outline' as const,
-      buttonText: 'Current Tier',
+      buttonText: 'Current Plan',
       features: [
         '50 AI Credits / Day',
         '1 Organization Workspace',
@@ -38,19 +83,19 @@ export default function BillingPage() {
     {
       id: 'pro',
       name: 'Pro Intelligence',
-      priceMonthly: 29,
-      priceYearly: 24,
+      priceMonthly: activeCurrency.rates.proMonthly,
+      priceYearly: activeCurrency.rates.proYearly,
       popular: true,
-      badge: 'Most Popular',
-      description: 'Full multi-agent suite for growing businesses & decision makers.',
+      badge: 'Best Value',
+      description: 'Full multi-agent suite & 10-Agent AI Boardroom.',
       icon: Sparkles,
       color: 'border-primary ring-2 ring-primary/30',
       buttonVariant: 'default' as const,
       buttonText: 'Upgrade with PayPal',
       features: [
-        '500 AI Credits / Day',
+        '500 AI Credits / Day (Immediate Upgrade)',
         'Collaborative 10-Agent AI Boardroom',
-        'AI Strategy Studio & SWOT Matrix',
+        'AI Strategy Studio & SWOT Blueprint',
         'Digital Twin OS (15 System Nodes)',
         '3D Corporate Memory Graph',
         'Priority LLM Processing'
@@ -58,17 +103,17 @@ export default function BillingPage() {
     },
     {
       id: 'enterprise',
-      name: 'Enterprise Unlimited',
-      priceMonthly: 99,
-      priceYearly: 79,
-      badge: 'Unlimited Power',
-      description: 'Dedicated multi-tenant infrastructure for large organizations.',
+      name: 'Enterprise Max',
+      priceMonthly: activeCurrency.rates.enterpriseMonthly,
+      priceYearly: activeCurrency.rates.enterpriseYearly,
+      badge: 'Max Limit ($20 Cap)',
+      description: 'Unlimited AI capabilities for power users & large teams.',
       icon: Crown,
       color: 'border-purple-500/40',
       buttonVariant: 'outline' as const,
       buttonText: 'Upgrade with PayPal',
       features: [
-        'Unlimited Daily AI Credits',
+        '10,000 AI Credits / Day (Unlimited)',
         'Custom Fine-Tuned AI Models',
         'Unlimited Organization Workspaces',
         'Audit Log Retention (Permanent)',
@@ -81,14 +126,16 @@ export default function BillingPage() {
   const handleOpenPayPal = (plan: typeof plans[0]) => {
     if (plan.id === 'free') return;
     const price = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
-    setActiveModalPlan({ name: plan.name, price });
+    setActiveModalPlan({ id: plan.id, name: plan.name, price });
   };
 
   const handlePaymentSuccess = () => {
     if (activeModalPlan) {
-      setSelectedPlan(activeModalPlan.name.toLowerCase());
+      setActivePlanId(activeModalPlan.id);
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 5000);
+      setTimeout(() => setShowSuccess(false), 6000);
+      // Trigger header credit badge refresh
+      window.dispatchEvent(new Event('focus'));
     }
   };
 
@@ -103,31 +150,51 @@ export default function BillingPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-base-content">Plans & Billing Management</h1>
-            <p className="text-xs text-base-content/60">Upgrade your organization's AI credit limits via PayPal Digital Wallet, Cards, or Crypto.</p>
+            <p className="text-xs text-base-content/60">Low affordable pricing ($7 & $20 Max). Immediate daily AI credit limit upgrades.</p>
           </div>
         </div>
 
-        {/* Monthly / Yearly Toggle */}
-        <div className="flex items-center gap-2 bg-base-200 p-1.5 rounded-2xl border border-base-300 text-xs font-bold">
-          <button
-            onClick={() => setBillingCycle('monthly')}
-            className={cn("px-4 py-1.5 rounded-xl transition-all", billingCycle === 'monthly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setBillingCycle('yearly')}
-            className={cn("px-4 py-1.5 rounded-xl transition-all flex items-center gap-1", billingCycle === 'yearly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
-          >
-            Yearly <span className="px-1.5 py-0.5 rounded-full bg-success/20 text-success text-[9px] font-extrabold">Save 20%</span>
-          </button>
+        {/* Currency & Billing Cycle Selectors */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Currency Selector */}
+          <div className="flex items-center gap-1.5 bg-base-200 px-3 py-1.5 rounded-2xl border border-base-300 text-xs font-bold">
+            <Globe className="w-3.5 h-3.5 text-primary" />
+            <select 
+              value={currency} 
+              onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
+              className="bg-transparent outline-none cursor-pointer font-bold text-base-content"
+            >
+              {CURRENCIES.map(c => (
+                <option key={c.code} value={c.code} className="bg-base-100">{c.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Monthly / Yearly Toggle */}
+          <div className="flex items-center gap-1 bg-base-200 p-1 rounded-2xl border border-base-300 text-xs font-bold">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={cn("px-3.5 py-1.5 rounded-xl transition-all", billingCycle === 'monthly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle('yearly')}
+              className={cn("px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1", billingCycle === 'yearly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
+            >
+              Yearly <span className="px-1.5 py-0.5 rounded-full bg-success/20 text-success text-[9px] font-extrabold">-20%</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {showSuccess && (
-        <div className="p-4 bg-success/10 border border-success/30 rounded-2xl text-success font-bold text-xs flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>Payment Verified via PayPal! Your subscription has been updated. AI credits unlocked instantly.</span>
+        <div className="p-5 bg-success/10 border border-success/30 rounded-2xl text-success font-bold text-xs flex items-center gap-3 shadow-md animate-bounce">
+          <CheckCircle2 className="w-6 h-6 shrink-0" />
+          <div>
+            <span className="text-sm block">Payment Verified & Limits Upgraded Immediately!</span>
+            <span className="text-[11px] font-normal text-success/80">Your daily AI credit limits and role permissions are now active across your entire workspace.</span>
+          </div>
         </div>
       )}
 
@@ -136,6 +203,7 @@ export default function BillingPage() {
         {plans.map((plan) => {
           const Icon = plan.icon;
           const price = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
+          const isCurrent = activePlanId === plan.id;
 
           return (
             <div
@@ -171,11 +239,11 @@ export default function BillingPage() {
                 {/* Price */}
                 <div className="py-2 border-y border-base-200">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-extrabold text-base-content">${price}</span>
-                    <span className="text-xs font-medium text-base-content/60">/ month</span>
+                    <span className="text-3xl font-extrabold text-base-content">{activeCurrency.symbol}{price}</span>
+                    <span className="text-xs font-medium text-base-content/60">/ month ({activeCurrency.code})</span>
                   </div>
                   {billingCycle === 'yearly' && price > 0 && (
-                    <span className="text-[10px] text-success font-bold">Billed annually (${price * 12}/yr)</span>
+                    <span className="text-[10px] text-success font-bold">Billed annually ({activeCurrency.symbol}{price * 12}/yr)</span>
                   )}
                 </div>
 
@@ -194,11 +262,11 @@ export default function BillingPage() {
               <div className="pt-6 mt-6 border-t border-base-200">
                 <Button
                   onClick={() => handleOpenPayPal(plan)}
-                  disabled={plan.id === 'free'}
+                  disabled={plan.id === 'free' || isCurrent}
                   variant={plan.buttonVariant}
                   className="w-full rounded-2xl gap-2 font-bold py-3"
                 >
-                  {plan.id === 'free' ? 'Current Tier' : plan.buttonText}
+                  {isCurrent ? 'Active Plan' : (plan.id === 'free' ? 'Current Tier' : plan.buttonText)}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -210,10 +278,10 @@ export default function BillingPage() {
       {/* Payment Options Banner */}
       <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-3">
         <h3 className="font-bold text-sm text-base-content flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-success" /> Integrated PayPal & Card Gateway
+          <ShieldCheck className="w-4 h-4 text-success" /> Instant PayPal Credit Limit Unlocks
         </h3>
         <p className="text-xs text-base-content/70">
-          All payments process via PayPal Checkout and deposit directly into your PayPal Digital Balance. No physical bank account is needed to accept payments.
+          When you pay via PayPal, your daily AI credit limit is immediately updated in real time. Currency rates convert dynamically for global users.
         </p>
       </div>
 
@@ -222,8 +290,11 @@ export default function BillingPage() {
         <PayPalCheckoutModal
           isOpen={!!activeModalPlan}
           onClose={() => setActiveModalPlan(null)}
+          planId={activeModalPlan.id}
           planName={activeModalPlan.name}
           amount={activeModalPlan.price}
+          currencySymbol={activeCurrency.symbol}
+          currencyCode={activeCurrency.code}
           onSuccess={handlePaymentSuccess}
         />
       )}
