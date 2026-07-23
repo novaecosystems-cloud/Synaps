@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: synaps
+    env: node
+    region: singapore
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=512"
+      - key: NODE_ENV
+        value: production
