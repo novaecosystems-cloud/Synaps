@@ -7,20 +7,14 @@ import {
   LayoutDashboard, 
   FolderKanban, 
   Settings, 
-  Search, 
-  Bell, 
   LogOut,
   ChevronRight,
   ChevronDown,
   Files,
-  Code,
   BrainCircuit,
-  ClipboardList,
   Activity,
   TrendingUp,
-  Download,
   Menu,
-  X,
   Network,
   Users,
   GitBranch,
@@ -28,14 +22,14 @@ import {
   Building2,
   ShieldAlert,
   Compass,
-  Cpu
+  Cpu,
+  Layers,
+  Sparkles
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
 import { logoutAction } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NotificationDropdown = dynamic(() => import('@/components/NotificationDropdown'), { ssr: false });
@@ -55,44 +49,86 @@ type MenuItem = {
   children?: SubMenuItem[];
 };
 
-const sidebarLinks: MenuItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Digital Twin OS', href: '/dashboard/digital-twin', icon: Cpu },
-  { name: 'Memory Graph', href: '/dashboard/graph', icon: Network },
-  { name: 'Enterprise Assistant', href: '/dashboard/assistant', icon: BrainCircuit },
-  { name: 'Strategy Studio', href: '/dashboard/strategy', icon: Compass },
-  { name: 'Risk Center', href: '/dashboard/risk-center', icon: ShieldAlert },
-  { name: 'Simulation Engine', href: '/dashboard/simulations', icon: Activity },
-  { name: 'AI Boardroom', href: '/dashboard/boardroom', icon: Building2 },
-  { name: 'Decision Memory', href: '/dashboard/decisions', icon: Scale },
-  { name: 'Meetings', href: '/dashboard/meetings', icon: Users },
-  { name: 'Org Timeline', href: '/dashboard/timeline', icon: GitBranch },
-  { name: 'AI Workspace', href: '/dashboard/workspace', icon: BrainCircuit },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
-  { 
-    name: 'Projects', 
-    icon: FolderKanban,
-    children: [
-      { name: 'All Projects', href: '/dashboard/projects' },
-      { name: 'Requirements', href: '/dashboard/requirements' },
+type MenuSection = {
+  title: string;
+  items: MenuItem[];
+};
+
+const sidebarSections: MenuSection[] = [
+  {
+    title: 'COMMAND CENTER',
+    items: [
+      { name: 'Executive Overview', href: '/dashboard', icon: LayoutDashboard },
     ]
   },
-  { 
-    name: 'Documents', 
-    icon: Files,
-    children: [
-      { name: 'Library', href: '/dashboard/documents' },
-      { name: 'Export History', href: '/dashboard/exports' },
+  {
+    title: 'AI & EXECUTIVE SUITE',
+    items: [
+      { 
+        name: 'AI Intelligence', 
+        icon: Sparkles,
+        children: [
+          { name: 'AI Boardroom', href: '/dashboard/boardroom' },
+          { name: 'Digital Twin OS', href: '/dashboard/digital-twin' },
+          { name: 'Strategy Studio', href: '/dashboard/strategy' },
+          { name: 'Enterprise Assistant', href: '/dashboard/assistant' },
+          { name: 'AI Workflows', href: '/dashboard/workspace' },
+        ]
+      },
     ]
   },
-  { 
-    name: 'System', 
-    icon: Settings,
-    children: [
-      { name: 'Developer', href: '/dashboard/developer' },
-      { name: 'Audit Logs', href: '/dashboard/audit' },
+  {
+    title: 'GOVERNANCE & RISK',
+    items: [
+      {
+        name: 'Risk & Decisions',
+        icon: ShieldAlert,
+        children: [
+          { name: 'Risk Center', href: '/dashboard/risk-center' },
+          { name: 'Decision Memory', href: '/dashboard/decisions' },
+          { name: 'Simulation Engine', href: '/dashboard/simulations' },
+          { name: 'Memory Graph', href: '/dashboard/graph' },
+        ]
+      }
     ]
   },
+  {
+    title: 'OPERATIONS',
+    items: [
+      { 
+        name: 'Projects & Tasks', 
+        icon: FolderKanban,
+        children: [
+          { name: 'All Projects', href: '/dashboard/projects' },
+          { name: 'Requirements Matrix', href: '/dashboard/requirements' },
+          { name: 'Meetings', href: '/dashboard/meetings' },
+          { name: 'Org Timeline', href: '/dashboard/timeline' },
+        ]
+      },
+      { 
+        name: 'Documents & Knowledge', 
+        icon: Files,
+        children: [
+          { name: 'Library', href: '/dashboard/documents' },
+          { name: 'Export History', href: '/dashboard/exports' },
+        ]
+      },
+      { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
+    ]
+  },
+  {
+    title: 'ADMINISTRATION',
+    items: [
+      { 
+        name: 'System Admin', 
+        icon: Settings,
+        children: [
+          { name: 'Developer & API', href: '/dashboard/developer' },
+          { name: 'Audit Logs', href: '/dashboard/audit' },
+        ]
+      },
+    ]
+  }
 ];
 
 function SidebarItem({ item, pathname, closeMobileMenu }: { item: MenuItem, pathname: string, closeMobileMenu: () => void }) {
@@ -148,7 +184,7 @@ function SidebarItem({ item, pathname, closeMobileMenu }: { item: MenuItem, path
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden before:bg-base-300"
+            className="overflow-hidden before:bg-base-300 pl-4 border-l border-base-300/40 my-1 space-y-1"
           >
             {item.children.map(child => {
               const childActive = pathname === child.href || pathname.startsWith(child.href);
@@ -202,7 +238,7 @@ export default function ClientLayout({ children, user }: { children: React.React
       )}>
         <div>
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-8 px-2 mt-2">
+          <div className="flex items-center gap-3 mb-6 px-2 mt-2">
             <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold aura-purple border border-primary/50">
               S
             </div>
@@ -212,30 +248,30 @@ export default function ClientLayout({ children, user }: { children: React.React
             </div>
           </div>
 
-          {/* Navigation */}
-          <div className="space-y-6">
-            <div>
-              <h3 className="mb-3 px-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/70">
-                Main
-              </h3>
-              <ul className="menu w-full px-0 space-y-1">
-                {sidebarLinks.map((item) => (
-                  <SidebarItem 
-                    key={item.name} 
-                    item={item} 
-                    pathname={pathname} 
-                    closeMobileMenu={() => setIsMobileMenuOpen(false)} 
-                  />
-                ))}
-              </ul>
-            </div>
+          {/* Navigation Sections */}
+          <div className="space-y-5">
+            {sidebarSections.map((section) => (
+              <div key={section.title}>
+                <h3 className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/60">
+                  {section.title}
+                </h3>
+                <ul className="menu w-full px-0 space-y-1">
+                  {section.items.map((item) => (
+                    <SidebarItem 
+                      key={item.name} 
+                      item={item} 
+                      pathname={pathname} 
+                      closeMobileMenu={() => setIsMobileMenuOpen(false)} 
+                    />
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="space-y-4 mt-8">
-          {/* Team Plan Widget Removed */}
-
+        <div className="space-y-4 mt-8 pt-4 border-t border-border/50">
           <div className="space-y-1">
             <Link
               href="/dashboard/settings"
@@ -263,7 +299,7 @@ export default function ClientLayout({ children, user }: { children: React.React
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden bg-muted/20 relative print:overflow-visible print:bg-white print:text-black">
-        {/* Top Navigation Bar - hidden on root dashboard */}
+        {/* Top Navigation Bar */}
         <header className="h-16 border-b border-base-300 bg-base-100 flex items-center justify-between px-4 sm:px-6 shrink-0 print:hidden gap-4 shadow-sm z-30">
           
           {/* Mobile Menu Toggle */}
@@ -278,32 +314,36 @@ export default function ClientLayout({ children, user }: { children: React.React
           <div className="relative flex-1 md:w-96 md:flex-none tour-search">
             <button 
               onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-              className="w-full flex items-center pl-4 pr-3 py-2 bg-base-200 border border-base-300 rounded-xl text-sm text-base-content/60 hover:bg-base-200 hover:border-primary/40 hover:text-base-content transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm"
+              className="w-full flex items-center justify-between px-3 py-2 text-sm text-muted-foreground bg-muted/50 border border-input rounded-lg hover:bg-muted transition-colors"
             >
-              <Search className="h-4 w-4 mr-3 shrink-0" />
-              <span className="truncate font-medium">Search anything...</span>
-              <span className="ml-auto hidden sm:flex items-center"><kbd className="kbd kbd-sm shadow-none border-base-300 bg-base-100">⌘</kbd><kbd className="kbd kbd-sm shadow-none border-base-300 bg-base-100 ml-1">K</kbd></span>
+              <span className="flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                Search anything...
+              </span>
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                <span className="text-xs">⌘</span>K
+              </kbd>
             </button>
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          {/* Top Actions */}
+          <div className="flex items-center gap-3">
             <ThemeToggle />
-            <div className="tour-notifications"><NotificationDropdown userId={user.id} organizationId={user.organizationId} /></div>
-            <div className="avatar">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary to-secondary cursor-pointer shadow-sm border border-base-300"></div>
+            <NotificationDropdown />
+            
+            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-primary-foreground font-semibold text-sm shadow-md">
+              {user.id.slice(0, 2).toUpperCase()}
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-auto p-4 sm:p-6 print:overflow-visible print:p-0">
-          <div className="max-w-7xl mx-auto w-full print:max-w-none">
-            {children}
-          </div>
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
+          {children}
         </div>
       </main>
-      
+
+      {/* Global Modals & Hints */}
       <GlobalSearch />
       <OnboardingHints />
       <TourGuide />
