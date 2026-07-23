@@ -39,6 +39,7 @@ const GlobalSearch = dynamic(() => import('@/components/GlobalSearch').then(mod 
 const OnboardingHints = dynamic(() => import('@/components/onboarding').then(mod => mod.OnboardingHints), { ssr: false });
 const TourGuide = dynamic(() => import('@/components/TourGuide'), { ssr: false });
 const OrganizationModal = dynamic(() => import('@/components/OrganizationModal'), { ssr: false });
+const FirstTimeOnboarding = dynamic(() => import('@/components/FirstTimeOnboarding'), { ssr: false });
 
 type SubMenuItem = {
   name: string;
@@ -359,6 +360,7 @@ export default function ClientLayout({ children, user }: { children: React.React
       <OnboardingHints />
       <TourGuide />
       <OrganizationModal isOpen={isOrgModalOpen} onClose={() => setIsOrgModalOpen(false)} />
+      <FirstTimeOnboarding />
     </div>
   );
 }
