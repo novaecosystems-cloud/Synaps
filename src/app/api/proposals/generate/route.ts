@@ -19,6 +19,18 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({ where: { id: decodedToken.uid } });
     if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
+    // Enforce Daily AI Credit Limit
+    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
+    const creditCheck = await checkAndConsumeAiCredits(user.id, user.role || 'MEMBER', 1);
+
+    if (!creditCheck.success) {
+      return NextResponse.json({ 
+        success: false, 
+        error: creditCheck.error || 'Daily AI Credit Limit Reached',
+        creditCheck 
+      }, { status: 429 });
+    }
+
     const { documentId, mode = 'detailed' } = await req.json();
     if (!documentId) return NextResponse.json({ success: false, error: 'Document ID required' }, { status: 400 });
 

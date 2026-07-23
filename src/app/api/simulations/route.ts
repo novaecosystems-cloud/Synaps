@@ -13,15 +13,29 @@ export async function POST(req: NextRequest) {
     if (!sessionCookie) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
     const decoded = await verifySessionCookie(sessionCookie);
-    if (!decoded) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    if (!decoded || !decoded.uid) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    const dbUser = await prisma.user.findUnique({
-      where: { id: decoded.uid },
-      select: { organizationId: true }
-    });
+    let dbUser: any = null;
+    try {
+      dbUser = await prisma.user.findUnique({
+        where: { id: decoded.uid },
+        select: { organizationId: true, role: true }
+      });
+    } catch (e) {}
 
-    const organizationId = dbUser?.organizationId;
-    if (!organizationId) return NextResponse.json({ success: false, error: 'User must belong to an organization' }, { status: 403 });
+    // Enforce Daily AI Credit Limit
+    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1);
+
+    if (!creditCheck.success) {
+      return NextResponse.json({ 
+        success: false, 
+        error: creditCheck.error || 'Daily AI Credit Limit Reached',
+        creditCheck 
+      }, { status: 429 });
+    }
+
+    const organizationId = dbUser?.organizationId || 'default_org';
 
     const { decisionType, decisionDetails } = await req.json();
 
