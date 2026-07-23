@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
-export default function NotificationDropdown({ userId, organizationId }: { userId: string, organizationId: string }) {
+export default function NotificationDropdown({ userId = 'guest', organizationId = 'default' }: { userId?: string, organizationId?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);

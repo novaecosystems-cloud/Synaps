@@ -331,7 +331,7 @@ export default function ClientLayout({ children, user }: { children: React.React
           {/* Top Actions */}
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <NotificationDropdown />
+            <NotificationDropdown userId={user?.id} organizationId={user?.organizationId} />
             
             <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-primary-foreground font-semibold text-sm shadow-md">
               {(user?.id || 'US').slice(0, 2).toUpperCase()}
