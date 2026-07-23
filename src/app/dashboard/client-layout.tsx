@@ -37,6 +37,7 @@ const NotificationDropdown = dynamic(() => import('@/components/NotificationDrop
 const GlobalSearch = dynamic(() => import('@/components/GlobalSearch').then(mod => mod.GlobalSearch), { ssr: false });
 const OnboardingHints = dynamic(() => import('@/components/onboarding').then(mod => mod.OnboardingHints), { ssr: false });
 const TourGuide = dynamic(() => import('@/components/TourGuide'), { ssr: false });
+const ThemeToggle = dynamic(() => import('@/components/ThemeToggle').then(mod => mod.ThemeToggle), { ssr: false });
 
 type SubMenuItem = {
   name: string;
