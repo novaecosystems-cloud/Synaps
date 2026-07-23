@@ -7,6 +7,7 @@ import {
   LayoutDashboard, 
   FolderKanban, 
   Settings, 
+  Search,
   LogOut,
   ChevronRight,
   ChevronDown,
