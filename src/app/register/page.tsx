@@ -2,10 +2,27 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, OAuthProvider } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithPopup, signInWithRedirect, GoogleAuthProvider, updateProfile, OAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+
+function getReadableErrorMessage(errorCode: string, defaultMsg: string): string {
+  switch (errorCode) {
+    case 'auth/email-already-in-use':
+      return 'An account with this email already exists. Please sign in instead.';
+    case 'auth/weak-password':
+      return 'Password should be at least 6 characters long.';
+    case 'auth/invalid-email':
+      return 'Please enter a valid email address.';
+    case 'auth/popup-blocked':
+      return 'Pop-up window was blocked by your browser. Please allow pop-ups for this site.';
+    case 'auth/network-request-failed':
+      return 'Network error. Please check your internet connection.';
+    default:
+      return defaultMsg || 'Registration failed. Please try again.';
+  }
+}
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -15,7 +32,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const completeSession = async (idToken: string) => {
+  const createRealSession = async (idToken: string) => {
     try {
       const res = await fetch('/api/auth/session', {
         method: 'POST',
@@ -24,22 +41,16 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        toast({ title: 'Success', description: 'Account created successfully.' });
+        toast({ title: 'Welcome to Synaps!', description: 'Account created successfully.' });
         window.location.href = '/dashboard';
         return true;
+      } else {
+        toast({ title: 'Account Setup Failed', description: data.error || 'Failed to create user session.', variant: 'destructive' });
       }
-    } catch (err) {
-      console.warn('[AUTH] Register session creation warning:', err);
+    } catch (err: any) {
+      toast({ title: 'Connection Error', description: err.message || 'Server connection error.', variant: 'destructive' });
     }
     return false;
-  };
-
-  const completeFallbackSession = async (userIdentifier: string) => {
-    const fallbackToken = `TEST_TOKEN_${userIdentifier.replace(/[^a-zA-Z0-9]/g, '_')}`;
-    const success = await completeSession(fallbackToken);
-    if (!success) {
-      window.location.href = '/dashboard';
-    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -47,18 +58,22 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      if (auth) {
-        const userCredential = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-        await updateProfile(userCredential.user, { displayName: name });
-        const token = await userCredential.user.getIdToken(true);
-        const ok = await completeSession(token);
-        if (ok) return;
+      if (!auth) {
+        throw new Error('Firebase Authentication is not initialized.');
       }
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
+      if (name) {
+        await updateProfile(userCredential.user, { displayName: name });
+      }
+      const token = await userCredential.user.getIdToken(true);
+      await createRealSession(token);
     } catch (error: any) {
-      console.warn('[AUTH] Firebase register fallback triggered:', error.message);
+      console.error('[AUTH] Real Firebase registration error:', error);
+      const msg = getReadableErrorMessage(error?.code, error?.message);
+      toast({ title: 'Registration Failed', description: msg, variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-
-    await completeFallbackSession(email.split('@')[0] || 'registered_user');
   };
 
   const handleGoogleLogin = async (e: React.MouseEvent) => {
@@ -66,18 +81,30 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      if (auth) {
-        const provider = new GoogleAuthProvider();
-        const userCredential = await signInWithPopup(auth, provider);
-        const token = await userCredential.user.getIdToken();
-        const ok = await completeSession(token);
-        if (ok) return;
+      if (!auth) {
+        throw new Error('Firebase Authentication is not initialized.');
       }
-    } catch (error: any) {
-      console.warn('[AUTH] Google register popup fallback triggered:', error.message);
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const token = await userCredential.user.getIdToken();
+      await createRealSession(token);
+    } catch (err: any) {
+      console.warn('[AUTH] Google register OAuth error:', err?.code, err?.message);
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        setLoading(false);
+        return;
+      }
+      if (err?.code === 'auth/popup-blocked') {
+        toast({ title: 'Pop-up Blocked', description: 'Redirecting to Google Sign-In...', variant: 'default' });
+        const provider = new GoogleAuthProvider();
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+      const msg = getReadableErrorMessage(err?.code, err?.message);
+      toast({ title: 'Google Sign-Up Failed', description: msg, variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-
-    await completeFallbackSession('google_user');
   };
 
   const handleLinkedInLogin = async (e: React.MouseEvent) => {
@@ -85,18 +112,30 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      if (auth) {
-        const provider = new OAuthProvider('linkedin.com');
-        const userCredential = await signInWithPopup(auth, provider);
-        const token = await userCredential.user.getIdToken();
-        const ok = await completeSession(token);
-        if (ok) return;
+      if (!auth) {
+        throw new Error('Firebase Authentication is not initialized.');
       }
-    } catch (error: any) {
-      console.warn('[AUTH] LinkedIn register popup fallback triggered:', error.message);
+      const provider = new OAuthProvider('linkedin.com');
+      const userCredential = await signInWithPopup(auth, provider);
+      const token = await userCredential.user.getIdToken();
+      await createRealSession(token);
+    } catch (err: any) {
+      console.warn('[AUTH] LinkedIn register OAuth error:', err?.code, err?.message);
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        setLoading(false);
+        return;
+      }
+      if (err?.code === 'auth/popup-blocked') {
+        toast({ title: 'Pop-up Blocked', description: 'Redirecting to LinkedIn Sign-In...', variant: 'default' });
+        const provider = new OAuthProvider('linkedin.com');
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+      const msg = getReadableErrorMessage(err?.code, err?.message);
+      toast({ title: 'LinkedIn Sign-Up Failed', description: msg, variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-
-    await completeFallbackSession('linkedin_user');
   };
 
   return (
