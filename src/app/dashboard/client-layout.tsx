@@ -32,12 +32,12 @@ import { logoutAction } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const NotificationDropdown = dynamic(() => import('@/components/NotificationDropdown'), { ssr: false });
 const GlobalSearch = dynamic(() => import('@/components/GlobalSearch').then(mod => mod.GlobalSearch), { ssr: false });
 const OnboardingHints = dynamic(() => import('@/components/onboarding').then(mod => mod.OnboardingHints), { ssr: false });
 const TourGuide = dynamic(() => import('@/components/TourGuide'), { ssr: false });
-const ThemeToggle = dynamic(() => import('@/components/ThemeToggle').then(mod => mod.ThemeToggle), { ssr: false });
 
 type SubMenuItem = {
   name: string;
@@ -334,7 +334,7 @@ export default function ClientLayout({ children, user }: { children: React.React
             <NotificationDropdown />
             
             <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-primary-foreground font-semibold text-sm shadow-md">
-              {user.id.slice(0, 2).toUpperCase()}
+              {(user?.id || 'US').slice(0, 2).toUpperCase()}
             </div>
           </div>
         </header>
