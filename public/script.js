@@ -1,6 +1,3 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, OAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 // 1. Initialize Lenis Smooth Scrolling
 const lenis = new Lenis({
     duration: 1.2,
@@ -12,22 +9,22 @@ const lenis = new Lenis({
     smoothTouch: false,
     touchMultiplier: 2,
     infinite: false,
-})
+});
 
 // Sync Lenis with GSAP ScrollTrigger
-lenis.on('scroll', ScrollTrigger.update)
+lenis.on('scroll', ScrollTrigger.update);
 
-gsap.ticker.add((time)=>{
-  lenis.raf(time * 1000)
-})
+gsap.ticker.add((time) => {
+    lenis.raf(time * 1000);
+});
 
-gsap.ticker.lagSmoothing(0)
+gsap.ticker.lagSmoothing(0);
 
 // 2. Initialize SplitType for all split-text headings
 const splitTypes = document.querySelectorAll('.split-text-target');
-splitTypes.forEach((char,i) => {
-    const text = new SplitType(char, { types: 'lines, words' })
-})
+splitTypes.forEach((char) => {
+    new SplitType(char, { types: 'lines, words' });
+});
 
 // Function to create text reveal animations
 function animateTextReveal(triggerElement) {
@@ -35,7 +32,7 @@ function animateTextReveal(triggerElement) {
     const fades = triggerElement.querySelectorAll('.fade-text');
     const lists = triggerElement.querySelectorAll('.feature-list');
     const bubbles = triggerElement.querySelectorAll('.comic-bubble');
-    
+
     gsap.to(words, {
         y: 0,
         stagger: 0.03,
@@ -61,16 +58,16 @@ function animateTextReveal(triggerElement) {
         }
     });
 
-    if(lists.length) {
+    if (lists.length) {
         gsap.to(lists, {
             opacity: 1,
             duration: 1,
             delay: 0.4,
             scrollTrigger: { trigger: triggerElement, start: 'top 75%', toggleActions: 'play none none reverse' }
-        })
+        });
     }
 
-    if(bubbles.length) {
+    if (bubbles.length) {
         gsap.to(bubbles, {
             scale: 1,
             opacity: 1,
@@ -78,7 +75,7 @@ function animateTextReveal(triggerElement) {
             ease: 'elastic.out(1, 0.6)',
             delay: 0.6,
             scrollTrigger: { trigger: triggerElement, start: 'top 75%', toggleActions: 'play none none reverse' }
-        })
+        });
     }
 }
 
@@ -99,82 +96,16 @@ gsap.to(".screen-overlay", {
 });
 
 // Frame 8: Color Grade Shift (Night to Morning)
-// Fade in the morning image over the night image smoothly as they scroll
 gsap.to("#frame8 .morning-bg", {
-    opacity: 1, 
+    opacity: 1,
     ease: "power1.inOut",
-    scrollTrigger: { 
-        trigger: "#frame8", 
-        start: "top center", 
-        end: "bottom center", 
-        scrub: true 
+    scrollTrigger: {
+        trigger: "#frame8",
+        start: "top center",
+        end: "bottom center",
+        scrub: true
     }
 });
-
-// Authentication Modal Logic
-const modal = document.getElementById('authModal');
-const closeBtn = document.getElementById('closeModal');
-const ctaButtons = document.querySelectorAll('.cta');
-
-const toggleAuthMode = document.getElementById('toggleAuthMode');
-const modalTitle = document.getElementById('modalTitle');
-const modalSubtitle = document.getElementById('modalSubtitle');
-const nameGroup = document.getElementById('nameGroup');
-const authSubmitBtn = document.getElementById('authSubmitBtn');
-const toggleText = document.getElementById('toggleText');
-const nameInput = document.getElementById('name');
-const authForm = document.getElementById('authForm');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-
-let isLoginMode = true;
-
-// Open Modal
-ctaButtons.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if(modal) modal.classList.add('active');
-        // Disable Lenis scroll while modal is open
-        if(typeof lenis !== 'undefined') lenis.stop();
-    });
-});
-
-// Close Modal
-const closeModalFunc = () => {
-    if(modal) modal.classList.remove('active');
-    // Re-enable Lenis scroll
-    if(typeof lenis !== 'undefined') lenis.start();
-};
-if (closeBtn) closeBtn.addEventListener('click', closeModalFunc);
-if (modal) modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModalFunc();
-});
-
-// Toggle Login / Signup
-if (toggleAuthMode) {
-    toggleAuthMode.addEventListener('click', function toggleMode() {
-        isLoginMode = !isLoginMode;
-        
-        if (isLoginMode) {
-            modalTitle.textContent = 'Welcome Back';
-            modalSubtitle.textContent = 'Sign in to access your intelligence layer.';
-            nameGroup.style.display = 'none';
-            nameInput.removeAttribute('required');
-            authSubmitBtn.textContent = 'Sign In';
-            toggleText.innerHTML = `Don't have an account? <span class="toggle-link" id="toggleAuthMode">Request Access</span>`;
-        } else {
-            modalTitle.textContent = 'Request Access';
-            modalSubtitle.textContent = 'Join the waitlist for SYNAPS Early Access.';
-            nameGroup.style.display = 'block';
-            nameInput.setAttribute('required', 'true');
-            authSubmitBtn.textContent = 'Submit Request';
-            toggleText.innerHTML = `Already have an account? <span class="toggle-link" id="toggleAuthMode">Sign In</span>`;
-        }
-        
-        // Re-bind the event listener to the newly created span
-        document.getElementById('toggleAuthMode').addEventListener('click', toggleMode);
-    });
-}
 
 // -----------------------------------------------------------------------------
 // FLOATING INTERACTIVE ELEMENTS
@@ -188,14 +119,13 @@ const floatingElements = [
 ];
 
 document.addEventListener("click", function (event) {
-    // Don't spawn if clicking a button or link or inside modal
-    if (event.target.closest('button, a, .auth-modal-content, .auth-modal-overlay')) return;
-    
+    if (event.target.closest('button, a')) return;
+
     const itemHTML = floatingElements[Math.floor(Math.random() * floatingElements.length)];
     let container = document.createElement("div");
     container.innerHTML = itemHTML;
     const appendedElement = container.firstChild;
-    
+
     const wrapper = document.createElement("div");
     wrapper.style.position = "fixed";
     wrapper.style.left = `${event.clientX}px`;
@@ -203,11 +133,11 @@ document.addEventListener("click", function (event) {
     wrapper.style.pointerEvents = "none";
     wrapper.style.zIndex = "999";
     wrapper.appendChild(appendedElement);
-    
+
     document.body.appendChild(wrapper);
 
     const randomRotation = Math.random() * 20 - 10;
-    
+
     gsap.set(wrapper, {
         scale: 0,
         rotation: randomRotation,
@@ -218,7 +148,7 @@ document.addEventListener("click", function (event) {
 
     const tl = gsap.timeline();
     const randomScale = Math.random() * 0.4 + 0.8;
-    
+
     tl.to(wrapper, {
         scale: randomScale,
         duration: 0.5,
@@ -232,171 +162,10 @@ document.addEventListener("click", function (event) {
         duration: 3,
         ease: "power1.out",
         onComplete: () => {
-            if(wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+            if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
         }
     }, "-=0.2");
 });
-
-// -----------------------------------------------------------------------------
-// FIREBASE AUTHENTICATION
-// -----------------------------------------------------------------------------
-const firebaseConfig = {
-    apiKey: "AIzaSyAcRknk1UALIeqOnxwVVMHjEbuIsLWEjRM",
-    authDomain: "synaps-3d138.firebaseapp.com",
-    projectId: "synaps-3d138",
-    storageBucket: "synaps-3d138.firebasestorage.app",
-    messagingSenderId: "122307686567",
-    appId: "1:122307686567:web:4af124889a9e8316426b82"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-const googleBtn = document.querySelector('.google-btn');
-const linkedinBtn = document.querySelector('.linkedin-btn');
-const demoBtn = document.getElementById('demoBtn') || document.querySelector('.demo-btn');
-
-if (demoBtn) {
-    demoBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        showToast("Launching Instant Demo Workspace...");
-        try {
-            const res = await fetch('/api/auth/session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken: 'TEST_TOKEN_demo_user_synaps' })
-            });
-            const data = await res.json();
-            if (res.ok && data.success) {
-                showToast("Welcome to Synaps Enterprise! Redirecting to Dashboard...");
-                window.location.href = '/dashboard';
-            } else {
-                showToast("Failed to launch demo workspace.");
-            }
-        } catch (err) {
-            console.error("Demo login error:", err);
-            showToast("Demo sign-in error. Redirecting to dashboard...");
-            window.location.href = '/dashboard';
-        }
-    });
-}
-
-// Toast Notification Logic
-function showToast(message) {
-    let container = document.getElementById('toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toast-container';
-        container.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:10000;display:flex;flex-direction:column;gap:8px;';
-        document.body.appendChild(container);
-    }
-
-    const toast = document.createElement('div');
-    toast.className = 'toast-message';
-    toast.style.cssText = 'background:#1e1b4b;color:#a5b4fc;padding:12px 20px;border-radius:12px;border:1px solid #4338ca;font-size:13px;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.5);';
-    toast.textContent = message;
-    container.appendChild(toast);
-
-    gsap.to(toast, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' });
-
-    setTimeout(() => {
-        gsap.to(toast, {
-            opacity: 0, y: 20, duration: 0.3, ease: 'power2.in',
-            onComplete: () => { if(toast.parentNode) toast.parentNode.removeChild(toast); }
-        });
-    }, 4000);
-}
-
-// Form Submit Handler
-if (authForm) {
-    authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = emailInput?.value?.trim();
-        const password = passwordInput?.value;
-
-        if (!email || !password) {
-            showToast("Please enter your email and password.");
-            return;
-        }
-
-        if (authSubmitBtn) {
-            authSubmitBtn.disabled = true;
-            authSubmitBtn.textContent = isLoginMode ? "Signing In..." : "Submitting Request...";
-        }
-
-        try {
-            let userCredential;
-            if (isLoginMode) {
-                userCredential = await signInWithEmailAndPassword(auth, email, password);
-            } else {
-                userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            }
-
-            const token = await userCredential.user.getIdToken();
-            const res = await fetch('/api/auth/session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken: token })
-            });
-
-            showToast("Authenticated! Loading dashboard...");
-            window.location.href = '/dashboard';
-        } catch (error) {
-            console.error("Auth error:", error);
-            if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-                showToast(error.message || "Authentication failed.");
-            }
-            if (authSubmitBtn) {
-                authSubmitBtn.disabled = false;
-                authSubmitBtn.textContent = isLoginMode ? "Sign In" : "Submit Request";
-            }
-        }
-    });
-}
-
-if (googleBtn) {
-    googleBtn.addEventListener('click', async () => {
-        const provider = new GoogleAuthProvider();
-        try {
-            const result = await signInWithPopup(auth, provider);
-            const token = await result.user.getIdToken();
-            await fetch('/api/auth/session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken: token })
-            });
-            console.log("Google sign-in successful:", result.user);
-            window.location.href = '/dashboard';
-        } catch (error) {
-            console.error("Google sign-in error:", error);
-            if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-                showToast(error.message);
-            }
-        }
-    });
-}
-
-if (linkedinBtn) {
-    linkedinBtn.addEventListener('click', async () => {
-        const provider = new OAuthProvider('linkedin.com');
-        try {
-            const result = await signInWithPopup(auth, provider);
-            const token = await result.user.getIdToken();
-            await fetch('/api/auth/session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken: token })
-            });
-            console.log("LinkedIn sign-in successful:", result.user);
-            window.location.href = '/dashboard';
-        } catch (error) {
-            console.error("LinkedIn sign-in error:", error);
-            if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-                showToast(error.message);
-            }
-        }
-    });
-}
 
 // -----------------------------------------------------------------------------
 // STACK SCROLL LOGIC
@@ -467,18 +236,17 @@ if (stackCards.length) {
 }
 
 // -----------------------------------------------------------------------------
-// DEEP MOUSE PARALLAX (Mohitvirli Style)
+// DEEP MOUSE PARALLAX
 // -----------------------------------------------------------------------------
 const parallaxTargets = document.querySelectorAll(".ambient-particles, .data-rain, .comic-bubble, .alert-ui, .card");
 document.addEventListener("mousemove", (e) => {
     const x = (e.clientX / window.innerWidth - 0.5) * 20;
     const y = (e.clientY / window.innerHeight - 0.5) * 20;
-    
+
     gsap.to(parallaxTargets, {
         x: x,
         y: y,
         duration: 1,
-        ease: "power2.out",
-        stagger: 0.05
+        ease: "power1.out",
     });
 });
