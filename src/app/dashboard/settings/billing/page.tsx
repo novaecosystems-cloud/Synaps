@@ -7,11 +7,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import PayPalCheckoutModal from '@/components/PayPalCheckoutModal';
 
 export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState<string>('pro');
-  const [upgrading, setUpgrading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>('free');
+  const [activeModalPlan, setActiveModalPlan] = useState<{ name: string; price: number } | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const plans = [
@@ -45,7 +46,7 @@ export default function BillingPage() {
       icon: Sparkles,
       color: 'border-primary ring-2 ring-primary/30',
       buttonVariant: 'default' as const,
-      buttonText: 'Upgrade to Pro',
+      buttonText: 'Upgrade with PayPal',
       features: [
         '500 AI Credits / Day',
         'Collaborative 10-Agent AI Boardroom',
@@ -65,7 +66,7 @@ export default function BillingPage() {
       icon: Crown,
       color: 'border-purple-500/40',
       buttonVariant: 'outline' as const,
-      buttonText: 'Contact / Upgrade',
+      buttonText: 'Upgrade with PayPal',
       features: [
         'Unlimited Daily AI Credits',
         'Custom Fine-Tuned AI Models',
@@ -77,15 +78,18 @@ export default function BillingPage() {
     }
   ];
 
-  const handleUpgrade = (planId: string) => {
-    if (planId === 'free') return;
-    setUpgrading(true);
-    setTimeout(() => {
-      setUpgrading(false);
-      setSelectedPlan(planId);
+  const handleOpenPayPal = (plan: typeof plans[0]) => {
+    if (plan.id === 'free') return;
+    const price = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
+    setActiveModalPlan({ name: plan.name, price });
+  };
+
+  const handlePaymentSuccess = () => {
+    if (activeModalPlan) {
+      setSelectedPlan(activeModalPlan.name.toLowerCase());
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 5000);
-    }, 1500);
+    }
   };
 
   return (
@@ -99,7 +103,7 @@ export default function BillingPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-base-content">Plans & Billing Management</h1>
-            <p className="text-xs text-base-content/60">Upgrade your organization's AI credit limits, multi-agent suite & dedicated capabilities.</p>
+            <p className="text-xs text-base-content/60">Upgrade your organization's AI credit limits via PayPal Digital Wallet, Cards, or Crypto.</p>
           </div>
         </div>
 
@@ -123,7 +127,7 @@ export default function BillingPage() {
       {showSuccess && (
         <div className="p-4 bg-success/10 border border-success/30 rounded-2xl text-success font-bold text-xs flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>Success! Your organization subscription plan has been updated to {selectedPlan.toUpperCase()}. AI credits unlocked instantly.</span>
+          <span>Payment Verified via PayPal! Your subscription has been updated. AI credits unlocked instantly.</span>
         </div>
       )}
 
@@ -189,12 +193,12 @@ export default function BillingPage() {
 
               <div className="pt-6 mt-6 border-t border-base-200">
                 <Button
-                  onClick={() => handleUpgrade(plan.id)}
-                  disabled={upgrading || (selectedPlan === plan.id && plan.id === 'free')}
+                  onClick={() => handleOpenPayPal(plan)}
+                  disabled={plan.id === 'free'}
                   variant={plan.buttonVariant}
                   className="w-full rounded-2xl gap-2 font-bold py-3"
                 >
-                  {upgrading ? 'Processing...' : (selectedPlan === plan.id ? 'Active Plan' : plan.buttonText)}
+                  {plan.id === 'free' ? 'Current Tier' : plan.buttonText}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -206,12 +210,23 @@ export default function BillingPage() {
       {/* Payment Options Banner */}
       <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-3">
         <h3 className="font-bold text-sm text-base-content flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-success" /> Supported Payment Methods
+          <ShieldCheck className="w-4 h-4 text-success" /> Integrated PayPal & Card Gateway
         </h3>
         <p className="text-xs text-base-content/70">
-          Accept Credit Cards (Visa, MasterCard, Amex), PayPal Digital Wallets, UPI/Razorpay, and USDC/USDT Crypto Wallets securely with 256-bit encryption.
+          All payments process via PayPal Checkout and deposit directly into your PayPal Digital Balance. No physical bank account is needed to accept payments.
         </p>
       </div>
+
+      {/* PayPal Modal */}
+      {activeModalPlan && (
+        <PayPalCheckoutModal
+          isOpen={!!activeModalPlan}
+          onClose={() => setActiveModalPlan(null)}
+          planName={activeModalPlan.name}
+          amount={activeModalPlan.price}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
 
     </div>
   );
