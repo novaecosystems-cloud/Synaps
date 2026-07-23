@@ -19,13 +19,21 @@ export default async function DashboardPage() {
   if (!session) redirect('/login');
   
   const decoded = await verifySessionCookie(session);
-  if (!decoded) redirect('/login');
+  if (!decoded || !decoded.uid) redirect('/login');
 
-  const currentUser = await prisma.user.findUnique({
-    where: { id: decoded.uid }
-  });
-  
-  if (!currentUser) redirect('/login');
+  let userName = decoded.name || decoded.email?.split('@')[0] || 'Executive';
 
-  return <ExecutiveDashboardClient userName={currentUser.name || 'Executive'} />;
+  try {
+    const currentUser = await prisma.user.findUnique({
+      where: { id: decoded.uid },
+      select: { name: true }
+    });
+    if (currentUser?.name) {
+      userName = currentUser.name;
+    }
+  } catch (err) {
+    console.warn('[DASHBOARD] Could not fetch user from DB:', err);
+  }
+
+  return <ExecutiveDashboardClient userName={userName} />;
 }

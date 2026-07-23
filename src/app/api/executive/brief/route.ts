@@ -6,6 +6,41 @@ import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { generateExecutiveBriefData, askAiCooQuestion } from '@/lib/ai-coo';
 
+async function getOrProvisionOrganizationId(uid: string, email?: string, name?: string): Promise<string> {
+  try {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: uid },
+      select: { organizationId: true }
+    });
+
+    if (dbUser?.organizationId) {
+      return dbUser.organizationId;
+    }
+
+    // Auto-provision if missing
+    const userEmail = email || `${uid}@synaps.ai`;
+    const userName = name || 'Enterprise User';
+    const newOrg = await prisma.organization.create({
+      data: {
+        name: `${userName}'s Organization`,
+        users: {
+          create: {
+            id: uid,
+            email: userEmail,
+            name: userName,
+            role: 'OWNER'
+          }
+        }
+      }
+    });
+
+    return newOrg.id;
+  } catch (err) {
+    console.warn('[AUTH] Could not fetch or provision org from DB, using fallback org:', err);
+    return 'default_org';
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
@@ -13,16 +48,9 @@ export async function GET(req: NextRequest) {
     if (!sessionCookie) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
     const decoded = await verifySessionCookie(sessionCookie);
-    if (!decoded) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    if (!decoded || !decoded.uid) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    const dbUser = await prisma.user.findUnique({
-      where: { id: decoded.uid },
-      select: { organizationId: true }
-    });
-
-    const organizationId = dbUser?.organizationId;
-    if (!organizationId) return NextResponse.json({ success: false, error: 'User must belong to an organization' }, { status: 403 });
-
+    const organizationId = await getOrProvisionOrganizationId(decoded.uid, decoded.email, decoded.name);
     const briefData = await generateExecutiveBriefData(organizationId);
 
     return NextResponse.json({
@@ -43,15 +71,9 @@ export async function POST(req: NextRequest) {
     if (!sessionCookie) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
     const decoded = await verifySessionCookie(sessionCookie);
-    if (!decoded) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    if (!decoded || !decoded.uid) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    const dbUser = await prisma.user.findUnique({
-      where: { id: decoded.uid },
-      select: { organizationId: true }
-    });
-
-    const organizationId = dbUser?.organizationId;
-    if (!organizationId) return NextResponse.json({ success: false, error: 'User must belong to an organization' }, { status: 403 });
+    const organizationId = await getOrProvisionOrganizationId(decoded.uid, decoded.email, decoded.name);
 
     const { question } = await req.json();
     if (!question) return NextResponse.json({ success: false, error: 'Question is required' }, { status: 400 });
