@@ -198,11 +198,7 @@ You MUST return valid JSON with the following EXACT structure:
       data: {
         organizationId,
         title: `Strategy: ${objective}`,
-        executiveSummary: parsed.executiveSummary || `Strategy for ${objective}`,
-        problemStatement: objective,
-        proposedSolution: parsed.gtmStrategy?.positioning || 'Strategic Growth Plan',
-        status: 'DRAFT',
-        version: 1
+        status: 'DRAFT'
       }
     });
 

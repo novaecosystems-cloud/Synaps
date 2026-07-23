@@ -5,11 +5,11 @@ import { Redis } from '@upstash/redis';
 const memoryStore = new Map<string, number[]>();
 
 class MemoryRateLimiter {
-  private limit: number;
+  private maxRequests: number;
   private windowMs: number;
 
-  constructor(limit: number, windowSeconds: number) {
-    this.limit = limit;
+  constructor(maxRequests: number, windowSeconds: number) {
+    this.maxRequests = maxRequests;
     this.windowMs = windowSeconds * 1000;
   }
 
@@ -20,8 +20,8 @@ class MemoryRateLimiter {
     // Clean up old timestamps
     timestamps = timestamps.filter(ts => now - ts < this.windowMs);
     
-    const isRateLimited = timestamps.length >= this.limit;
-    const remaining = Math.max(0, this.limit - timestamps.length - 1);
+    const isRateLimited = timestamps.length >= this.maxRequests;
+    const remaining = Math.max(0, this.maxRequests - timestamps.length - 1);
     const reset = now + this.windowMs;
 
     if (!isRateLimited) {
@@ -31,7 +31,7 @@ class MemoryRateLimiter {
 
     return {
       success: !isRateLimited,
-      limit: this.limit,
+      limit: this.maxRequests,
       remaining,
       reset,
     };
