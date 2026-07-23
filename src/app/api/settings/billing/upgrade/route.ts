@@ -30,15 +30,31 @@ export async function POST(req: NextRequest) {
       newCreditLimit = 10000;
     }
 
-    // Update user role in database
+    // 1. Permanently update user role in Neon PostgreSQL database
+    let organizationId = 'default_org';
     try {
-      await prisma.user.update({
+      const updatedUser = await prisma.user.update({
         where: { id: decoded.uid },
-        data: { role: newRole as any }
+        data: { role: newRole as any },
+        select: { id: true, organizationId: true }
+      });
+      if (updatedUser.organizationId) organizationId = updatedUser.organizationId;
+    } catch (e) {}
+
+    // 2. Permanently create audit log in PostgreSQL
+    try {
+      await prisma.auditLog.create({
+        data: {
+          organizationId,
+          userId: decoded.uid,
+          action: 'PLAN_UPGRADED',
+          resource: 'Billing & Subscriptions',
+          details: `User upgraded to ${planId.toUpperCase()} plan. Daily AI credits increased to ${newCreditLimit}.`
+        }
       });
     } catch (e) {}
 
-    // Ensure role credit limits are updated
+    // 3. Update in-memory credit limits dynamically for instant application
     ROLE_CREDIT_LIMITS[newRole] = newCreditLimit;
 
     return NextResponse.json({
