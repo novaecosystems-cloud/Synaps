@@ -128,6 +128,7 @@ const sidebarSections: MenuSection[] = [
         name: 'System Admin', 
         icon: Settings,
         children: [
+          { name: 'Plans & Billing', href: '/dashboard/settings/billing' },
           { name: 'Developer & API', href: '/dashboard/developer' },
           { name: 'Audit Logs', href: '/dashboard/audit' },
         ]
