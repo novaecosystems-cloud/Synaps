@@ -12,19 +12,28 @@ datasource db {
 
 enum Role {
   OWNER
+  LEADER
   ADMIN
   MANAGER
   MEMBER
+  GUEST
 }
 
 model Organization {
   id                      String                   @id @default(uuid())
   name                    String
+  description             String?
+  logoUrl                 String?
+  slug                    String?                  @unique
+  inviteCode              String?                  @unique
+  isVerified              Boolean                  @default(false)
+  ownerId                 String?
   settings                Json?                    @default("{}")
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   users                   User[]
   invitations             Invitation[]
+  joinRequests            JoinRequest[]
   projects                Project[]
   documents               Document[]
   gaps                    Gap[]
@@ -84,8 +93,24 @@ model User {
   savedSearches          SavedSearch[]
   exportJobs             ExportJob[]
   chatSessions           ChatSession[]
+  joinRequests           JoinRequest[]
 
   @@index([organizationId])
+}
+
+model JoinRequest {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status         String       @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@index([userId])
 }
 
 model Invitation {

@@ -38,6 +38,7 @@ const NotificationDropdown = dynamic(() => import('@/components/NotificationDrop
 const GlobalSearch = dynamic(() => import('@/components/GlobalSearch').then(mod => mod.GlobalSearch), { ssr: false });
 const OnboardingHints = dynamic(() => import('@/components/onboarding').then(mod => mod.OnboardingHints), { ssr: false });
 const TourGuide = dynamic(() => import('@/components/TourGuide'), { ssr: false });
+const OrganizationModal = dynamic(() => import('@/components/OrganizationModal'), { ssr: false });
 
 type SubMenuItem = {
   name: string;
@@ -216,6 +217,7 @@ export default function ClientLayout({ children, user }: { children: React.React
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
 
   const handleLogout = async () => {
     await logoutAction();
@@ -239,16 +241,23 @@ export default function ClientLayout({ children, user }: { children: React.React
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       )}>
         <div>
-          {/* Logo */}
-          <div className="flex items-center gap-3 mb-6 px-2 mt-2">
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold aura-purple border border-primary/50">
+          {/* Logo & Org Switcher */}
+          <button 
+            onClick={() => setIsOrgModalOpen(true)}
+            className="flex items-center gap-3 mb-6 px-2 mt-2 w-full hover:bg-base-200/60 p-2 rounded-2xl transition-all text-left border border-transparent hover:border-base-300 group"
+            title="Open Organization Switcher & Member Management"
+          >
+            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold aura-purple border border-primary/50 shadow-md">
               S
             </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-sm tracking-tight leading-none uppercase">Synaps</span>
-              <span className="text-[10px] text-muted-foreground tracking-widest uppercase">Workspace</span>
+            <div className="flex flex-col flex-1">
+              <span className="font-bold text-sm tracking-tight leading-none uppercase flex items-center justify-between">
+                Synaps
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </span>
+              <span className="text-[10px] text-muted-foreground tracking-widest uppercase mt-0.5">Org Workspace</span>
             </div>
-          </div>
+          </button>
 
           {/* Navigation Sections */}
           <div className="space-y-5">
@@ -349,6 +358,7 @@ export default function ClientLayout({ children, user }: { children: React.React
       <GlobalSearch />
       <OnboardingHints />
       <TourGuide />
+      <OrganizationModal isOpen={isOrgModalOpen} onClose={() => setIsOrgModalOpen(false)} />
     </div>
   );
 }
