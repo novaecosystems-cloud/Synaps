@@ -41,6 +41,7 @@ const TourGuide = dynamic(() => import('@/components/TourGuide'), { ssr: false }
 const OrganizationModal = dynamic(() => import('@/components/OrganizationModal'), { ssr: false });
 const FirstTimeOnboarding = dynamic(() => import('@/components/FirstTimeOnboarding'), { ssr: false });
 const AiCreditBadge = dynamic(() => import('@/components/AiCreditBadge'), { ssr: false });
+const AiCreditExhaustedModal = dynamic(() => import('@/components/AiCreditExhaustedModal'), { ssr: false });
 
 type SubMenuItem = {
   name: string;
@@ -364,6 +365,7 @@ export default function ClientLayout({ children, user }: { children: React.React
       <TourGuide />
       <OrganizationModal isOpen={isOrgModalOpen} onClose={() => setIsOrgModalOpen(false)} />
       <FirstTimeOnboarding />
+      <AiCreditExhaustedModal />
     </div>
   );
 }
