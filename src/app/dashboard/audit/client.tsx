@@ -254,21 +254,21 @@ export default function AuditExplorerClient({ organizationId }: { organizationId
 
               <div>
                 <span className="block text-muted-foreground text-xs uppercase font-semibold mb-2">Before State</span>
-                <pre className="bg-muted text-foreground p-4 rounded-lg text-xs overflow-x-auto border border-border">
+                <pre className="bg-zinc-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto border border-zinc-700 font-mono leading-relaxed">
                   {selectedLog.before ? JSON.stringify(selectedLog.before, null, 2) : 'null'}
                 </pre>
               </div>
 
               <div>
                 <span className="block text-muted-foreground text-xs uppercase font-semibold mb-2">After State</span>
-                <pre className="bg-muted text-foreground p-4 rounded-lg text-xs overflow-x-auto border border-border">
+                <pre className="bg-zinc-900 text-blue-400 p-4 rounded-lg text-xs overflow-x-auto border border-zinc-700 font-mono leading-relaxed">
                   {selectedLog.after ? JSON.stringify(selectedLog.after, null, 2) : 'null'}
                 </pre>
               </div>
               
               <div>
                 <span className="block text-muted-foreground text-xs uppercase font-semibold mb-2">Metadata</span>
-                <pre className="bg-muted text-foreground p-4 rounded-lg text-xs overflow-x-auto border border-border">
+                <pre className="bg-zinc-900 text-yellow-400 p-4 rounded-lg text-xs overflow-x-auto border border-zinc-700 font-mono leading-relaxed">
                   {selectedLog.metadata ? JSON.stringify(selectedLog.metadata, null, 2) : 'null'}
                 </pre>
               </div>
