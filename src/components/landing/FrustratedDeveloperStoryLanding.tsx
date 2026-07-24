@@ -1,17 +1,107 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Play, ArrowRight, X, Sparkles, BrainCircuit, ShieldCheck, Database, Zap } from 'lucide-react';
+import { Play, ArrowRight, X, Sparkles, BrainCircuit, ShieldCheck, Database, Zap, AlertTriangle, AlertCircle, RefreshCw } from 'lucide-react';
+
+interface ProblemPopup {
+  id: number;
+  x: number;
+  y: number;
+  label: string;
+  color: string;
+}
+
+const PROBLEM_POOL = [
+  { label: '⚠️ CRM Disconnected', color: 'border-red-500/50 text-red-400 bg-red-500/10' },
+  { label: '🚨 Data Mishandling', color: 'border-amber-500/50 text-amber-400 bg-amber-500/10' },
+  { label: '❌ Unstructured Spreadsheets', color: 'border-rose-500/50 text-rose-400 bg-rose-500/10' },
+  { label: '⚠️ Siloed Knowledge Base', color: 'border-amber-500/50 text-amber-400 bg-amber-500/10' },
+  { label: '💥 Compliance Risk', color: 'border-red-500/50 text-red-400 bg-red-500/10' },
+  { label: '⚡ Manual Context Switching', color: 'border-orange-500/50 text-orange-400 bg-orange-500/10' },
+  { label: '🚨 Duplicate Work & Bottlenecks', color: 'border-rose-500/50 text-rose-400 bg-rose-500/10' },
+  { label: '⚠️ Vendor Contract Misalignment', color: 'border-amber-500/50 text-amber-400 bg-amber-500/10' }
+];
 
 export default function FrustratedDeveloperStoryLanding() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [popups, setPopups] = useState<ProblemPopup[]>([]);
+  const nextId = useRef(0);
+
+  // Initialize Smooth Lenis Scrolling
+  useEffect(() => {
+    let lenisInstance: any;
+    import('lenis').then(({ default: Lenis }) => {
+      lenisInstance = new Lenis({
+        duration: 1.4,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 2,
+      });
+
+      function raf(time: number) {
+        lenisInstance.raf(time);
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+    });
+
+    return () => {
+      if (lenisInstance) lenisInstance.destroy();
+    };
+  }, []);
+
+  // Click Anywhere to Spawn Interactive Problem Popups
+  const handlePageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Ignore clicks on buttons, inputs, links or modals
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a') || target.closest('video') || target.closest('.no-popup')) {
+      return;
+    }
+
+    const randomProblem = PROBLEM_POOL[Math.floor(Math.random() * PROBLEM_POOL.length)];
+    const newPopup: ProblemPopup = {
+      id: nextId.current++,
+      x: e.clientX,
+      y: e.clientY + window.scrollY,
+      label: randomProblem.label,
+      color: randomProblem.color
+    };
+
+    setPopups((prev) => [...prev.slice(-15), newPopup]); // Keep max 15 popups on screen
+
+    // Auto cleanup popups after 3.5 seconds
+    setTimeout(() => {
+      setPopups((prev) => prev.filter((p) => p.id !== newPopup.id));
+    }, 3500);
+  };
 
   return (
-    <div className="w-full min-h-screen bg-[#07080c] text-white font-sans selection:bg-amber-500 selection:text-black overflow-x-hidden">
+    <div 
+      onClick={handlePageClick}
+      className="w-full min-h-screen bg-[#07080c] text-white font-sans selection:bg-amber-500 selection:text-black overflow-x-hidden relative cursor-crosshair"
+    >
       
+      {/* Click Anywhere Interactive Indicator Banner */}
+      <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-black/80 border border-amber-500/30 backdrop-blur-md px-4 py-1.5 rounded-full text-[11px] font-bold text-amber-400 shadow-xl pointer-events-none flex items-center gap-2 animate-bounce">
+        <Sparkles className="w-3.5 h-3.5" /> Click anywhere on screen to discover enterprise data problems!
+      </div>
+
+      {/* ── SPONSORED/INTERACTIVE POPUPS OVERLAY ── */}
+      {popups.map((popup) => (
+        <div
+          key={popup.id}
+          style={{ top: `${popup.y}px`, left: `${popup.x}px` }}
+          className={`absolute -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none px-4 py-2 rounded-2xl border backdrop-blur-xl shadow-2xl text-xs font-bold font-mono tracking-wide animate-in zoom-in-75 fade-in duration-200 ${popup.color}`}
+        >
+          {popup.label}
+        </div>
+      ))}
+
       {/* ── PERSISTENT HEADER NAVIGATION ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-[#07080c]/80 border-b border-white/10 backdrop-blur-xl flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-[#07080c]/80 border-b border-white/10 backdrop-blur-xl flex items-center justify-between no-popup">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
             <BrainCircuit className="w-5 h-5" />
@@ -45,7 +135,7 @@ export default function FrustratedDeveloperStoryLanding() {
       </header>
 
       {/* ── FRAME 1: FRUSTRATED DEVELOPER NIGHT AT DESK ── */}
-      <section className="min-h-screen pt-28 pb-16 px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 justify-between">
+      <section className="min-h-screen pt-32 pb-16 px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 justify-between">
         <div className="flex-1 space-y-6">
           <span className="text-xs font-mono uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
             The Enterprise Data Problem
@@ -56,7 +146,7 @@ export default function FrustratedDeveloperStoryLanding() {
           <p className="text-lg md:text-xl text-white/60 leading-relaxed max-w-xl font-light">
             But it's everywhere. Disconnected across CRM, Spreadsheets, Emails, and Documents. Teams work in silos, and leaders are left guessing.
           </p>
-          <div className="pt-4 flex flex-wrap gap-4">
+          <div className="pt-4 flex flex-wrap gap-4 no-popup">
             <Link 
               href="/demo"
               className="px-8 py-4 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-full hover:bg-amber-400 hover:scale-105 transition-all shadow-xl flex items-center gap-2"
@@ -118,7 +208,7 @@ export default function FrustratedDeveloperStoryLanding() {
       </section>
 
       {/* ── FRAME 3: EMBEDDED RECORDED LANDING VIDEO SHOWCASE ── */}
-      <section className="py-28 px-6 md:px-12 bg-gradient-to-b from-[#0a0b12] via-[#0d0e1a] to-[#07080c] border-t border-white/5">
+      <section className="py-28 px-6 md:px-12 bg-gradient-to-b from-[#0a0b12] via-[#0d0e1a] to-[#07080c] border-t border-white/5 no-popup">
         <div className="max-w-6xl mx-auto space-y-8 text-center">
           <span className="text-xs font-mono uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3.5 py-1 rounded-full border border-indigo-500/20">
             Interactive Product Showcase
@@ -189,7 +279,7 @@ export default function FrustratedDeveloperStoryLanding() {
       </section>
 
       {/* ── FRAME 5: CONFIDENT FOCUS & CTA FULFILLMENT ── */}
-      <section className="py-28 px-6 md:px-12 bg-gradient-to-t from-black via-[#0a0b12] to-[#07080c] border-t border-white/5 text-center">
+      <section className="py-28 px-6 md:px-12 bg-gradient-to-t from-black via-[#0a0b12] to-[#07080c] border-t border-white/5 text-center no-popup">
         <div className="max-w-4xl mx-auto space-y-8">
           <h2 className="text-4xl md:text-7xl font-extrabold text-white tracking-tight">
             FROM CHAOS TO <span className="text-amber-400">CLARITY.</span>
@@ -217,7 +307,7 @@ export default function FrustratedDeveloperStoryLanding() {
 
       {/* ── VIDEO MODAL ── */}
       {videoModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300 no-popup">
           <button 
             onClick={() => setVideoModalOpen(false)}
             className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 p-3 rounded-full border border-white/20 transition-all"
