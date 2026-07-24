@@ -1,8 +1,8 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 import React from 'react';
 import ClientLayout from '../dashboard/client-layout';
-import ExecutiveOverviewPage from '../dashboard/page';
+import ExecutiveDashboardClient from '../dashboard/ExecutiveDashboardClient';
 
 export default function DemoPage() {
   const demoUser = {
@@ -13,7 +13,7 @@ export default function DemoPage() {
 
   return (
     <ClientLayout user={demoUser}>
-      <ExecutiveOverviewPage />
+      <ExecutiveDashboardClient userName="Enterprise Executive" />
     </ClientLayout>
   );
 }
