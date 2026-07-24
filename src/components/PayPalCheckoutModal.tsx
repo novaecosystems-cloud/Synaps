@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, ShieldCheck, Loader2, CheckCircle2, CreditCard, ExternalLink, Copy, Check } from 'lucide-react';
+import { X, ShieldCheck, Loader2, CheckCircle2, CreditCard, Copy, Check, Mail } from 'lucide-react';
 
 interface PayPalModalProps {
   isOpen: boolean;
@@ -25,22 +25,31 @@ export default function PayPalCheckoutModal({
   onSuccess
 }: PayPalModalProps) {
   const [step, setStep] = useState<'instructions' | 'confirming' | 'done'>('instructions');
-  const [copied, setCopied] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedAmount, setCopiedAmount] = useState(false);
 
   if (!isOpen) return null;
 
-  // PayPal.me handle — set NEXT_PUBLIC_PAYPAL_ME in Vercel env vars
-  const paypalHandle = process.env.NEXT_PUBLIC_PAYPAL_ME || 'synapsapp';
-  const paypalMeUrl = `https://paypal.me/${paypalHandle}/${amount}`;
+  // Your PayPal receiving email — set NEXT_PUBLIC_PAYPAL_EMAIL in Vercel env vars
+  const paypalEmail = process.env.NEXT_PUBLIC_PAYPAL_EMAIL || 'pay@synaps.app';
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(paypalMeUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  // PayPal universal Send Money URL — always works, no merchant setup needed
+  const paypalSendUrl = `https://www.paypal.com/myaccount/transfer/homepage/send`;
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText(paypalEmail);
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2000);
+  };
+
+  const copyAmount = () => {
+    navigator.clipboard.writeText(String(amount));
+    setCopiedAmount(true);
+    setTimeout(() => setCopiedAmount(false), 2000);
   };
 
   const handleOpenPayPal = () => {
-    window.open(paypalMeUrl, '_blank');
+    window.open(paypalSendUrl, '_blank');
   };
 
   const handleIHavePaid = async () => {
@@ -103,30 +112,40 @@ export default function PayPalCheckoutModal({
               </div>
             </div>
 
-            {/* Step-by-step instructions */}
+            {/* Instructions */}
             <div className="space-y-3">
-              <p className="text-xs font-bold text-base-content uppercase tracking-wider">How to pay in 3 steps:</p>
-
+              <p className="text-xs font-bold text-base-content uppercase tracking-wider">How to complete payment:</p>
               <div className="space-y-2">
                 {[
-                  { n: 1, text: `Click "Open PayPal" to go to paypal.me/${paypalHandle}/${amount}` },
-                  { n: 2, text: 'Log in to your PayPal account and complete the payment' },
-                  { n: 3, text: 'Return here and click "I Have Paid" to unlock your credits instantly' }
-                ].map(s => (
-                  <div key={s.n} className="flex items-start gap-3 p-3 bg-base-200 rounded-xl text-xs text-base-content/80">
-                    <span className="w-5 h-5 rounded-full bg-primary text-primary-content font-bold flex items-center justify-center text-[10px] shrink-0">{s.n}</span>
-                    <span>{s.text}</span>
+                  'Click "Open PayPal Send Money" below',
+                  `Send exactly ${currencySymbol}${amount} to the email address shown`,
+                  'Return here and click "I Have Paid" to unlock your credits',
+                ].map((text, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 bg-base-200 rounded-xl text-xs text-base-content/80">
+                    <span className="w-5 h-5 rounded-full bg-primary text-primary-content font-bold flex items-center justify-center text-[10px] shrink-0">{i + 1}</span>
+                    <span>{text}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* PayPal URL copy box */}
-            <div className="flex items-center gap-2 p-3 bg-base-200 border border-base-300 rounded-xl text-xs font-mono text-base-content/70 overflow-hidden">
-              <span className="truncate flex-1">paypal.me/{paypalHandle}/{amount}</span>
-              <button onClick={handleCopy} className="shrink-0 text-primary hover:text-primary/70 transition-colors">
-                {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
-              </button>
+            {/* Email to send to */}
+            <div className="space-y-2">
+              <p className="text-[10px] text-base-content/50 font-bold uppercase tracking-wider">Send PayPal payment to this email:</p>
+              <div className="flex items-center gap-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                <Mail className="w-4 h-4 text-blue-500 shrink-0" />
+                <span className="font-mono text-sm font-bold text-base-content flex-1">{paypalEmail}</span>
+                <button onClick={copyEmail} className="shrink-0 text-blue-500 hover:text-blue-400 transition-colors">
+                  {copiedEmail ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-base-200 border border-base-300 rounded-xl">
+                <span className="text-xs text-base-content/60 flex-1">Amount to send:</span>
+                <span className="font-mono text-sm font-bold text-primary">{currencySymbol}{amount}</span>
+                <button onClick={copyAmount} className="shrink-0 text-base-content/40 hover:text-base-content transition-colors">
+                  {copiedAmount ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             {/* Action buttons */}
@@ -134,8 +153,10 @@ export default function PayPalCheckoutModal({
               onClick={handleOpenPayPal}
               className="w-full py-3.5 rounded-2xl bg-[#009cde] hover:bg-[#0085c0] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all"
             >
-              <ExternalLink className="w-4 h-4" />
-              Open PayPal to Pay {currencySymbol}{amount}
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="white">
+                <path d="M7.5 21L3 21L5.25 9H12.75C16.5 9 18 11.25 17.25 14.25C16.5 17.25 13.5 18.75 10.5 18.75H8.25L7.5 21Z"/>
+              </svg>
+              Open PayPal Send Money
             </button>
 
             <button
@@ -157,7 +178,7 @@ export default function PayPalCheckoutModal({
           <div className="py-10 text-center space-y-4">
             <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
             <h3 className="text-lg font-bold text-base-content">Activating Your Plan...</h3>
-            <p className="text-xs text-base-content/60">Unlocking {planId === 'enterprise' ? '10,000' : '500'} daily AI credits on your account.</p>
+            <p className="text-xs text-base-content/60">Unlocking {planId === 'enterprise' ? '10,000' : '500'} daily AI credits.</p>
           </div>
         )}
 
