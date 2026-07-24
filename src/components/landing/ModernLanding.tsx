@@ -180,13 +180,14 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                   />
               </div>
             </div>
-
-            {/* Laptop base */}
-            <div className="bg-[#222] h-5 rounded-b-2xl border border-t-0 border-white/10 flex items-center justify-center shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
-              <div className="w-16 h-1 bg-white/10 rounded-full" />
-            </div>
           </div>
-        </motion.div>
+
+          {/* Laptop base */}
+          <div className="bg-[#222] h-5 rounded-b-2xl border border-t-0 border-white/10 flex items-center justify-center shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+            <div className="w-16 h-1 bg-white/10 rounded-full" />
+          </div>
+        </div>
+      </motion.div>
       </motion.div>
     </AnimatePresence>
   );
