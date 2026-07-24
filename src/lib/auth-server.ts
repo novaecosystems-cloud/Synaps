@@ -57,7 +57,7 @@ export async function verifySessionCookie(sessionCookie: string) {
   
   if (sessionCookie.startsWith('TEST_TOKEN_')) {
     const uid = sessionCookie.replace('TEST_TOKEN_', '');
-    return { uid, email: `${uid}@synaps.ai`, name: 'Demo Guest User' } as any;
+    return { uid, email: 'admin@apex-global.com', name: 'Demo Administrator' } as any;
   }
   
   try {
