@@ -25,7 +25,8 @@ import {
   Compass,
   Cpu,
   Layers,
-  Sparkles
+  Sparkles,
+  ShieldCheck
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { logoutAction } from '@/app/actions/auth';
@@ -217,7 +218,9 @@ function SidebarItem({ item, pathname, closeMobileMenu }: { item: MenuItem, path
   );
 }
 
-export default function ClientLayout({ children, user }: { children: React.ReactNode, user: { id: string, organizationId: string } }) {
+const ADMIN_EMAIL = 'novaecosystems@gmail.com';
+
+export default function ClientLayout({ children, user }: { children: React.ReactNode, user: { id: string, organizationId: string, email: string } }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -283,6 +286,31 @@ export default function ClientLayout({ children, user }: { children: React.React
               </div>
             ))}
           </div>
+
+          {/* OWNER-ONLY: Admin Panel — only visible to novaecosystems@gmail.com */}
+          {user.email === ADMIN_EMAIL && (
+            <div>
+              <h3 className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-red-500/70">
+                ⚡ OWNER ADMIN
+              </h3>
+              <ul className="menu w-full px-0 space-y-1">
+                <li>
+                  <Link
+                    href="/dashboard/admin/upgrade"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      pathname === '/dashboard/admin/upgrade'
+                        ? "active text-red-500 font-medium bg-red-500/10"
+                        : "text-red-400/70 hover:text-red-400"
+                    )}
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    Upgrade Users
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Bottom Section */}

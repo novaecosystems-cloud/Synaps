@@ -20,7 +20,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   let user = await prisma.user.findUnique({
     where: { id: decoded.uid },
-    select: { id: true, organizationId: true }
+    select: { id: true, organizationId: true, email: true }
   });
 
   let userId = decoded.uid;
@@ -51,8 +51,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
     }
   }
 
+  const userEmail = user?.email || decoded.email || '';
+
   return (
-    <ClientLayout user={{ id: userId, organizationId }}>
+    <ClientLayout user={{ id: userId, organizationId, email: userEmail }}>
       {children}
     </ClientLayout>
   );

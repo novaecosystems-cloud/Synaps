@@ -14,9 +14,9 @@ export async function GET(req: NextRequest) {
     const decoded = await verifySessionCookie(sessionCookie);
     if (!decoded?.uid) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    // Only OWNER can access admin user list
-    const caller = await prisma.user.findUnique({ where: { id: decoded.uid }, select: { role: true } });
-    if (!caller || !['OWNER', 'LEADER'].includes(caller.role)) {
+    // Only novaecosystems@gmail.com can access admin user list
+    const caller = await prisma.user.findUnique({ where: { id: decoded.uid }, select: { role: true, email: true } });
+    if (!caller || caller.email !== 'novaecosystems@gmail.com') {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }
 

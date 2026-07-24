@@ -15,10 +15,10 @@ export async function POST(req: NextRequest) {
     const decoded = await verifySessionCookie(sessionCookie);
     if (!decoded?.uid) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    // Only OWNER can upgrade users
-    const caller = await prisma.user.findUnique({ where: { id: decoded.uid }, select: { role: true } });
-    if (!caller || !['OWNER', 'LEADER'].includes(caller.role)) {
-      return NextResponse.json({ success: false, error: 'Forbidden — only Owner can upgrade users' }, { status: 403 });
+    // Only novaecosystems@gmail.com can upgrade users
+    const caller = await prisma.user.findUnique({ where: { id: decoded.uid }, select: { role: true, email: true } });
+    if (!caller || caller.email !== 'novaecosystems@gmail.com') {
+      return NextResponse.json({ success: false, error: 'Forbidden — only the Owner can upgrade users' }, { status: 403 });
     }
 
     const { userId, planId } = await req.json();
