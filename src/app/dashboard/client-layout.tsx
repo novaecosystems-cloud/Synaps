@@ -387,13 +387,17 @@ export default function ClientLayout({ children, user }: { children: React.React
         </div>
       </main>
 
-      {/* Global Modals & Hints */}
+      {/* Global Modals & Hints (Disabled on /demo page for clean video capture) */}
       <GlobalSearch />
-      <OnboardingHints />
-      <TourGuide />
-      <OrganizationModal isOpen={isOrgModalOpen} onClose={() => setIsOrgModalOpen(false)} />
-      <FirstTimeOnboarding />
-      <AiCreditExhaustedModal />
+      {pathname !== '/demo' && (
+        <>
+          <OnboardingHints />
+          <TourGuide />
+          <OrganizationModal isOpen={isOrgModalOpen} onClose={() => setIsOrgModalOpen(false)} />
+          <FirstTimeOnboarding />
+          <AiCreditExhaustedModal />
+        </>
+      )}
     </div>
   );
 }

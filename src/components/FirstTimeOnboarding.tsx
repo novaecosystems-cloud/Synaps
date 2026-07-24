@@ -109,6 +109,9 @@ export default function FirstTimeOnboarding() {
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/demo')) {
+      return;
+    }
     // Check if first-time user
     const hasCompleted = localStorage.getItem('synaps_onboarding_completed_v1');
     if (!hasCompleted) {
