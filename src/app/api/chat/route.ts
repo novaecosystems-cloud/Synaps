@@ -89,20 +89,29 @@ export async function POST(req: NextRequest) {
     });
 
     // Fetch Memory Graph Entity Relationships for the organization
-    const graphRelationships = await prisma.graphRelationship.findMany({
-      where: { organizationId },
-      take: 15,
-      include: {
-        sourceEntity: { select: { name: true, type: true } },
-        targetEntity: { select: { name: true, type: true } }
-      }
-    });
+    let graphRelationships: any[] = [];
+    try {
+      graphRelationships = await prisma.graphRelationship.findMany({
+        where: { organizationId },
+        take: 15,
+        select: {
+          id: true,
+          relationType: true,
+          description: true,
+          evidence: true,
+          sourceEntity: { select: { name: true, type: true } },
+          targetEntity: { select: { name: true, type: true } }
+        }
+      });
+    } catch (graphErr) {
+      console.warn('[CHAT] Notice: GraphRelationship query skipped (non-fatal):', (graphErr as Error).message);
+    }
 
     const graphChunks = graphRelationships.map(r => ({
       id: r.id,
-      documentId: r.documentId || 'graph-memory',
-      name: `Memory Graph (${r.sourceEntity.type} → ${r.targetEntity.type})`,
-      text: `[Enterprise Memory Graph] ${r.sourceEntity.name} (${r.sourceEntity.type}) ${r.relationType} ${r.targetEntity.name} (${r.targetEntity.type}). Description: ${r.description}. Evidence: ${r.evidence || 'Document Entity Connection'}`
+      documentId: 'graph-memory',
+      name: `Memory Graph (${r.sourceEntity?.type || 'Entity'} → ${r.targetEntity?.type || 'Entity'})`,
+      text: `[Enterprise Memory Graph] ${r.sourceEntity?.name || ''} (${r.sourceEntity?.type || ''}) ${r.relationType} ${r.targetEntity?.name || ''} (${r.targetEntity?.type || ''}). Description: ${r.description}. Evidence: ${r.evidence || 'Document Entity Connection'}`
     }));
 
     const combinedEvidence = [...enhancedChunks, ...graphChunks];

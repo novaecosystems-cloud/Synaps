@@ -41,13 +41,22 @@ export async function POST(req: NextRequest) {
       include: { document: { select: { name: true } } }
     });
 
-    const relationships = await prisma.graphRelationship.findMany({
-      where: { organizationId },
-      include: {
-        sourceEntity: { select: { name: true, type: true } },
-        targetEntity: { select: { name: true, type: true } }
-      }
-    });
+    let relationships: any[] = [];
+    try {
+      relationships = await prisma.graphRelationship.findMany({
+        where: { organizationId },
+        select: {
+          id: true,
+          relationType: true,
+          description: true,
+          evidence: true,
+          sourceEntity: { select: { name: true, type: true } },
+          targetEntity: { select: { name: true, type: true } }
+        }
+      });
+    } catch (graphErr) {
+      console.warn('[GRAPH REASON] Notice: GraphRelationship query skipped (non-fatal):', (graphErr as Error).message);
+    }
 
     if (entities.length === 0) {
       return NextResponse.json({
