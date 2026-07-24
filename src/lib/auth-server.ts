@@ -55,8 +55,9 @@ export async function createSessionCookie(token: string) {
 export async function verifySessionCookie(sessionCookie: string) {
   if (!sessionCookie) return null;
   
-  if (process.env.NEXT_PUBLIC_PLAYWRIGHT_TEST === 'true' && sessionCookie.startsWith('TEST_TOKEN_')) {
-    return { uid: sessionCookie.replace('TEST_TOKEN_', ''), email: 'test@example.com' } as any;
+  if (sessionCookie.startsWith('TEST_TOKEN_')) {
+    const uid = sessionCookie.replace('TEST_TOKEN_', '');
+    return { uid, email: `${uid}@synaps.ai`, name: 'Demo Guest User' } as any;
   }
   
   try {
