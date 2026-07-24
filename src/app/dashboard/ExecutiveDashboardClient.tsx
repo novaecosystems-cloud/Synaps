@@ -57,8 +57,36 @@ interface ExecutiveBriefData {
 }
 
 export default function ExecutiveDashboardClient({ userName }: { userName: string }) {
-  const [data, setData] = useState<ExecutiveBriefData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const isDemoMode = typeof window !== 'undefined' && (window.location.pathname === '/demo' || window.location.search.includes('demo=true'));
+
+  const [data, setData] = useState<ExecutiveBriefData | null>(isDemoMode || userName === 'Demo Administrator' ? {
+    executiveBrief: "Operational health across all 15 system nodes for Apex Global Technologies is operating at 96.4% stability. AI Boardroom agents report strong alignment on Q3 strategic initiatives with zero critical risk vulnerabilities detected.",
+    healthScore: 96,
+    knowledgeCoverage: 99,
+    riskLevel: 'LOW',
+    decisionConfidence: 98,
+    executiveAnswers: [
+      { id: '1', question: 'What is our Q3 APAC Cloud Expansion risk exposure?', answer: 'APAC Cloud Expansion risk is minimal (2.1%). Financial reserves are allocated at $4.2M, and compliance matrices for ISO 27001 & SOC 2 Type II are 100% verified across all regional nodes.', status: 'HEALTHY', citations: [{ documentName: 'Q3_APAC_Cloud_Expansion_Plan.pdf', snippet: 'Budget allocated: $4.2M. Regulatory approval cleared.' }] },
+      { id: '2', question: 'Are there any unexecuted vendor agreements for H2?', answer: 'Zero unsigned agreements. All 28 vendor contracts and SLAs for H2 2026 have been fully executed with counter-party signatures verified.', status: 'HEALTHY', citations: [{ documentName: 'H2_Vendor_Contract_Register.xlsx', snippet: '28/28 contracts executed with digital signatures.' }] }
+    ],
+    departmentHealth: [
+      { department: 'Engineering & AI Labs', healthScore: 98, riskLevel: 'LOW', summary: '18 microservices deployed; latency < 12ms', activeIssuesCount: 0, citations: [] },
+      { department: 'Legal & Governance', healthScore: 99, riskLevel: 'LOW', summary: '100% contract compliance; 0 open disputes', activeIssuesCount: 0, citations: [] },
+      { department: 'Finance & Capital Strategy', healthScore: 95, riskLevel: 'LOW', summary: 'Q2 revenue +28% YoY; $14.2M ARR', activeIssuesCount: 0, citations: [] }
+    ],
+    aiRecommendations: [
+      { id: 'r1', priority: 'HIGH', title: 'Automate Disruption Testing in APAC Cloud Region', recommendation: 'Run quarterly automated Digital Twin stress simulations on regional node latency.', rationale: 'Preemptively mitigates potential bandwidth bottlenecks during peak Q4 sales volume.', citations: [{ documentName: 'APAC_Load_Testing_SOP.pdf', snippet: 'Quarterly stress testing recommended.' }] }
+    ],
+    recentEvents: [
+      { date: 'Today, 09:30 AM', title: 'AI Boardroom Unanimous Vote', category: 'Strategy', description: 'All 10 AI Executive Agents voted in favor of Q3 APAC expansion.' },
+      { date: 'Yesterday, 04:15 PM', title: 'Digital Twin Simulation Passed', category: 'Operations', description: 'Stress-tested 15 core nodes against 50% simulated server outage with zero data loss.' }
+    ],
+    timelineHighlights: [
+      { date: 'Q3 2026', milestone: 'Synaps AI OS v4.2 Upgrade', impact: 'Completed' },
+      { date: 'Q4 2026', milestone: 'Global Multi-Region Node Expansion', impact: 'In Progress' }
+    ]
+  } : null);
+  const [loading, setLoading] = useState<boolean>(!data);
   const [error, setError] = useState<string | null>(null);
 
   // Active modal inspection states
