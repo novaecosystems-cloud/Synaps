@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 export default function StrategyPage() {
   const [objective, setObjective] = useState('');
@@ -69,6 +70,9 @@ export default function StrategyPage() {
           <Layers className="w-4 h-4 text-amber-500" /> Memory Graph
         </Link>
       </div>
+
+      {/* Active Knowledge File Selector Bar */}
+      <ActiveKnowledgeSelector />
 
       {/* STRATEGIC OBJECTIVE INPUT BAR */}
       <div className="p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-4">

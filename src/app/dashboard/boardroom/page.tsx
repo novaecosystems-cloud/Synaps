@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 export default function BoardroomPage() {
   const [query, setQuery] = useState('');
@@ -78,6 +79,9 @@ export default function BoardroomPage() {
           <Layers className="w-4 h-4 text-purple-500" /> Memory Graph
         </Link>
       </div>
+
+      {/* Active Knowledge Selector Bar */}
+      <ActiveKnowledgeSelector />
 
       {/* STRATEGIC QUESTION INPUT BAR */}
       <div className="p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-4">
