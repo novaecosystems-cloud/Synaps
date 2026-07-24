@@ -31,7 +31,7 @@ export default function PayPalCheckoutModal({
   if (!isOpen) return null;
 
   // Your PayPal receiving email — set NEXT_PUBLIC_PAYPAL_EMAIL in Vercel env vars
-  const paypalEmail = process.env.NEXT_PUBLIC_PAYPAL_EMAIL || 'pay@synaps.app';
+  const paypalEmail = process.env.NEXT_PUBLIC_PAYPAL_EMAIL || 'novaecosystems@gmail.com';
 
   // PayPal send money URL with recipient email pre-filled in the query string
   const paypalSendUrl = `https://www.paypal.com/myaccount/transfer/homepage/send?email=${encodeURIComponent(paypalEmail)}&currencyCode=${currencyCode}&amount=${amount}`;
