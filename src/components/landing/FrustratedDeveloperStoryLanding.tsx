@@ -1,39 +1,29 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Play, ArrowRight, X, Sparkles, BrainCircuit, ShieldCheck, Database, Zap, AlertTriangle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Play, ArrowRight, X, Sparkles, BrainCircuit, ShieldCheck, Database, Zap } from 'lucide-react';
+import gsap from 'gsap';
 
-interface ProblemPopup {
-  id: number;
-  x: number;
-  y: number;
-  label: string;
-  color: string;
-}
-
-const PROBLEM_POOL = [
-  { label: '⚠️ CRM Disconnected', color: 'border-red-500/50 text-red-400 bg-red-500/10' },
-  { label: '🚨 Data Mishandling', color: 'border-amber-500/50 text-amber-400 bg-amber-500/10' },
-  { label: '❌ Unstructured Spreadsheets', color: 'border-rose-500/50 text-rose-400 bg-rose-500/10' },
-  { label: '⚠️ Siloed Knowledge Base', color: 'border-amber-500/50 text-amber-400 bg-amber-500/10' },
-  { label: '💥 Compliance Risk', color: 'border-red-500/50 text-red-400 bg-red-500/10' },
-  { label: '⚡ Manual Context Switching', color: 'border-orange-500/50 text-orange-400 bg-orange-500/10' },
-  { label: '🚨 Duplicate Work & Bottlenecks', color: 'border-rose-500/50 text-rose-400 bg-rose-500/10' },
-  { label: '⚠️ Vendor Contract Misalignment', color: 'border-amber-500/50 text-amber-400 bg-amber-500/10' }
+const EXACT_PROBLEMS = [
+  { icon: '⚠️', text: 'Siloed Knowledge Base', style: 'border-amber-500/50 bg-amber-950/90 text-amber-300 shadow-[0_10px_30px_rgba(245,158,11,0.4)]' },
+  { icon: '⚡', text: 'Manual Context Switching', style: 'border-orange-500/50 bg-orange-950/90 text-orange-300 shadow-[0_10px_30px_rgba(249,115,22,0.4)]' },
+  { icon: '❌', text: 'Unstructured Spreadsheets', style: 'border-rose-500/50 bg-rose-950/90 text-rose-300 shadow-[0_10px_30px_rgba(244,63,94,0.4)]' },
+  { icon: '⚠️', text: 'Vendor Contract Misalignment', style: 'border-yellow-500/50 bg-amber-950/90 text-yellow-300 shadow-[0_10px_30px_rgba(234,179,8,0.4)]' },
+  { icon: '🚨', text: 'CRM Disconnected', style: 'border-red-500/50 bg-red-950/90 text-red-300 shadow-[0_10px_30px_rgba(239,68,68,0.4)]' },
+  { icon: '💥', text: 'Data Mishandling', style: 'border-rose-600/50 bg-rose-950/90 text-rose-300 shadow-[0_10px_30px_rgba(225,29,72,0.4)]' },
+  { icon: '⚡', text: 'Duplicate Work & Bottlenecks', style: 'border-amber-600/50 bg-amber-950/90 text-amber-300 shadow-[0_10px_30px_rgba(217,119,6,0.4)]' }
 ];
 
 export default function FrustratedDeveloperStoryLanding() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const [popups, setPopups] = useState<ProblemPopup[]>([]);
-  const nextId = useRef(0);
 
   // Initialize Smooth Lenis Scrolling
   useEffect(() => {
     let lenisInstance: any;
     import('lenis').then(({ default: Lenis }) => {
       lenisInstance = new Lenis({
-        duration: 1.4,
+        duration: 1.2,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         orientation: 'vertical',
         smoothWheel: true,
@@ -53,52 +43,72 @@ export default function FrustratedDeveloperStoryLanding() {
     };
   }, []);
 
-  // Click Anywhere to Spawn Interactive Problem Popups
-  const handlePageClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Ignore clicks on buttons, inputs, links or modals
-    const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('a') || target.closest('video') || target.closest('.no-popup')) {
-      return;
-    }
+  // GSAP Click-Anywhere Floating Pill Popups
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.closest('button, a, video, input, iframe, .no-popup')) return;
 
-    const randomProblem = PROBLEM_POOL[Math.floor(Math.random() * PROBLEM_POOL.length)];
-    const newPopup: ProblemPopup = {
-      id: nextId.current++,
-      x: e.clientX,
-      y: e.clientY + window.scrollY,
-      label: randomProblem.label,
-      color: randomProblem.color
+      const randomProblem = EXACT_PROBLEMS[Math.floor(Math.random() * EXACT_PROBLEMS.length)];
+
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "fixed";
+      wrapper.style.left = `${event.clientX}px`;
+      wrapper.style.top = `${event.clientY}px`;
+      wrapper.style.pointerEvents = "none";
+      wrapper.style.zIndex = "9999";
+      
+      const pill = document.createElement("div");
+      pill.className = `flex items-center gap-2 px-5 py-2.5 rounded-full border backdrop-blur-xl text-xs sm:text-sm font-bold tracking-wide font-sans ${randomProblem.style}`;
+      pill.innerHTML = `<span>${randomProblem.icon}</span> <span>${randomProblem.text}</span>`;
+      
+      wrapper.appendChild(pill);
+      document.body.appendChild(wrapper);
+
+      const randomRotation = Math.random() * 20 - 10;
+      const randomScale = Math.random() * 0.3 + 0.9;
+
+      gsap.set(wrapper, {
+        scale: 0,
+        rotation: randomRotation,
+        xPercent: -50,
+        yPercent: -50,
+        transformOrigin: "center center",
+      });
+
+      const tl = gsap.timeline();
+
+      // Bounce Pop-in
+      tl.to(wrapper, {
+        scale: randomScale,
+        duration: 0.4,
+        ease: "back.out(1.8)"
+      });
+
+      // Float Up & Fade out smoothly
+      tl.to(wrapper, {
+        y: () => `-=${Math.random() * 150 + 150}`,
+        x: () => `+=${Math.random() * 80 - 40}`,
+        opacity: 0,
+        duration: 3.2,
+        ease: "power1.out",
+        onComplete: () => {
+          if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+        }
+      }, "-=0.1");
     };
 
-    setPopups((prev) => [...prev.slice(-15), newPopup]); // Keep max 15 popups on screen
-
-    // Auto cleanup popups after 3.5 seconds
-    setTimeout(() => {
-      setPopups((prev) => prev.filter((p) => p.id !== newPopup.id));
-    }, 3500);
-  };
+    document.addEventListener("click", handleGlobalClick);
+    return () => document.removeEventListener("click", handleGlobalClick);
+  }, []);
 
   return (
-    <div 
-      onClick={handlePageClick}
-      className="w-full min-h-screen bg-[#07080c] text-white font-sans selection:bg-amber-500 selection:text-black overflow-x-hidden relative cursor-crosshair"
-    >
+    <div className="w-full min-h-screen bg-[#07080c] text-white font-sans selection:bg-amber-500 selection:text-black overflow-x-hidden relative cursor-crosshair">
       
       {/* Click Anywhere Interactive Indicator Banner */}
-      <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-black/80 border border-amber-500/30 backdrop-blur-md px-4 py-1.5 rounded-full text-[11px] font-bold text-amber-400 shadow-xl pointer-events-none flex items-center gap-2 animate-bounce">
-        <Sparkles className="w-3.5 h-3.5" /> Click anywhere on screen to discover enterprise data problems!
+      <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-black/80 border border-amber-500/40 backdrop-blur-md px-4 py-1.5 rounded-full text-[11px] font-bold text-amber-400 shadow-xl pointer-events-none flex items-center gap-2 animate-bounce">
+        <Sparkles className="w-3.5 h-3.5" /> Click anywhere on screen to spawn enterprise problem pills!
       </div>
-
-      {/* ── SPONSORED/INTERACTIVE POPUPS OVERLAY ── */}
-      {popups.map((popup) => (
-        <div
-          key={popup.id}
-          style={{ top: `${popup.y}px`, left: `${popup.x}px` }}
-          className={`absolute -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none px-4 py-2 rounded-2xl border backdrop-blur-xl shadow-2xl text-xs font-bold font-mono tracking-wide animate-in zoom-in-75 fade-in duration-200 ${popup.color}`}
-        >
-          {popup.label}
-        </div>
-      ))}
 
       {/* ── PERSISTENT HEADER NAVIGATION ── */}
       <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-[#07080c]/80 border-b border-white/10 backdrop-blur-xl flex items-center justify-between no-popup">
