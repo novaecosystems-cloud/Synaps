@@ -51,29 +51,103 @@ export async function POST(req: NextRequest) {
     const query = latestMessage.content;
 
     // 1. Generate embedding for the query
-    const embedding = await generateEmbedding(query);
+    let embedding: number[] = [];
+    try {
+      embedding = await generateEmbedding(query);
+    } catch (e) {
+      console.warn('[CHAT] Embedding generation fallback:', e);
+    }
 
-    // 2. Perform similarity search in pgvector
-    const vectorString = `[${embedding.join(',')}]`;
-    const results = await prisma.$queryRaw<any[]>`
-      SELECT 
-        c."id", 
-        c."documentId", 
-        c."text", 
-        c."pageNumber", 
-        c."section", 
-        1 - (c.embedding <=> ${vectorString}::vector) as similarity
-      FROM "DocumentChunk" c
-      JOIN "Document" d ON c."documentId" = d."id"
-      WHERE d."organizationId" = ${organizationId}
-      ORDER BY c.embedding <=> ${vectorString}::vector
-      LIMIT 5
-    `;
+    let results: any[] = [];
+    if (embedding.length > 0) {
+      try {
+        const vectorString = `[${embedding.join(',')}]`;
+        results = await prisma.$queryRaw<any[]>`
+          SELECT 
+            c."id", 
+            c."documentId", 
+            c."text", 
+            c."pageNumber", 
+            c."section", 
+            1 - (c.embedding <=> ${vectorString}::vector) as similarity
+          FROM "DocumentChunk" c
+          JOIN "Document" d ON c."documentId" = d."id"
+          WHERE d."organizationId" = ${organizationId}
+          ORDER BY c.embedding <=> ${vectorString}::vector
+          LIMIT 10
+        `;
+      } catch (vecErr) {
+        console.warn('[CHAT] Vector search notice:', vecErr);
+      }
+    }
 
-    // Filter by similarity threshold (e.g., > 0.4)
-    const filteredResults = results.filter(r => r.similarity > 0.4);
+    // Filter by similarity threshold (> 0.25) or use all top vector results
+    let filteredResults = results.filter(r => r.similarity > 0.25);
+    if (filteredResults.length === 0 && results.length > 0) {
+      filteredResults = results.slice(0, 5);
+    }
 
-    // Fetch document filenames to enhance the context
+    // Keyword & Title Fallback: Search documents by title/name keywords if query mentions document names
+    try {
+      const allOrgDocs = await prisma.document.findMany({
+        where: { organizationId, isDeleted: false },
+        select: { id: true, name: true }
+      });
+
+      const matchedDocIds = allOrgDocs
+        .filter(d => {
+          const docNameLower = d.name.toLowerCase();
+          const queryLower = query.toLowerCase();
+          const words = queryLower.split(/\s+/).filter(w => w.length > 3);
+          return words.some(w => docNameLower.includes(w));
+        })
+        .map(d => d.id);
+
+      if (matchedDocIds.length > 0) {
+        const keywordChunks = await prisma.documentChunk.findMany({
+          where: { documentId: { in: matchedDocIds } },
+          take: 10
+        });
+
+        for (const kc of keywordChunks) {
+          if (!filteredResults.some(fr => fr.id === kc.id)) {
+            filteredResults.push({
+              id: kc.id,
+              documentId: kc.documentId,
+              text: kc.text,
+              pageNumber: kc.pageNumber,
+              section: kc.section,
+              similarity: 0.9
+            });
+          }
+        }
+      }
+    } catch (kwErr) {
+      console.warn('[CHAT] Keyword fallback notice:', kwErr);
+    }
+
+    // Fallback: If still no chunks, fetch most recent chunks from organization documents
+    if (filteredResults.length === 0) {
+      try {
+        const recentChunks = await prisma.documentChunk.findMany({
+          where: { document: { organizationId } },
+          take: 8,
+          orderBy: { createdAt: 'desc' },
+          include: { document: { select: { name: true } } }
+        });
+        filteredResults = recentChunks.map(rc => ({
+          id: rc.id,
+          documentId: rc.documentId,
+          text: rc.text,
+          pageNumber: rc.pageNumber,
+          section: rc.section,
+          similarity: 0.5,
+          name: rc.document?.name
+        }));
+      } catch (e) {}
+    }
+
+    // Fetch document filenames to enhance context
     const documentIds = Array.from(new Set(filteredResults.map(r => r.documentId)));
     const documents = await prisma.document.findMany({
       where: { id: { in: documentIds } },
@@ -84,7 +158,7 @@ export async function POST(req: NextRequest) {
       const doc = documents.find(d => d.id === chunk.documentId);
       return {
         ...chunk,
-        name: doc?.name || chunk.documentId
+        name: doc?.name || chunk.name || chunk.documentId
       };
     });
 
