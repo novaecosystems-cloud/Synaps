@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
+import { Play, X, Sparkles, BrainCircuit } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
@@ -21,6 +22,7 @@ const splitText = (text: string) => {
 
 export default function HtmlOverlay() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -62,6 +64,28 @@ export default function HtmlOverlay() {
   return (
     <div ref={containerRef} className="w-full h-full relative pointer-events-none flex flex-col items-center justify-center text-center">
       
+      {/* Persistent Floating Header Navigation */}
+      <div className="fixed top-6 left-6 right-6 z-50 flex items-center justify-between pointer-events-auto px-6 py-3 rounded-full bg-black/60 border border-white/10 backdrop-blur-xl">
+        <div className="flex items-center gap-3">
+          <BrainCircuit className="w-6 h-6 text-amber-400" />
+          <span className="font-bold tracking-wider text-sm text-white">SYNAPS AI</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setVideoModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white transition-all"
+          >
+            <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> Watch Demo Video
+          </button>
+          <Link 
+            href="/demo" 
+            className="px-5 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-black text-xs font-extrabold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(234,179,8,0.4)]"
+          >
+            Launch Demo
+          </Link>
+        </div>
+      </div>
+
       {/* SCENE 1: Chaos */}
       <div className="scene1-text absolute flex flex-col items-center justify-center font-['Playfair_Display',_serif]">
         <h1 className="text-6xl md:text-[8rem] tracking-[0.3em] uppercase font-black text-white/50 scene1-chars perspective-1000">
@@ -99,22 +123,75 @@ export default function HtmlOverlay() {
         </h2>
       </div>
 
-      {/* SCENE 6: Global Intelligence */}
-      <div className="scene6-text absolute flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm w-full h-full pointer-events-auto">
-        <h1 className="text-5xl md:text-7xl lg:text-[5rem] font-['Playfair_Display',_serif] leading-tight text-center max-w-5xl font-light text-white scene6-chars perspective-1000">
+      {/* SCENE 6: Global Intelligence & Cluely-style Video Showcase */}
+      <div className="scene6-text absolute flex flex-col items-center justify-center bg-black/60 backdrop-blur-md w-full h-full pointer-events-auto px-4 overflow-y-auto py-20">
+        <h1 className="text-4xl md:text-6xl font-['Playfair_Display',_serif] leading-tight text-center max-w-4xl font-light text-white scene6-chars perspective-1000">
           {splitText("Global Enterprise Intelligence.")}
         </h1>
-        <div 
-          className="cta-btn mt-16 opacity-0 translate-y-10"
-        >
+
+        {/* Embedded Landing Video Showcase Frame */}
+        <div className="w-full max-w-4xl mx-auto mt-8 relative group">
+          <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-amber-500 via-purple-500 to-indigo-500 opacity-40 blur-xl group-hover:opacity-70 transition duration-1000" />
+          
+          <div className="relative bg-[#0d0d12] border border-white/20 rounded-3xl p-2 md:p-3 shadow-[0_0_80px_rgba(234,179,8,0.3)]">
+            <div className="flex items-center justify-between px-4 py-2 bg-[#161622] rounded-t-2xl border-b border-white/10 mb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <span className="text-xs text-white/50 font-mono ml-2">synaps-landing-video.mp4</span>
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-0.5 rounded-full border border-amber-500/20">
+                Official Product Demo
+              </span>
+            </div>
+
+            <video
+              src="/synaps-landing-video.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+              className="w-full h-auto max-h-[50vh] rounded-2xl border border-white/10 shadow-2xl object-contain bg-black"
+            />
+          </div>
+        </div>
+
+        <div className="cta-btn mt-10 opacity-0 translate-y-10 flex flex-wrap items-center justify-center gap-4">
           <Link 
-            href="/register" 
-            className="px-12 py-6 bg-white text-black font-bold text-xl uppercase tracking-[0.2em] rounded-full hover:bg-[#EAB308] hover:scale-110 hover:shadow-[0_0_50px_rgba(234,179,8,0.6)] transition-all duration-500 inline-block"
+            href="/demo" 
+            className="px-10 py-5 bg-amber-500 text-black font-extrabold text-lg uppercase tracking-[0.2em] rounded-full hover:bg-amber-400 hover:scale-105 hover:shadow-[0_0_50px_rgba(234,179,8,0.6)] transition-all duration-300 inline-block"
           >
-            Enter Synaps
+            Enter Synaps OS
           </Link>
         </div>
       </div>
+
+      {/* Video Modal Triggered via Header Button */}
+      {videoModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4 md:p-10 pointer-events-auto animate-in fade-in duration-300">
+          <button 
+            onClick={() => setVideoModalOpen(false)}
+            className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 p-3 rounded-full border border-white/20 transition-all"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          
+          <div className="w-full max-w-5xl bg-[#0b0b10] border border-white/20 rounded-3xl p-3 shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2.5 bg-[#14141e] rounded-t-2xl border-b border-white/10 mb-2">
+              <span className="text-xs text-white/60 font-mono">synaps-landing-video.mp4 — Full Resolution</span>
+              <span className="text-[10px] font-bold text-amber-400 uppercase">SYNAPS DEMO</span>
+            </div>
+            <video
+              src="/synaps-landing-video.mp4"
+              autoPlay
+              controls
+              className="w-full h-auto max-h-[75vh] rounded-2xl border border-white/10 object-contain bg-black"
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );

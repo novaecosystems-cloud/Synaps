@@ -2,11 +2,11 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import ModernLanding from '@/components/landing/ModernLanding';
+import CinematicExperience from '@/components/landing/CinematicExperience';
 
 export const metadata = {
-  title: 'Synaps AI — Enterprise Intelligence Operating System',
-  description: 'AI Executive Dashboard, Grounded RAG, Digital Twin Risk Simulation & Multi-Agent Intelligence.',
+  title: 'Synaps AI — Enterprise Intelligence Operating System (3D Story Mode)',
+  description: 'Interactive 3D Scrollytelling Story Mode for Synaps AI Enterprise OS.',
 };
 
 export default async function RootPage() {
@@ -20,6 +20,6 @@ export default async function RootPage() {
     }
   }
 
-  // Render original high-converting Synaps Landing Page
-  return <ModernLanding />;
+  // Render 3D Story Mode Landing Page with Embedded Video
+  return <CinematicExperience />;
 }
