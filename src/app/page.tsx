@@ -1,24 +1,20 @@
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
-import React from 'react';
-import ClientLayout from './dashboard/client-layout';
-import ExecutiveDashboardClient from './dashboard/ExecutiveDashboardClient';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { verifySessionCookie } from '@/lib/auth-server';
 
-export const metadata = {
-  title: 'Synaps AI — Enterprise Intelligence Operating System',
-  description: 'AI Executive Dashboard and Enterprise OS.',
-};
+export default async function RootPage() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get('synaps-session')?.value;
 
-export default function RootPage() {
-  const demoUser = {
-    id: 'demo-admin-id',
-    organizationId: 'demo-apex-org-id',
-    email: 'admin@apex-global.com'
-  };
+  if (session) {
+    const decoded = await verifySessionCookie(session);
+    if (decoded?.uid) {
+      redirect('/dashboard');
+    }
+  }
 
-  return (
-    <ClientLayout user={demoUser}>
-      <ExecutiveDashboardClient userName="Demo Administrator" />
-    </ClientLayout>
-  );
+  // Redirect to /login for standard authentication or /demo for public demo
+  redirect('/login');
 }

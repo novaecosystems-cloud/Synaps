@@ -1,6 +1,7 @@
 import React from 'react';
 import { cookies } from 'next/headers';
 import { verifySessionCookie } from '@/lib/auth-server';
+import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import ClientLayout from './client-layout';
 
@@ -8,15 +9,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const cookieStore = await cookies();
   const session = cookieStore.get('synaps-session')?.value;
 
-  let decoded = session ? await verifySessionCookie(session) : null;
+  if (!session) {
+    redirect('/login');
+  }
 
-  // Zero Auth Fallback: Auto-authenticate uncredentialed visitors as Demo Administrator
+  const decoded = await verifySessionCookie(session);
   if (!decoded || !decoded.uid) {
-    decoded = {
-      uid: 'demo-admin-id',
-      email: 'admin@apex-global.com',
-      name: 'Demo Administrator'
-    } as any;
+    redirect('/login');
   }
 
   let user = null;
