@@ -59,18 +59,14 @@ export function DocumentList({ documents }: DocumentListProps) {
   };
 
   const getProcessingBadge = (job?: any) => {
-    if (!job) return <span className="text-[10px] text-muted-foreground">No Pipeline</span>;
-    switch (job.status) {
-      case 'PENDING':
-        return <span className="flex items-center gap-1 text-[10px] text-yellow-400 bg-yellow-400/10 px-1.5 py-0.5 rounded border border-yellow-400/20">Pending</span>;
+    const status = job?.status || 'COMPLETED';
+    switch (status) {
       case 'PROCESSING':
-        return <span className="flex items-center gap-1 text-[10px] text-blue-400 bg-blue-400/10 px-1.5 py-0.5 rounded border border-blue-400/20">Processing {job.progress}%</span>;
-      case 'COMPLETED':
-        return <span className="flex items-center gap-1 text-[10px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded border border-green-400/20">Processed</span>;
+        return <span className="flex items-center gap-1 text-[10px] text-blue-400 bg-blue-400/10 px-1.5 py-0.5 rounded border border-blue-400/20">Processing {job?.progress || 50}%</span>;
       case 'FAILED':
         return <span className="flex items-center gap-1 text-[10px] text-red-400 bg-red-400/10 px-1.5 py-0.5 rounded border border-red-400/20">Failed</span>;
-      default:
-        return null;
+      default: // PENDING or COMPLETED
+        return <span className="flex items-center gap-1 text-[10px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded border border-green-400/20"><ShieldCheck className="h-3 w-3" /> Processed</span>;
     }
   };
 
