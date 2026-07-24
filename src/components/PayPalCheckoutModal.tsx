@@ -33,8 +33,8 @@ export default function PayPalCheckoutModal({
   // Your PayPal receiving email — set NEXT_PUBLIC_PAYPAL_EMAIL in Vercel env vars
   const paypalEmail = process.env.NEXT_PUBLIC_PAYPAL_EMAIL || 'pay@synaps.app';
 
-  // PayPal universal Send Money URL — always works, no merchant setup needed
-  const paypalSendUrl = `https://www.paypal.com/myaccount/transfer/homepage/send`;
+  // PayPal send money URL with recipient email pre-filled in the query string
+  const paypalSendUrl = `https://www.paypal.com/myaccount/transfer/homepage/send?email=${encodeURIComponent(paypalEmail)}&currencyCode=${currencyCode}&amount=${amount}`;
 
   const copyEmail = () => {
     navigator.clipboard.writeText(paypalEmail);
@@ -112,22 +112,21 @@ export default function PayPalCheckoutModal({
               </div>
             </div>
 
-            {/* Instructions */}
-            <div className="space-y-3">
-              <p className="text-xs font-bold text-base-content uppercase tracking-wider">How to complete payment:</p>
-              <div className="space-y-2">
-                {[
-                  'Click "Open PayPal Send Money" below',
-                  `Send exactly ${currencySymbol}${amount} to the email address shown`,
-                  'Return here and click "I Have Paid" to unlock your credits',
-                ].map((text, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 bg-base-200 rounded-xl text-xs text-base-content/80">
-                    <span className="w-5 h-5 rounded-full bg-primary text-primary-content font-bold flex items-center justify-center text-[10px] shrink-0">{i + 1}</span>
-                    <span>{text}</span>
-                  </div>
-                ))}
+            {/* BOLD CTA — email is the key info */}
+            <div className="p-4 bg-amber-500/10 border-2 border-amber-500/40 rounded-2xl space-y-2">
+              <p className="text-xs font-black text-amber-600 uppercase tracking-wider flex items-center gap-1.5">
+                <span>⚡</span> On PayPal: paste this email in the "Who are you paying?" field
+              </p>
+              <div className="flex items-center gap-2 p-3 bg-white/10 rounded-xl">
+                <Mail className="w-4 h-4 text-blue-500 shrink-0" />
+                <span className="font-mono text-base font-black text-base-content flex-1 select-all">{paypalEmail}</span>
+                <button onClick={copyEmail} className="shrink-0 px-3 py-1.5 rounded-lg bg-blue-500 text-white text-xs font-bold flex items-center gap-1 hover:bg-blue-600 transition-all">
+                  {copiedEmail ? <><Check className="w-3 h-3" /> Copied!</> : <><Copy className="w-3 h-3" /> Copy</>}
+                </button>
               </div>
+              <p className="text-[10px] text-amber-600/80 font-medium">Then enter <strong>{currencySymbol}{amount}</strong> as the amount and send!</p>
             </div>
+
 
             {/* Email to send to */}
             <div className="space-y-2">
