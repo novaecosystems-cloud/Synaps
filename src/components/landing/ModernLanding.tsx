@@ -168,64 +168,16 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                   className="relative rounded-lg overflow-hidden bg-[#0a0a0a] aspect-video"
                   style={{ opacity: opened ? 1 : 0, transition: 'opacity 0.6s ease 0.8s' }}
                 >
-                  {/* Mock app UI */}
-                  <div className="absolute inset-0 bg-[#0d0d0d] flex flex-col">
-                    {/* App toolbar */}
-                    <div className="h-10 bg-[#161616] border-b border-white/5 flex items-center px-4 gap-3">
-                      <BrainCircuit className="w-4 h-4 text-[#6366f1]" />
-                      <span className="text-xs text-white/60 font-mono">synaps — rfp-gov-2026.pdf</span>
-                      <div className="ml-auto flex gap-2">
-                        <div className="w-2 h-2 rounded-full bg-[#FF5F56]" />
-                        <div className="w-2 h-2 rounded-full bg-[#FFBD2E]" />
-                        <div className="w-2 h-2 rounded-full bg-[#27C93F]" />
-                      </div>
-                    </div>
-                    {/* Content area */}
-                    <div className="flex-1 grid grid-cols-[240px_1fr] overflow-hidden">
-                      {/* Sidebar */}
-                      <div className="bg-[#111] border-r border-white/5 p-4 space-y-3">
-                        {['RFP Analysis', 'Gap Detection', 'Proposal Draft', 'Compliance Check', 'Export PDF'].map((item, i) => (
-                          <div
-                            key={i}
-                            className={`flex items-center gap-2 text-xs px-3 py-2 rounded-md ${i === 2 ? 'bg-[#6366f1]/20 text-[#818cf8]' : 'text-white/40'}`}
-                          >
-                            <div className={`w-1.5 h-1.5 rounded-full ${i < 2 ? 'bg-[#27C93F]' : i === 2 ? 'bg-[#6366f1]' : 'bg-white/20'}`} />
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                      {/* Main content */}
-                      <div className="p-6 space-y-4 overflow-hidden">
-                        <div className="space-y-2">
-                          <div className="h-3 bg-white/10 rounded w-3/4 animate-pulse" />
-                          <div className="h-3 bg-white/6 rounded w-full" />
-                          <div className="h-3 bg-white/6 rounded w-5/6" />
-                        </div>
-                        <div className="bg-[#6366f1]/10 border border-[#6366f1]/20 rounded-lg p-4">
-                          <div className="text-xs text-[#818cf8] mb-2 font-mono">Generating proposal section 3/8...</div>
-                          <div className="h-2 bg-[#6366f1]/30 rounded-full overflow-hidden">
-                            <div className="h-full bg-[#6366f1] rounded-full" style={{ width: '62%' }} />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="h-3 bg-white/8 rounded w-full" />
-                          <div className="h-3 bg-white/6 rounded w-4/5" />
-                          <div className="h-3 bg-white/4 rounded w-2/3" />
-                        </div>
-                        <div className="flex gap-3 pt-2">
-                          <div className="flex items-center gap-1.5 text-[10px] text-[#27C93F]">
-                            <CheckCircle2 className="w-3 h-3" />
-                            47 requirements met
-                          </div>
-                          <div className="flex items-center gap-1.5 text-[10px] text-[#FF5F56]">
-                            <XCircle className="w-3 h-3" />
-                            3 gaps flagged
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  {/* Real Synaps Landing Video */}
+                  <video
+                    src="/synaps-landing-video.mp4"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                    className="w-full h-full object-cover rounded-lg"
+                  />
               </div>
             </div>
 
@@ -449,14 +401,40 @@ export default function ModernLanding() {
             </motion.div>
           </motion.div>
 
-          {/* ── 3D FLOATING OBJECT ── */}
+          {/* ── CLUELY-STYLE HERO VIDEO SHOWCASE FRAME ── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-16 md:mt-24 relative"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-5xl mx-auto mt-16 md:mt-20 relative group"
           >
-            <FloatingObject />
+            {/* Ambient Background Glow */}
+            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 opacity-30 blur-2xl group-hover:opacity-50 transition duration-1000" />
+
+            {/* Video Container Frame */}
+            <div className="relative bg-[#0b0b12] border border-white/15 rounded-3xl p-2 md:p-4 shadow-[0_0_90px_rgba(99,102,241,0.25)] overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2.5 bg-[#14141e] rounded-t-2xl border-b border-white/10 mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
+                  <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
+                  <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
+                  <span className="text-xs text-white/50 font-mono ml-2">synaps-landing-video.mp4</span>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+                  Live Product Video
+                </span>
+              </div>
+
+              <video
+                src="/synaps-landing-video.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                className="w-full h-auto rounded-2xl border border-white/10 shadow-2xl object-cover"
+              />
+            </div>
           </motion.div>
 
           {/* scroll cue */}
