@@ -32,9 +32,13 @@ export default function PayPalCheckoutModal({
 
   // Your PayPal receiving email — set NEXT_PUBLIC_PAYPAL_EMAIL in Vercel env vars
   const paypalEmail = process.env.NEXT_PUBLIC_PAYPAL_EMAIL || 'novaecosystems@gmail.com';
+  const paypalMeHandle = process.env.NEXT_PUBLIC_PAYPAL_ME || '';
 
-  // PayPal send money URL with recipient email pre-filled in the query string
-  const paypalSendUrl = `https://www.paypal.com/myaccount/transfer/homepage/send?email=${encodeURIComponent(paypalEmail)}&currencyCode=${currencyCode}&amount=${amount}`;
+  // If PayPal.me handle is set → use paypal.me/handle/amount (auto-fills recipient + amount, user just clicks Pay)
+  // Otherwise → open send money page with email pre-filled in the recipient field
+  const paypalSendUrl = paypalMeHandle
+    ? `https://paypal.me/${paypalMeHandle}/${amount}${currencyCode}`
+    : `https://www.paypal.com/myaccount/transfer/homepage/send?email=${encodeURIComponent(paypalEmail)}&currencyCode=${currencyCode}&amount=${amount}`;
 
   const copyEmail = () => {
     navigator.clipboard.writeText(paypalEmail);
