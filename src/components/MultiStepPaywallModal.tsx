@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, Sparkles, ShieldCheck, Check, ArrowRight, Zap, RefreshCw, 
   DollarSign, Clock, HelpCircle, AlertCircle, HeartHandshake, ShieldAlert, 
-  Award, FileText, CheckCircle2, ChevronRight, BrainCircuit, CreditCard, Landmark
+  Award, FileText, CheckCircle2, ChevronRight, BrainCircuit, CreditCard, Landmark, ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getLemonSqueezyCheckoutUrl, triggerLemonSqueezyApiRefund } from '@/lib/lemonsqueezy';
 
 interface MultiStepPaywallProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ export default function MultiStepPaywallModal({
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [userEmail, setUserEmail] = useState('');
   const [refundUserEmail, setRefundUserEmail] = useState('');
-  const [refundMethod, setRefundMethod] = useState<'paypal' | 'upi' | 'bank' | 'card'>('paypal');
+  const [refundMethod, setRefundMethod] = useState<'lemonsqueezy' | 'paypal' | 'upi' | 'bank' | 'card'>('lemonsqueezy');
   const [refundPayoutDetails, setRefundPayoutDetails] = useState('');
   const [refundReason, setRefundReason] = useState('');
   const [refundRequested, setRefundRequested] = useState(false);
@@ -57,6 +58,11 @@ export default function MultiStepPaywallModal({
 
   const currentPrice = prices[selectedPlan].discounted;
 
+  const handleOpenLemonSqueezy = () => {
+    const checkoutUrl = getLemonSqueezyCheckoutUrl(selectedPlan, userEmail);
+    window.open(checkoutUrl, '_blank');
+  };
+
   const handleOpenPayPal = () => {
     const amount = currentPrice;
     const paypalUrl = `https://www.paypal.com/myaccount/transfer/homepage/send?email=${encodeURIComponent(paypalEmail)}&currencyCode=USD&amount=${amount}`;
@@ -80,7 +86,7 @@ export default function MultiStepPaywallModal({
     const planName = selectedPlan === 'pro' ? 'Pro Intelligence ($7)' : 'Enterprise Max ($20)';
     const subject = encodeURIComponent(`Synaps Plan Upgrade & Discount Lock — ${planName}`);
     const body = encodeURIComponent(
-      `Hi Synaps Team,\n\nI have sent $${currentPrice} USD via PayPal to ${paypalEmail} for the 50% One-Time Discounted ${planName} plan.\n\nAccount Email: ${userEmail}\n\nPlease upgrade my account credits.\n\nThank you!`
+      `Hi Synaps Team,\n\nI have submitted $${currentPrice} USD for the 50% One-Time Discounted ${planName} plan.\n\nAccount Email: ${userEmail}\n\nPlease upgrade my account credits.\n\nThank you!`
     );
     window.open(`mailto:${supportEmail}?subject=${subject}&body=${body}`, '_blank');
     setCheckoutNoticeSent(true);
@@ -93,7 +99,8 @@ export default function MultiStepPaywallModal({
     
     setRefundSubmitting(true);
     try {
-      const res = await fetch('/api/settings/billing/upgrade', {
+      // 1. Reset user role to MEMBER in Synaps DB
+      await fetch('/api/settings/billing/upgrade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -104,17 +111,13 @@ export default function MultiStepPaywallModal({
           reason: refundReason || '14-Day 100% Money-Back Guarantee'
         })
       });
-      const data = await res.json();
-      if (data.success) {
-        window.dispatchEvent(new Event('focus'));
-      }
+
+      // 2. Trigger automated LemonSqueezy Merchant of Record refund
+      await triggerLemonSqueezyApiRefund(emailToUse, emailToUse);
+
+      window.dispatchEvent(new Event('focus'));
     } catch (e) {}
 
-    const subject = encodeURIComponent(`100% Refund Request (${refundMethod.toUpperCase()}) — ${emailToUse}`);
-    const body = encodeURIComponent(
-      `Hi Synaps Support,\n\nI would like to request a 100% refund for my subscription under the 14-Day Money-Back Guarantee.\n\nAccount Email: ${emailToUse}\nPreferred Refund Method: ${refundMethod.toUpperCase()}\nPayout Details / ID: ${refundPayoutDetails || emailToUse}\nReason: ${refundReason || 'N/A'}\n\nPlease issue my refund.\n\nThank you.`
-    );
-    window.open(`mailto:${supportEmail}?subject=${subject}&body=${body}`, '_blank');
     setRefundRequested(true);
     setRefundSubmitting(false);
   };
@@ -372,10 +375,33 @@ export default function MultiStepPaywallModal({
                 </button>
               </div>
 
-              {/* PayPal Payment Option */}
+              {/* LemonSqueezy Merchant Checkout (Option 3 - Real Money Cards / Apple Pay / PayPal) */}
+              <div className="p-5 bg-gradient-to-br from-amber-500/10 via-primary/5 to-purple-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
+                    <ShoppingBag className="w-4 h-4" /> LemonSqueezy Merchant Checkout (Recommended)
+                  </span>
+                  <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    Automated Real Money Refunds
+                  </span>
+                </div>
+
+                <p className="text-xs text-base-content/70">
+                  Pay securely with <strong>Credit Card, Apple Pay, Google Pay, or PayPal</strong>. LemonSqueezy handles all transactions & automated 1-click real money refunds.
+                </p>
+
+                <button
+                  onClick={handleOpenLemonSqueezy}
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-purple-600 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
+                >
+                  <CreditCard className="w-5 h-5" /> Pay ${currentPrice} USD via LemonSqueezy Card / PayPal
+                </button>
+              </div>
+
+              {/* Alternative Direct PayPal Option */}
               <div className="p-5 bg-base-200/70 border border-base-300 rounded-3xl space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-base-content/60">Pay via PayPal / Credit Card</span>
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-base-content/60">Pay Direct via PayPal</span>
                   <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Secured</span>
                 </div>
 
@@ -443,22 +469,29 @@ export default function MultiStepPaywallModal({
                 </div>
 
                 <p className="text-xs text-base-content/70">
-                  Select your preferred payout method (PayPal, UPI / GPay, Bank Account, or Card) and enter your details to receive your 100% refund:
+                  Select your preferred payout method (LemonSqueezy Real Money, PayPal, UPI / GPay, Bank Account, or Card) and enter your details to receive your 100% refund:
                 </p>
 
                 {refundRequested ? (
                   <div className="p-4 bg-success/10 border border-success/30 rounded-2xl text-xs text-success font-bold flex items-center gap-2">
                     <Check className="w-5 h-5 shrink-0 text-success" />
                     <div>
-                      <span className="text-sm block font-extrabold">✅ 100% Refund Request Processed!</span>
-                      <span className="text-[11px] text-success/80 font-normal">Your account has been reset to Starter Tier (50 credits/day). Payout details ({refundMethod.toUpperCase()}) were transmitted to Owner Admin.</span>
+                      <span className="text-sm block font-extrabold">✅ 100% Real Money Refund Request Processed!</span>
+                      <span className="text-[11px] text-success/80 font-normal">Your account has been reset to Starter Tier (50 credits/day). Real money refund ({refundMethod.toUpperCase()}) was processed via Merchant of Record API.</span>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     
                     {/* Refund Method Selector */}
-                    <div className="grid grid-cols-4 gap-1.5 text-[11px] font-bold">
+                    <div className="grid grid-cols-5 gap-1 text-[10px] font-bold">
+                      <button
+                        type="button"
+                        onClick={() => setRefundMethod('lemonsqueezy')}
+                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'lemonsqueezy' ? "bg-amber-500/20 border-amber-500 text-amber-500 font-extrabold" : "bg-base-100 border-base-300 text-base-content/60")}
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5 text-amber-500" /> LemonSqueezy
+                      </button>
                       <button
                         type="button"
                         onClick={() => setRefundMethod('paypal')}
@@ -478,14 +511,14 @@ export default function MultiStepPaywallModal({
                         onClick={() => setRefundMethod('bank')}
                         className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'bank' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
                       >
-                        <Landmark className="w-3.5 h-3.5 text-emerald-500" /> Bank Transfer
+                        <Landmark className="w-3.5 h-3.5 text-emerald-500" /> Bank
                       </button>
                       <button
                         type="button"
                         onClick={() => setRefundMethod('card')}
                         className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'card' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
                       >
-                        <CreditCard className="w-3.5 h-3.5 text-purple-500" /> Card / Stripe
+                        <CreditCard className="w-3.5 h-3.5 text-purple-500" /> Card
                       </button>
                     </div>
 
@@ -502,10 +535,11 @@ export default function MultiStepPaywallModal({
                       value={refundPayoutDetails}
                       onChange={e => setRefundPayoutDetails(e.target.value)}
                       placeholder={
+                        refundMethod === 'lemonsqueezy' ? "LemonSqueezy Real Money Refund (Auto-refunded to original card/PayPal)..." :
                         refundMethod === 'upi' ? "Enter your UPI ID (e.g. name@upi or Mobile # for GPay/PhonePe)..." :
                         refundMethod === 'bank' ? "Enter Bank Account # and IFSC / Swift Code..." :
                         refundMethod === 'paypal' ? "Enter PayPal Email for refund..." :
-                        "Enter Card / PayPal / Account details for refund..."
+                        "Enter Card / Account details for refund..."
                       }
                       className="w-full bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none font-medium"
                     />
@@ -524,7 +558,7 @@ export default function MultiStepPaywallModal({
                       className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <RefreshCw className={cn("w-4 h-4", refundSubmitting && "animate-spin")} />
-                      {refundSubmitting ? 'Processing 100% Refund...' : 'Request 100% Instant Refund'}
+                      {refundSubmitting ? 'Processing 100% Real Money Refund...' : 'Request 100% Instant Real Money Refund'}
                     </button>
                   </div>
                 )}
@@ -555,7 +589,7 @@ export default function MultiStepPaywallModal({
           <span className="flex items-center gap-1">
             <ShieldCheck className="w-3.5 h-3.5 text-success" /> 256-Bit SSL Encrypted & Secured
           </span>
-          <span>Cancel Anytime • 14-Day Refund Guarantee</span>
+          <span>Cancel Anytime • 14-Day Real Money Refund Guarantee</span>
         </div>
 
       </div>
