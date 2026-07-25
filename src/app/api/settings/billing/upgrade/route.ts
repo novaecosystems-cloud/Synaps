@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     }
 
     const callerId = decoded?.uid || 'demo-admin-id';
-    const { planId, action, userEmail, reason, requestId } = await req.json();
+    const { planId, action, userEmail, reason, refundMethod, refundPayoutDetails, requestId } = await req.json();
 
     // 1. Handle User Payment Notice / Upgrade Request
     if (action === 'payment_notice') {
@@ -104,6 +104,8 @@ export async function POST(req: NextRequest) {
             resource: 'Billing & Payments',
             details: JSON.stringify({
               userEmail: emailToUse,
+              refundMethod: refundMethod || 'paypal',
+              refundPayoutDetails: refundPayoutDetails || emailToUse,
               reason: reason || '14-Day 100% Money-Back Guarantee',
               requestedAt: new Date().toISOString(),
               status: 'PENDING'
@@ -114,7 +116,7 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: '100% Refund request processed! Your account has been reset to Starter Tier (50 credits/day). Owner Admin notified for PayPal refund.',
+        message: '100% Refund request processed! Your account has been reset to Starter Tier (50 credits/day). Owner Admin notified for payout.',
         userEmail: emailToUse
       });
     }

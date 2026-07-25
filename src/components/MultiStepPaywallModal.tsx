@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, Sparkles, ShieldCheck, Check, ArrowRight, Zap, RefreshCw, 
   DollarSign, Clock, HelpCircle, AlertCircle, HeartHandshake, ShieldAlert, 
-  Award, FileText, CheckCircle2, ChevronRight, BrainCircuit
+  Award, FileText, CheckCircle2, ChevronRight, BrainCircuit, CreditCard, Landmark
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +28,8 @@ export default function MultiStepPaywallModal({
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [userEmail, setUserEmail] = useState('');
   const [refundUserEmail, setRefundUserEmail] = useState('');
+  const [refundMethod, setRefundMethod] = useState<'paypal' | 'upi' | 'bank' | 'card'>('paypal');
+  const [refundPayoutDetails, setRefundPayoutDetails] = useState('');
   const [refundReason, setRefundReason] = useState('');
   const [refundRequested, setRefundRequested] = useState(false);
   const [refundSubmitting, setRefundSubmitting] = useState(false);
@@ -97,6 +99,8 @@ export default function MultiStepPaywallModal({
         body: JSON.stringify({
           action: 'refund_request',
           userEmail: emailToUse,
+          refundMethod,
+          refundPayoutDetails: refundPayoutDetails.trim() || emailToUse,
           reason: refundReason || '14-Day 100% Money-Back Guarantee'
         })
       });
@@ -106,9 +110,9 @@ export default function MultiStepPaywallModal({
       }
     } catch (e) {}
 
-    const subject = encodeURIComponent(`100% Refund Request — ${emailToUse}`);
+    const subject = encodeURIComponent(`100% Refund Request (${refundMethod.toUpperCase()}) — ${emailToUse}`);
     const body = encodeURIComponent(
-      `Hi Synaps Support,\n\nI would like to request a 100% refund for my subscription under the 14-Day Money-Back Guarantee.\n\nAccount Email: ${emailToUse}\nReason: ${refundReason || 'N/A'}\n\nPlease issue my refund to my original payment method.\n\nThank you.`
+      `Hi Synaps Support,\n\nI would like to request a 100% refund for my subscription under the 14-Day Money-Back Guarantee.\n\nAccount Email: ${emailToUse}\nPreferred Refund Method: ${refundMethod.toUpperCase()}\nPayout Details / ID: ${refundPayoutDetails || emailToUse}\nReason: ${refundReason || 'N/A'}\n\nPlease issue my refund.\n\nThank you.`
     );
     window.open(`mailto:${supportEmail}?subject=${subject}&body=${body}`, '_blank');
     setRefundRequested(true);
@@ -439,7 +443,7 @@ export default function MultiStepPaywallModal({
                 </div>
 
                 <p className="text-xs text-base-content/70">
-                  If you bought a plan and want to cancel or request a full 100% refund, enter your account email below to trigger your instant refund request:
+                  Select your preferred payout method (PayPal, UPI / GPay, Bank Account, or Card) and enter your details to receive your 100% refund:
                 </p>
 
                 {refundRequested ? (
@@ -447,11 +451,44 @@ export default function MultiStepPaywallModal({
                     <Check className="w-5 h-5 shrink-0 text-success" />
                     <div>
                       <span className="text-sm block font-extrabold">✅ 100% Refund Request Processed!</span>
-                      <span className="text-[11px] text-success/80 font-normal">Your account has been reset to Starter Tier (50 credits/day). Your PayPal refund notice was sent to Owner Admin.</span>
+                      <span className="text-[11px] text-success/80 font-normal">Your account has been reset to Starter Tier (50 credits/day). Payout details ({refundMethod.toUpperCase()}) were transmitted to Owner Admin.</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
+                    
+                    {/* Refund Method Selector */}
+                    <div className="grid grid-cols-4 gap-1.5 text-[11px] font-bold">
+                      <button
+                        type="button"
+                        onClick={() => setRefundMethod('paypal')}
+                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'paypal' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
+                      >
+                        <CreditCard className="w-3.5 h-3.5" /> PayPal
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRefundMethod('upi')}
+                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'upi' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
+                      >
+                        <Zap className="w-3.5 h-3.5 text-amber-500" /> UPI / GPay
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRefundMethod('bank')}
+                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'bank' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
+                      >
+                        <Landmark className="w-3.5 h-3.5 text-emerald-500" /> Bank Transfer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRefundMethod('card')}
+                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'card' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
+                      >
+                        <CreditCard className="w-3.5 h-3.5 text-purple-500" /> Card / Stripe
+                      </button>
+                    </div>
+
                     <input 
                       type="email" 
                       value={refundUserEmail}
@@ -459,6 +496,20 @@ export default function MultiStepPaywallModal({
                       placeholder="Your Synaps account email (e.g. user@company.com)..."
                       className="w-full bg-base-100 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none font-bold"
                     />
+
+                    <input 
+                      type="text" 
+                      value={refundPayoutDetails}
+                      onChange={e => setRefundPayoutDetails(e.target.value)}
+                      placeholder={
+                        refundMethod === 'upi' ? "Enter your UPI ID (e.g. name@upi or Mobile # for GPay/PhonePe)..." :
+                        refundMethod === 'bank' ? "Enter Bank Account # and IFSC / Swift Code..." :
+                        refundMethod === 'paypal' ? "Enter PayPal Email for refund..." :
+                        "Enter Card / PayPal / Account details for refund..."
+                      }
+                      className="w-full bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none font-medium"
+                    />
+
                     <input 
                       type="text" 
                       value={refundReason}
@@ -466,6 +517,7 @@ export default function MultiStepPaywallModal({
                       placeholder="Reason for refund (e.g. Changed my mind)..."
                       className="w-full bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none"
                     />
+
                     <button 
                       onClick={handleRequestRefund}
                       disabled={!activeEmailForRefund || refundSubmitting}

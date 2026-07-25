@@ -64,6 +64,8 @@ export async function GET(req: NextRequest) {
         return {
           id: log.id,
           userEmail: details.userEmail || 'unknown@synaps.ai',
+          refundMethod: details.refundMethod || 'paypal',
+          refundPayoutDetails: details.refundPayoutDetails || details.userEmail || 'N/A',
           reason: details.reason || '14-Day Money Back Guarantee',
           createdAt: log.createdAt,
           status: details.status || 'PENDING'

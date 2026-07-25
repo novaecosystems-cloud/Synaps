@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, X, RefreshCw, ExternalLink } from 'lucide-react';
+import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, X, RefreshCw, ExternalLink, Copy, Landmark, CreditCard } from 'lucide-react';
 
 interface UserRow {
   id: string;
@@ -23,6 +23,8 @@ interface PendingRequest {
 interface PendingRefund {
   id: string;
   userEmail: string;
+  refundMethod: string;
+  refundPayoutDetails: string;
   reason: string;
   createdAt: string;
   status: string;
@@ -36,6 +38,7 @@ export default function AdminUpgradePage() {
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);
   const [upgraded, setUpgraded] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [message, setMessage] = useState('');
 
   const fetchUsers = async () => {
@@ -84,8 +87,6 @@ export default function AdminUpgradePage() {
   };
 
   const handleResolveRefund = async (requestId: string, userEmail: string) => {
-    // Open PayPal Activity so admin can issue 1-click refund
-    window.open('https://www.paypal.com/myaccount/transactions', '_blank');
     try {
       await fetch('/api/settings/billing/upgrade', {
         method: 'POST',
@@ -94,7 +95,13 @@ export default function AdminUpgradePage() {
       });
     } catch (e) {}
     setPendingRefunds(prev => prev.filter(r => r.id !== requestId));
-    setMessage(`✅ Refund resolved & PayPal portal opened for ${userEmail}.`);
+    setMessage(`✅ Refund for ${userEmail} marked as complete & resolved.`);
+  };
+
+  const handleCopy = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
   };
 
   const handleReject = async (requestId: string) => {
@@ -129,7 +136,7 @@ export default function AdminUpgradePage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-base-content">Owner Admin — Live User Upgrades & Refunds</h1>
-            <p className="text-xs text-base-content/50">Requests & refunds appear in real time. Click Accept to upgrade or issue PayPal refunds.</p>
+            <p className="text-xs text-base-content/50">Requests & refunds appear in real time. Process refunds via UPI, Bank, Stripe, or PayPal.</p>
           </div>
         </div>
 
@@ -159,25 +166,52 @@ export default function AdminUpgradePage() {
 
           <div className="space-y-3">
             {pendingRefunds.map((req) => (
-              <div key={req.id} className="p-4 bg-base-100 border border-red-500/30 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-extrabold text-sm text-base-content">{req.userEmail}</span>
-                    <span className="text-xs font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
-                      100% Refund Requested
+              <div key={req.id} className="p-5 bg-base-100 border border-red-500/30 rounded-2xl space-y-3">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-base-200 pb-3">
+                  <div>
+                    <span className="font-extrabold text-base text-base-content">{req.userEmail}</span>
+                    <span className="ml-2 text-xs font-bold uppercase tracking-wider text-red-500 bg-red-500/10 px-2.5 py-0.5 rounded-full border border-red-500/20">
+                      Method: {req.refundMethod.toUpperCase()}
                     </span>
                   </div>
-                  <p className="text-xs text-base-content/60">
-                    Reason: <em>"{req.reason}"</em> • Sent {new Date(req.createdAt).toLocaleTimeString()}
-                  </p>
+                  <span className="text-xs text-base-content/50">Requested {new Date(req.createdAt).toLocaleTimeString()}</span>
                 </div>
 
-                <button
-                  onClick={() => handleResolveRefund(req.id, req.userEmail)}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md"
-                >
-                  <ExternalLink className="w-4 h-4" /> Issue PayPal Refund & Resolve
-                </button>
+                {/* Payout Details */}
+                <div className="p-3 bg-base-200 rounded-xl space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-base-content/60">Payout ID / Account Details:</span>
+                    <button
+                      onClick={() => handleCopy(req.refundPayoutDetails, req.id)}
+                      className="text-primary font-bold hover:underline flex items-center gap-1 text-[11px]"
+                    >
+                      {copiedKey === req.id ? <><Check className="w-3.5 h-3.5 text-success" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy Details</>}
+                    </button>
+                  </div>
+                  <p className="font-mono text-sm font-extrabold text-primary break-all">{req.refundPayoutDetails}</p>
+                </div>
+
+                <p className="text-xs text-base-content/60">
+                  Reason: <em>"{req.reason}"</em>
+                </p>
+
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {req.refundMethod === 'paypal' && (
+                    <button
+                      onClick={() => window.open('https://www.paypal.com/myaccount/transactions', '_blank')}
+                      className="px-4 py-2 rounded-xl bg-[#009cde] hover:bg-[#0085c0] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Open PayPal Activity
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handleResolveRefund(req.id, req.userEmail)}
+                    className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
+                  >
+                    <Check className="w-4 h-4 stroke-[3]" /> Mark Refund Sent & Complete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
