@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { 
   X, Sparkles, ShieldCheck, Check, ArrowRight, Zap, RefreshCw, 
-  DollarSign, Clock, HelpCircle, AlertCircle, HeartHandshake, ShieldAlert, Award, FileText, CheckCircle2, ChevronRight
+  DollarSign, Clock, HelpCircle, AlertCircle, HeartHandshake, ShieldAlert, 
+  Award, FileText, CheckCircle2, ChevronRight, BrainCircuit
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -45,7 +46,6 @@ export default function MultiStepPaywallModal({
   };
 
   const currentPrice = prices[selectedPlan].discounted;
-  const originalPrice = prices[selectedPlan].original;
 
   const handleOpenPayPal = () => {
     const amount = currentPrice;
@@ -112,9 +112,7 @@ export default function MultiStepPaywallModal({
         {/* Modal Scroll Container */}
         <div className="p-6 md:p-8 overflow-y-auto space-y-6 flex-1">
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
           {/* STEP 1: SELL THE OUTCOME FIRST */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
           {step === 1 && (
             <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
               
@@ -195,9 +193,7 @@ export default function MultiStepPaywallModal({
             </div>
           )}
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
           {/* STEP 2: CLEAR OFFER & ONE-TIME DISCOUNTED PRICING */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
           {step === 2 && (
             <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
               
@@ -323,9 +319,7 @@ export default function MultiStepPaywallModal({
             </div>
           )}
 
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
           {/* STEP 3: PAYMENT & INSTANT REFUND GUARANTEE ENGINE */}
-          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
           {step === 3 && (
             <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
               
@@ -402,9 +396,7 @@ export default function MultiStepPaywallModal({
                 </div>
               </div>
 
-              {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
               {/* INSTANT REFUND & CANCELLATION ENGINE */}
-              {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
               <div className="p-5 bg-amber-500/5 border border-amber-500/20 rounded-3xl space-y-3">
                 <div className="flex justify-between items-center">
                   <h4 className="font-extrabold text-xs uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
