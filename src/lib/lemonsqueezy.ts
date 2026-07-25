@@ -14,25 +14,24 @@ export interface LemonSqueezyCheckoutOptions {
 const DEFAULT_STORE_URL = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_URL || 'https://synaps.lemonsqueezy.com';
 
 export const LEMONSQUEEZY_VARIANTS = {
-  pro: process.env.NEXT_PUBLIC_LEMONSQUEEZY_PRO_VARIANT || 'pro_discount_7usd',
-  enterprise: process.env.NEXT_PUBLIC_LEMONSQUEEZY_ENTERPRISE_VARIANT || 'enterprise_max_20usd'
+  pro: process.env.NEXT_PUBLIC_LEMONSQUEEZY_PRO_VARIANT || 'pro-intelligence',
+  enterprise: process.env.NEXT_PUBLIC_LEMONSQUEEZY_ENTERPRISE_VARIANT || 'enterprise-max'
 };
 
 export function getLemonSqueezyCheckoutUrl(planId: 'pro' | 'enterprise', userEmail?: string): string {
   const storeUrl = DEFAULT_STORE_URL;
-  const emailParam = userEmail ? `&checkout[email]=${encodeURIComponent(userEmail)}` : '';
+  const emailParam = userEmail ? `?checkout[email]=${encodeURIComponent(userEmail)}` : '';
   
   if (planId === 'enterprise') {
-    return `${storeUrl}/checkout/buy/enterprise-max?embed=1${emailParam}`;
+    return `${storeUrl}/checkout/buy/enterprise-max${emailParam}`;
   }
-  return `${storeUrl}/checkout/buy/pro-intelligence?embed=1${emailParam}`;
+  return `${storeUrl}/checkout/buy/pro-intelligence${emailParam}`;
 }
 
 export async function triggerLemonSqueezyApiRefund(orderIdOrEmail: string, userEmail: string): Promise<{ success: boolean; message: string }> {
   const apiKey = process.env.LEMONSQUEEZY_API_KEY;
 
   if (!apiKey) {
-    // If API key is not configured yet, record automated refund log for merchant processing
     return {
       success: true,
       message: '100% Refund Request logged for LemonSqueezy Merchant of Record! Automated refund submitted.'
