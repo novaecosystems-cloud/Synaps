@@ -21,8 +21,14 @@ export default function AiCreditBadge() {
     };
 
     fetchCredits();
-    const interval = setInterval(fetchCredits, 30000); // Poll every 30s
-    return () => clearInterval(interval);
+    // Fast 5-second polling so Owner Admin approvals reflect instantly on the user app!
+    const interval = setInterval(fetchCredits, 5000);
+    window.addEventListener('focus', fetchCredits);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', fetchCredits);
+    };
   }, []);
 
   if (!credits) return null;

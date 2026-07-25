@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown } from 'lucide-react';
+import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, ArrowUpRight } from 'lucide-react';
 
 interface UserRow {
   id: string;
@@ -11,8 +11,18 @@ interface UserRow {
   organizationId: string | null;
 }
 
+interface PendingRequest {
+  id: string;
+  userEmail: string;
+  planId: string;
+  amount: number;
+  createdAt: string;
+  status: string;
+}
+
 export default function AdminUpgradePage() {
   const [users, setUsers] = useState<UserRow[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);
@@ -20,29 +30,37 @@ export default function AdminUpgradePage() {
   const [message, setMessage] = useState('');
 
   const fetchUsers = async () => {
-    setLoading(true);
     try {
       const res = await fetch('/api/admin/users');
       const data = await res.json();
-      if (data.success) setUsers(data.users);
+      if (data.success) {
+        setUsers(data.users || []);
+        setPendingRequests(data.pendingRequests || []);
+      }
     } catch (e) {}
     setLoading(false);
   };
 
-  useEffect(() => { fetchUsers(); }, []);
+  useEffect(() => {
+    fetchUsers();
+    // Live Polling every 5 seconds for instant activation!
+    const interval = setInterval(fetchUsers, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleUpgrade = async (userId: string, planId: string) => {
-    setUpgrading(userId + planId);
+  const handleUpgrade = async (userId: string | null, userEmail: string | null, planId: string, requestId?: string) => {
+    const key = (userId || userEmail) + planId;
+    setUpgrading(key);
     setMessage('');
     try {
       const res = await fetch('/api/admin/upgrade-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, planId })
+        body: JSON.stringify({ userId, userEmail, planId, requestId })
       });
       const data = await res.json();
       if (data.success) {
-        setUpgraded(userId + planId);
+        setUpgraded(key);
         setMessage(`✅ ${data.message}`);
         fetchUsers();
         setTimeout(() => setUpgraded(null), 3000);
@@ -75,22 +93,75 @@ export default function AdminUpgradePage() {
   );
 
   return (
-    <div className="w-full max-w-5xl space-y-6 pb-16">
+    <div className="w-full max-w-5xl space-y-6 pb-16 font-sans">
 
       {/* Header */}
-      <div className="p-6 bg-base-100 rounded-3xl border border-base-300 flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-          <ShieldCheck className="w-6 h-6 text-purple-500" />
+      <div className="p-6 bg-base-100 rounded-3xl border border-base-300 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+            <ShieldCheck className="w-6 h-6 text-purple-500" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-base-content">Owner Admin — Live User Upgrades</h1>
+            <p className="text-xs text-base-content/50">Requests appear in real time. Click Approve to instantly upgrade credits on user apps.</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-base-content">Admin — Manual Plan Upgrades</h1>
-          <p className="text-xs text-base-content/50">After verifying PayPal payment, upgrade the user's plan here instantly.</p>
-        </div>
+
+        <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" /> Live Polling Active
+        </span>
       </div>
 
       {message && (
         <div className={`p-4 rounded-2xl text-sm font-bold ${message.startsWith('✅') ? 'bg-success/10 border border-success/30 text-success' : 'bg-red-500/10 border border-red-500/30 text-red-500'}`}>
           {message}
+        </div>
+      )}
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* LIVE PENDING UPGRADE REQUESTS SECTION */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {pendingRequests.length > 0 && (
+        <div className="p-6 bg-amber-500/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-xl animate-in fade-in duration-300">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-extrabold text-amber-500 flex items-center gap-2">
+              <Bell className="w-5 h-5 text-amber-500 animate-bounce" /> 
+              Pending Upgrade Requests ({pendingRequests.length})
+            </h2>
+            <span className="text-xs font-bold text-amber-400">Action Required</span>
+          </div>
+
+          <div className="space-y-3">
+            {pendingRequests.map((req) => (
+              <div key={req.id} className="p-4 bg-base-100 border border-amber-500/30 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-sm text-base-content">{req.userEmail}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">
+                      Requested {req.planId === 'enterprise' ? 'Enterprise Max ($20)' : 'Pro ($7)'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-base-content/50 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" /> Requested {new Date(req.createdAt).toLocaleTimeString()}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => handleUpgrade(null, req.userEmail, req.planId, req.id)}
+                  disabled={!!upgrading}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md"
+                >
+                  {upgrading === req.userEmail + req.planId ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4 fill-black" /> Approve & Upgrade Immediately
+                    </>
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -133,7 +204,7 @@ export default function AdminUpgradePage() {
                 <div className="flex items-center gap-2 shrink-0">
                   {/* Upgrade to Pro */}
                   <button
-                    onClick={() => handleUpgrade(user.id, 'pro')}
+                    onClick={() => handleUpgrade(user.id, user.email, 'pro')}
                     disabled={!!upgrading || user.role === 'ADMIN' || user.role === 'LEADER' || user.role === 'OWNER'}
                     className="px-3 py-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-500 text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                   >
@@ -145,7 +216,7 @@ export default function AdminUpgradePage() {
 
                   {/* Upgrade to Enterprise */}
                   <button
-                    onClick={() => handleUpgrade(user.id, 'enterprise')}
+                    onClick={() => handleUpgrade(user.id, user.email, 'enterprise')}
                     disabled={!!upgrading || user.role === 'LEADER' || user.role === 'OWNER'}
                     className="px-3 py-2 rounded-xl bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 text-yellow-500 text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                   >

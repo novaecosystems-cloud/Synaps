@@ -26,7 +26,30 @@ export async function GET(req: NextRequest) {
       take: 200
     });
 
-    return NextResponse.json({ success: true, users });
+    // Fetch pending upgrade requests from AuditLog
+    let pendingRequests: any[] = [];
+    try {
+      const pendingLogs = await prisma.auditLog.findMany({
+        where: { action: 'PENDING_UPGRADE_REQUEST' },
+        orderBy: { createdAt: 'desc' },
+        take: 50
+      });
+
+      pendingRequests = pendingLogs.map(log => {
+        let details: any = {};
+        try { details = JSON.parse(log.details); } catch(e) {}
+        return {
+          id: log.id,
+          userEmail: details.userEmail || 'unknown@synaps.ai',
+          planId: details.planId || 'pro',
+          amount: details.amount || 7,
+          createdAt: log.createdAt,
+          status: details.status || 'PENDING'
+        };
+      }).filter(req => req.status === 'PENDING');
+    } catch (e) {}
+
+    return NextResponse.json({ success: true, users, pendingRequests });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

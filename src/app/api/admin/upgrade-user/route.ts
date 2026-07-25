@@ -21,8 +21,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Forbidden — only the Owner can upgrade users' }, { status: 403 });
     }
 
-    const { userId, planId } = await req.json();
-    if (!userId || !planId) return NextResponse.json({ success: false, error: 'userId and planId required' }, { status: 400 });
+    const { userId, userEmail, planId, requestId } = await req.json();
+    if ((!userId && !userEmail) || !planId) {
+      return NextResponse.json({ success: false, error: 'userId/userEmail and planId required' }, { status: 400 });
+    }
+
+    let targetUser: any = null;
+    if (userId) {
+      targetUser = await prisma.user.findUnique({ where: { id: userId } });
+    } else if (userEmail) {
+      targetUser = await prisma.user.findFirst({ where: { email: { equals: userEmail, mode: 'insensitive' } } });
+    }
+
+    if (!targetUser) {
+      return NextResponse.json({ success: false, error: `User ${userEmail || userId} not found in database.` }, { status: 404 });
+    }
 
     let newRole = 'MEMBER';
     let newCreditLimit = 50;
@@ -30,31 +43,36 @@ export async function POST(req: NextRequest) {
     if (planId === 'pro') { newRole = 'ADMIN'; newCreditLimit = 500; }
     else if (planId === 'enterprise') { newRole = 'LEADER'; newCreditLimit = 10000; }
 
-    const target = await prisma.user.update({
-      where: { id: userId },
-      data: { role: newRole as any },
-      select: { name: true, email: true }
+    await prisma.user.update({
+      where: { id: targetUser.id },
+      data: { role: newRole as any }
     });
 
     ROLE_CREDIT_LIMITS[newRole] = newCreditLimit;
 
-    // Create audit log
+    // Delete resolved pending request audit log
+    if (requestId) {
+      try {
+        await prisma.auditLog.delete({ where: { id: requestId } });
+      } catch (e) {}
+    }
+
+    // Create confirmation audit log
     try {
-      const targetUser = await prisma.user.findUnique({ where: { id: userId }, select: { organizationId: true } });
       await prisma.auditLog.create({
         data: {
-          organizationId: targetUser?.organizationId || 'default_org',
+          organizationId: targetUser.organizationId || 'default_org',
           userId: decoded.uid,
           action: 'ADMIN_PLAN_UPGRADE',
           resource: 'Billing',
-          details: `Admin manually upgraded ${target.email} to ${planId.toUpperCase()} plan (${newCreditLimit} daily AI credits).`
+          details: `Owner Admin approved & upgraded ${targetUser.email} to ${planId.toUpperCase()} plan (${newCreditLimit} daily AI credits active).`
         }
       });
     } catch (e) {}
 
     return NextResponse.json({
       success: true,
-      message: `${target.name || target.email} upgraded to ${planId.toUpperCase()} — ${newCreditLimit} daily AI credits active!`
+      message: `${targetUser.name || targetUser.email} upgraded to ${planId.toUpperCase()} — ${newCreditLimit} daily AI credits active!`
     });
 
   } catch (error: any) {
