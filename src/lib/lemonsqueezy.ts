@@ -5,22 +5,16 @@
 
 export const LEMONSQUEEZY_STORE_URL = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_URL || 'https://synaps.lemonsqueezy.com';
 
+// Exact Published Product Checkout URLs
+export const LEMONSQUEEZY_CHECKOUT_URLS = {
+  pro: 'https://synaps.lemonsqueezy.com/checkout/buy/3854b4a9-8b3c-46a5-9ae9-99a2eb75f0f9',
+  enterprise: 'https://synaps.lemonsqueezy.com/checkout/buy/81940b33-9f7e-462f-bf7a-554f89145e5d'
+};
+
 export function getLemonSqueezyCheckoutUrl(planId: 'pro' | 'enterprise', userEmail?: string): string {
-  const storeUrl = LEMONSQUEEZY_STORE_URL;
+  const baseUrl = planId === 'enterprise' ? LEMONSQUEEZY_CHECKOUT_URLS.enterprise : LEMONSQUEEZY_CHECKOUT_URLS.pro;
   const emailParam = userEmail ? `?checkout[email]=${encodeURIComponent(userEmail)}` : '';
-
-  // If specific product slug exists, use it, otherwise open LemonSqueezy Store safely without 404
-  const proCheckout = process.env.NEXT_PUBLIC_LEMONSQUEEZY_PRO_CHECKOUT;
-  const enterpriseCheckout = process.env.NEXT_PUBLIC_LEMONSQUEEZY_ENTERPRISE_CHECKOUT;
-
-  if (planId === 'enterprise' && enterpriseCheckout) {
-    return `${enterpriseCheckout}${emailParam}`;
-  } else if (planId === 'pro' && proCheckout) {
-    return `${proCheckout}${emailParam}`;
-  }
-
-  // Safe Store URL (Never 404s)
-  return `${storeUrl}${emailParam}`;
+  return `${baseUrl}${emailParam}`;
 }
 
 export async function triggerLemonSqueezyApiRefund(orderIdOrEmail: string, userEmail: string): Promise<{ success: boolean; message: string }> {
