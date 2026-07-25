@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Zap, ShieldCheck, Check, Sparkles, Building2, Crown, 
   CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers, Globe, RefreshCw, HeartHandshake, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import PayPalCheckoutModal from '@/components/PayPalCheckoutModal';
 import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
 
 type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'INR';
@@ -56,8 +55,7 @@ export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [activePlanId, setActivePlanId] = useState<string>('free');
-  const [activeModalPlan, setActiveModalPlan] = useState<{ id: string; name: string; price: number } | null>(null);
-  const [showMultiStepPaywall, setShowMultiStepPaywall] = useState(false);
+  const [showMultiStepPaywall, setShowMultiStepPaywall] = useState(true); // Auto-open Multi-Step Paywall Wizard on page load!
   const [showSuccess, setShowSuccess] = useState(false);
 
   const activeCurrency = CURRENCIES.find(c => c.code === currency) || CURRENCIES[0];
@@ -93,7 +91,7 @@ export default function BillingPage() {
       icon: Sparkles,
       color: 'border-primary ring-2 ring-primary/30',
       buttonVariant: 'default' as const,
-      buttonText: 'Upgrade with PayPal ($7)',
+      buttonText: 'Upgrade Now ($7)',
       features: [
         '500 AI Credits / Day (Immediate Upgrade)',
         'Collaborative 10-Agent AI Boardroom',
@@ -113,7 +111,7 @@ export default function BillingPage() {
       icon: Crown,
       color: 'border-purple-500/40',
       buttonVariant: 'outline' as const,
-      buttonText: 'Upgrade with PayPal ($20)',
+      buttonText: 'Upgrade Now ($20)',
       features: [
         '10,000 AI Credits / Day (Unlimited)',
         'Custom Fine-Tuned AI Models',
@@ -125,19 +123,17 @@ export default function BillingPage() {
     }
   ];
 
-  const handleOpenPayPal = (plan: typeof plans[0]) => {
-    if (plan.id === 'free') return;
-    const price = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
-    setActiveModalPlan({ id: plan.id, name: plan.name, price });
+  const handleOpenPaywall = (planId: string) => {
+    if (planId === 'free') return;
+    setShowMultiStepPaywall(true);
   };
 
   const handlePaymentSuccess = () => {
-    if (activeModalPlan) {
-      setActivePlanId(activeModalPlan.id);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 6000);
-      window.dispatchEvent(new Event('focus'));
-    }
+    setActivePlanId('pro');
+    setShowSuccess(true);
+    setShowMultiStepPaywall(false);
+    setTimeout(() => setShowSuccess(false), 6000);
+    window.dispatchEvent(new Event('focus'));
   };
 
   return (
@@ -161,7 +157,7 @@ export default function BillingPage() {
             onClick={() => setShowMultiStepPaywall(true)}
             className="rounded-2xl gap-2 font-bold py-2.5 bg-amber-500 hover:bg-amber-600 text-black shadow-md"
           >
-            <Sparkles className="w-4 h-4 fill-black" /> Open Multi-Step Paywall Wizard
+            <Sparkles className="w-4 h-4 fill-black" /> Launch Multi-Step Paywall
           </Button>
 
           {/* Currency Selector */}
@@ -269,7 +265,7 @@ export default function BillingPage() {
 
               <div className="pt-6 mt-6 border-t border-base-200 space-y-2">
                 <Button
-                  onClick={() => handleOpenPayPal(plan)}
+                  onClick={() => handleOpenPaywall(plan.id)}
                   disabled={plan.id === 'free' || isCurrent}
                   variant={plan.buttonVariant}
                   className="w-full rounded-2xl gap-2 font-bold py-3"
@@ -304,20 +300,6 @@ export default function BillingPage() {
           </Button>
         </div>
       </div>
-
-      {/* PayPal Modal */}
-      {activeModalPlan && (
-        <PayPalCheckoutModal
-          isOpen={!!activeModalPlan}
-          onClose={() => setActiveModalPlan(null)}
-          planId={activeModalPlan.id}
-          planName={activeModalPlan.name}
-          amount={activeModalPlan.price}
-          currencySymbol={activeCurrency.symbol}
-          currencyCode={activeCurrency.code}
-          onSuccess={handlePaymentSuccess}
-        />
-      )}
 
       {/* Multi-Step Paywall Modal */}
       {showMultiStepPaywall && (
