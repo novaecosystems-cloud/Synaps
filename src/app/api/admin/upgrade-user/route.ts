@@ -37,12 +37,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: `User ${userEmail || userId} not found in database.` }, { status: 404 });
     }
 
-    let newRole = 'MEMBER';
-    let newCreditLimit = 50;
+    // Map to valid PostgreSQL Enum values (ADMIN for Pro 500, OWNER for Enterprise 10,000)
+    let newRole: 'ADMIN' | 'OWNER' | 'MEMBER' = 'ADMIN';
+    let newCreditLimit = 500;
 
-    if (planId === 'pro') { newRole = 'ADMIN'; newCreditLimit = 500; }
-    else if (planId === 'enterprise') { newRole = 'LEADER'; newCreditLimit = 10000; }
+    if (planId === 'enterprise' || planId === 'max') {
+      newRole = 'OWNER';
+      newCreditLimit = 10000;
+    } else if (planId === 'pro') {
+      newRole = 'ADMIN';
+      newCreditLimit = 500;
+    }
 
+    // Update PostgreSQL safely
     await prisma.user.update({
       where: { id: targetUser.id },
       data: { role: newRole as any }
@@ -50,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     ROLE_CREDIT_LIMITS[newRole] = newCreditLimit;
 
-    // Delete resolved pending request audit log
+    // Delete resolved pending request audit log if requestId was provided
     if (requestId) {
       try {
         await prisma.auditLog.delete({ where: { id: requestId } });
@@ -72,10 +79,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `${targetUser.name || targetUser.email} upgraded to ${planId.toUpperCase()} — ${newCreditLimit} daily AI credits active!`
+      message: `${targetUser.name || targetUser.email} requested ${planId.toUpperCase()} plan $\\rightarrow$ ACCEPTED & UPGRADED (${newCreditLimit} daily AI credits active!)`
     });
 
   } catch (error: any) {
+    console.error('POST /api/admin/upgrade-user error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

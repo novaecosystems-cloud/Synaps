@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, ArrowUpRight } from 'lucide-react';
+import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, X } from 'lucide-react';
 
 interface UserRow {
   id: string;
@@ -73,17 +73,19 @@ export default function AdminUpgradePage() {
     setUpgrading(null);
   };
 
+  const handleReject = async (requestId: string) => {
+    setPendingRequests(prev => prev.filter(r => r.id !== requestId));
+  };
+
   const roleColor = (role: string) => {
-    if (role === 'LEADER') return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/30';
+    if (role === 'LEADER' || role === 'OWNER') return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/30';
     if (role === 'ADMIN') return 'text-blue-500 bg-blue-500/10 border-blue-500/30';
-    if (role === 'OWNER') return 'text-purple-500 bg-purple-500/10 border-purple-500/30';
     return 'text-base-content/50 bg-base-200 border-base-300';
   };
 
   const planLabel = (role: string) => {
-    if (role === 'LEADER') return 'Enterprise Max';
+    if (role === 'LEADER' || role === 'OWNER') return 'Enterprise Max';
     if (role === 'ADMIN') return 'Pro';
-    if (role === 'OWNER') return 'Owner';
     return 'Free';
   };
 
@@ -103,7 +105,7 @@ export default function AdminUpgradePage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-base-content">Owner Admin — Live User Upgrades</h1>
-            <p className="text-xs text-base-content/50">Requests appear in real time. Click Approve to instantly upgrade credits on user apps.</p>
+            <p className="text-xs text-base-content/50">Requests appear in real time. Click Accept to instantly upgrade credits on user apps.</p>
           </div>
         </div>
 
@@ -126,39 +128,48 @@ export default function AdminUpgradePage() {
           <div className="flex items-center justify-between">
             <h2 className="text-base font-extrabold text-amber-500 flex items-center gap-2">
               <Bell className="w-5 h-5 text-amber-500 animate-bounce" /> 
-              Pending Upgrade Requests ({pendingRequests.length})
+              Pending Payment Verification Requests ({pendingRequests.length})
             </h2>
-            <span className="text-xs font-bold text-amber-400">Action Required</span>
+            <span className="text-xs font-bold text-amber-400">Owner Action Required</span>
           </div>
 
           <div className="space-y-3">
             {pendingRequests.map((req) => (
               <div key={req.id} className="p-4 bg-base-100 border border-amber-500/30 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-extrabold text-sm text-base-content">{req.userEmail}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30">
-                      Requested {req.planId === 'enterprise' ? 'Enterprise Max ($20)' : 'Pro ($7)'}
+                    <span className="text-xs font-bold text-amber-500">
+                      wants the <strong>{req.planId === 'enterprise' ? 'Enterprise Max ($20)' : 'Pro ($7)'}</strong> plan
                     </span>
                   </div>
                   <p className="text-xs text-base-content/50 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" /> Requested {new Date(req.createdAt).toLocaleTimeString()}
+                    <Clock className="w-3.5 h-3.5" /> Sent verification request {new Date(req.createdAt).toLocaleTimeString()}
                   </p>
                 </div>
 
-                <button
-                  onClick={() => handleUpgrade(null, req.userEmail, req.planId, req.id)}
-                  disabled={!!upgrading}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md"
-                >
-                  {upgrading === req.userEmail + req.planId ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Zap className="w-4 h-4 fill-black" /> Approve & Upgrade Immediately
-                    </>
-                  )}
-                </button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={() => handleUpgrade(null, req.userEmail, req.planId, req.id)}
+                    disabled={!!upgrading}
+                    className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md"
+                  >
+                    {upgrading === req.userEmail + req.planId ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 fill-black" /> Accept & Upgrade Immediately
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleReject(req.id)}
+                    className="px-3 py-2.5 rounded-xl bg-base-200 hover:bg-red-500/10 border border-base-300 hover:border-red-500/30 text-base-content/60 hover:text-red-500 text-xs font-bold transition-all"
+                    title="Dismiss Request"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -205,7 +216,7 @@ export default function AdminUpgradePage() {
                   {/* Upgrade to Pro */}
                   <button
                     onClick={() => handleUpgrade(user.id, user.email, 'pro')}
-                    disabled={!!upgrading || user.role === 'ADMIN' || user.role === 'LEADER' || user.role === 'OWNER'}
+                    disabled={!!upgrading || user.role === 'ADMIN' || user.role === 'OWNER'}
                     className="px-3 py-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-500 text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     {upgrading === user.id + 'pro' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
@@ -217,7 +228,7 @@ export default function AdminUpgradePage() {
                   {/* Upgrade to Enterprise */}
                   <button
                     onClick={() => handleUpgrade(user.id, user.email, 'enterprise')}
-                    disabled={!!upgrading || user.role === 'LEADER' || user.role === 'OWNER'}
+                    disabled={!!upgrading || user.role === 'OWNER'}
                     className="px-3 py-2 rounded-xl bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 text-yellow-500 text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     {upgrading === user.id + 'enterprise' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :

@@ -25,7 +25,6 @@ export async function POST(req: NextRequest) {
     if (action === 'payment_notice') {
       const emailToUse = userEmail || 'user@synaps.ai';
       
-      // Find or tag target user
       let targetUser = await prisma.user.findFirst({
         where: { email: { equals: emailToUse, mode: 'insensitive' } }
       });
@@ -93,16 +92,16 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Handle Direct Plan Upgrades
-    let newRole = 'MEMBER';
-    let newCreditLimit = 50;
+    // 4. Handle Direct Plan Upgrades (Valid Enums: ADMIN for Pro, OWNER for Enterprise)
+    let newRole: 'ADMIN' | 'OWNER' | 'MEMBER' = 'ADMIN';
+    let newCreditLimit = 500;
 
-    if (planId === 'pro') {
+    if (planId === 'enterprise' || planId === 'max') {
+      newRole = 'OWNER';
+      newCreditLimit = 10000;
+    } else if (planId === 'pro') {
       newRole = 'ADMIN';
       newCreditLimit = 500;
-    } else if (planId === 'enterprise') {
-      newRole = 'LEADER';
-      newCreditLimit = 10000;
     }
 
     try {
