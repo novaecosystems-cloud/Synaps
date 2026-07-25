@@ -18,7 +18,8 @@ import {
   ShieldAlert,
   Sparkles,
   ShieldCheck,
-  Zap
+  Zap,
+  Trophy
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { logoutAction } from '@/app/actions/auth';
@@ -27,6 +28,7 @@ import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
+import SynapsWrappedModal from '@/components/SynapsWrappedModal';
 
 const NotificationDropdown = dynamic(() => import('@/components/NotificationDropdown'), { ssr: false });
 const GlobalSearch = dynamic(() => import('@/components/GlobalSearch').then(mod => mod.GlobalSearch), { ssr: false });
@@ -220,6 +222,7 @@ export default function ClientLayout({ children, user }: { children: React.React
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
+  const [isWrappedModalOpen, setIsWrappedModalOpen] = useState(false);
 
   const handleLogout = async () => {
     await logoutAction();
@@ -364,9 +367,19 @@ export default function ClientLayout({ children, user }: { children: React.React
             </button>
           </div>
 
-          {/* Top Actions (Top Right Persistent Upgrade & Payment Button) */}
+          {/* Top Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             
+            {/* Spotify-Wrapped Style Executive Progress Card Button */}
+            <button
+              onClick={() => setIsWrappedModalOpen(true)}
+              className="px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all hover:scale-[1.03]"
+              title="View & Share Spotify-Wrapped Executive Progress Card"
+            >
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Wrapped</span>
+            </button>
+
             {/* Top Right Glowing Persistent Upgrade / Unlock Credits Button */}
             <button
               onClick={() => setIsPaywallModalOpen(true)}
@@ -400,6 +413,10 @@ export default function ClientLayout({ children, user }: { children: React.React
         isOpen={isPaywallModalOpen} 
         onClose={() => setIsPaywallModalOpen(false)} 
         initialStep={2}
+      />
+      <SynapsWrappedModal
+        isOpen={isWrappedModalOpen}
+        onClose={() => setIsWrappedModalOpen(false)}
       />
       {pathname !== '/demo' && (
         <>
