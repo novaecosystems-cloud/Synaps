@@ -95,7 +95,6 @@ export default function BillingPage() {
       description: 'Ideal for testing AI document search and baseline queries.',
       icon: Zap,
       color: 'border-base-300',
-      buttonVariant: 'outline' as const,
       features: [
         '50 AI Credits / Day',
         '1 Organization Workspace',
@@ -113,8 +112,7 @@ export default function BillingPage() {
       badge: 'One-Time 50% OFF',
       description: 'Full multi-agent suite & 10-Agent AI Boardroom.',
       icon: Sparkles,
-      color: 'border-primary ring-2 ring-primary/30',
-      buttonVariant: 'default' as const,
+      color: 'border-primary ring-2 ring-primary/30 shadow-md',
       features: [
         '500 AI Credits / Day (Immediate Upgrade)',
         'Collaborative 10-Agent AI Boardroom',
@@ -132,8 +130,7 @@ export default function BillingPage() {
       badge: 'Max Limit ($20 Cap)',
       description: 'Unlimited AI capabilities for power users & large teams.',
       icon: Crown,
-      color: 'border-purple-500/40',
-      buttonVariant: 'outline' as const,
+      color: 'border-purple-500/50 ring-2 ring-purple-500/20 shadow-md',
       features: [
         '10,000 AI Credits / Day (Unlimited)',
         'Custom Fine-Tuned AI Models',
@@ -146,7 +143,7 @@ export default function BillingPage() {
   ];
 
   const handleOpenPaywall = (planId: string) => {
-    if (planId === activePlanId) return;
+    if (planId === activePlanId || planId === 'free') return;
     setSelectedPaywallPlan(planId === 'enterprise' ? 'enterprise' : 'pro');
     setShowMultiStepPaywall(true);
   };
@@ -308,18 +305,47 @@ export default function BillingPage() {
               </div>
 
               <div className="pt-6 mt-6 border-t border-base-200 space-y-2">
-                <Button
-                  onClick={() => handleOpenPaywall(plan.id)}
-                  disabled={isCurrent}
-                  variant={isCurrent ? 'outline' : plan.buttonVariant}
-                  className={cn(
-                    "w-full rounded-2xl gap-2 font-bold py-3",
-                    isCurrent && "border-emerald-500 text-emerald-500 bg-emerald-500/10 cursor-default opacity-100 font-extrabold"
-                  )}
-                >
-                  {isCurrent ? '✓ Active Plan' : plan.id === 'pro' ? 'Upgrade to Pro ($7)' : 'Upgrade to Enterprise ($20)'}
-                  {!isCurrent && <ArrowRight className="w-4 h-4" />}
-                </Button>
+                {plan.id === 'free' ? (
+                  <button
+                    disabled
+                    className={cn(
+                      "w-full rounded-2xl py-3.5 px-4 font-extrabold text-xs uppercase tracking-wider text-center border transition-all",
+                      isCurrent 
+                        ? "border-emerald-500 text-emerald-400 bg-emerald-500/10 cursor-default"
+                        : "border-base-300 text-base-content/50 bg-base-200/50 cursor-not-allowed"
+                    )}
+                  >
+                    {isCurrent ? '✓ Current Active Plan' : 'Free Starter Tier'}
+                  </button>
+                ) : plan.id === 'pro' ? (
+                  <button
+                    onClick={() => handleOpenPaywall('pro')}
+                    disabled={isCurrent}
+                    className={cn(
+                      "w-full rounded-2xl py-3.5 px-4 font-extrabold text-xs uppercase tracking-wider text-center transition-all flex items-center justify-center gap-2 shadow-md",
+                      isCurrent
+                        ? "border border-emerald-500 text-emerald-400 bg-emerald-500/10 cursor-default"
+                        : "bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-[1.02]"
+                    )}
+                  >
+                    {isCurrent ? '✓ Current Active Plan' : `Upgrade to Pro (${activeCurrency.symbol}${price})`}
+                    {!isCurrent && <ArrowRight className="w-4 h-4 shrink-0" />}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleOpenPaywall('enterprise')}
+                    disabled={isCurrent}
+                    className={cn(
+                      "w-full rounded-2xl py-3.5 px-4 font-extrabold text-xs uppercase tracking-wider text-center transition-all flex items-center justify-center gap-2 shadow-lg",
+                      isCurrent
+                        ? "border border-emerald-500 text-emerald-400 bg-emerald-500/10 cursor-default"
+                        : "bg-gradient-to-r from-purple-600 via-primary to-amber-500 hover:from-purple-700 hover:to-amber-600 text-white hover:scale-[1.02]"
+                    )}
+                  >
+                    {isCurrent ? '✓ Current Active Plan' : `Upgrade to Enterprise (${activeCurrency.symbol}${price})`}
+                    {!isCurrent && <ArrowRight className="w-4 h-4 shrink-0" />}
+                  </button>
+                )}
               </div>
             </div>
           );
