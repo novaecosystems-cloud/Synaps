@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, X } from 'lucide-react';
+import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, X, RefreshCw, ExternalLink } from 'lucide-react';
 
 interface UserRow {
   id: string;
@@ -20,9 +20,18 @@ interface PendingRequest {
   status: string;
 }
 
+interface PendingRefund {
+  id: string;
+  userEmail: string;
+  reason: string;
+  createdAt: string;
+  status: string;
+}
+
 export default function AdminUpgradePage() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+  const [pendingRefunds, setPendingRefunds] = useState<PendingRefund[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);
@@ -36,6 +45,7 @@ export default function AdminUpgradePage() {
       if (data.success) {
         setUsers(data.users || []);
         setPendingRequests(data.pendingRequests || []);
+        setPendingRefunds(data.pendingRefunds || []);
       }
     } catch (e) {}
     setLoading(false);
@@ -43,7 +53,7 @@ export default function AdminUpgradePage() {
 
   useEffect(() => {
     fetchUsers();
-    // Live Polling every 5 seconds for instant activation!
+    // Live Polling every 5 seconds for instant activation & refunds!
     const interval = setInterval(fetchUsers, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -71,6 +81,20 @@ export default function AdminUpgradePage() {
       setMessage(`❌ ${e.message}`);
     }
     setUpgrading(null);
+  };
+
+  const handleResolveRefund = async (requestId: string, userEmail: string) => {
+    // Open PayPal Activity so admin can issue 1-click refund
+    window.open('https://www.paypal.com/myaccount/transactions', '_blank');
+    try {
+      await fetch('/api/settings/billing/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'resolve_refund', requestId, userEmail })
+      });
+    } catch (e) {}
+    setPendingRefunds(prev => prev.filter(r => r.id !== requestId));
+    setMessage(`✅ Refund resolved & PayPal portal opened for ${userEmail}.`);
   };
 
   const handleReject = async (requestId: string) => {
@@ -104,8 +128,8 @@ export default function AdminUpgradePage() {
             <ShieldCheck className="w-6 h-6 text-purple-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-base-content">Owner Admin — Live User Upgrades</h1>
-            <p className="text-xs text-base-content/50">Requests appear in real time. Click Accept to instantly upgrade credits on user apps.</p>
+            <h1 className="text-2xl font-bold text-base-content">Owner Admin — Live User Upgrades & Refunds</h1>
+            <p className="text-xs text-base-content/50">Requests & refunds appear in real time. Click Accept to upgrade or issue PayPal refunds.</p>
           </div>
         </div>
 
@@ -117,6 +141,46 @@ export default function AdminUpgradePage() {
       {message && (
         <div className={`p-4 rounded-2xl text-sm font-bold ${message.startsWith('✅') ? 'bg-success/10 border border-success/30 text-success' : 'bg-red-500/10 border border-red-500/30 text-red-500'}`}>
           {message}
+        </div>
+      )}
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* LIVE PENDING REFUND REQUESTS SECTION */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {pendingRefunds.length > 0 && (
+        <div className="p-6 bg-red-500/10 border-2 border-red-500/40 rounded-3xl space-y-4 shadow-xl animate-in fade-in duration-300">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-extrabold text-red-500 flex items-center gap-2">
+              <RefreshCw className="w-5 h-5 text-red-500 animate-spin" /> 
+              Pending 100% Refund Requests ({pendingRefunds.length})
+            </h2>
+            <span className="text-xs font-bold text-red-400">14-Day Money Back Guarantee</span>
+          </div>
+
+          <div className="space-y-3">
+            {pendingRefunds.map((req) => (
+              <div key={req.id} className="p-4 bg-base-100 border border-red-500/30 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-extrabold text-sm text-base-content">{req.userEmail}</span>
+                    <span className="text-xs font-bold text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
+                      100% Refund Requested
+                    </span>
+                  </div>
+                  <p className="text-xs text-base-content/60">
+                    Reason: <em>"{req.reason}"</em> • Sent {new Date(req.createdAt).toLocaleTimeString()}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => handleResolveRefund(req.id, req.userEmail)}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md"
+                >
+                  <ExternalLink className="w-4 h-4" /> Issue PayPal Refund & Resolve
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

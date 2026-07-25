@@ -49,7 +49,29 @@ export async function GET(req: NextRequest) {
       }).filter(req => req.status === 'PENDING');
     } catch (e) {}
 
-    return NextResponse.json({ success: true, users, pendingRequests });
+    // Fetch pending refund requests from AuditLog
+    let pendingRefunds: any[] = [];
+    try {
+      const refundLogs = await prisma.auditLog.findMany({
+        where: { action: 'PENDING_REFUND_REQUEST' },
+        orderBy: { createdAt: 'desc' },
+        take: 50
+      });
+
+      pendingRefunds = refundLogs.map(log => {
+        let details: any = {};
+        try { details = JSON.parse(log.details); } catch(e) {}
+        return {
+          id: log.id,
+          userEmail: details.userEmail || 'unknown@synaps.ai',
+          reason: details.reason || '14-Day Money Back Guarantee',
+          createdAt: log.createdAt,
+          status: details.status || 'PENDING'
+        };
+      });
+    } catch (e) {}
+
+    return NextResponse.json({ success: true, users, pendingRequests, pendingRefunds });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

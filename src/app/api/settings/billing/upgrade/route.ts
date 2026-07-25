@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     }
 
     const callerId = decoded?.uid || 'demo-admin-id';
-    const { planId, action, userEmail, reason } = await req.json();
+    const { planId, action, userEmail, reason, requestId } = await req.json();
 
     // 1. Handle User Payment Notice / Upgrade Request
     if (action === 'payment_notice') {
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 2. Handle Refund Requests & Reset Role to MEMBER (50 Credits)
+    // 2. Handle Refund Requests & Instant Role Downgrade to MEMBER (50 Credits)
     if (action === 'refund_request') {
       const emailToUse = userEmail || 'user@synaps.ai';
       
@@ -100,13 +100,13 @@ export async function POST(req: NextRequest) {
           data: {
             organizationId: targetUser?.organizationId || 'default_org',
             userId: targetUser?.id || callerId,
-            action: 'REFUND_REQUESTED',
+            action: 'PENDING_REFUND_REQUEST',
             resource: 'Billing & Payments',
             details: JSON.stringify({
               userEmail: emailToUse,
               reason: reason || '14-Day 100% Money-Back Guarantee',
               requestedAt: new Date().toISOString(),
-              status: 'REFUNDED'
+              status: 'PENDING'
             })
           }
         });
@@ -114,12 +114,22 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: '100% Refund request processed! Your account has been reset to Starter Tier (50 credits/day).',
+        message: '100% Refund request processed! Your account has been reset to Starter Tier (50 credits/day). Owner Admin notified for PayPal refund.',
         userEmail: emailToUse
       });
     }
 
-    // 3. Handle Direct Subscription Cancellation
+    // 3. Handle Admin Resolving Refund Request
+    if (action === 'resolve_refund') {
+      if (requestId) {
+        try {
+          await prisma.auditLog.delete({ where: { id: requestId } });
+        } catch (e) {}
+      }
+      return NextResponse.json({ success: true, message: 'Refund marked as resolved.' });
+    }
+
+    // 4. Handle Direct Subscription Cancellation
     if (action === 'cancel_subscription') {
       try {
         await prisma.user.update({
@@ -134,7 +144,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Handle Direct Plan Upgrades (ADMIN = Pro $7, OWNER = Enterprise Max $20)
+    // 5. Handle Direct Plan Upgrades (ADMIN = Pro $7, OWNER = Enterprise Max $20)
     let newRole: 'ADMIN' | 'OWNER' | 'MEMBER' = 'ADMIN';
     let newCreditLimit = 500;
 

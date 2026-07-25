@@ -27,8 +27,10 @@ export default function MultiStepPaywallModal({
   const [selectedPlan, setSelectedPlan] = useState<'pro' | 'enterprise'>(defaultPlan);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [userEmail, setUserEmail] = useState('');
+  const [refundUserEmail, setRefundUserEmail] = useState('');
   const [refundReason, setRefundReason] = useState('');
   const [refundRequested, setRefundRequested] = useState(false);
+  const [refundSubmitting, setRefundSubmitting] = useState(false);
   const [checkoutNoticeSent, setCheckoutNoticeSent] = useState(false);
 
   useEffect(() => {
@@ -84,15 +86,18 @@ export default function MultiStepPaywallModal({
   };
 
   const handleRequestRefund = async () => {
-    if (!userEmail.trim()) return;
+    const emailToUse = refundUserEmail.trim() || userEmail.trim();
+    if (!emailToUse) return;
+    
+    setRefundSubmitting(true);
     try {
       const res = await fetch('/api/settings/billing/upgrade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'refund_request',
-          userEmail: userEmail.trim(),
-          reason: refundReason || 'User requested 14-day money-back guarantee refund.'
+          userEmail: emailToUse,
+          reason: refundReason || '14-Day 100% Money-Back Guarantee'
         })
       });
       const data = await res.json();
@@ -101,13 +106,16 @@ export default function MultiStepPaywallModal({
       }
     } catch (e) {}
 
-    const subject = encodeURIComponent(`100% Refund Request — ${userEmail}`);
+    const subject = encodeURIComponent(`100% Refund Request — ${emailToUse}`);
     const body = encodeURIComponent(
-      `Hi Synaps Support,\n\nI would like to request a 100% refund for my subscription under the 14-Day Money-Back Guarantee.\n\nAccount Email: ${userEmail}\nReason: ${refundReason || 'N/A'}\n\nPlease issue my refund to my original payment method.\n\nThank you.`
+      `Hi Synaps Support,\n\nI would like to request a 100% refund for my subscription under the 14-Day Money-Back Guarantee.\n\nAccount Email: ${emailToUse}\nReason: ${refundReason || 'N/A'}\n\nPlease issue my refund to my original payment method.\n\nThank you.`
     );
     window.open(`mailto:${supportEmail}?subject=${subject}&body=${body}`, '_blank');
     setRefundRequested(true);
+    setRefundSubmitting(false);
   };
+
+  const activeEmailForRefund = refundUserEmail.trim() || userEmail.trim();
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 font-sans animate-in fade-in duration-200">
@@ -398,7 +406,10 @@ export default function MultiStepPaywallModal({
                     <input 
                       type="email" 
                       value={userEmail}
-                      onChange={e => setUserEmail(e.target.value)}
+                      onChange={e => {
+                        setUserEmail(e.target.value);
+                        if (!refundUserEmail) setRefundUserEmail(e.target.value);
+                      }}
                       placeholder="you@company.com"
                       className="flex-1 bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none focus:ring-2 focus:ring-primary/30"
                     />
@@ -428,30 +439,40 @@ export default function MultiStepPaywallModal({
                 </div>
 
                 <p className="text-xs text-base-content/70">
-                  If you bought a plan and want to cancel or request a full 100% refund, enter your email below to trigger your instant refund request:
+                  If you bought a plan and want to cancel or request a full 100% refund, enter your account email below to trigger your instant refund request:
                 </p>
 
                 {refundRequested ? (
-                  <div className="p-3 bg-success/10 border border-success/30 rounded-2xl text-xs text-success font-bold flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0" />
-                    <span>✅ 100% Refund Request Processed! Your plan has been reset to Starter Tier (50 credits/day).</span>
+                  <div className="p-4 bg-success/10 border border-success/30 rounded-2xl text-xs text-success font-bold flex items-center gap-2">
+                    <Check className="w-5 h-5 shrink-0 text-success" />
+                    <div>
+                      <span className="text-sm block font-extrabold">✅ 100% Refund Request Processed!</span>
+                      <span className="text-[11px] text-success/80 font-normal">Your account has been reset to Starter Tier (50 credits/day). Your PayPal refund notice was sent to Owner Admin.</span>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     <input 
+                      type="email" 
+                      value={refundUserEmail}
+                      onChange={e => setRefundUserEmail(e.target.value)}
+                      placeholder="Your Synaps account email (e.g. user@company.com)..."
+                      className="w-full bg-base-100 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none font-bold"
+                    />
+                    <input 
                       type="text" 
                       value={refundReason}
                       onChange={e => setRefundReason(e.target.value)}
-                      placeholder="Optional reason for refund (e.g. Changed my mind)..."
+                      placeholder="Reason for refund (e.g. Changed my mind)..."
                       className="w-full bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none"
                     />
                     <button 
                       onClick={handleRequestRefund}
-                      disabled={!userEmail.trim()}
-                      className="w-full py-2.5 rounded-xl bg-base-200 hover:bg-amber-500/10 border border-amber-500/30 text-amber-500 font-bold text-xs flex items-center justify-center gap-1.5 transition-all disabled:opacity-40"
+                      disabled={!activeEmailForRefund || refundSubmitting}
+                      className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      <RefreshCw className="w-3.5 h-3.5" />
-                      Request 100% Instant Refund
+                      <RefreshCw className={cn("w-4 h-4", refundSubmitting && "animate-spin")} />
+                      {refundSubmitting ? 'Processing 100% Refund...' : 'Request 100% Instant Refund'}
                     </button>
                   </div>
                 )}
