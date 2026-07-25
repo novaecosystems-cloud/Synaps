@@ -12,21 +12,13 @@ import {
   ChevronRight,
   ChevronDown,
   Files,
-  BrainCircuit,
   Activity,
   TrendingUp,
   Menu,
-  Network,
-  Users,
-  GitBranch,
-  Scale,
-  Building2,
   ShieldAlert,
-  Compass,
-  Cpu,
-  Layers,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Zap
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { logoutAction } from '@/app/actions/auth';
@@ -34,6 +26,7 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
 
 const NotificationDropdown = dynamic(() => import('@/components/NotificationDropdown'), { ssr: false });
 const GlobalSearch = dynamic(() => import('@/components/GlobalSearch').then(mod => mod.GlobalSearch), { ssr: false });
@@ -226,6 +219,7 @@ export default function ClientLayout({ children, user }: { children: React.React
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
+  const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
 
   const handleLogout = async () => {
     await logoutAction();
@@ -370,8 +364,19 @@ export default function ClientLayout({ children, user }: { children: React.React
             </button>
           </div>
 
-          {/* Top Actions */}
-          <div className="flex items-center gap-3">
+          {/* Top Actions (Top Right Persistent Upgrade & Payment Button) */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            
+            {/* Top Right Glowing Persistent Upgrade / Unlock Credits Button */}
+            <button
+              onClick={() => setIsPaywallModalOpen(true)}
+              className="px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-600 hover:to-purple-700 text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md hover:scale-[1.03] aura-purple"
+              title="Unlock Pro ($7) or Enterprise Max ($20) Credits"
+            >
+              <Zap className="w-3.5 h-3.5 fill-white animate-pulse" />
+              <span>Upgrade</span>
+            </button>
+
             <DemoHeaderBadge />
             <AiCreditBadge />
             <ThemeToggle />
@@ -389,8 +394,13 @@ export default function ClientLayout({ children, user }: { children: React.React
         </div>
       </main>
 
-      {/* Global Modals & Hints (Disabled on /demo page for clean video capture) */}
+      {/* Global Modals & Hints */}
       <GlobalSearch />
+      <MultiStepPaywallModal 
+        isOpen={isPaywallModalOpen} 
+        onClose={() => setIsPaywallModalOpen(false)} 
+        initialStep={2}
+      />
       {pathname !== '/demo' && (
         <>
           <OnboardingHints />
