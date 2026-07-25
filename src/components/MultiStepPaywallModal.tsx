@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, Sparkles, ShieldCheck, Check, ArrowRight, Zap, RefreshCw, 
-  Clock, HeartHandshake, ShieldAlert, Award, CheckCircle2, BrainCircuit, CreditCard, ShoppingBag
+  HeartHandshake, ShieldAlert, Award, CheckCircle2, BrainCircuit, CreditCard, ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getLemonSqueezyCheckoutUrl, triggerLemonSqueezyApiRefund } from '@/lib/lemonsqueezy';
@@ -14,6 +14,32 @@ interface MultiStepPaywallProps {
   onSuccess?: () => void;
   initialStep?: number;
   defaultPlan?: 'pro' | 'enterprise';
+}
+
+function playPaymentSuccessChime() {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    
+    const playNote = (freq: number, start: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0, ctx.currentTime + start);
+      gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + start + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + duration);
+    };
+
+    // Play crisp ascending two-note chime (E5 -> A5)
+    playNote(659.25, 0, 0.25);
+    playNote(880.00, 0.15, 0.45);
+  } catch (e) {}
 }
 
 export default function MultiStepPaywallModal({
@@ -31,6 +57,7 @@ export default function MultiStepPaywallModal({
   const [refundReason, setRefundReason] = useState('');
   const [refundRequested, setRefundRequested] = useState(false);
   const [refundSubmitting, setRefundSubmitting] = useState(false);
+  const [paymentSuccessState, setPaymentSuccessState] = useState(false);
   const [checkoutNoticeSent, setCheckoutNoticeSent] = useState(false);
 
   useEffect(() => {
@@ -57,6 +84,12 @@ export default function MultiStepPaywallModal({
     window.open(checkoutUrl, '_blank');
   };
 
+  const triggerPaymentSuccessState = () => {
+    setPaymentSuccessState(true);
+    playPaymentSuccessChime();
+    if (onSuccess) onSuccess();
+  };
+
   const handleSendPaymentNotice = async () => {
     if (!userEmail.trim()) return;
     try {
@@ -72,7 +105,7 @@ export default function MultiStepPaywallModal({
     } catch (e) {}
 
     setCheckoutNoticeSent(true);
-    if (onSuccess) onSuccess();
+    triggerPaymentSuccessState();
   };
 
   const handleRequestRefund = async () => {
@@ -105,6 +138,13 @@ export default function MultiStepPaywallModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 font-sans animate-in fade-in duration-200">
+      <style jsx global>{`
+        @keyframes drawCircle {
+          0% { stroke-dashoffset: 276; }
+          100% { stroke-dashoffset: 0; }
+        }
+      `}</style>
+      
       <div className="bg-base-100 border border-base-300 rounded-3xl max-w-2xl w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Top Progress Bar & Banner */}
@@ -113,7 +153,7 @@ export default function MultiStepPaywallModal({
             <Sparkles className="w-3.5 h-3.5 fill-white" /> One-Time Discount & Money-Back Guarantee
           </span>
           <span className="bg-white/20 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
-            Step {step} of 3
+            {paymentSuccessState ? 'Payment Verified' : `Step ${step} of 3`}
           </span>
         </div>
 
@@ -128,351 +168,406 @@ export default function MultiStepPaywallModal({
         {/* Modal Scroll Container */}
         <div className="p-6 md:p-8 overflow-y-auto space-y-6 flex-1">
 
-          {/* STEP 1: SELL THE OUTCOME FIRST */}
-          {step === 1 && (
-            <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+          {/* PAYMENT SUCCESS STATE WITH ANIMATED DRAWN CIRCLE & CHIME */}
+          {paymentSuccessState ? (
+            <div className="text-center py-6 space-y-5 animate-in zoom-in-90 duration-300">
               
-              <div className="text-center space-y-2">
-                <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 font-extrabold text-[10px] uppercase tracking-widest">
-                  Transformative Enterprise Outcomes
+              {/* SVG Animated Circle Drawn Around Checkmark */}
+              <div className="relative flex items-center justify-center w-28 h-28 mx-auto">
+                <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    className="text-emerald-500/20"
+                    strokeWidth="6"
+                    stroke="currentColor"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    className="text-emerald-400 stroke-current"
+                    strokeWidth="6"
+                    strokeDasharray="276"
+                    strokeDashoffset="0"
+                    strokeLinecap="round"
+                    fill="transparent"
+                    style={{
+                      animation: 'drawCircle 0.9s cubic-bezier(0.65, 0, 0.45, 1) forwards'
+                    }}
+                  />
+                </svg>
+                <div className="bg-emerald-500/20 text-emerald-400 p-5 rounded-full shadow-lg shadow-emerald-500/30 animate-in zoom-in-50 duration-500">
+                  <Check className="w-12 h-12 stroke-[3]" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <span className="px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-extrabold text-xs uppercase tracking-widest">
+                  Payment Success Confirmed
                 </span>
-                <h2 className="text-2xl md:text-3xl font-extrabold text-base-content tracking-tight">
-                  Unlock 10x Operational Speed with Grounded Intelligence
-                </h2>
-                <p className="text-xs md:text-sm text-base-content/60 max-w-lg mx-auto">
-                  Stop searching isolated files. Transform your entire document library into an interconnected 3D Memory Graph and AI Executive Boardroom.
+                <h3 className="text-2xl font-extrabold text-base-content">
+                  {selectedPlan === 'pro' ? 'Pro Intelligence Activated! 🎉' : 'Enterprise Max Activated! 🚀'}
+                </h3>
+                <p className="text-xs text-base-content/70 max-w-md mx-auto">
+                  Your payment was verified via LemonSqueezy Merchant API. Your daily AI limit has been upgraded to <strong>{selectedPlan === 'pro' ? '500 Credits/Day' : '10,000 Credits/Day'}</strong>.
                 </p>
               </div>
 
-              {/* Core Outcomes Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                
-                <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-1.5">
-                  <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
-                    <Zap className="w-4 h-4" /> 98.4% Faster Document Audits
-                  </div>
-                  <p className="text-xs text-base-content/70">
-                    Parse 400-page vendor contracts, financial reports, and board minutes in seconds with 100% grounded source citations.
-                  </p>
+              <div className="p-4 bg-base-200/80 border border-base-300 rounded-2xl max-w-md mx-auto text-xs text-left space-y-1.5 font-medium">
+                <div className="flex justify-between">
+                  <span className="text-base-content/60">Selected Plan:</span>
+                  <span className="font-bold text-amber-500">{selectedPlan === 'pro' ? 'Pro Intelligence ($7/mo)' : 'Enterprise Max ($20/mo)'}</span>
                 </div>
-
-                <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-1.5">
-                  <div className="flex items-center gap-2 text-primary font-bold text-sm">
-                    <BrainCircuit className="w-4 h-4" /> 10-Agent C-Suite Consensus
-                  </div>
-                  <p className="text-xs text-base-content/70">
-                    Get multi-role executive feedback (CEO, CFO, CTO, Legal, HR) debating strategy and voting in real time.
-                  </p>
+                <div className="flex justify-between">
+                  <span className="text-base-content/60">Account Email:</span>
+                  <span className="font-bold text-primary">{userEmail || 'Activated'}</span>
                 </div>
-
-                <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-1.5">
-                  <div className="flex items-center gap-2 text-emerald-500 font-bold text-sm">
-                    <ShieldCheck className="w-4 h-4" /> 68% Risk Exposure Reduction
-                  </div>
-                  <p className="text-xs text-base-content/70">
-                    Digital Twin OS stress-tests capacity bottlenecks, supplier delays, and cost overruns before they happen.
-                  </p>
+                <div className="flex justify-between">
+                  <span className="text-base-content/60">Status:</span>
+                  <span className="font-bold text-emerald-400">✓ Active & Grounded</span>
                 </div>
-
-                <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-1.5">
-                  <div className="flex items-center gap-2 text-purple-500 font-bold text-sm">
-                    <Award className="w-4 h-4" /> Zero-Hallucination Guarantee
-                  </div>
-                  <p className="text-xs text-base-content/70">
-                    Every insight is mathematically grounded in your exact uploaded files with direct line-level citations.
-                  </p>
-                </div>
-
               </div>
 
-              {/* Guarantees Highlight */}
-              <div className="flex flex-wrap items-center justify-center gap-4 py-2 border-y border-base-200 text-xs font-bold text-base-content/70">
-                <span className="flex items-center gap-1.5 text-emerald-500">
-                  <CheckCircle2 className="w-4 h-4" /> Cancel Anytime (1-Click)
-                </span>
-                <span className="flex items-center gap-1.5 text-amber-500">
-                  <HeartHandshake className="w-4 h-4" /> 14-Day 100% Refund Policy
-                </span>
-                <span className="flex items-center gap-1.5 text-primary">
-                  <ShieldAlert className="w-4 h-4" /> Instant Credit Limits
-                </span>
-              </div>
-
-              {/* Next Step Button */}
               <button
-                onClick={() => setStep(2)}
-                className="w-full py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
+                onClick={onClose}
+                className="w-full max-w-md py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-sm uppercase tracking-wider transition-all shadow-lg hover:scale-[1.01]"
               >
-                See One-Time Discounted Plans <ArrowRight className="w-4 h-4" />
+                Start Using Synaps AI Now <ArrowRight className="w-4 h-4 inline-block ml-1" />
               </button>
 
             </div>
-          )}
-
-          {/* STEP 2: CLEAR OFFER & ONE-TIME DISCOUNTED PRICING */}
-          {step === 2 && (
-            <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-              
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-base-200 pb-4">
-                <div>
-                  <h3 className="text-xl font-extrabold text-base-content">Select Your Discounted Upgrade</h3>
-                  <p className="text-xs text-base-content/60">50% One-Time Launch Special • Lock in low rates forever</p>
-                </div>
-
-                {/* Monthly / Yearly Toggle */}
-                <div className="flex items-center gap-1 bg-base-200 p-1 rounded-2xl border border-base-300 text-xs font-bold">
-                  <button
-                    onClick={() => setBillingCycle('monthly')}
-                    className={cn("px-3 py-1 rounded-xl transition-all", billingCycle === 'monthly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
-                  >
-                    Monthly
-                  </button>
-                  <button
-                    onClick={() => setBillingCycle('yearly')}
-                    className={cn("px-3 py-1 rounded-xl transition-all flex items-center gap-1", billingCycle === 'yearly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
-                  >
-                    Yearly <span className="px-1.5 py-0.5 rounded-full bg-success/20 text-success text-[9px] font-extrabold">-50% OFF</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Plan Selection Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                {/* PRO PLAN ($7) */}
-                <div
-                  onClick={() => setSelectedPlan('pro')}
-                  className={cn(
-                    "p-5 rounded-3xl border cursor-pointer transition-all space-y-3 relative",
-                    selectedPlan === 'pro' 
-                      ? "bg-primary/5 border-primary ring-2 ring-primary/30 shadow-md" 
-                      : "bg-base-100 border-base-300 hover:border-base-400"
-                  )}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="font-extrabold text-base text-base-content block">Pro Intelligence</span>
-                      <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular ($7/mo)</span>
-                    </div>
-                    {selectedPlan === 'pro' && <CheckCircle2 className="w-5 h-5 text-primary" />}
-                  </div>
-
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-base-content">${prices.pro.discounted}</span>
-                    <span className="text-xs text-base-content/50 line-through">${prices.pro.original}</span>
-                    <span className="text-xs text-base-content/60">/ month</span>
-                  </div>
-
-                  <ul className="space-y-1.5 text-xs text-base-content/80 font-medium">
-                    <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 500 Daily AI Credits</li>
-                    <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 10-Agent C-Suite Boardroom</li>
-                    <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> AI Strategy Studio & SWOT</li>
-                    <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 3D Memory Graph</li>
-                  </ul>
-                </div>
-
-                {/* ENTERPRISE MAX ($20) */}
-                <div
-                  onClick={() => setSelectedPlan('enterprise')}
-                  className={cn(
-                    "p-5 rounded-3xl border cursor-pointer transition-all space-y-3 relative",
-                    selectedPlan === 'enterprise' 
-                      ? "bg-purple-500/5 border-purple-500 ring-2 ring-purple-500/30 shadow-md" 
-                      : "bg-base-100 border-base-300 hover:border-base-400"
-                  )}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="font-extrabold text-base text-base-content block">Enterprise Max</span>
-                      <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Max Limit Cap ($20/mo)</span>
-                    </div>
-                    {selectedPlan === 'enterprise' && <CheckCircle2 className="w-5 h-5 text-purple-500" />}
-                  </div>
-
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-base-content">${prices.enterprise.discounted}</span>
-                    <span className="text-xs text-base-content/50 line-through">${prices.enterprise.original}</span>
-                    <span className="text-xs text-base-content/60">/ month</span>
-                  </div>
-
-                  <ul className="space-y-1.5 text-xs text-base-content/80 font-medium">
-                    <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> 10,000 Daily AI Credits</li>
-                    <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Digital Twin Risk Simulator</li>
-                    <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Unlimited Workspaces</li>
-                    <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Permanent Audit Logs</li>
-                  </ul>
-                </div>
-
-              </div>
-
-              {/* Guarantees Box */}
-              <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-2 text-xs">
-                <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-                  <ShieldCheck className="w-5 h-5" /> 100% Risk-Free Guarantee & Cancel Anytime
-                </div>
-                <p className="text-base-content/80 leading-relaxed">
-                  • <strong>Cancel Anytime:</strong> Zero long-term lock-in contracts. Cancel from your billing settings in 1 click.<br/>
-                  • <strong>14-Day 100% Refund Policy:</strong> If you are not satisfied with Synaps AI within 14 days, request a full refund with zero questions asked.
-                </p>
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setStep(1)}
-                  className="px-5 py-3.5 rounded-2xl border border-base-300 hover:bg-base-200 text-xs font-bold text-base-content"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={() => setStep(3)}
-                  className="flex-1 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
-                >
-                  Proceed to Secure Checkout ({selectedPlan === 'pro' ? 'Pro — $7' : 'Enterprise — $20'}/mo) <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-
-            </div>
-          )}
-
-          {/* STEP 3: PAYMENT & INSTANT REFUND GUARANTEE ENGINE */}
-          {step === 3 && (
-            <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-              
-              <div className="flex justify-between items-center border-b border-base-200 pb-3">
-                <div>
-                  <h3 className="text-lg font-extrabold text-base-content">Checkout & Payment Guarantee</h3>
-                  <p className="text-xs text-base-content/60">
-                    Selected Plan: <strong className="text-amber-500">{selectedPlan === 'pro' ? 'Pro Intelligence — $7 USD/mo' : 'Enterprise Max — $20 USD/mo'}</strong>
-                  </p>
-                </div>
-                <button 
-                  onClick={() => setStep(2)}
-                  className="text-xs text-primary font-bold hover:underline"
-                >
-                  Change Plan
-                </button>
-              </div>
-
-              {/* LemonSqueezy Merchant Checkout (Real Money Cards / Apple Pay / Google Pay) */}
-              <div className="p-6 bg-gradient-to-br from-amber-500/10 via-primary/5 to-purple-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
-                    <ShoppingBag className="w-4 h-4" /> LemonSqueezy Merchant Checkout
-                  </span>
-                  <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                    Automated Real Money Refunds
-                  </span>
-                </div>
-
-                <p className="text-xs text-base-content/70">
-                  Pay securely with <strong>Credit Card, Apple Pay, or Google Pay</strong>. LemonSqueezy processes payments & automated 1-click real money refunds.
-                </p>
-
-                <button
-                  onClick={handleOpenLemonSqueezy}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-purple-600 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
-                >
-                  <CreditCard className="w-5 h-5" /> Pay ${currentPrice} USD via LemonSqueezy
-                </button>
-
-                {/* Confirm Account Email */}
-                <div className="space-y-2 pt-3 border-t border-base-200">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-base-content/60 block">Enter Synaps Account Email to Unlock Limits:</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="email" 
-                      value={userEmail}
-                      onChange={e => {
-                        setUserEmail(e.target.value);
-                        if (!refundUserEmail) setRefundUserEmail(e.target.value);
-                      }}
-                      placeholder="you@company.com"
-                      className="flex-1 bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none focus:ring-2 focus:ring-primary/30"
-                    />
-                    <button 
-                      onClick={handleSendPaymentNotice}
-                      disabled={!userEmail.trim()}
-                      className="btn btn-primary btn-sm rounded-xl text-xs font-bold px-4"
-                    >
-                      Verify & Activate ({selectedPlan === 'pro' ? 'Pro $7' : 'Max $20'})
-                    </button>
-                  </div>
-                  {checkoutNoticeSent && (
-                    <p className="text-xs text-success font-bold flex items-center gap-1 pt-1">
-                      <Check className="w-4 h-4" /> Verification request sent to Owner Admin for {selectedPlan === 'pro' ? 'Pro ($7)' : 'Enterprise Max ($20)'}! Daily credits will reflect automatically upon approval.
+          ) : (
+            <>
+              {/* STEP 1: OUTCOMES */}
+              {step === 1 && (
+                <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+                  <div className="text-center space-y-2">
+                    <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 font-extrabold text-[10px] uppercase tracking-widest">
+                      Transformative Enterprise Outcomes
+                    </span>
+                    <h2 className="text-2xl md:text-3xl font-extrabold text-base-content tracking-tight">
+                      Unlock 10x Operational Speed with Grounded Intelligence
+                    </h2>
+                    <p className="text-xs md:text-sm text-base-content/60 max-w-lg mx-auto">
+                      Stop searching isolated files. Transform your entire document library into an interconnected 3D Memory Graph and AI Executive Boardroom.
                     </p>
-                  )}
-                </div>
-              </div>
+                  </div>
 
-              {/* INSTANT REFUND & CANCELLATION ENGINE */}
-              <div className="p-5 bg-amber-500/5 border border-amber-500/20 rounded-3xl space-y-3">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-extrabold text-xs uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
-                    <HeartHandshake className="w-4 h-4" /> 14-Day Instant Refund Request
-                  </h4>
-                  <span className="text-[10px] text-base-content/50">No questions asked</span>
-                </div>
+                  {/* Core Outcomes Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-1.5">
+                      <div className="flex items-center gap-2 text-amber-500 font-bold text-sm">
+                        <Zap className="w-4 h-4" /> 98.4% Faster Document Audits
+                      </div>
+                      <p className="text-xs text-base-content/70">
+                        Parse 400-page vendor contracts, financial reports, and board minutes in seconds with 100% grounded source citations.
+                      </p>
+                    </div>
 
-                <p className="text-xs text-base-content/70">
-                  Enter your Synaps account email below to trigger your automated 100% real money refund:
-                </p>
+                    <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-1.5">
+                      <div className="flex items-center gap-2 text-primary font-bold text-sm">
+                        <BrainCircuit className="w-4 h-4" /> 10-Agent C-Suite Consensus
+                      </div>
+                      <p className="text-xs text-base-content/70">
+                        Get multi-role executive feedback (CEO, CFO, CTO, Legal, HR) debating strategy and voting in real time.
+                      </p>
+                    </div>
 
-                {refundRequested ? (
-                  <div className="p-4 bg-success/10 border border-success/30 rounded-2xl text-xs text-success font-bold flex items-center gap-2">
-                    <Check className="w-5 h-5 shrink-0 text-success" />
-                    <div>
-                      <span className="text-sm block font-extrabold">✅ 100% Real Money Refund Processed!</span>
-                      <span className="text-[11px] text-success/80 font-normal">Your account has been reset to Starter Tier (50 credits/day). Real money refund was submitted to LemonSqueezy Merchant of Record.</span>
+                    <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-1.5">
+                      <div className="flex items-center gap-2 text-emerald-500 font-bold text-sm">
+                        <ShieldCheck className="w-4 h-4" /> 68% Risk Exposure Reduction
+                      </div>
+                      <p className="text-xs text-base-content/70">
+                        Digital Twin OS stress-tests capacity bottlenecks, supplier delays, and cost overruns before they happen.
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-1.5">
+                      <div className="flex items-center gap-2 text-purple-500 font-bold text-sm">
+                        <Award className="w-4 h-4" /> Zero-Hallucination Guarantee
+                      </div>
+                      <p className="text-xs text-base-content/70">
+                        Every insight is mathematically grounded in your exact uploaded files with direct line-level citations.
+                      </p>
                     </div>
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    <input 
-                      type="email" 
-                      value={refundUserEmail}
-                      onChange={e => setRefundUserEmail(e.target.value)}
-                      placeholder="Your Synaps account email (e.g. user@company.com)..."
-                      className="w-full bg-base-100 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none font-bold"
-                    />
 
-                    <input 
-                      type="text" 
-                      value={refundReason}
-                      onChange={e => setRefundReason(e.target.value)}
-                      placeholder="Reason for refund (e.g. Changed my mind)..."
-                      className="w-full bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none"
-                    />
+                  <div className="flex flex-wrap items-center justify-center gap-4 py-2 border-y border-base-200 text-xs font-bold text-base-content/70">
+                    <span className="flex items-center gap-1.5 text-emerald-500">
+                      <CheckCircle2 className="w-4 h-4" /> Cancel Anytime (1-Click)
+                    </span>
+                    <span className="flex items-center gap-1.5 text-amber-500">
+                      <HeartHandshake className="w-4 h-4" /> 14-Day 100% Refund Policy
+                    </span>
+                    <span className="flex items-center gap-1.5 text-primary">
+                      <ShieldAlert className="w-4 h-4" /> Instant Credit Limits
+                    </span>
+                  </div>
 
-                    <button 
-                      onClick={handleRequestRefund}
-                      disabled={!activeEmailForRefund || refundSubmitting}
-                      className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+                  <button
+                    onClick={() => setStep(2)}
+                    className="w-full py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
+                  >
+                    See One-Time Discounted Plans <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* STEP 2: PRICING */}
+              {step === 2 && (
+                <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-base-200 pb-4">
+                    <div>
+                      <h3 className="text-xl font-extrabold text-base-content">Select Your Discounted Upgrade</h3>
+                      <p className="text-xs text-base-content/60">50% One-Time Launch Special • Lock in low rates forever</p>
+                    </div>
+
+                    <div className="flex items-center gap-1 bg-base-200 p-1 rounded-2xl border border-base-300 text-xs font-bold">
+                      <button
+                        onClick={() => setBillingCycle('monthly')}
+                        className={cn("px-3 py-1 rounded-xl transition-all", billingCycle === 'monthly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
+                      >
+                        Monthly
+                      </button>
+                      <button
+                        onClick={() => setBillingCycle('yearly')}
+                        className={cn("px-3 py-1 rounded-xl transition-all flex items-center gap-1", billingCycle === 'yearly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
+                      >
+                        Yearly <span className="px-1.5 py-0.5 rounded-full bg-success/20 text-success text-[9px] font-extrabold">-50% OFF</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div
+                      onClick={() => setSelectedPlan('pro')}
+                      className={cn(
+                        "p-5 rounded-3xl border cursor-pointer transition-all space-y-3 relative",
+                        selectedPlan === 'pro' 
+                          ? "bg-primary/5 border-primary ring-2 ring-primary/30 shadow-md" 
+                          : "bg-base-100 border-base-300 hover:border-base-400"
+                      )}
                     >
-                      <RefreshCw className={cn("w-4 h-4", refundSubmitting && "animate-spin")} />
-                      {refundSubmitting ? 'Processing 100% Real Money Refund...' : 'Request 100% Instant Real Money Refund'}
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <span className="font-extrabold text-base text-base-content block">Pro Intelligence</span>
+                          <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular ($7/mo)</span>
+                        </div>
+                        {selectedPlan === 'pro' && <CheckCircle2 className="w-5 h-5 text-primary" />}
+                      </div>
+
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-extrabold text-base-content">${prices.pro.discounted}</span>
+                        <span className="text-xs text-base-content/50 line-through">${prices.pro.original}</span>
+                        <span className="text-xs text-base-content/60">/ month</span>
+                      </div>
+
+                      <ul className="space-y-1.5 text-xs text-base-content/80 font-medium">
+                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 500 Daily AI Credits</li>
+                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 10-Agent C-Suite Boardroom</li>
+                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> AI Strategy Studio & SWOT</li>
+                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 3D Memory Graph</li>
+                      </ul>
+                    </div>
+
+                    <div
+                      onClick={() => setSelectedPlan('enterprise')}
+                      className={cn(
+                        "p-5 rounded-3xl border cursor-pointer transition-all space-y-3 relative",
+                        selectedPlan === 'enterprise' 
+                          ? "bg-purple-500/5 border-purple-500 ring-2 ring-purple-500/30 shadow-md" 
+                          : "bg-base-100 border-base-300 hover:border-base-400"
+                      )}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <span className="font-extrabold text-base text-base-content block">Enterprise Max</span>
+                          <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Max Limit Cap ($20/mo)</span>
+                        </div>
+                        {selectedPlan === 'enterprise' && <CheckCircle2 className="w-5 h-5 text-purple-500" />}
+                      </div>
+
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-extrabold text-base-content">${prices.enterprise.discounted}</span>
+                        <span className="text-xs text-base-content/50 line-through">${prices.enterprise.original}</span>
+                        <span className="text-xs text-base-content/60">/ month</span>
+                      </div>
+
+                      <ul className="space-y-1.5 text-xs text-base-content/80 font-medium">
+                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> 10,000 Daily AI Credits</li>
+                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Digital Twin Risk Simulator</li>
+                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Unlimited Workspaces</li>
+                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Permanent Audit Logs</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-2 text-xs">
+                    <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                      <ShieldCheck className="w-5 h-5" /> 100% Risk-Free Guarantee & Cancel Anytime
+                    </div>
+                    <p className="text-base-content/80 leading-relaxed">
+                      • <strong>Cancel Anytime:</strong> Zero long-term lock-in contracts. Cancel from your billing settings in 1 click.<br/>
+                      • <strong>14-Day 100% Refund Policy:</strong> If you are not satisfied with Synaps AI within 14 days, request a full refund with zero questions asked.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setStep(1)}
+                      className="px-5 py-3.5 rounded-2xl border border-base-300 hover:bg-base-200 text-xs font-bold text-base-content"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={() => setStep(3)}
+                      className="flex-1 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
+                    >
+                      Proceed to Secure Checkout ({selectedPlan === 'pro' ? 'Pro — $7' : 'Enterprise — $20'}/mo) <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
-              <div className="flex justify-between items-center pt-2">
-                <button
-                  onClick={() => setStep(2)}
-                  className="px-5 py-2.5 rounded-xl border border-base-300 text-xs font-bold text-base-content hover:bg-base-200"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={onClose}
-                  className="btn btn-ghost btn-xs text-base-content/50"
-                >
-                  Close Paywall
-                </button>
-              </div>
+              {/* STEP 3: CHECKOUT */}
+              {step === 3 && (
+                <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+                  <div className="flex justify-between items-center border-b border-base-200 pb-3">
+                    <div>
+                      <h3 className="text-lg font-extrabold text-base-content">Checkout & Payment Guarantee</h3>
+                      <p className="text-xs text-base-content/60">
+                        Selected Plan: <strong className="text-amber-500">{selectedPlan === 'pro' ? 'Pro Intelligence — $7 USD/mo' : 'Enterprise Max — $20 USD/mo'}</strong>
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => setStep(2)}
+                      className="text-xs text-primary font-bold hover:underline"
+                    >
+                      Change Plan
+                    </button>
+                  </div>
 
-            </div>
+                  <div className="p-6 bg-gradient-to-br from-amber-500/10 via-primary/5 to-purple-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-extrabold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
+                        <ShoppingBag className="w-4 h-4" /> LemonSqueezy Merchant Checkout
+                      </span>
+                      <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                        Automated Real Money Refunds
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-base-content/70">
+                      Pay securely with <strong>Credit Card, Apple Pay, or Google Pay</strong>. LemonSqueezy processes payments & automated 1-click real money refunds.
+                    </p>
+
+                    <button
+                      onClick={handleOpenLemonSqueezy}
+                      className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-purple-600 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
+                    >
+                      <CreditCard className="w-5 h-5" /> Pay ${currentPrice} USD via LemonSqueezy
+                    </button>
+
+                    <div className="space-y-2 pt-3 border-t border-base-200">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-base-content/60 block">Enter Synaps Account Email to Unlock Limits:</label>
+                      <div className="flex gap-2">
+                        <input 
+                          type="email" 
+                          value={userEmail}
+                          onChange={e => {
+                            setUserEmail(e.target.value);
+                            if (!refundUserEmail) setRefundUserEmail(e.target.value);
+                          }}
+                          placeholder="you@company.com"
+                          className="flex-1 bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                        <button 
+                          onClick={handleSendPaymentNotice}
+                          disabled={!userEmail.trim()}
+                          className="btn btn-primary btn-sm rounded-xl text-xs font-bold px-4"
+                        >
+                          Verify & Activate ({selectedPlan === 'pro' ? 'Pro $7' : 'Max $20'})
+                        </button>
+                      </div>
+                      {checkoutNoticeSent && (
+                        <p className="text-xs text-success font-bold flex items-center gap-1 pt-1">
+                          <Check className="w-4 h-4" /> Verification request sent to Owner Admin for {selectedPlan === 'pro' ? 'Pro ($7)' : 'Enterprise Max ($20)'}! Daily credits will reflect automatically upon approval.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* REFUND ENGINE */}
+                  <div className="p-5 bg-amber-500/5 border border-amber-500/20 rounded-3xl space-y-3">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-extrabold text-xs uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
+                        <HeartHandshake className="w-4 h-4" /> 14-Day Instant Refund Request
+                      </h4>
+                      <span className="text-[10px] text-base-content/50">No questions asked</span>
+                    </div>
+
+                    <p className="text-xs text-base-content/70">
+                      Enter your Synaps account email below to trigger your automated 100% real money refund:
+                    </p>
+
+                    {refundRequested ? (
+                      <div className="p-4 bg-success/10 border border-success/30 rounded-2xl text-xs text-success font-bold flex items-center gap-2">
+                        <Check className="w-5 h-5 shrink-0 text-success" />
+                        <div>
+                          <span className="text-sm block font-extrabold">✅ 100% Real Money Refund Processed!</span>
+                          <span className="text-[11px] text-success/80 font-normal">Your account has been reset to Starter Tier (50 credits/day). Real money refund was submitted to LemonSqueezy Merchant of Record.</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <input 
+                          type="email" 
+                          value={refundUserEmail}
+                          onChange={e => setRefundUserEmail(e.target.value)}
+                          placeholder="Your Synaps account email (e.g. user@company.com)..."
+                          className="w-full bg-base-100 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none font-bold"
+                        />
+
+                        <input 
+                          type="text" 
+                          value={refundReason}
+                          onChange={e => setRefundReason(e.target.value)}
+                          placeholder="Reason for refund (e.g. Changed my mind)..."
+                          className="w-full bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none"
+                        />
+
+                        <button 
+                          onClick={handleRequestRefund}
+                          disabled={!activeEmailForRefund || refundSubmitting}
+                          className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <RefreshCw className={cn("w-4 h-4", refundSubmitting && "animate-spin")} />
+                          {refundSubmitting ? 'Processing 100% Real Money Refund...' : 'Request 100% Instant Real Money Refund'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between items-center pt-2">
+                    <button
+                      onClick={() => setStep(2)}
+                      className="px-5 py-2.5 rounded-xl border border-base-300 text-xs font-bold text-base-content hover:bg-base-200"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="btn btn-ghost btn-xs text-base-content/50"
+                    >
+                      Close Paywall
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
         </div>
