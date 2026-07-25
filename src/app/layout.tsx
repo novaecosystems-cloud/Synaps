@@ -4,10 +4,11 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
-  title: "Synaps — Automate your RFP responses",
-  description: "Synaps is an autonomous AI engine that instantly analyzes complex RFPs, cross-references your company knowledge, and generates winning proposals in seconds.",
+  title: "Synaps AI — 3D Corporate Memory & 10-Agent AI Boardroom",
+  description: "Synaps AI transforms complex document libraries into an interactive 3D Knowledge Graph and a 10-Agent AI C-Suite Boardroom.",
 };
 
 export default function RootLayout({
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Load Inter & IBM Plex Mono via direct Google Fonts link to bypass next/font SSL issue on this machine */}
+        {/* Load Inter & IBM Plex Mono via direct Google Fonts link */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -31,6 +32,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <Toaster />
+            <Analytics />
           </AuthProvider>
         </ThemeProvider>
       </body>
