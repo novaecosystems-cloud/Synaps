@@ -3,11 +3,12 @@
 import React, { useState } from 'react';
 import { 
   Zap, ShieldCheck, Check, Sparkles, Building2, Crown, 
-  CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers, Globe
+  CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers, Globe, RefreshCw, HeartHandshake, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import PayPalCheckoutModal from '@/components/PayPalCheckoutModal';
+import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
 
 type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'INR';
 
@@ -56,6 +57,7 @@ export default function BillingPage() {
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [activePlanId, setActivePlanId] = useState<string>('free');
   const [activeModalPlan, setActiveModalPlan] = useState<{ id: string; name: string; price: number } | null>(null);
+  const [showMultiStepPaywall, setShowMultiStepPaywall] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const activeCurrency = CURRENCIES.find(c => c.code === currency) || CURRENCIES[0];
@@ -86,19 +88,19 @@ export default function BillingPage() {
       priceMonthly: activeCurrency.rates.proMonthly,
       priceYearly: activeCurrency.rates.proYearly,
       popular: true,
-      badge: 'Best Value',
+      badge: 'One-Time 50% OFF',
       description: 'Full multi-agent suite & 10-Agent AI Boardroom.',
       icon: Sparkles,
       color: 'border-primary ring-2 ring-primary/30',
       buttonVariant: 'default' as const,
-      buttonText: 'Upgrade with PayPal',
+      buttonText: 'Upgrade with PayPal ($7)',
       features: [
         '500 AI Credits / Day (Immediate Upgrade)',
         'Collaborative 10-Agent AI Boardroom',
         'AI Strategy Studio & SWOT Blueprint',
         'Digital Twin OS (15 System Nodes)',
         '3D Corporate Memory Graph',
-        'Priority LLM Processing'
+        '14-Day 100% Refund Guarantee'
       ]
     },
     {
@@ -111,14 +113,14 @@ export default function BillingPage() {
       icon: Crown,
       color: 'border-purple-500/40',
       buttonVariant: 'outline' as const,
-      buttonText: 'Upgrade with PayPal',
+      buttonText: 'Upgrade with PayPal ($20)',
       features: [
         '10,000 AI Credits / Day (Unlimited)',
         'Custom Fine-Tuned AI Models',
         'Unlimited Organization Workspaces',
         'Audit Log Retention (Permanent)',
         'Dedicated 24/7 Success Manager',
-        'Custom SLA & On-Prem Options'
+        'Cancel Anytime Guarantee'
       ]
     }
   ];
@@ -134,7 +136,6 @@ export default function BillingPage() {
       setActivePlanId(activeModalPlan.id);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 6000);
-      // Trigger header credit badge refresh
       window.dispatchEvent(new Event('focus'));
     }
   };
@@ -149,13 +150,20 @@ export default function BillingPage() {
             <CreditCard className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-base-content">Plans & Billing Management</h1>
-            <p className="text-xs text-base-content/60">Low affordable pricing ($7 & $20 Max). Immediate daily AI credit limit upgrades.</p>
+            <h1 className="text-2xl font-bold tracking-tight text-base-content">Plans, Billing & Refund Protection</h1>
+            <p className="text-xs text-base-content/60">One-time discounted pricing ($7 & $20 Cap). 14-day 100% refund guarantee & cancel anytime.</p>
           </div>
         </div>
 
-        {/* Currency & Billing Cycle Selectors */}
+        {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
+          <Button 
+            onClick={() => setShowMultiStepPaywall(true)}
+            className="rounded-2xl gap-2 font-bold py-2.5 bg-amber-500 hover:bg-amber-600 text-black shadow-md"
+          >
+            <Sparkles className="w-4 h-4 fill-black" /> Open Multi-Step Paywall Wizard
+          </Button>
+
           {/* Currency Selector */}
           <div className="flex items-center gap-1.5 bg-base-200 px-3 py-1.5 rounded-2xl border border-base-300 text-xs font-bold">
             <Globe className="w-3.5 h-3.5 text-primary" />
@@ -182,7 +190,7 @@ export default function BillingPage() {
               onClick={() => setBillingCycle('yearly')}
               className={cn("px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1", billingCycle === 'yearly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
             >
-              Yearly <span className="px-1.5 py-0.5 rounded-full bg-success/20 text-success text-[9px] font-extrabold">-20%</span>
+              Yearly <span className="px-1.5 py-0.5 rounded-full bg-success/20 text-success text-[9px] font-extrabold">-50% OFF</span>
             </button>
           </div>
         </div>
@@ -214,8 +222,8 @@ export default function BillingPage() {
               )}
             >
               {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-primary text-primary-content text-[10px] font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md">
-                  ⭐ {plan.badge}
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[10px] font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md">
+                  🔥 {plan.badge}
                 </div>
               )}
 
@@ -259,7 +267,7 @@ export default function BillingPage() {
                 </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-base-200">
+              <div className="pt-6 mt-6 border-t border-base-200 space-y-2">
                 <Button
                   onClick={() => handleOpenPayPal(plan)}
                   disabled={plan.id === 'free' || isCurrent}
@@ -275,14 +283,26 @@ export default function BillingPage() {
         })}
       </div>
 
-      {/* Payment Options Banner */}
-      <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-3">
-        <h3 className="font-bold text-sm text-base-content flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-success" /> Instant PayPal Credit Limit Unlocks
-        </h3>
-        <p className="text-xs text-base-content/70">
-          When you pay via PayPal, your daily AI credit limit is immediately updated in real time. Currency rates convert dynamically for global users.
-        </p>
+      {/* Refund & Cancel Guarantee Banner */}
+      <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center">
+              <HeartHandshake className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-base-content">14-Day Money Back Guarantee & Cancel Anytime Policy</h3>
+              <p className="text-xs text-base-content/60">If you are not 100% satisfied with Synaps AI, request an instant refund within 14 days with zero questions asked.</p>
+            </div>
+          </div>
+          <Button
+            onClick={() => setShowMultiStepPaywall(true)}
+            variant="outline"
+            className="rounded-2xl gap-2 text-xs font-bold shrink-0 border-amber-500/40 text-amber-500 hover:bg-amber-500/10"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Request Refund / Cancel Subscription
+          </Button>
+        </div>
       </div>
 
       {/* PayPal Modal */}
@@ -295,6 +315,15 @@ export default function BillingPage() {
           amount={activeModalPlan.price}
           currencySymbol={activeCurrency.symbol}
           currencyCode={activeCurrency.code}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
+
+      {/* Multi-Step Paywall Modal */}
+      {showMultiStepPaywall && (
+        <MultiStepPaywallModal
+          isOpen={showMultiStepPaywall}
+          onClose={() => setShowMultiStepPaywall(false)}
           onSuccess={handlePaymentSuccess}
         />
       )}
