@@ -55,6 +55,7 @@ export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [activePlanId, setActivePlanId] = useState<string>('free');
+  const [selectedPaywallPlan, setSelectedPaywallPlan] = useState<'pro' | 'enterprise'>('pro');
   const [userRole, setUserRole] = useState<string>('MEMBER');
   const [userCredits, setUserCredits] = useState<{ remaining: number; limit: number } | null>(null);
   const [showMultiStepPaywall, setShowMultiStepPaywall] = useState(false);
@@ -146,6 +147,7 @@ export default function BillingPage() {
 
   const handleOpenPaywall = (planId: string) => {
     if (planId === activePlanId) return;
+    setSelectedPaywallPlan(planId === 'enterprise' ? 'enterprise' : 'pro');
     setShowMultiStepPaywall(true);
   };
 
@@ -186,12 +188,17 @@ export default function BillingPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
-          <Button 
-            onClick={() => setShowMultiStepPaywall(true)}
-            className="rounded-2xl gap-2 font-bold py-2.5 bg-amber-500 hover:bg-amber-600 text-black shadow-md"
-          >
-            <Sparkles className="w-4 h-4 fill-black" /> Launch Multi-Step Paywall
-          </Button>
+          {activePlanId !== 'enterprise' && (
+            <Button 
+              onClick={() => {
+                setSelectedPaywallPlan(activePlanId === 'pro' ? 'enterprise' : 'pro');
+                setShowMultiStepPaywall(true);
+              }}
+              className="rounded-2xl gap-2 font-bold py-2.5 bg-amber-500 hover:bg-amber-600 text-black shadow-md"
+            >
+              <Sparkles className="w-4 h-4 fill-black" /> Launch Multi-Step Paywall
+            </Button>
+          )}
 
           {/* Currency Selector */}
           <div className="flex items-center gap-1.5 bg-base-200 px-3 py-1.5 rounded-2xl border border-base-300 text-xs font-bold">
@@ -332,7 +339,10 @@ export default function BillingPage() {
             </div>
           </div>
           <Button
-            onClick={() => setShowMultiStepPaywall(true)}
+            onClick={() => {
+              setSelectedPaywallPlan('pro');
+              setShowMultiStepPaywall(true);
+            }}
             variant="outline"
             className="rounded-2xl gap-2 text-xs font-bold shrink-0 border-amber-500/40 text-amber-500 hover:bg-amber-500/10"
           >
@@ -345,6 +355,7 @@ export default function BillingPage() {
       {showMultiStepPaywall && (
         <MultiStepPaywallModal
           isOpen={showMultiStepPaywall}
+          defaultPlan={selectedPaywallPlan}
           onClose={() => setShowMultiStepPaywall(false)}
           onSuccess={handlePaymentSuccess}
         />

@@ -12,7 +12,7 @@ import Link from 'next/link';
 interface AiCreditExhaustedModalProps {
   isOpen?: boolean;
   onClose?: () => void;
-  userRole?: string; // 'MEMBER' | 'ADMIN' | 'LEADER'
+  userRole?: string; // 'MEMBER' | 'ADMIN' | 'OWNER'
 }
 
 export default function AiCreditExhaustedModal({
@@ -40,13 +40,18 @@ export default function AiCreditExhaustedModal({
   // Listen for global credit exhaustion events across any dashboard API request
   useEffect(() => {
     const handleCreditExhausted = (e: any) => {
+      const role = (e?.detail?.role || userRole).toUpperCase();
+      // DO NOT open upgrade modal if user is on Enterprise Max plan (OWNER or LEADER)
+      if (role === 'OWNER' || role === 'LEADER') {
+        return;
+      }
       if (e?.detail?.role) setUserRole(e.detail.role);
       setInternalIsOpen(true);
     };
 
     window.addEventListener('synaps:credits_exhausted' as any, handleCreditExhausted);
     return () => window.removeEventListener('synaps:credits_exhausted' as any, handleCreditExhausted);
-  }, []);
+  }, [userRole]);
 
   // 24-30 Hour Flash Countdown Timer
   useEffect(() => {
@@ -76,10 +81,10 @@ export default function AiCreditExhaustedModal({
     }, 1500);
   };
 
-  if (!isOpen) return null;
+  // NEVER show upgrade popup if user is on Enterprise Max (OWNER or LEADER)
+  if (!isOpen || userRole === 'OWNER' || userRole === 'LEADER') return null;
 
   const isFreeTier = userRole === 'MEMBER' || userRole === 'GUEST';
-  const isProTier = userRole === 'ADMIN' || userRole === 'MANAGER';
 
   return (
     <AnimatePresence>
@@ -91,7 +96,7 @@ export default function AiCreditExhaustedModal({
           transition={{ duration: 0.3, ease: 'backOut' }}
           className="relative w-full max-w-lg bg-gradient-to-br from-slate-900 via-base-100 to-slate-950 border border-primary/30 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(139,92,246,0.25)] overflow-hidden"
         >
-          {/* Uiverse Exit Button */}
+          {/* Exit Button */}
           <button
             onClick={handleClose}
             className="absolute top-4 right-4 w-8 h-8 rounded-full bg-base-200/80 hover:bg-base-300 border border-base-300 text-base-content font-bold flex items-center justify-center text-lg transition-all shadow-md z-10"
@@ -117,7 +122,6 @@ export default function AiCreditExhaustedModal({
               </h2>
             </div>
 
-            {/* Polite Friendly Message */}
             <p className="text-xs text-base-content/70 leading-relaxed font-medium max-w-sm mx-auto">
               {isFreeTier ? (
                 <>
@@ -125,15 +129,14 @@ export default function AiCreditExhaustedModal({
                 </>
               ) : (
                 <>
-                  You're making huge progress! You've used your <strong>500 Pro daily credits</strong>. Upgrade to <strong>Enterprise Max ($20/mo)</strong> to unlock <strong>Unlimited AI Credits</strong> instantly.
+                  You're making huge progress! You've used your <strong>500 Pro daily credits</strong>. Upgrade to <strong>Enterprise Max ($20/mo)</strong> to unlock <strong>Unlimited AI Credits (10,000/day)</strong> instantly.
                 </>
               )}
             </p>
           </div>
 
-          {/* 24-30 Hour Flash Discount Form (Styled & Animated from Uiverse.io snippet) */}
+          {/* 24-30 Hour Flash Discount Form */}
           <div className="mt-6 p-5 bg-gradient-to-br from-primary/10 via-base-200 to-purple-950/40 border border-primary/30 rounded-2xl space-y-4 shadow-inner relative overflow-hidden">
-            {/* Flash Deal Timer */}
             <div className="flex justify-between items-center border-b border-primary/20 pb-3">
               <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
                 <Tag className="w-4 h-4 text-amber-400" />

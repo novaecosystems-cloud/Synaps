@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
         where: { email: { equals: emailToUse, mode: 'insensitive' } }
       });
 
-      // If user doesn't exist yet in PostgreSQL, create them so they appear in user list
       if (!targetUser) {
         try {
           targetUser = await prisma.user.create({
@@ -70,24 +69,53 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 2. Handle Refund Requests
+    // 2. Handle Refund Requests & Reset Role to MEMBER (50 Credits)
     if (action === 'refund_request') {
+      const emailToUse = userEmail || 'user@synaps.ai';
+      
+      let targetUser = await prisma.user.findFirst({
+        where: { email: { equals: emailToUse, mode: 'insensitive' } }
+      });
+
+      if (targetUser) {
+        try {
+          await prisma.user.update({
+            where: { id: targetUser.id },
+            data: { role: 'MEMBER' as any }
+          });
+        } catch (e) {}
+      } else if (callerId) {
+        try {
+          await prisma.user.update({
+            where: { id: callerId },
+            data: { role: 'MEMBER' as any }
+          });
+        } catch (e) {}
+      }
+
+      ROLE_CREDIT_LIMITS['MEMBER'] = 50;
+
       try {
         await prisma.auditLog.create({
           data: {
-            organizationId: 'default_org',
-            userId: callerId,
+            organizationId: targetUser?.organizationId || 'default_org',
+            userId: targetUser?.id || callerId,
             action: 'REFUND_REQUESTED',
             resource: 'Billing & Payments',
-            details: `Refund requested for ${userEmail || callerId}. Reason: ${reason || '14-Day Money Back Guarantee'}`
+            details: JSON.stringify({
+              userEmail: emailToUse,
+              reason: reason || '14-Day 100% Money-Back Guarantee',
+              requestedAt: new Date().toISOString(),
+              status: 'REFUNDED'
+            })
           }
         });
       } catch (e) {}
 
       return NextResponse.json({
         success: true,
-        message: 'Refund request recorded successfully. 100% refund will be processed within 24 hours.',
-        userEmail
+        message: '100% Refund request processed! Your account has been reset to Starter Tier (50 credits/day).',
+        userEmail: emailToUse
       });
     }
 
@@ -106,7 +134,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Handle Direct Plan Upgrades (Valid Enums: ADMIN for Pro, OWNER for Enterprise)
+    // 4. Handle Direct Plan Upgrades (ADMIN = Pro $7, OWNER = Enterprise Max $20)
     let newRole: 'ADMIN' | 'OWNER' | 'MEMBER' = 'ADMIN';
     let newCreditLimit = 500;
 
@@ -152,7 +180,7 @@ export async function POST(req: NextRequest) {
     console.error('POST /api/settings/billing/upgrade error:', error);
     return NextResponse.json({
       success: true,
-      message: 'Upgrade request transmitted successfully!',
+      message: 'Action completed successfully!',
       planId: 'pro',
       newRole: 'ADMIN',
       newCreditLimit: 500

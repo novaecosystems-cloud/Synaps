@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, Sparkles, ShieldCheck, Check, ArrowRight, Zap, RefreshCw, 
   DollarSign, Clock, HelpCircle, AlertCircle, HeartHandshake, ShieldAlert, 
@@ -13,21 +13,27 @@ interface MultiStepPaywallProps {
   onClose: () => void;
   onSuccess?: () => void;
   initialStep?: number;
+  defaultPlan?: 'pro' | 'enterprise';
 }
 
 export default function MultiStepPaywallModal({
   isOpen,
   onClose,
   onSuccess,
-  initialStep = 1
+  initialStep = 1,
+  defaultPlan = 'pro'
 }: MultiStepPaywallProps) {
   const [step, setStep] = useState<number>(initialStep);
-  const [selectedPlan, setSelectedPlan] = useState<'pro' | 'enterprise'>('pro');
+  const [selectedPlan, setSelectedPlan] = useState<'pro' | 'enterprise'>(defaultPlan);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [userEmail, setUserEmail] = useState('');
   const [refundReason, setRefundReason] = useState('');
   const [refundRequested, setRefundRequested] = useState(false);
   const [checkoutNoticeSent, setCheckoutNoticeSent] = useState(false);
+
+  useEffect(() => {
+    if (defaultPlan) setSelectedPlan(defaultPlan);
+  }, [defaultPlan]);
 
   if (!isOpen) return null;
 
@@ -67,7 +73,7 @@ export default function MultiStepPaywallModal({
       });
     } catch (e) {}
 
-    const planName = selectedPlan === 'pro' ? 'Pro Intelligence' : 'Enterprise Max';
+    const planName = selectedPlan === 'pro' ? 'Pro Intelligence ($7)' : 'Enterprise Max ($20)';
     const subject = encodeURIComponent(`Synaps Plan Upgrade & Discount Lock — ${planName}`);
     const body = encodeURIComponent(
       `Hi Synaps Team,\n\nI have sent $${currentPrice} USD via PayPal to ${paypalEmail} for the 50% One-Time Discounted ${planName} plan.\n\nAccount Email: ${userEmail}\n\nPlease upgrade my account credits.\n\nThank you!`
@@ -80,7 +86,7 @@ export default function MultiStepPaywallModal({
   const handleRequestRefund = async () => {
     if (!userEmail.trim()) return;
     try {
-      await fetch('/api/settings/billing/upgrade', {
+      const res = await fetch('/api/settings/billing/upgrade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -89,6 +95,10 @@ export default function MultiStepPaywallModal({
           reason: refundReason || 'User requested 14-day money-back guarantee refund.'
         })
       });
+      const data = await res.json();
+      if (data.success) {
+        window.dispatchEvent(new Event('focus'));
+      }
     } catch (e) {}
 
     const subject = encodeURIComponent(`100% Refund Request — ${userEmail}`);
@@ -235,7 +245,7 @@ export default function MultiStepPaywallModal({
               {/* Plan Selection Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
-                {/* PRO PLAN */}
+                {/* PRO PLAN ($7) */}
                 <div
                   onClick={() => setSelectedPlan('pro')}
                   className={cn(
@@ -248,7 +258,7 @@ export default function MultiStepPaywallModal({
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="font-extrabold text-base text-base-content block">Pro Intelligence</span>
-                      <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular</span>
+                      <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular ($7/mo)</span>
                     </div>
                     {selectedPlan === 'pro' && <CheckCircle2 className="w-5 h-5 text-primary" />}
                   </div>
@@ -267,7 +277,7 @@ export default function MultiStepPaywallModal({
                   </ul>
                 </div>
 
-                {/* ENTERPRISE MAX */}
+                {/* ENTERPRISE MAX ($20) */}
                 <div
                   onClick={() => setSelectedPlan('enterprise')}
                   className={cn(
@@ -280,7 +290,7 @@ export default function MultiStepPaywallModal({
                   <div className="flex justify-between items-start">
                     <div>
                       <span className="font-extrabold text-base text-base-content block">Enterprise Max</span>
-                      <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Cap Price Limit ($20)</span>
+                      <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Max Limit Cap ($20/mo)</span>
                     </div>
                     {selectedPlan === 'enterprise' && <CheckCircle2 className="w-5 h-5 text-purple-500" />}
                   </div>
@@ -324,7 +334,7 @@ export default function MultiStepPaywallModal({
                   onClick={() => setStep(3)}
                   className="flex-1 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
                 >
-                  Proceed to Secure Checkout (${currentPrice}/mo) <ArrowRight className="w-4 h-4" />
+                  Proceed to Secure Checkout ({selectedPlan === 'pro' ? 'Pro — $7' : 'Enterprise — $20'}/mo) <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
 
@@ -339,7 +349,7 @@ export default function MultiStepPaywallModal({
                 <div>
                   <h3 className="text-lg font-extrabold text-base-content">Checkout & Payment Guarantee</h3>
                   <p className="text-xs text-base-content/60">
-                    {selectedPlan === 'pro' ? 'Pro Intelligence' : 'Enterprise Max'} — <strong>${currentPrice} USD</strong> (One-Time Discounted Rate)
+                    Selected Plan: <strong className="text-amber-500">{selectedPlan === 'pro' ? 'Pro Intelligence — $7 USD/mo' : 'Enterprise Max — $20 USD/mo'}</strong>
                   </p>
                 </div>
                 <button 
@@ -378,7 +388,7 @@ export default function MultiStepPaywallModal({
                   <svg viewBox="0 0 24 24" className="w-5 h-5" fill="white">
                     <path d="M7.5 21L3 21L5.25 9H12.75C16.5 9 18 11.25 17.25 14.25C16.5 17.25 13.5 18.75 10.5 18.75H8.25L7.5 21Z"/>
                   </svg>
-                  Pay ${currentPrice} USD via PayPal
+                  Pay ${currentPrice} USD via PayPal ({selectedPlan === 'pro' ? 'Pro $7' : 'Enterprise $20'})
                 </button>
 
                 {/* Confirm Account Email */}
@@ -397,12 +407,12 @@ export default function MultiStepPaywallModal({
                       disabled={!userEmail.trim()}
                       className="btn btn-primary btn-sm rounded-xl text-xs font-bold"
                     >
-                      Verify & Activate
+                      Verify & Activate ({selectedPlan === 'pro' ? 'Pro $7' : 'Max $20'})
                     </button>
                   </div>
                   {checkoutNoticeSent && (
                     <p className="text-xs text-success font-bold flex items-center gap-1 pt-1">
-                      <Check className="w-4 h-4" /> Verification request sent to Owner Admin! Daily credits will reflect automatically upon approval.
+                      <Check className="w-4 h-4" /> Verification request sent to Owner Admin for {selectedPlan === 'pro' ? 'Pro ($7)' : 'Enterprise Max ($20)'}! Daily credits will reflect automatically upon approval.
                     </p>
                   )}
                 </div>
@@ -424,7 +434,7 @@ export default function MultiStepPaywallModal({
                 {refundRequested ? (
                   <div className="p-3 bg-success/10 border border-success/30 rounded-2xl text-xs text-success font-bold flex items-center gap-2">
                     <Check className="w-4 h-4 shrink-0" />
-                    <span>Refund Request Submitted! We will process your 100% refund within 24 hours.</span>
+                    <span>✅ 100% Refund Request Processed! Your plan has been reset to Starter Tier (50 credits/day).</span>
                   </div>
                 ) : (
                   <div className="space-y-2">
