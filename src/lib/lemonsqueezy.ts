@@ -1,31 +1,26 @@
 /**
  * LemonSqueezy Merchant of Record Utility
- * Enables Real Money Credit Card / PayPal Checkout and Automated 1-Click Refunds.
+ * Enables Real Money Credit Card / Apple Pay / Google Pay Checkout and Automated 1-Click Refunds.
  */
 
-export interface LemonSqueezyCheckoutOptions {
-  storeId?: string;
-  variantId?: string;
-  userEmail?: string;
-  customData?: Record<string, any>;
-}
-
-// Default store & checkout links for Synaps
-const DEFAULT_STORE_URL = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_URL || 'https://synaps.lemonsqueezy.com';
-
-export const LEMONSQUEEZY_VARIANTS = {
-  pro: process.env.NEXT_PUBLIC_LEMONSQUEEZY_PRO_VARIANT || 'pro-intelligence',
-  enterprise: process.env.NEXT_PUBLIC_LEMONSQUEEZY_ENTERPRISE_VARIANT || 'enterprise-max'
-};
+export const LEMONSQUEEZY_STORE_URL = process.env.NEXT_PUBLIC_LEMONSQUEEZY_STORE_URL || 'https://synaps.lemonsqueezy.com';
 
 export function getLemonSqueezyCheckoutUrl(planId: 'pro' | 'enterprise', userEmail?: string): string {
-  const storeUrl = DEFAULT_STORE_URL;
+  const storeUrl = LEMONSQUEEZY_STORE_URL;
   const emailParam = userEmail ? `?checkout[email]=${encodeURIComponent(userEmail)}` : '';
-  
-  if (planId === 'enterprise') {
-    return `${storeUrl}/checkout/buy/enterprise-max${emailParam}`;
+
+  // If specific product slug exists, use it, otherwise open LemonSqueezy Store safely without 404
+  const proCheckout = process.env.NEXT_PUBLIC_LEMONSQUEEZY_PRO_CHECKOUT;
+  const enterpriseCheckout = process.env.NEXT_PUBLIC_LEMONSQUEEZY_ENTERPRISE_CHECKOUT;
+
+  if (planId === 'enterprise' && enterpriseCheckout) {
+    return `${enterpriseCheckout}${emailParam}`;
+  } else if (planId === 'pro' && proCheckout) {
+    return `${proCheckout}${emailParam}`;
   }
-  return `${storeUrl}/checkout/buy/pro-intelligence${emailParam}`;
+
+  // Safe Store URL (Never 404s)
+  return `${storeUrl}${emailParam}`;
 }
 
 export async function triggerLemonSqueezyApiRefund(orderIdOrEmail: string, userEmail: string): Promise<{ success: boolean; message: string }> {
@@ -65,7 +60,7 @@ export async function triggerLemonSqueezyApiRefund(orderIdOrEmail: string, userE
 
     return {
       success: true,
-      message: 'LemonSqueezy API refunded 100% real money back to buyer card/PayPal!'
+      message: 'LemonSqueezy API refunded 100% real money back to buyer card!'
     };
   } catch (error: any) {
     return {

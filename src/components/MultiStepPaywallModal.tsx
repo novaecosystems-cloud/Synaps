@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, Sparkles, ShieldCheck, Check, ArrowRight, Zap, RefreshCw, 
-  DollarSign, Clock, HelpCircle, AlertCircle, HeartHandshake, ShieldAlert, 
-  Award, FileText, CheckCircle2, ChevronRight, BrainCircuit, CreditCard, Landmark, ShoppingBag
+  Clock, HeartHandshake, ShieldAlert, Award, CheckCircle2, BrainCircuit, CreditCard, ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getLemonSqueezyCheckoutUrl, triggerLemonSqueezyApiRefund } from '@/lib/lemonsqueezy';
@@ -29,8 +28,6 @@ export default function MultiStepPaywallModal({
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [userEmail, setUserEmail] = useState('');
   const [refundUserEmail, setRefundUserEmail] = useState('');
-  const [refundMethod, setRefundMethod] = useState<'lemonsqueezy' | 'paypal' | 'upi' | 'bank' | 'card'>('lemonsqueezy');
-  const [refundPayoutDetails, setRefundPayoutDetails] = useState('');
   const [refundReason, setRefundReason] = useState('');
   const [refundRequested, setRefundRequested] = useState(false);
   const [refundSubmitting, setRefundSubmitting] = useState(false);
@@ -41,9 +38,6 @@ export default function MultiStepPaywallModal({
   }, [defaultPlan]);
 
   if (!isOpen) return null;
-
-  const paypalEmail = process.env.NEXT_PUBLIC_PAYPAL_EMAIL || 'novaecosystems@gmail.com';
-  const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'novaecosystems@gmail.com';
 
   const prices = {
     pro: {
@@ -63,12 +57,6 @@ export default function MultiStepPaywallModal({
     window.open(checkoutUrl, '_blank');
   };
 
-  const handleOpenPayPal = () => {
-    const amount = currentPrice;
-    const paypalUrl = `https://www.paypal.com/myaccount/transfer/homepage/send?email=${encodeURIComponent(paypalEmail)}&currencyCode=USD&amount=${amount}`;
-    window.open(paypalUrl, '_blank');
-  };
-
   const handleSendPaymentNotice = async () => {
     if (!userEmail.trim()) return;
     try {
@@ -83,12 +71,6 @@ export default function MultiStepPaywallModal({
       });
     } catch (e) {}
 
-    const planName = selectedPlan === 'pro' ? 'Pro Intelligence ($7)' : 'Enterprise Max ($20)';
-    const subject = encodeURIComponent(`Synaps Plan Upgrade & Discount Lock — ${planName}`);
-    const body = encodeURIComponent(
-      `Hi Synaps Team,\n\nI have submitted $${currentPrice} USD for the 50% One-Time Discounted ${planName} plan.\n\nAccount Email: ${userEmail}\n\nPlease upgrade my account credits.\n\nThank you!`
-    );
-    window.open(`mailto:${supportEmail}?subject=${subject}&body=${body}`, '_blank');
     setCheckoutNoticeSent(true);
     if (onSuccess) onSuccess();
   };
@@ -99,22 +81,19 @@ export default function MultiStepPaywallModal({
     
     setRefundSubmitting(true);
     try {
-      // 1. Reset user role to MEMBER in Synaps DB
       await fetch('/api/settings/billing/upgrade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'refund_request',
           userEmail: emailToUse,
-          refundMethod,
-          refundPayoutDetails: refundPayoutDetails.trim() || emailToUse,
+          refundMethod: 'lemonsqueezy',
+          refundPayoutDetails: emailToUse,
           reason: refundReason || '14-Day 100% Money-Back Guarantee'
         })
       });
 
-      // 2. Trigger automated LemonSqueezy Merchant of Record refund
       await triggerLemonSqueezyApiRefund(emailToUse, emailToUse);
-
       window.dispatchEvent(new Event('focus'));
     } catch (e) {}
 
@@ -375,62 +354,30 @@ export default function MultiStepPaywallModal({
                 </button>
               </div>
 
-              {/* LemonSqueezy Merchant Checkout (Option 3 - Real Money Cards / Apple Pay / PayPal) */}
-              <div className="p-5 bg-gradient-to-br from-amber-500/10 via-primary/5 to-purple-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
+              {/* LemonSqueezy Merchant Checkout (Real Money Cards / Apple Pay / Google Pay) */}
+              <div className="p-6 bg-gradient-to-br from-amber-500/10 via-primary/5 to-purple-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
-                    <ShoppingBag className="w-4 h-4" /> LemonSqueezy Merchant Checkout (Recommended)
+                    <ShoppingBag className="w-4 h-4" /> LemonSqueezy Merchant Checkout
                   </span>
-                  <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                     Automated Real Money Refunds
                   </span>
                 </div>
 
                 <p className="text-xs text-base-content/70">
-                  Pay securely with <strong>Credit Card, Apple Pay, Google Pay, or PayPal</strong>. LemonSqueezy handles all transactions & automated 1-click real money refunds.
+                  Pay securely with <strong>Credit Card, Apple Pay, or Google Pay</strong>. LemonSqueezy processes payments & automated 1-click real money refunds.
                 </p>
 
                 <button
                   onClick={handleOpenLemonSqueezy}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-purple-600 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
                 >
-                  <CreditCard className="w-5 h-5" /> Pay ${currentPrice} USD via LemonSqueezy Card / PayPal
-                </button>
-              </div>
-
-              {/* Alternative Direct PayPal Option */}
-              <div className="p-5 bg-base-200/70 border border-base-300 rounded-3xl space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-base-content/60">Pay Direct via PayPal</span>
-                  <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Secured</span>
-                </div>
-
-                <div className="flex items-center gap-2 p-3 bg-base-100 border border-base-300 rounded-2xl text-xs font-mono">
-                  <span className="text-base-content/50">PayPal Recipient:</span>
-                  <span className="font-bold text-primary flex-1">{paypalEmail}</span>
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(paypalEmail);
-                      alert('PayPal email copied!');
-                    }}
-                    className="btn btn-ghost btn-xs text-primary font-bold"
-                  >
-                    Copy
-                  </button>
-                </div>
-
-                <button
-                  onClick={handleOpenPayPal}
-                  className="w-full py-3.5 rounded-2xl bg-[#009cde] hover:bg-[#0085c0] text-white font-extrabold text-sm flex items-center justify-center gap-2 transition-all shadow-md"
-                >
-                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="white">
-                    <path d="M7.5 21L3 21L5.25 9H12.75C16.5 9 18 11.25 17.25 14.25C16.5 17.25 13.5 18.75 10.5 18.75H8.25L7.5 21Z"/>
-                  </svg>
-                  Pay ${currentPrice} USD via PayPal ({selectedPlan === 'pro' ? 'Pro $7' : 'Enterprise $20'})
+                  <CreditCard className="w-5 h-5" /> Pay ${currentPrice} USD via LemonSqueezy
                 </button>
 
                 {/* Confirm Account Email */}
-                <div className="space-y-2 pt-2">
+                <div className="space-y-2 pt-3 border-t border-base-200">
                   <label className="text-[11px] font-bold uppercase tracking-wider text-base-content/60 block">Enter Synaps Account Email to Unlock Limits:</label>
                   <div className="flex gap-2">
                     <input 
@@ -446,7 +393,7 @@ export default function MultiStepPaywallModal({
                     <button 
                       onClick={handleSendPaymentNotice}
                       disabled={!userEmail.trim()}
-                      className="btn btn-primary btn-sm rounded-xl text-xs font-bold"
+                      className="btn btn-primary btn-sm rounded-xl text-xs font-bold px-4"
                     >
                       Verify & Activate ({selectedPlan === 'pro' ? 'Pro $7' : 'Max $20'})
                     </button>
@@ -469,79 +416,25 @@ export default function MultiStepPaywallModal({
                 </div>
 
                 <p className="text-xs text-base-content/70">
-                  Select your preferred payout method (LemonSqueezy Real Money, PayPal, UPI / GPay, Bank Account, or Card) and enter your details to receive your 100% refund:
+                  Enter your Synaps account email below to trigger your automated 100% real money refund:
                 </p>
 
                 {refundRequested ? (
                   <div className="p-4 bg-success/10 border border-success/30 rounded-2xl text-xs text-success font-bold flex items-center gap-2">
                     <Check className="w-5 h-5 shrink-0 text-success" />
                     <div>
-                      <span className="text-sm block font-extrabold">✅ 100% Real Money Refund Request Processed!</span>
-                      <span className="text-[11px] text-success/80 font-normal">Your account has been reset to Starter Tier (50 credits/day). Real money refund ({refundMethod.toUpperCase()}) was processed via Merchant of Record API.</span>
+                      <span className="text-sm block font-extrabold">✅ 100% Real Money Refund Processed!</span>
+                      <span className="text-[11px] text-success/80 font-normal">Your account has been reset to Starter Tier (50 credits/day). Real money refund was submitted to LemonSqueezy Merchant of Record.</span>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    
-                    {/* Refund Method Selector */}
-                    <div className="grid grid-cols-5 gap-1 text-[10px] font-bold">
-                      <button
-                        type="button"
-                        onClick={() => setRefundMethod('lemonsqueezy')}
-                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'lemonsqueezy' ? "bg-amber-500/20 border-amber-500 text-amber-500 font-extrabold" : "bg-base-100 border-base-300 text-base-content/60")}
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5 text-amber-500" /> LemonSqueezy
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setRefundMethod('paypal')}
-                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'paypal' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
-                      >
-                        <CreditCard className="w-3.5 h-3.5" /> PayPal
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setRefundMethod('upi')}
-                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'upi' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
-                      >
-                        <Zap className="w-3.5 h-3.5 text-amber-500" /> UPI / GPay
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setRefundMethod('bank')}
-                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'bank' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
-                      >
-                        <Landmark className="w-3.5 h-3.5 text-emerald-500" /> Bank
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setRefundMethod('card')}
-                        className={cn("p-2 rounded-xl border flex flex-col items-center gap-1 transition-all", refundMethod === 'card' ? "bg-primary/10 border-primary text-primary" : "bg-base-100 border-base-300 text-base-content/60")}
-                      >
-                        <CreditCard className="w-3.5 h-3.5 text-purple-500" /> Card
-                      </button>
-                    </div>
-
                     <input 
                       type="email" 
                       value={refundUserEmail}
                       onChange={e => setRefundUserEmail(e.target.value)}
                       placeholder="Your Synaps account email (e.g. user@company.com)..."
                       className="w-full bg-base-100 border border-amber-500/30 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none font-bold"
-                    />
-
-                    <input 
-                      type="text" 
-                      value={refundPayoutDetails}
-                      onChange={e => setRefundPayoutDetails(e.target.value)}
-                      placeholder={
-                        refundMethod === 'lemonsqueezy' ? "LemonSqueezy Real Money Refund (Auto-refunded to original card/PayPal)..." :
-                        refundMethod === 'upi' ? "Enter your UPI ID (e.g. name@upi or Mobile # for GPay/PhonePe)..." :
-                        refundMethod === 'bank' ? "Enter Bank Account # and IFSC / Swift Code..." :
-                        refundMethod === 'paypal' ? "Enter PayPal Email for refund..." :
-                        "Enter Card / Account details for refund..."
-                      }
-                      className="w-full bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none font-medium"
                     />
 
                     <input 
