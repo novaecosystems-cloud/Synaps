@@ -1,12 +1,29 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { ROLE_CREDIT_LIMITS } from '@/lib/ai-credit-limiter';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+    const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET || 'synaps_ls_sec_982f4e7c1a5b8390d421e6fa';
+
+    // Verify HMAC SHA256 Signature if header is present
+    const signature = req.headers.get('x-signature');
+    if (signature && secret) {
+      const hmac = crypto.createHmac('sha256', secret);
+      const digest = Buffer.from(hmac.update(rawBody).digest('hex'), 'utf8');
+      const signatureBuffer = Buffer.from(signature, 'utf8');
+      if (digest.length !== signatureBuffer.length || !crypto.timingSafeEqual(digest, signatureBuffer)) {
+        console.error('[LemonSqueezy Webhook] Invalid signature verification');
+      }
+    }
+
+    let body: any = {};
+    try { body = JSON.parse(rawBody); } catch(e) {}
+
     const eventName = body?.meta?.event_name;
     const customData = body?.meta?.custom_data || {};
     const userEmail = body?.data?.attributes?.user_email || customData.user_email;
@@ -14,7 +31,7 @@ export async function POST(req: NextRequest) {
     console.log(`[LemonSqueezy Webhook] Event: ${eventName}, Email: ${userEmail}`);
 
     if (!userEmail) {
-      return NextResponse.json({ success: true, message: 'Webhook received (no email)' });
+      return NextResponse.json({ success: true, message: 'Webhook received' });
     }
 
     let targetUser = await prisma.user.findFirst({
