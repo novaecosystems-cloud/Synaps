@@ -48,15 +48,27 @@ export default function PayPalCheckoutModal({
     window.open(paypalSendUrl, '_blank');
   };
 
-  const handleNotifyUs = () => {
+  const handleNotifyUs = async () => {
     if (!userEmail.trim()) return;
-    // Open mailto with pre-filled content so user can send payment proof
+    try {
+      await fetch('/api/settings/billing/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'payment_notice',
+          userEmail: userEmail.trim(),
+          planId: planId
+        })
+      });
+    } catch (e) {}
+
     const subject = encodeURIComponent(`Synaps Plan Upgrade — ${planName}`);
     const body = encodeURIComponent(
       `Hi,\n\nI have sent ${currencySymbol}${amount} ${currencyCode} to ${paypalEmail} via PayPal for the ${planName} plan.\n\nMy Synaps account email: ${userEmail}\n\nPlease upgrade my account.\n\nThank you!`
     );
     window.open(`mailto:${supportEmail}?subject=${subject}&body=${body}`, '_blank');
     setEmailSent(true);
+    if (onSuccess) onSuccess();
   };
 
   return (
@@ -128,8 +140,8 @@ export default function PayPalCheckoutModal({
             {emailSent ? (
               <div className="p-4 bg-success/10 border border-success/30 rounded-xl text-center space-y-1">
                 <Check className="w-6 h-6 text-success mx-auto" />
-                <p className="text-sm font-bold text-success">Email sent!</p>
-                <p className="text-xs text-base-content/60">We'll upgrade your account within a few hours after verifying payment. You'll receive a confirmation email.</p>
+                <p className="text-sm font-bold text-success">Verification Request Sent!</p>
+                <p className="text-xs text-base-content/60">Owner Admin has received your request. Activation will reflect automatically on your account in a few moments.</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -146,7 +158,7 @@ export default function PayPalCheckoutModal({
                   className="w-full py-3 rounded-xl bg-base-200 hover:bg-base-300 border border-base-300 text-base-content font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
-                  Send Payment Confirmation Email
+                  Verify & Transmit Payment Request
                 </button>
               </div>
             )}
@@ -155,12 +167,12 @@ export default function PayPalCheckoutModal({
           {/* Notice */}
           <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-700">
             <Clock className="w-4 h-4 shrink-0 mt-0.5" />
-            <span>Your plan is upgraded manually after we verify your PayPal payment. This usually takes <strong>a few hours</strong>, never more than 24 hours.</span>
+            <span>Your request is transmitted live to the Owner Admin dashboard and verified immediately.</span>
           </div>
 
           <div className="text-[10px] text-center text-base-content/30 flex items-center justify-center gap-1">
             <ShieldCheck className="w-3 h-3" />
-            <span>Secured by PayPal. Account upgraded after manual payment verification.</span>
+            <span>Secured by PayPal & Synaps Real-Time Owner Admin Activation.</span>
           </div>
         </div>
       </div>

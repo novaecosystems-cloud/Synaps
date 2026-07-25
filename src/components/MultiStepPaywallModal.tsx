@@ -53,8 +53,20 @@ export default function MultiStepPaywallModal({
     window.open(paypalUrl, '_blank');
   };
 
-  const handleSendPaymentNotice = () => {
+  const handleSendPaymentNotice = async () => {
     if (!userEmail.trim()) return;
+    try {
+      await fetch('/api/settings/billing/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'payment_notice',
+          userEmail: userEmail.trim(),
+          planId: selectedPlan
+        })
+      });
+    } catch (e) {}
+
     const planName = selectedPlan === 'pro' ? 'Pro Intelligence' : 'Enterprise Max';
     const subject = encodeURIComponent(`Synaps Plan Upgrade & Discount Lock — ${planName}`);
     const body = encodeURIComponent(
@@ -73,7 +85,7 @@ export default function MultiStepPaywallModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'refund_request',
-          userEmail,
+          userEmail: userEmail.trim(),
           reason: refundReason || 'User requested 14-day money-back guarantee refund.'
         })
       });
@@ -390,7 +402,7 @@ export default function MultiStepPaywallModal({
                   </div>
                   {checkoutNoticeSent && (
                     <p className="text-xs text-success font-bold flex items-center gap-1 pt-1">
-                      <Check className="w-4 h-4" /> Verification notice sent! Your account limits will update shortly.
+                      <Check className="w-4 h-4" /> Verification request sent to Owner Admin! Daily credits will reflect automatically upon approval.
                     </p>
                   )}
                 </div>

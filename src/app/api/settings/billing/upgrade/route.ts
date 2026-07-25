@@ -29,6 +29,20 @@ export async function POST(req: NextRequest) {
         where: { email: { equals: emailToUse, mode: 'insensitive' } }
       });
 
+      // If user doesn't exist yet in PostgreSQL, create them so they appear in user list
+      if (!targetUser) {
+        try {
+          targetUser = await prisma.user.create({
+            data: {
+              id: `user_req_${Date.now()}`,
+              email: emailToUse.toLowerCase(),
+              name: emailToUse.split('@')[0],
+              role: 'MEMBER'
+            }
+          });
+        } catch (e) {}
+      }
+
       try {
         await prisma.auditLog.create({
           data: {
