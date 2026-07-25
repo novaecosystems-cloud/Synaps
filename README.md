@@ -3,7 +3,7 @@
 [![Production Live](https://img.shields.io/badge/Production-Live_v1.0-blue.svg)](https://synaps-one.vercel.app)
 [![Zero-Login Demo](https://img.shields.io/badge/Demo-Zero_Login_Mode-success.svg)](https://synaps-one.vercel.app/demo)
 [![Next.js 14](https://img.shields.io/badge/Framework-Next.js_14-black.svg)](https://nextjs.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
 
 Synaps AI is an enterprise-grade Grounded Corporate Memory and 10-Agent C-Suite Platform designed to transform complex document libraries into interactive 3D Knowledge Graphs and real-time executive consensus.
 
@@ -108,4 +108,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ---
 
 ## License
-MIT License. Built for the Hackathon.
+[MIT License](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE). Built for the Hackathon.
