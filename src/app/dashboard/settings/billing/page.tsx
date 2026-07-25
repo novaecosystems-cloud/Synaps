@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Zap, ShieldCheck, Check, Sparkles, Building2, Crown, 
-  CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers, Globe, RefreshCw, HeartHandshake, Lock
+  CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers, Globe, RefreshCw, HeartHandshake, Lock, Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -55,10 +55,34 @@ export default function BillingPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [activePlanId, setActivePlanId] = useState<string>('free');
-  const [showMultiStepPaywall, setShowMultiStepPaywall] = useState(true); // Auto-open Multi-Step Paywall Wizard on page load!
+  const [userRole, setUserRole] = useState<string>('MEMBER');
+  const [userCredits, setUserCredits] = useState<{ remaining: number; limit: number } | null>(null);
+  const [showMultiStepPaywall, setShowMultiStepPaywall] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const activeCurrency = CURRENCIES.find(c => c.code === currency) || CURRENCIES[0];
+
+  const fetchUserCredits = async () => {
+    try {
+      const res = await fetch('/api/settings/ai/credits');
+      const data = await res.json();
+      if (data.success && data.credits) {
+        const role = (data.credits.role || 'MEMBER').toUpperCase();
+        setUserRole(role);
+        setUserCredits({ remaining: data.credits.remaining, limit: data.credits.creditLimit });
+        
+        if (role === 'ADMIN') setActivePlanId('pro');
+        else if (role === 'OWNER' || role === 'LEADER') setActivePlanId('enterprise');
+        else setActivePlanId('free');
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    fetchUserCredits();
+    window.addEventListener('focus', fetchUserCredits);
+    return () => window.removeEventListener('focus', fetchUserCredits);
+  }, []);
 
   const plans = [
     {
@@ -71,7 +95,6 @@ export default function BillingPage() {
       icon: Zap,
       color: 'border-base-300',
       buttonVariant: 'outline' as const,
-      buttonText: 'Current Plan',
       features: [
         '50 AI Credits / Day',
         '1 Organization Workspace',
@@ -91,7 +114,6 @@ export default function BillingPage() {
       icon: Sparkles,
       color: 'border-primary ring-2 ring-primary/30',
       buttonVariant: 'default' as const,
-      buttonText: 'Upgrade Now ($7)',
       features: [
         '500 AI Credits / Day (Immediate Upgrade)',
         'Collaborative 10-Agent AI Boardroom',
@@ -111,7 +133,6 @@ export default function BillingPage() {
       icon: Crown,
       color: 'border-purple-500/40',
       buttonVariant: 'outline' as const,
-      buttonText: 'Upgrade Now ($20)',
       features: [
         '10,000 AI Credits / Day (Unlimited)',
         'Custom Fine-Tuned AI Models',
@@ -124,30 +145,42 @@ export default function BillingPage() {
   ];
 
   const handleOpenPaywall = (planId: string) => {
-    if (planId === 'free') return;
+    if (planId === activePlanId) return;
     setShowMultiStepPaywall(true);
   };
 
   const handlePaymentSuccess = () => {
-    setActivePlanId('pro');
+    fetchUserCredits();
     setShowSuccess(true);
     setShowMultiStepPaywall(false);
     setTimeout(() => setShowSuccess(false), 6000);
-    window.dispatchEvent(new Event('focus'));
+  };
+
+  const getPlanDisplayName = () => {
+    if (activePlanId === 'enterprise') return 'Enterprise Max ($20/mo — 10,000 Credits)';
+    if (activePlanId === 'pro') return 'Pro Intelligence ($7/mo — 500 Credits)';
+    return 'Starter (Free Tier — 50 Credits)';
   };
 
   return (
     <div className="w-full space-y-8 font-sans pb-16">
       
-      {/* Header */}
+      {/* Header & Active Plan Banner */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-base-100 p-6 rounded-3xl border border-base-300 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
             <CreditCard className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-base-content">Plans, Billing & Refund Protection</h1>
-            <p className="text-xs text-base-content/60">One-time discounted pricing ($7 & $20 Cap). 14-day 100% refund guarantee & cancel anytime.</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight text-base-content">Plans & Subscription Management</h1>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-extrabold text-xs flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Active: {getPlanDisplayName()}
+              </span>
+            </div>
+            <p className="text-xs text-base-content/60 mt-0.5">
+              Daily AI Limit: <strong>{userCredits?.limit || 50} Credits/Day</strong> ({userCredits?.remaining ?? 50} remaining today). 14-day 100% refund guarantee.
+            </p>
           </div>
         </div>
 
@@ -197,7 +230,7 @@ export default function BillingPage() {
           <CheckCircle2 className="w-6 h-6 shrink-0" />
           <div>
             <span className="text-sm block">Payment Verified & Limits Upgraded Immediately!</span>
-            <span className="text-[11px] font-normal text-success/80">Your daily AI credit limits and role permissions are now active across your entire workspace.</span>
+            <span className="text-[11px] font-normal text-success/80">Your daily AI credit limit is now active across your workspace.</span>
           </div>
         </div>
       )}
@@ -214,14 +247,18 @@ export default function BillingPage() {
               key={plan.id}
               className={cn(
                 "bg-base-100 border rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative",
-                plan.color
+                isCurrent ? "ring-2 ring-emerald-500 bg-emerald-500/5 border-emerald-500/50" : plan.color
               )}
             >
-              {plan.popular && (
+              {isCurrent ? (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-emerald-500 text-black text-[10px] font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Current Active Plan
+                </div>
+              ) : plan.popular ? (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[10px] font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md">
                   🔥 {plan.badge}
                 </div>
-              )}
+              ) : null}
 
               <div className="space-y-4">
                 <div className="flex justify-between items-start pt-2">
@@ -266,12 +303,15 @@ export default function BillingPage() {
               <div className="pt-6 mt-6 border-t border-base-200 space-y-2">
                 <Button
                   onClick={() => handleOpenPaywall(plan.id)}
-                  disabled={plan.id === 'free' || isCurrent}
-                  variant={plan.buttonVariant}
-                  className="w-full rounded-2xl gap-2 font-bold py-3"
+                  disabled={isCurrent}
+                  variant={isCurrent ? 'outline' : plan.buttonVariant}
+                  className={cn(
+                    "w-full rounded-2xl gap-2 font-bold py-3",
+                    isCurrent && "border-emerald-500 text-emerald-500 bg-emerald-500/10 cursor-default opacity-100 font-extrabold"
+                  )}
                 >
-                  {isCurrent ? 'Active Plan' : (plan.id === 'free' ? 'Current Tier' : plan.buttonText)}
-                  <ArrowRight className="w-4 h-4" />
+                  {isCurrent ? '✓ Active Plan' : plan.id === 'pro' ? 'Upgrade to Pro ($7)' : 'Upgrade to Enterprise ($20)'}
+                  {!isCurrent && <ArrowRight className="w-4 h-4" />}
                 </Button>
               </div>
             </div>

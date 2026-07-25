@@ -17,11 +17,13 @@ const dailyCreditStore = new Map<string, number>();
 // In-memory BYOK (Bring Your Own Key) cache: Map<userId, encryptedKey>
 const userCustomKeysStore = new Map<string, string>();
 
+// Exact Role Credit Limits:
+// Member = 50, Admin (Pro) = 500, Owner/Leader (Enterprise Max) = 10,000
 export const ROLE_CREDIT_LIMITS: Record<string, number> = {
-  OWNER: 200,
-  LEADER: 200,
-  ADMIN: 200,
-  MANAGER: 100,
+  OWNER: 10000,
+  LEADER: 10000,
+  ADMIN: 500,
+  MANAGER: 250,
   MEMBER: 50,
   GUEST: 10
 };
