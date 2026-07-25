@@ -241,9 +241,9 @@ export default function ClientLayout({ children, user }: { children: React.React
 
       {/* Sidebar */}
       <aside className={cn(
-        "tour-sidebar w-64 flex-shrink-0 border-r border-border bg-card flex-col justify-between p-4 print:hidden transition-transform duration-200 ease-in-out overflow-y-auto",
+        "tour-sidebar w-64 flex-shrink-0 border-r border-border bg-card flex-col justify-between p-4 print:hidden transition-transform duration-200 ease-in-out overflow-y-auto max-h-screen",
         "fixed inset-y-0 left-0 z-50 md:relative md:z-auto flex custom-scrollbar",
-        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"
       )}>
         <div>
           {/* Logo & Org Switcher */}
@@ -285,7 +285,7 @@ export default function ClientLayout({ children, user }: { children: React.React
             ))}
           </div>
 
-          {/* OWNER-ONLY: Admin Panel — only visible to novaecosystems@gmail.com */}
+          {/* OWNER-ONLY: Admin Panel */}
           {user.email === ADMIN_EMAIL && (
             <div>
               <h3 className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-red-500/70">
@@ -338,55 +338,58 @@ export default function ClientLayout({ children, user }: { children: React.React
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main Content Area (Responsive 9:16 Support) */}
       <main className="flex-1 flex flex-col overflow-hidden bg-muted/20 relative print:overflow-visible print:bg-white print:text-black">
         {/* Top Navigation Bar */}
-        <header className="h-16 border-b border-base-300 bg-base-100 flex items-center justify-between px-4 sm:px-6 shrink-0 print:hidden gap-4 shadow-sm z-30">
+        <header className="h-16 border-b border-base-300 bg-base-100 flex items-center justify-between px-3 sm:px-6 shrink-0 print:hidden gap-2 sm:gap-4 shadow-sm z-30">
           
-          {/* Mobile Menu Toggle */}
-          <button 
-            className="md:hidden btn btn-ghost btn-circle"
-            onClick={() => setIsMobileMenuOpen(true)}
-          >
-            <Menu className="h-5 w-5 text-base-content/70" />
-          </button>
-
-          {/* Search */}
-          <div className="relative flex-1 md:w-96 md:flex-none tour-search">
+          {/* Mobile Menu Toggle & Search */}
+          <div className="flex items-center gap-2 flex-1 md:flex-none">
             <button 
-              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-              className="w-full flex items-center justify-between px-3 py-2 text-sm text-muted-foreground bg-muted/50 border border-input rounded-lg hover:bg-muted transition-colors"
+              className="md:hidden btn btn-ghost btn-circle btn-sm p-1.5"
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Open Mobile Menu"
             >
-              <span className="flex items-center gap-2">
-                <Search className="h-4 w-4" />
-                Search anything...
-              </span>
-              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-                <span className="text-xs">⌘</span>K
-              </kbd>
+              <Menu className="h-5 w-5 text-base-content/70" />
             </button>
+
+            {/* Search Button (Adapts to Mobile 9:16) */}
+            <div className="relative flex-1 md:w-80 lg:w-96 tour-search">
+              <button 
+                onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+                className="w-full flex items-center justify-between px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-muted-foreground bg-muted/50 border border-input rounded-lg hover:bg-muted transition-colors"
+              >
+                <span className="flex items-center gap-1.5 sm:gap-2 truncate">
+                  <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  <span className="truncate">Search...</span>
+                </span>
+                <kbd className="pointer-events-none hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                  <span className="text-xs">⌘</span>K
+                </kbd>
+              </button>
+            </div>
           </div>
 
-          {/* Top Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Top Actions (Responsive 9:16 Action Bar) */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             
             {/* Spotify-Wrapped Style Executive Progress Card Button */}
             <button
               onClick={() => setIsWrappedModalOpen(true)}
-              className="px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all hover:scale-[1.03]"
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1 transition-all hover:scale-[1.03]"
               title="View & Share Spotify-Wrapped Executive Progress Card"
             >
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Wrapped</span>
+              <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="hidden xs:inline">Wrapped</span>
             </button>
 
             {/* Top Right Glowing Persistent Upgrade / Unlock Credits Button */}
             <button
               onClick={() => setIsPaywallModalOpen(true)}
-              className="px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-600 hover:to-purple-700 text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md hover:scale-[1.03] aura-purple"
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-600 hover:to-purple-700 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1 transition-all shadow-md hover:scale-[1.03] aura-purple"
               title="Unlock Pro ($7) or Enterprise Max ($20) Credits"
             >
-              <Zap className="w-3.5 h-3.5 fill-white animate-pulse" />
+              <Zap className="w-3.5 h-3.5 fill-white animate-pulse shrink-0" />
               <span>Upgrade</span>
             </button>
 
@@ -395,14 +398,14 @@ export default function ClientLayout({ children, user }: { children: React.React
             <ThemeToggle />
             <NotificationDropdown userId={user?.id} organizationId={user?.organizationId} />
             
-            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-primary-foreground font-semibold text-sm shadow-md">
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-primary-foreground font-semibold text-xs sm:text-sm shadow-md shrink-0">
               {(user?.id || 'US').slice(0, 2).toUpperCase()}
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar">
+        {/* Page Content (Scrollable for 9:16 Vertical Mobile Screens) */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 custom-scrollbar">
           {children}
         </div>
       </main>
