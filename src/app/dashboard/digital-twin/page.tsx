@@ -18,13 +18,13 @@ export default function DigitalTwinPage() {
   const [simulating, setSimulating] = useState(false);
   const [simResult, setSimResult] = useState<any | null>(null);
 
-  // Digital Twin Clone State (Feature 4)
+  // Digital Twin Clone State
   const [cloneProfile, setCloneProfile] = useState<any | null>(null);
   const [cloneScenario, setCloneScenario] = useState('');
   const [simulatingClone, setSimulatingClone] = useState(false);
   const [cloneResponse, setCloneResponse] = useState('');
 
-  // Contract Redlining State (Feature 3)
+  // Contract Redlining State
   const [contractText, setContractText] = useState('');
   const [redlining, setRedlining] = useState(false);
   const [redlineResult, setRedlineResult] = useState<any | null>(null);
@@ -46,7 +46,6 @@ export default function DigitalTwinPage() {
         setTwinState(json.data);
       }
 
-      // Fetch Founder Clone Profile
       const cloneRes = await fetch('/api/digital-twin/clone');
       const cloneJson = await cloneRes.json();
       if (cloneJson.success) {
@@ -146,12 +145,14 @@ export default function DigitalTwinPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-base-content flex items-center gap-2">
-              Digital Twin OS & Executive Clone Studio
+              Digital Twin OS & Policy Memory Engine
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
-                v2.0 Active
+                Enterprise Ready
               </span>
             </h1>
-            <p className="text-xs text-base-content/50">Simulate organizational shocks, query your Founder AI Twin clone, and auto-redline risky contracts.</p>
+            <p className="text-xs text-base-content/60 max-w-2xl">
+              An AI system that learns from your organization's historical decisions and provides recommendations consistent with your documented policies and past actions.
+            </p>
           </div>
         </div>
 
@@ -159,12 +160,12 @@ export default function DigitalTwinPage() {
           onClick={fetchTwinState}
           className="px-4 py-2 bg-base-200 hover:bg-base-300 rounded-xl text-xs font-bold text-base-content/70 flex items-center gap-2 transition-all"
         >
-          <RefreshCw className={cn("w-3.5 h-3.5", loadingState && "animate-spin")} /> Refresh Twin
+          <RefreshCw className={cn("w-3.5 h-3.5", loadingState && "animate-spin")} /> Refresh Memory
         </button>
       </div>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/* FEATURE 4: EXECUTIVE DIGITAL TWIN CLONE SIMULATOR */}
+      {/* ORGANIZATIONAL DECISION & POLICY MEMORY ENGINE */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <div className="p-6 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-base-100 border-2 border-indigo-500/30 rounded-3xl space-y-4 shadow-md">
         <div className="flex items-center justify-between">
@@ -174,38 +175,40 @@ export default function DigitalTwinPage() {
             </div>
             <div>
               <h2 className="text-base font-extrabold text-base-content">
-                Founder Digital Twin Clone ({cloneProfile?.founderName || 'Shourya Uday Shetty'})
+                Historical Decision & Policy Alignment Engine ({cloneProfile?.founderName || 'Executive Lead'})
               </h2>
-              <p className="text-xs text-base-content/60">Trained on executive decision principles, risk tolerance, and direct operational directives.</p>
+              <p className="text-xs text-base-content/60">
+                Learns from documented policies, historical decisions, and risk management guidelines to ensure consistent executive recommendations.
+              </p>
             </div>
           </div>
 
           <span className="text-[10px] font-extrabold uppercase text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" /> Persona Online
+            <CheckCircle2 className="w-3 h-3" /> Policy Memory Active
           </span>
         </div>
 
-        {/* Clone Directives Display */}
+        {/* Policy Memory Display */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-base-100/60 rounded-2xl border border-base-300">
           <div>
-            <span className="text-[10px] uppercase font-bold text-base-content/40">Risk Tolerance</span>
+            <span className="text-[10px] uppercase font-bold text-base-content/40">Risk Alignment</span>
             <p className="text-xs font-extrabold text-indigo-400 mt-0.5">{cloneProfile?.riskTolerance || 'BALANCED'}</p>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-base-content/40">Communication Style</span>
+            <span className="text-[10px] uppercase font-bold text-base-content/40">Policy Tone</span>
             <p className="text-xs font-extrabold text-purple-400 mt-0.5">{cloneProfile?.communicationStyle || 'DIRECT & DATA-DRIVEN'}</p>
           </div>
           <div>
-            <span className="text-[10px] uppercase font-bold text-base-content/40">Core Directive</span>
-            <p className="text-xs font-bold text-emerald-400 mt-0.5 truncate">{cloneProfile?.customDirectives || 'Zero compromise on legal safety.'}</p>
+            <span className="text-[10px] uppercase font-bold text-base-content/40">Core Governance Constraint</span>
+            <p className="text-xs font-bold text-emerald-400 mt-0.5 truncate">{cloneProfile?.customDirectives || 'Zero compromise on legal safety & line-level citations.'}</p>
           </div>
         </div>
 
-        {/* Clone Query Simulator */}
+        {/* Policy Query Simulator */}
         <div className="space-y-3 pt-2">
           <label className="text-xs font-extrabold text-base-content flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-amber-400" />
-            Ask the Founder Clone how to handle an operational scenario:
+            Query organizational memory for policy-aligned recommendations:
           </label>
 
           <div className="flex gap-2">
@@ -213,7 +216,7 @@ export default function DigitalTwinPage() {
               type="text"
               value={cloneScenario}
               onChange={e => setCloneScenario(e.target.value)}
-              placeholder="e.g. A key vendor demands a 20% price hike or threatens to terminate next week. What do I do?"
+              placeholder="e.g. A key vendor demands a 20% price hike or threatens to terminate next week. What is our documented policy recommendation?"
               className="flex-1 bg-base-100 border border-base-300 rounded-2xl px-4 py-3 text-xs text-base-content outline-none focus:ring-2 focus:ring-indigo-500/30"
               onKeyDown={e => e.key === 'Enter' && handleSimulateClone()}
             />
@@ -223,15 +226,15 @@ export default function DigitalTwinPage() {
               className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center gap-2 transition-all shadow-md disabled:opacity-40"
             >
               {simulatingClone ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              {simulatingClone ? 'Simulating...' : 'Query Clone'}
+              {simulatingClone ? 'Analyzing Policy...' : 'Evaluate Policy'}
             </button>
           </div>
 
           {cloneResponse && (
             <div className="p-5 bg-base-100 border border-indigo-500/30 rounded-2xl space-y-2 animate-in fade-in duration-200">
               <div className="flex items-center justify-between text-xs font-extrabold text-indigo-400 border-b border-base-200 pb-2">
-                <span>Executive Decision Simulation Output</span>
-                <span className="text-[10px] text-base-content/40 font-mono">Clone ID: SHOURYA-TWIN-01</span>
+                <span>Documented Policy & Historical Decision Analysis</span>
+                <span className="text-[10px] text-base-content/40 font-mono">MEMORY-ENGINE-v2</span>
               </div>
               <p className="text-xs text-base-content/80 leading-relaxed white-space-pre-wrap font-sans">
                 {cloneResponse}
@@ -241,9 +244,7 @@ export default function DigitalTwinPage() {
         </div>
       </div>
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/* FEATURE 3: ONE-CLICK INSTANT CONTRACT REDLINER */}
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* 1-CLICK CONTRACT REDLINER */}
       <div className="p-6 bg-gradient-to-br from-amber-500/10 via-red-500/5 to-base-100 border-2 border-amber-500/30 rounded-3xl space-y-4 shadow-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

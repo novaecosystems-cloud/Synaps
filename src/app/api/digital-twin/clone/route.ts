@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 
-// In-memory executive clone profile state
+// Organizational policy & decision memory profile state
 let founderCloneProfile = {
   founderName: 'Shourya Uday Shetty',
-  role: 'Founder & CEO',
-  riskTolerance: 'BALANCED', // AGGRESSIVE, BALANCED, CONSERVATIVE
+  role: 'Executive Lead',
+  riskTolerance: 'BALANCED',
   communicationStyle: 'DIRECT & DATA-DRIVEN',
   decisionPrinciples: [
     'Always ground contract disputes in line-level legal facts',
@@ -13,7 +13,7 @@ let founderCloneProfile = {
     'Reject any multi-year auto-renewal trap without a 30-day exit clause',
     'Protect operational margins while maintaining 5-star service standards'
   ],
-  customDirectives: 'Never compromise on quality. Ask tough questions about ROI.'
+  customDirectives: 'Provide recommendations strictly consistent with documented policies, historical decisions, and risk management guidelines.'
 };
 
 export async function GET() {
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       };
       return NextResponse.json({
         success: true,
-        message: 'Founder Digital Twin Clone profile updated & trained successfully!',
+        message: 'Policy memory profile updated successfully!',
         profile: founderCloneProfile
       });
     }
@@ -48,18 +48,21 @@ export async function POST(req: Request) {
       const prompt = [
         {
           role: 'system',
-          content: `You are the AI Digital Twin clone of ${founderCloneProfile.founderName} (${founderCloneProfile.role}).
-Your Risk Tolerance is ${founderCloneProfile.riskTolerance}.
-Your Communication Style is ${founderCloneProfile.communicationStyle}.
-Your core decision principles are:
-${founderCloneProfile.decisionPrinciples.map((p, i) => `${i + 1}. ${p}`).join('\n')}
-Custom Directives: ${founderCloneProfile.customDirectives}
+          content: `You are the Organizational Policy & Decision Memory Engine for ${founderCloneProfile.founderName}'s organization.
 
-Simulate how ${founderCloneProfile.founderName} would respond to and solve the given operational scenario. Speak in 1st person ("I would..."). Be crisp, authoritative, and strategic.`
+Your objective is to provide executive recommendations consistent with the organization's documented policies, historical decisions, and past actions.
+
+Risk Alignment: ${founderCloneProfile.riskTolerance}.
+Communication Style: ${founderCloneProfile.communicationStyle}.
+Core Decision Principles:
+${founderCloneProfile.decisionPrinciples.map((p, i) => `${i + 1}. ${p}`).join('\n')}
+Governance Directive: ${founderCloneProfile.customDirectives}
+
+Analyze the operational scenario and output a structured, policy-aligned recommendation. Include citations to documented principles.`
         },
         {
           role: 'user',
-          content: `Scenario to analyze: "${scenario}"`
+          content: `Operational scenario to evaluate against policy memory: "${scenario}"`
         }
       ];
 
@@ -76,7 +79,7 @@ Simulate how ${founderCloneProfile.founderName} would respond to and solve the g
     return NextResponse.json({ success: false, error: 'Invalid action.' }, { status: 400 });
 
   } catch (error: any) {
-    console.error('Digital Twin Clone API error:', error);
+    console.error('Policy Memory API error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
