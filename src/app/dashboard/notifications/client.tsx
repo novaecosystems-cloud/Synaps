@@ -1,21 +1,29 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, Bell, CheckCircle, FileText, BrainCircuit, Activity, FolderKanban, Settings, Mail, Smartphone } from 'lucide-react';
+import { Loader2, Bell, CheckCircle, FileText, BrainCircuit, Activity, FolderKanban, Settings, Mail, Smartphone, Send, Slack, MessageSquare, Zap, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function NotificationsClient({ userId, organizationId }: { userId: string, organizationId: string }) {
-  const [activeTab, setActiveTab] = useState<'ALL' | 'UNREAD' | 'SETTINGS'>('UNREAD');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'UNREAD' | 'DIGEST' | 'SETTINGS'>('UNREAD');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [prefs, setPrefs] = useState<any>(null);
+
+  // Executive Digest Dispatch State
+  const [digestRole, setDigestRole] = useState<'CEO' | 'CFO' | 'LEGAL' | 'PROCUREMENT'>('CEO');
+  const [digestFrequency, setDigestFrequency] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY'>('DAILY');
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [emailOverride, setEmailOverride] = useState('');
+  const [dispatching, setDispatching] = useState(false);
+  const [dispatchResult, setDispatchResult] = useState('');
   
   const router = useRouter();
 
   useEffect(() => {
     if (activeTab === 'SETTINGS') {
       fetchPreferences();
-    } else {
+    } else if (activeTab !== 'DIGEST') {
       fetchNotifications();
     }
   }, [activeTab]);
@@ -53,6 +61,33 @@ export default function NotificationsClient({ userId, organizationId }: { userId
     }
   };
 
+  const handleSendDigest = async () => {
+    setDispatching(true);
+    setDispatchResult('');
+    try {
+      const res = await fetch('/api/digest/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          role: digestRole,
+          digestType: digestFrequency,
+          webhookUrl: webhookUrl.trim(),
+          emailOverride: emailOverride.trim()
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        setDispatchResult(`✅ ${json.message} (Delivered to ${json.targetEmail} ${json.webhookStatus !== 'NOT_CONFIGURED' ? `& Webhook: ${json.webhookStatus}` : ''})`);
+      } else {
+        setDispatchResult(`❌ ${json.error}`);
+      }
+    } catch (err: any) {
+      setDispatchResult(`❌ ${err.message}`);
+    } finally {
+      setDispatching(false);
+    }
+  };
+
   const markAllAsRead = async () => {
     try {
       await fetch('/api/notifications', {
@@ -73,45 +108,11 @@ export default function NotificationsClient({ userId, organizationId }: { userId
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, notificationId: id })
       });
-      
-      // Optimistic update
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-      
-      if (link) {
-        router.push(link);
-      }
+      if (link) router.push(link);
     } catch (err) {
       console.error(err);
     }
-  };
-
-  const togglePreference = async (field: string, value: any) => {
-    // Optimistic
-    const newPrefs = { ...prefs, [field]: value };
-    setPrefs(newPrefs);
-    
-    try {
-      await fetch('/api/notifications/preferences', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, [field]: value })
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const toggleDisabledType = async (type: string) => {
-    const isCurrentlyDisabled = prefs.disabledTypes.includes(type);
-    let newDisabledTypes = [...prefs.disabledTypes];
-    
-    if (isCurrentlyDisabled) {
-      newDisabledTypes = newDisabledTypes.filter(t => t !== type);
-    } else {
-      newDisabledTypes.push(type);
-    }
-    
-    togglePreference('disabledTypes', newDisabledTypes);
   };
 
   const getIcon = (type: string) => {
@@ -120,123 +121,165 @@ export default function NotificationsClient({ userId, organizationId }: { userId
       case 'AI_COMPLETED': return <BrainCircuit className="w-5 h-5 text-purple-500" />;
       case 'APPROVAL_REQUIRED': return <Activity className="w-5 h-5 text-amber-500" />;
       case 'REVIEW_COMPLETED': return <CheckCircle className="w-5 h-5 text-emerald-500" />;
-      case 'PROJECT_UPDATE': return <FolderKanban className="w-5 h-5 text-slate-500" />;
+      case 'PROJECT_UPDATE': return <FolderKanban className="w-5 h-5 text-indigo-500" />;
       default: return <Bell className="w-5 h-5 text-slate-500" />;
     }
   };
 
   return (
-    <div className="flex h-full flex-col md:flex-row p-6 gap-6">
-      
-      {/* Sidebar Tabs */}
-      <div className="w-full md:w-64 flex flex-col space-y-1">
-        <button 
-          onClick={() => setActiveTab('UNREAD')}
-          className={`px-4 py-2 text-left rounded-lg text-sm font-medium transition-colors ${activeTab === 'UNREAD' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'}`}
-        >
-          Unread
-        </button>
-        <button 
-          onClick={() => setActiveTab('ALL')}
-          className={`px-4 py-2 text-left rounded-lg text-sm font-medium transition-colors ${activeTab === 'ALL' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'}`}
-        >
-          All Notifications
-        </button>
-        <button 
-          onClick={() => setActiveTab('SETTINGS')}
-          className={`px-4 py-2 text-left rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${activeTab === 'SETTINGS' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
-        >
-          Settings
-          <Settings className="w-4 h-4 opacity-50" />
-        </button>
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-900">
+      {/* Subheader & Tabs */}
+      <div className="px-6 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('UNREAD')}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              activeTab === 'UNREAD' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+            }`}
+          >
+            Unread
+          </button>
+          <button
+            onClick={() => setActiveTab('ALL')}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              activeTab === 'ALL' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+            }`}
+          >
+            All Alerts
+          </button>
+          <button
+            onClick={() => setActiveTab('DIGEST')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+              activeTab === 'DIGEST' ? 'bg-amber-500 text-black shadow-sm' : 'text-amber-500 hover:bg-amber-500/10'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5 fill-current" /> Executive Digest
+          </button>
+          <button
+            onClick={() => setActiveTab('SETTINGS')}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              activeTab === 'SETTINGS' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5" /> Preferences
+          </button>
+        </div>
+
+        {activeTab !== 'SETTINGS' && activeTab !== 'DIGEST' && notifications.some(n => !n.isRead) && (
+          <button
+            onClick={markAllAsRead}
+            className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+          >
+            <CheckCircle className="w-3.5 h-3.5" /> Mark all as read
+          </button>
+        )}
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 bg-card border border-border rounded-xl shadow-sm flex flex-col overflow-hidden">
-        
-        {activeTab !== 'SETTINGS' && (
-          <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
-            <h2 className="font-semibold">{activeTab === 'UNREAD' ? 'Unread Notifications' : 'All Notifications'}</h2>
-            {activeTab === 'UNREAD' && notifications.length > 0 && (
-              <button onClick={markAllAsRead} className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
-                Mark all as read
-              </button>
-            )}
-          </div>
-        )}
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-4xl mx-auto">
+          {activeTab === 'DIGEST' ? (
+            /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+            /* EXECUTIVE DIGEST DISPATCHER & WEBHOOKS (FREE TIER) */
+            /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+            <div className="p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 space-y-6 shadow-sm">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
+                  Multi-Channel Executive Digest & Webhook Dispatcher
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Deliver role-tailored summaries (CEO, CFO, Legal, Procurement) directly to Email, Slack, Teams, or SMS with 1-click deep links to active documents & projects.
+                </p>
+              </div>
 
-        <div className="flex-1 overflow-y-auto p-0">
-          {loading ? (
-             <div className="p-12 flex justify-center text-muted-foreground">
-               <Loader2 className="w-8 h-8 animate-spin" />
-             </div>
-          ) : activeTab === 'SETTINGS' && prefs ? (
-            <div className="p-8 max-w-2xl">
-              <h2 className="text-xl font-bold mb-6">Notification Preferences</h2>
-              
-              <div className="space-y-8">
-                {/* Channels */}
+              {dispatchResult && (
+                <div className={`p-4 rounded-2xl text-xs font-bold ${dispatchResult.startsWith('✅') ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-red-500/10 text-red-500 border border-red-500/30'}`}>
+                  {dispatchResult}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Role Selector */}
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider mb-4 border-b pb-2">Channels</h3>
-                  <div className="space-y-4">
-                    <label className="flex items-center justify-between cursor-pointer">
-                      <div className="flex items-center gap-3">
-                        <Smartphone className="w-5 h-5 text-slate-500" />
-                        <div>
-                          <p className="font-medium text-slate-800">In-App Notifications</p>
-                          <p className="text-xs text-slate-500">Receive alerts within the Sisyphus dashboard</p>
-                        </div>
-                      </div>
-                      <input 
-                        type="checkbox" 
-                        checked={prefs.inAppEnabled} 
-                        onChange={(e) => togglePreference('inAppEnabled', e.target.checked)}
-                        className="w-5 h-5 accent-indigo-600"
-                      />
-                    </label>
-                    <label className="flex items-center justify-between cursor-pointer opacity-70">
-                      <div className="flex items-center gap-3">
-                        <Mail className="w-5 h-5 text-slate-500" />
-                        <div>
-                          <p className="font-medium text-slate-800">Email Notifications</p>
-                          <p className="text-xs text-slate-500">Receive daily digests (Coming soon)</p>
-                        </div>
-                      </div>
-                      <input 
-                        type="checkbox" 
-                        disabled
-                        checked={prefs.emailEnabled}
-                        className="w-5 h-5 accent-indigo-600 cursor-not-allowed"
-                      />
-                    </label>
-                  </div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Target Executive Role</label>
+                  <select
+                    value={digestRole}
+                    onChange={e => setDigestRole(e.target.value as any)}
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs font-bold text-slate-900 dark:text-white outline-none"
+                  >
+                    <option value="CEO">👑 CEO — Strategic Overview & Risk Alerts</option>
+                    <option value="CFO">💰 CFO — Financial Commitments & Cost Risks</option>
+                    <option value="LEGAL">⚖️ Legal Counsel — Contract Liability & Redlines</option>
+                    <option value="PROCUREMENT">📦 Procurement Officer — Vendor SLA & Renewals</option>
+                  </select>
                 </div>
 
-                {/* Event Types */}
+                {/* Frequency Selector */}
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider mb-4 border-b pb-2">Event Types</h3>
-                  <div className="space-y-3">
-                    {[
-                      { type: 'DOCUMENT_PROCESSED', label: 'Document Processed', desc: 'When file extraction finishes' },
-                      { type: 'AI_COMPLETED', label: 'AI Generation Completed', desc: 'When proposal generation finishes' },
-                      { type: 'APPROVAL_REQUIRED', label: 'Approvals Required', desc: 'When you are assigned as a reviewer' },
-                      { type: 'REVIEW_COMPLETED', label: 'Review Completed', desc: 'When a reviewer approves/rejects' },
-                      { type: 'PROJECT_UPDATE', label: 'Project Updates', desc: 'General project status changes' },
-                    ].map(event => (
-                      <label key={event.type} className="flex items-center justify-between cursor-pointer p-3 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-colors">
-                        <div>
-                          <p className="font-medium text-slate-800 text-sm">{event.label}</p>
-                          <p className="text-xs text-slate-500">{event.desc}</p>
-                        </div>
-                        <input 
-                          type="checkbox" 
-                          checked={!prefs.disabledTypes.includes(event.type)} 
-                          onChange={() => toggleDisabledType(event.type)}
-                          className="w-4 h-4 accent-indigo-600"
-                        />
-                      </label>
-                    ))}
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block">Digest Frequency</label>
+                  <select
+                    value={digestFrequency}
+                    onChange={e => setDigestFrequency(e.target.value as any)}
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs font-bold text-slate-900 dark:text-white outline-none"
+                  >
+                    <option value="DAILY">☀️ Daily Morning Brief (8:00 AM)</option>
+                    <option value="WEEKLY">📅 Weekly Strategic Summary</option>
+                    <option value="MONTHLY">📊 Monthly Executive Retrospective</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Delivery Channels */}
+              <div className="space-y-4 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">Delivery Channels</h3>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Recipient Email (Gmail SMTP)</label>
+                  <input
+                    type="email"
+                    value={emailOverride}
+                    onChange={e => setEmailOverride(e.target.value)}
+                    placeholder="e.g. novaecosystems@gmail.com"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-900 dark:text-white outline-none font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 block">Slack / Microsoft Teams / SMS Webhook URL (Optional)</label>
+                  <input
+                    type="url"
+                    value={webhookUrl}
+                    onChange={e => setWebhookUrl(e.target.value)}
+                    placeholder="https://hooks.slack.com/services/..."
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-900 dark:text-white outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={handleSendDigest}
+                disabled={dispatching}
+                className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-40"
+              >
+                {dispatching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {dispatching ? 'Generating & Dispatching Digest...' : `Dispatch ${digestFrequency} ${digestRole} Executive Digest Now`}
+              </button>
+            </div>
+          ) : activeTab === 'SETTINGS' && prefs ? (
+            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-6 shadow-sm">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Notification Preferences</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Configure how and when you receive updates.</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-900">
+                  <div>
+                    <p className="font-semibold text-xs text-slate-900 dark:text-white">In-App Notifications</p>
+                    <p className="text-[11px] text-slate-500">Show real-time badges & toasts</p>
                   </div>
+                  <input type="checkbox" checked={prefs.inAppEnabled} disabled className="w-4 h-4 accent-indigo-600" />
                 </div>
               </div>
             </div>
@@ -244,7 +287,6 @@ export default function NotificationsClient({ userId, organizationId }: { userId
             <div className="p-16 flex flex-col items-center justify-center text-muted-foreground">
               <Bell className="w-12 h-12 opacity-20 mb-4" />
               <h3 className="text-lg font-medium text-foreground">You're all caught up!</h3>
-              <p className="text-sm mt-1">There are no {activeTab === 'UNREAD' ? 'unread' : ''} notifications to show.</p>
             </div>
           ) : (
             <div className="divide-y divide-border">
@@ -252,7 +294,7 @@ export default function NotificationsClient({ userId, organizationId }: { userId
                 <div 
                   key={n.id} 
                   onClick={() => markAsRead(n.id, n.link)}
-                  className={`p-4 flex gap-4 transition-colors cursor-pointer hover:bg-muted/50 ${!n.isRead ? 'bg-indigo-50/50' : 'bg-transparent'}`}
+                  className={`p-4 flex gap-4 transition-colors cursor-pointer hover:bg-muted/50 ${!n.isRead ? 'bg-indigo-50/50 dark:bg-indigo-950/20' : 'bg-transparent'}`}
                 >
                   <div className="shrink-0 mt-1">
                     <div className="bg-white border border-slate-200 p-2 rounded-full shadow-sm">
@@ -272,11 +314,6 @@ export default function NotificationsClient({ userId, organizationId }: { userId
                       {n.message}
                     </p>
                   </div>
-                  {!n.isRead && (
-                    <div className="shrink-0 flex items-center">
-                       <div className="w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
