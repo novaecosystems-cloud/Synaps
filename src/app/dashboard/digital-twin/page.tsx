@@ -5,7 +5,7 @@ import {
   Cpu, Sparkles, Activity, ShieldAlert, Layers, Building2, 
   Users, FolderKanban, Truck, Mic, FileText, Scale, Lock, 
   DollarSign, AlertTriangle, Zap, Compass, CheckCircle2, 
-  Loader2, ArrowRight, RefreshCw, ChevronRight, Flame, ShieldCheck
+  Loader2, ArrowRight, RefreshCw, ChevronRight, Flame, ShieldCheck, UserCheck, FileCheck, Send, Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,17 @@ export default function DigitalTwinPage() {
   const [disruptionQuery, setDisruptionQuery] = useState('');
   const [simulating, setSimulating] = useState(false);
   const [simResult, setSimResult] = useState<any | null>(null);
+
+  // Digital Twin Clone State (Feature 4)
+  const [cloneProfile, setCloneProfile] = useState<any | null>(null);
+  const [cloneScenario, setCloneScenario] = useState('');
+  const [simulatingClone, setSimulatingClone] = useState(false);
+  const [cloneResponse, setCloneResponse] = useState('');
+
+  // Contract Redlining State (Feature 3)
+  const [contractText, setContractText] = useState('');
+  const [redlining, setRedlining] = useState(false);
+  const [redlineResult, setRedlineResult] = useState<any | null>(null);
 
   const presetShocks = [
     "What happens if our largest customer leaves?",
@@ -33,6 +44,13 @@ export default function DigitalTwinPage() {
       const json = await res.json();
       if (json.success) {
         setTwinState(json.data);
+      }
+
+      // Fetch Founder Clone Profile
+      const cloneRes = await fetch('/api/digital-twin/clone');
+      const cloneJson = await cloneRes.json();
+      if (cloneJson.success) {
+        setCloneProfile(cloneJson.profile);
       }
     } catch (e: any) {
       console.error("Error fetching twin state:", e);
@@ -69,24 +87,51 @@ export default function DigitalTwinPage() {
     }
   };
 
-  const getNodeIcon = (category: string) => {
-    switch (category) {
-      case 'DEPARTMENTS': return <Building2 className="w-5 h-5 text-indigo-400" />;
-      case 'EMPLOYEES': return <Users className="w-5 h-5 text-blue-400" />;
-      case 'PROJECTS': return <FolderKanban className="w-5 h-5 text-teal-400" />;
-      case 'CUSTOMERS': return <Building2 className="w-5 h-5 text-emerald-400" />;
-      case 'SUPPLIERS': return <Truck className="w-5 h-5 text-amber-400" />;
-      case 'MEETINGS': return <Mic className="w-5 h-5 text-purple-400" />;
-      case 'POLICIES': return <FileText className="w-5 h-5 text-cyan-400" />;
-      case 'CONTRACTS': return <FileText className="w-5 h-5 text-yellow-400" />;
-      case 'ASSETS': return <Cpu className="w-5 h-5 text-sky-400" />;
-      case 'KNOWLEDGE': return <Layers className="w-5 h-5 text-indigo-400" />;
-      case 'FINANCE': return <DollarSign className="w-5 h-5 text-emerald-400" />;
-      case 'RISKS': return <ShieldAlert className="w-5 h-5 text-red-400" />;
-      case 'PROCESSES': return <Zap className="w-5 h-5 text-orange-400" />;
-      case 'STRATEGIES': return <Compass className="w-5 h-5 text-amber-400" />;
-      case 'DECISIONS': return <Scale className="w-5 h-5 text-rose-400" />;
-      default: return <Cpu className="w-5 h-5 text-indigo-400" />;
+  const handleSimulateClone = async () => {
+    if (!cloneScenario.trim() || simulatingClone) return;
+    setSimulatingClone(true);
+    setCloneResponse('');
+
+    try {
+      const res = await fetch('/api/digital-twin/clone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'simulate_decision', scenario: cloneScenario })
+      });
+      const json = await res.json();
+      if (json.success) {
+        setCloneResponse(json.decisionResponse);
+      } else {
+        alert(`Clone Simulation Error: ${json.error}`);
+      }
+    } catch (e: any) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setSimulatingClone(false);
+    }
+  };
+
+  const handleRunRedline = async () => {
+    if (!contractText.trim() || redlining) return;
+    setRedlining(true);
+    setRedlineResult(null);
+
+    try {
+      const res = await fetch('/api/documents/redline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'Uploaded Contract', content: contractText })
+      });
+      const json = await res.json();
+      if (json.success) {
+        setRedlineResult(json.data);
+      } else {
+        alert(`Redline Error: ${json.error}`);
+      }
+    } catch (e: any) {
+      alert(`Error: ${e.message}`);
+    } finally {
+      setRedlining(false);
     }
   };
 
@@ -100,227 +145,200 @@ export default function DigitalTwinPage() {
             <Cpu className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-base-content">Enterprise Digital Twin OS</h1>
-            <p className="text-xs text-base-content/60">Interconnected company operating system uniting 15 system nodes & multi-agent intelligence.</p>
+            <h1 className="text-2xl font-bold text-base-content flex items-center gap-2">
+              Digital Twin OS & Executive Clone Studio
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
+                v2.0 Active
+              </span>
+            </h1>
+            <p className="text-xs text-base-content/50">Simulate organizational shocks, query your Founder AI Twin clone, and auto-redline risky contracts.</p>
           </div>
         </div>
 
-        <Link href="/dashboard/graph" className="btn btn-outline btn-sm rounded-2xl gap-2 border-indigo-500/30 text-indigo-500 hover:bg-indigo-500/10">
-          <Layers className="w-4 h-4" /> 3D Memory Graph
-        </Link>
+        <button
+          onClick={fetchTwinState}
+          className="px-4 py-2 bg-base-200 hover:bg-base-300 rounded-xl text-xs font-bold text-base-content/70 flex items-center gap-2 transition-all"
+        >
+          <RefreshCw className={cn("w-3.5 h-3.5", loadingState && "animate-spin")} /> Refresh Twin
+        </button>
       </div>
 
-      {/* TELEMETRY HERO BANNER */}
-      {loadingState ? (
-        <div className="w-full py-16 flex flex-col items-center justify-center text-base-content">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-3" />
-          <p className="text-sm font-medium">Synchronizing 15 Enterprise Digital Twin Nodes...</p>
-        </div>
-      ) : twinState && (
-        <div className="p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/30 text-white rounded-3xl shadow-2xl space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-4">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/20 border border-indigo-500/30 px-3 py-1 rounded-full">
-                Real-Time Company Operating System
-              </span>
-              <h2 className="text-2xl font-extrabold text-white mt-2">Unified Enterprise Intelligence Layer</h2>
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* FEATURE 4: EXECUTIVE DIGITAL TWIN CLONE SIMULATOR */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="p-6 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-base-100 border-2 border-indigo-500/30 rounded-3xl space-y-4 shadow-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-black text-sm">
+              <UserCheck className="w-5 h-5" />
             </div>
-
-            <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-3 rounded-2xl">
-              <div className="text-center pr-4 border-r border-white/10">
-                <span className="text-3xl font-extrabold text-indigo-400">{twinState.resiliencyScore}%</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Resiliency Index</span>
-              </div>
-              <div className="text-center pr-4 border-r border-white/10">
-                <span className="text-2xl font-bold text-emerald-400">15 / 15</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Active System Nodes</span>
-              </div>
-              <div className="text-center">
-                <span className="text-2xl font-bold text-white">{twinState.activeEntitiesCount}</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Graph Entities</span>
-              </div>
+            <div>
+              <h2 className="text-base font-extrabold text-base-content">
+                Founder Digital Twin Clone ({cloneProfile?.founderName || 'Shourya Uday Shetty'})
+              </h2>
+              <p className="text-xs text-base-content/60">Trained on executive decision principles, risk tolerance, and direct operational directives.</p>
             </div>
           </div>
 
-          <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
-            Synaps Digital Twin models organizational dependencies between Departments, Employees, Projects, Customers, Suppliers, Meetings, Policies, Contracts, Assets, Knowledge, Finance, Risks, Processes, Strategies, and Decisions.
-          </p>
-        </div>
-      )}
-
-      {/* DISRUPTION & SHOCK SIMULATOR BAR */}
-      <div className="p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-4">
-        <label className="text-xs font-bold uppercase tracking-wider text-base-content/60 flex items-center gap-2">
-          <Zap className="w-4 h-4 text-indigo-500" /> Digital Twin Company Disruption Simulator
-        </label>
-        
-        <div className="flex flex-col sm:flex-row gap-3">
-          <input 
-            type="text" 
-            value={disruptionQuery}
-            onChange={(e) => setDisruptionQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSimulateShock()}
-            placeholder="e.g. What happens if our largest customer leaves?"
-            className="flex-1 bg-base-200 border border-base-300 rounded-2xl px-4 py-3 text-sm text-base-content outline-none focus:ring-2 focus:ring-indigo-500/20"
-          />
-          <Button onClick={() => handleSimulateShock()} disabled={simulating || !disruptionQuery.trim()} className="rounded-2xl gap-2 py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
-            {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            {simulating ? 'Simulating Shockwave...' : 'Simulate Disruption'}
-          </Button>
+          <span className="text-[10px] font-extrabold uppercase text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3" /> Persona Online
+          </span>
         </div>
 
-        {/* Preset Shocks */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-[11px] font-bold text-base-content/40 uppercase">Try Company Shocks:</span>
-          {presetShocks.map((shock, idx) => (
+        {/* Clone Directives Display */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-base-100/60 rounded-2xl border border-base-300">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-base-content/40">Risk Tolerance</span>
+            <p className="text-xs font-extrabold text-indigo-400 mt-0.5">{cloneProfile?.riskTolerance || 'BALANCED'}</p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-base-content/40">Communication Style</span>
+            <p className="text-xs font-extrabold text-purple-400 mt-0.5">{cloneProfile?.communicationStyle || 'DIRECT & DATA-DRIVEN'}</p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-base-content/40">Core Directive</span>
+            <p className="text-xs font-bold text-emerald-400 mt-0.5 truncate">{cloneProfile?.customDirectives || 'Zero compromise on legal safety.'}</p>
+          </div>
+        </div>
+
+        {/* Clone Query Simulator */}
+        <div className="space-y-3 pt-2">
+          <label className="text-xs font-extrabold text-base-content flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            Ask the Founder Clone how to handle an operational scenario:
+          </label>
+
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={cloneScenario}
+              onChange={e => setCloneScenario(e.target.value)}
+              placeholder="e.g. A key vendor demands a 20% price hike or threatens to terminate next week. What do I do?"
+              className="flex-1 bg-base-100 border border-base-300 rounded-2xl px-4 py-3 text-xs text-base-content outline-none focus:ring-2 focus:ring-indigo-500/30"
+              onKeyDown={e => e.key === 'Enter' && handleSimulateClone()}
+            />
             <button
-              key={idx}
-              onClick={() => { setDisruptionQuery(shock); handleSimulateShock(shock); }}
-              className="text-xs px-3 py-1 rounded-full bg-base-200 hover:bg-indigo-500/10 border border-base-300 hover:border-indigo-500/30 text-base-content/70 hover:text-indigo-400 transition-all text-left"
+              onClick={handleSimulateClone}
+              disabled={!cloneScenario.trim() || simulatingClone}
+              className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center gap-2 transition-all shadow-md disabled:opacity-40"
             >
-              "{shock}"
+              {simulatingClone ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              {simulatingClone ? 'Simulating...' : 'Query Clone'}
+            </button>
+          </div>
+
+          {cloneResponse && (
+            <div className="p-5 bg-base-100 border border-indigo-500/30 rounded-2xl space-y-2 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between text-xs font-extrabold text-indigo-400 border-b border-base-200 pb-2">
+                <span>Executive Decision Simulation Output</span>
+                <span className="text-[10px] text-base-content/40 font-mono">Clone ID: SHOURYA-TWIN-01</span>
+              </div>
+              <p className="text-xs text-base-content/80 leading-relaxed white-space-pre-wrap font-sans">
+                {cloneResponse}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* FEATURE 3: ONE-CLICK INSTANT CONTRACT REDLINER */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="p-6 bg-gradient-to-br from-amber-500/10 via-red-500/5 to-base-100 border-2 border-amber-500/30 rounded-3xl space-y-4 shadow-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center font-black text-sm">
+              <FileCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-extrabold text-base-content">
+                1-Click Instant Contract Redliner & Risk Fixer
+              </h2>
+              <p className="text-xs text-base-content/60">Paste any vendor contract or clause to auto-detect predatory terms and generate safer redlined counter-clauses.</p>
+            </div>
+          </div>
+
+          <span className="text-[10px] font-extrabold uppercase text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+            Legal AI Active
+          </span>
+        </div>
+
+        <div className="space-y-3">
+          <textarea
+            rows={3}
+            value={contractText}
+            onChange={e => setContractText(e.target.value)}
+            placeholder="Paste contract text or vendor terms here to auto-redline... (or leave blank to test demo vendor contract)"
+            className="w-full bg-base-100 border border-base-300 rounded-2xl p-4 text-xs text-base-content outline-none focus:ring-2 focus:ring-amber-500/30 font-mono"
+          />
+
+          <button
+            onClick={handleRunRedline}
+            disabled={redlining}
+            className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-40"
+          >
+            {redlining ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4 fill-black" />}
+            {redlining ? 'Analyzing & Redlining Contract...' : '⚡ Auto-Redline & Fix Contract Risks'}
+          </button>
+        </div>
+
+        {redlineResult && (
+          <div className="p-5 bg-base-100 border border-amber-500/30 rounded-2xl space-y-4 animate-in fade-in duration-200">
+            <div className="flex items-center justify-between border-b border-base-200 pb-3">
+              <div>
+                <h3 className="font-extrabold text-sm text-base-content">{redlineResult.contractTitle}</h3>
+                <p className="text-xs text-base-content/60 mt-0.5">{redlineResult.riskSummary}</p>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-extrabold border ${redlineResult.overallRiskRating === 'HIGH' ? 'bg-red-500/10 text-red-500 border-red-500/30' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'}`}>
+                Risk: {redlineResult.overallRiskRating}
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {redlineResult.redlines?.map((item: any, i: number) => (
+                <div key={i} className="p-4 bg-base-200/50 rounded-xl space-y-2 border border-base-300">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-amber-500">{item.clauseNumber} — {item.clauseType}</span>
+                    <span className="text-[10px] font-extrabold text-red-400 uppercase bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">{item.severity}</span>
+                  </div>
+
+                  <div className="text-xs font-mono p-2.5 bg-red-500/10 border-l-4 border-red-500 text-red-400 rounded-r">
+                    ❌ <strong>Original:</strong> "{item.originalText}"
+                  </div>
+
+                  <div className="text-xs font-mono p-2.5 bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-400 rounded-r">
+                    ✅ <strong>Proposed Redline:</strong> "{item.redlinedRevision}"
+                  </div>
+
+                  <p className="text-[11px] text-base-content/60 italic">
+                    💡 Legal Rationale: {item.legalRationale}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* DISRUPTION SHOCK ENGINE SECTION */}
+      <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-4">
+        <h2 className="text-base font-extrabold text-base-content flex items-center gap-2">
+          <Flame className="w-5 h-5 text-red-500" />
+          Organizational Disruption Shock Engine
+        </h2>
+
+        <div className="flex gap-2 flex-wrap">
+          {presetShocks.map((preset, i) => (
+            <button
+              key={i}
+              onClick={() => { setDisruptionQuery(preset); handleSimulateShock(preset); }}
+              className="text-xs bg-base-200 hover:bg-indigo-500/10 border border-base-300 hover:border-indigo-500/30 text-base-content/70 hover:text-indigo-400 px-3 py-1.5 rounded-xl transition-all font-medium"
+            >
+              {preset}
             </button>
           ))}
         </div>
       </div>
-
-      {/* DISRUPTION SIMULATION RESULTS */}
-      {simulating ? (
-        <div className="w-full py-20 bg-base-100 border border-base-300 rounded-3xl flex flex-col items-center justify-center space-y-4">
-          <div className="relative w-20 h-20 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20 animate-ping"></div>
-            <Cpu className="w-10 h-10 text-indigo-500 animate-pulse" />
-          </div>
-          <div className="text-center space-y-1">
-            <h3 className="text-lg font-bold text-base-content">Simulating Cascading Organizational Domino Shockwave...</h3>
-            <p className="text-xs text-base-content/60 max-w-sm mx-auto">
-              Evaluating financial delta, departmental domino chains, risk escalation, and executive board verdict.
-            </p>
-          </div>
-        </div>
-      ) : simResult && (
-        <div className="space-y-6">
-          
-          {/* SIMULATION SUMMARY HERO */}
-          <div className="p-8 bg-gradient-to-br from-slate-900 via-rose-950 to-slate-900 border border-rose-500/30 text-white rounded-3xl shadow-2xl space-y-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 bg-rose-500/20 border border-rose-500/30 px-3 py-1 rounded-full">
-                  Digital Twin Shock Simulation
-                </span>
-                <h2 className="text-2xl font-bold text-white mt-2">"{simResult.disruptionQuery}"</h2>
-              </div>
-              <div className="text-right">
-                <span className="text-xl font-extrabold text-rose-400 block">{simResult.financialShock}</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Financial Shock Delta</span>
-              </div>
-            </div>
-
-            <p className="text-sm text-slate-200 leading-relaxed font-medium bg-white/5 p-4 rounded-2xl border border-white/10">
-              {simResult.immediateImpact}
-            </p>
-
-            <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-xs text-rose-300 space-y-1">
-              <span className="font-bold uppercase tracking-wider block text-[10px]">Executive Board Verdict</span>
-              <p className="font-medium text-white">{simResult.executiveVerdict}</p>
-            </div>
-          </div>
-
-          {/* CASCADING DOMINO IMPACT & PLAYBOOK GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Departmental Cascades */}
-            <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-4 shadow-sm">
-              <h3 className="font-bold text-base text-base-content flex items-center gap-2">
-                <Activity className="w-5 h-5 text-indigo-500" /> Departmental Domino Cascade Chain
-              </h3>
-
-              <div className="space-y-3">
-                {simResult.departmentCascades?.map((step: any, idx: number) => (
-                  <div key={idx} className="p-4 bg-base-200 border border-base-300 rounded-2xl text-xs space-y-1">
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-indigo-500">Step {step.step}: {step.departmentNode}</span>
-                      <span className={cn(
-                        "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
-                        step.severity === 'CRITICAL' ? "bg-red-500/10 text-red-500" : "bg-amber-500/10 text-amber-500"
-                      )}>
-                        {step.severity}
-                      </span>
-                    </div>
-                    <p className="text-base-content/80 font-medium">{step.dominoEffect}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Executable Mitigation Playbook */}
-            <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-4 shadow-sm">
-              <h3 className="font-bold text-base text-base-content flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-500" /> Executable Mitigation Playbook
-              </h3>
-
-              <div className="space-y-3">
-                {simResult.mitigationPlaybook?.map((step: any, idx: number) => (
-                  <div key={idx} className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl text-xs space-y-1">
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-emerald-400">Step {step.actionStep}: {step.title}</span>
-                      <span className="text-[10px] font-bold text-base-content/50 uppercase">{step.timeline}</span>
-                    </div>
-                    <p className="text-base-content/90">{step.description}</p>
-                    <span className="text-[10px] font-bold text-emerald-500 block pt-1">Owner: {step.ownerRole}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      )}
-
-      {/* 15 SYSTEM NODES MATRIX GRID */}
-      {twinState && (
-        <div className="space-y-4 pt-4">
-          <h3 className="text-lg font-bold text-base-content flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-indigo-500" /> 15 Interconnected System Nodes
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {twinState.nodes?.map((node: any) => (
-              <div 
-                key={node.id}
-                className="bg-base-100 border border-base-300 hover:border-indigo-500/40 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all space-y-3 flex flex-col justify-between"
-              >
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <div className="p-2 rounded-xl bg-base-200 border border-base-300">
-                      {getNodeIcon(node.category)}
-                    </div>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      {node.healthStatus}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h4 className="font-bold text-sm text-base-content">{node.name}</h4>
-                    <span className="text-xl font-extrabold text-indigo-500 block">{node.count}</span>
-                  </div>
-
-                  <p className="text-[11px] text-base-content/60 line-clamp-2 leading-relaxed">
-                    {node.description}
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t border-base-200 text-[10px] font-bold text-indigo-500 flex items-center justify-between">
-                  <span>System Telemetry</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
