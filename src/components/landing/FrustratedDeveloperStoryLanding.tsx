@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Play, ArrowRight, X, Sparkles, BrainCircuit, ShieldCheck, Database, Zap } from 'lucide-react';
+import { Play, ArrowRight, X, Sparkles, BrainCircuit, ShieldCheck, Database, Zap, FileText, CheckCircle2 } from 'lucide-react';
 import gsap from 'gsap';
 
 const EXACT_PROBLEMS = [
@@ -78,14 +78,12 @@ export default function FrustratedDeveloperStoryLanding() {
 
       const tl = gsap.timeline();
 
-      // Bounce Pop-in
       tl.to(wrapper, {
         scale: randomScale,
         duration: 0.4,
         ease: "back.out(1.8)"
       });
 
-      // Float Up & Fade out smoothly
       tl.to(wrapper, {
         y: () => `-=${Math.random() * 150 + 150}`,
         x: () => `+=${Math.random() * 80 - 40}`,
@@ -139,36 +137,49 @@ export default function FrustratedDeveloperStoryLanding() {
             href="/demo" 
             className="px-5 py-2 rounded-full bg-white text-black text-xs font-extrabold uppercase tracking-wider hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_25px_rgba(255,255,255,0.2)]"
           >
-            Request Early Access
+            Try Free Demo
           </Link>
         </div>
       </header>
 
-      {/* ── FRAME 1: FRUSTRATED DEVELOPER NIGHT AT DESK ── */}
+      {/* ── HERO FRAME: PUNCHY 60-SECOND DOCUMENT VALUE PROP ── */}
       <section className="min-h-screen pt-32 pb-16 px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 justify-between">
         <div className="flex-1 space-y-6">
-          <span className="text-xs font-mono uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
-            The Enterprise Data Problem
+          <span className="text-xs font-mono uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3.5 py-1 rounded-full border border-amber-500/20 flex items-center gap-2 w-fit">
+            <Zap className="w-3.5 h-3.5 fill-amber-400" /> Grounded Instant Document Review
           </span>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight text-white">
-            EVERY COMPANY HAS <span className="text-amber-400">DATA.</span>
+          <h1 className="text-4xl md:text-6xl lg:text-6xl font-extrabold leading-tight tracking-tight text-white">
+            Upload any business document. <span className="text-amber-400">Get AI review, risks & counter-terms in 60 seconds.</span>
           </h1>
-          <p className="text-lg md:text-xl text-white/60 leading-relaxed max-w-xl font-light">
-            But it's everywhere. Disconnected across CRM, Spreadsheets, Emails, and Documents. Teams work in silos, and leaders are left guessing.
+          <p className="text-base md:text-lg text-white/70 leading-relaxed max-w-xl font-light">
+            Instantly surface predatory clauses, hidden vendor fees, and liability traps with 100% line-level citations. Backed by a 3D Memory Graph and 10-Agent AI Boardroom.
           </p>
+
           <div className="pt-4 flex flex-wrap gap-4 no-popup">
             <Link 
               href="/demo"
-              className="px-8 py-4 bg-white text-black font-extrabold text-sm uppercase tracking-wider rounded-full hover:bg-amber-400 hover:scale-105 transition-all shadow-xl flex items-center gap-2"
+              className="px-8 py-4 bg-amber-500 text-black font-extrabold text-xs uppercase tracking-wider rounded-full hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_30px_rgba(245,158,11,0.4)] flex items-center gap-2"
             >
-              Explore Synaps OS <ArrowRight className="w-4 h-4" />
+              Upload Document Now <ArrowRight className="w-4 h-4" />
             </Link>
             <button 
               onClick={() => setVideoModalOpen(true)}
-              className="px-6 py-4 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white text-sm font-bold flex items-center gap-2"
+              className="px-6 py-4 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white text-xs font-bold flex items-center gap-2"
             >
-              <Play className="w-4 h-4 text-amber-400 fill-amber-400" /> Watch Product Video
+              <Play className="w-4 h-4 text-amber-400 fill-amber-400" /> Watch 1-Min Product Video
             </button>
+          </div>
+
+          <div className="pt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 border-t border-white/10">
+            <div className="flex items-center gap-2 text-xs text-white/80">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> Line-Level Citations
+            </div>
+            <div className="flex items-center gap-2 text-xs text-white/80">
+              <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0" /> 10-Agent Boardroom
+            </div>
+            <div className="flex items-center gap-2 text-xs text-white/80">
+              <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" /> Zero Model Training
+            </div>
           </div>
         </div>
 
@@ -179,30 +190,33 @@ export default function FrustratedDeveloperStoryLanding() {
             className="w-full h-full object-cover"
           />
           <div className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur-md p-4 rounded-2xl border border-white/15 text-xs text-white/90 shadow-2xl">
-            <p className="font-semibold text-amber-400 mb-1">💭 Developer Thought Bubble:</p>
-            <p className="italic">"There has to be a better way... searching across 10 folders for one proposal section is taking hours."</p>
+            <p className="font-semibold text-amber-400 mb-1">⚡ Instant Document Intelligence:</p>
+            <p className="italic">"Pasted 40-page hotel vendor agreement $\rightarrow$ Highlighted Section 4.2 Auto-Renewal Trap in under 42 seconds."</p>
           </div>
         </div>
       </section>
 
-      {/* ── FRAME 2: OVERWHELMED WITH MONITORS ── */}
+      {/* ── FRAME 2: ADDITIONAL ENTERPRISE CAPABILITIES ── */}
       <section className="py-24 px-6 md:px-12 bg-[#0a0b12] border-t border-white/5">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row-reverse items-center gap-12">
           <div className="flex-1 space-y-6">
+            <span className="text-xs font-mono uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3.5 py-1 rounded-full border border-indigo-500/20">
+              Additional Enterprise Platform Capabilities
+            </span>
             <h2 className="text-3xl md:text-5xl font-extrabold leading-tight text-white">
-              INFORMATION OVERLOAD & SILOED KNOWLEDGE.
+              BEYOND DOCUMENT REVIEW: 3D MEMORY GRAPH & AI BOARDROOM.
             </h2>
             <p className="text-base md:text-lg text-white/60 leading-relaxed font-light">
-              Engineering, Legal, Finance, and Operations operate on different systems. Without a unified memory graph, crucial strategic risks slip through the cracks.
+              Synaps automatically unifies your contracts, board minutes, and financial logs into an interactive 3D Knowledge Graph and a 10-Agent AI Boardroom.
             </p>
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
-                <span className="text-2xl font-bold text-red-400 block">78%</span>
-                <span className="text-xs text-white/50">Time lost searching files</span>
+                <span className="text-2xl font-bold text-amber-400 block">&lt; 60 Sec</span>
+                <span className="text-xs text-white/50">Contract risk analysis</span>
               </div>
               <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
-                <span className="text-2xl font-bold text-amber-400 block">4.2 Hrs</span>
-                <span className="text-xs text-white/50">Daily context switching</span>
+                <span className="text-2xl font-bold text-indigo-400 block">10 Agents</span>
+                <span className="text-xs text-white/50">C-Suite cross-verification</span>
               </div>
             </div>
           </div>
@@ -230,7 +244,6 @@ export default function FrustratedDeveloperStoryLanding() {
             Watch how Synaps unifies document intelligence, 3D memory graphs, multi-agent boardroom consensus, and digital twin simulations into a single platform.
           </p>
 
-          {/* Cluely-style Glowing Video Frame */}
           <div className="relative group max-w-4xl mx-auto text-left pt-4">
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-amber-500 via-purple-500 to-indigo-500 opacity-30 blur-2xl group-hover:opacity-60 transition duration-1000" />
             
@@ -295,21 +308,15 @@ export default function FrustratedDeveloperStoryLanding() {
             FROM CHAOS TO <span className="text-amber-400">CLARITY.</span>
           </h2>
           <p className="text-lg md:text-xl text-white/60 font-light max-w-2xl mx-auto">
-            Empower your entire enterprise with real-time AI intelligence, risk simulation, and automated strategic decision making.
+            Upload your first business document and experience 60-second grounded AI document intelligence.
           </p>
 
-          <div className="pt-4 flex flex-wrap justify-center gap-4">
+          <div className="pt-4 flex flex-col sm:flex-row justify-center items-center gap-4">
             <Link 
               href="/demo"
-              className="px-10 py-5 bg-amber-500 text-black font-extrabold text-base uppercase tracking-wider rounded-full hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_50px_rgba(234,179,8,0.5)]"
+              className="px-10 py-5 bg-amber-500 text-black font-extrabold text-sm uppercase tracking-wider rounded-full hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_40px_rgba(245,158,11,0.5)] flex items-center gap-2"
             >
-              Enter Synaps OS (Instant Demo)
-            </Link>
-            <Link 
-              href="/login"
-              className="px-8 py-5 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white text-base font-bold transition-all"
-            >
-              Sign In to Account
+              Start Free Demo Now <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
@@ -317,29 +324,23 @@ export default function FrustratedDeveloperStoryLanding() {
 
       {/* ── VIDEO MODAL ── */}
       {videoModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300 no-popup">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
           <button 
             onClick={() => setVideoModalOpen(false)}
-            className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 p-3 rounded-full border border-white/20 transition-all"
+            className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
           >
             <X className="w-6 h-6" />
           </button>
-          
-          <div className="w-full max-w-5xl bg-[#0b0b10] border border-white/20 rounded-3xl p-3 shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2.5 bg-[#14141e] rounded-t-2xl border-b border-white/10 mb-2">
-              <span className="text-xs text-white/60 font-mono">synaps-landing-video.mp4 — Product Walkthrough</span>
-              <span className="text-[10px] font-bold text-amber-400 uppercase">SYNAPS DEMO</span>
-            </div>
-            <video
-              src="/synaps-landing-video.mp4"
-              autoPlay
-              controls
-              className="w-full h-auto max-h-[75vh] rounded-2xl border border-white/10 object-contain bg-black"
+          <div className="w-full max-w-4xl aspect-video rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
+            <video 
+              src="/synaps-landing-video.mp4" 
+              controls 
+              autoPlay 
+              className="w-full h-full object-cover" 
             />
           </div>
         </div>
       )}
-
     </div>
   );
 }
