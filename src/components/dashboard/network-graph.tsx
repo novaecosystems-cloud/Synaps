@@ -41,15 +41,16 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
     window.addEventListener('resize', handleResize);
     setDimensions({ width: window.innerWidth, height: window.innerHeight });
     
-    // Zoom in camera to Z: 210 for clear, zoomed-in node visibility
+    // Minimalist Force Layout: Strong repulsion (-750) & spacious link distance (130) to eliminate text overlaps
     setTimeout(() => {
       if (fgRef.current) {
-        fgRef.current.d3Force('charge')?.strength(-350);
-        fgRef.current.cameraPosition({ x: 0, y: 0, z: 210 }, { x: 0, y: 0, z: 0 }, 1000);
+        fgRef.current.d3Force('charge')?.strength(-750);
+        fgRef.current.d3Force('link')?.distance(130);
+        fgRef.current.cameraPosition({ x: 0, y: 0, z: 280 }, { x: 0, y: 0, z: 0 }, 1000);
         
         const scene = fgRef.current.scene();
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
         directionalLight.position.set(1, 1, 1);
         scene.add(ambientLight);
         scene.add(directionalLight);
@@ -94,46 +95,38 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
   const handleNodeClick = useCallback((node: any) => {
     setSelectedNode(node);
     fgRef.current?.cameraPosition(
-      { x: node.x, y: node.y, z: 120 },
+      { x: node.x, y: node.y, z: 140 },
       { x: node.x, y: node.y, z: 0 },
       1000
     );
   }, []);
 
-  // Custom 3D Node Object with Large Spheres & Bright Sprite Labels
+  // Minimalist, Clean 3D Node Object (MaayanLab Style: Sleek Glowing Orbs + Crisp Floating Text)
   const nodeThreeObject = useCallback((node: any) => {
     const color = getNodeColor(node.type);
     const group = new THREE.Group();
 
-    // 1. Large 3D Sphere Node
-    const geometry = new THREE.SphereGeometry(7, 32, 32);
+    // 1. Sleek 3D Glowing Orb Sphere (Radius 3.5)
+    const geometry = new THREE.SphereGeometry(3.5, 32, 32);
     const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color(color),
       emissive: new THREE.Color(color),
-      emissiveIntensity: 0.5,
-      roughness: 0.2,
-      metalness: 0.8
+      emissiveIntensity: 0.6,
+      roughness: 0.1,
+      metalness: 0.9
     });
     const sphere = new THREE.Mesh(geometry, material);
     group.add(sphere);
 
-    // 2. Glowing Outer Ring
-    const ringGeo = new THREE.RingGeometry(8, 9.5, 32);
-    const ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(color), side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.rotation.x = Math.PI / 2;
-    group.add(ring);
-
-    // 3. High-Contrast Text Sprite Label
+    // 2. Minimalist Floating Sprite Text Label (Clean, zero box background clutter)
     const sprite = new SpriteText(node.name || 'Entity');
-    sprite.color = '#ffffff';
-    sprite.textHeight = 5.5;
-    sprite.backgroundColor = 'rgba(7, 8, 12, 0.85)';
-    sprite.padding = [3, 6];
-    sprite.borderRadius = 6;
-    sprite.borderWidth = 1;
-    sprite.borderColor = color;
-    sprite.position.set(0, -12, 0);
+    sprite.color = '#f8fafc';
+    sprite.textHeight = 3.6;
+    sprite.fontWeight = '600';
+    sprite.backgroundColor = 'rgba(3, 4, 8, 0.75)';
+    sprite.padding = [2, 4];
+    sprite.borderRadius = 4;
+    sprite.position.set(0, 7, 0);
     group.add(sprite);
 
     return group;
@@ -166,7 +159,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
   if (!mounted) return null;
 
   return (
-    <div className="relative w-full h-full bg-[#030408] overflow-hidden select-none">
+    <div className="relative w-full h-full bg-[#030408] overflow-hidden select-none font-sans">
       
       {/* 3D Force Graph Render */}
       <ForceGraph3D
@@ -175,22 +168,22 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
         height={dimensions.height}
         graphData={filteredData}
         nodeThreeObject={nodeThreeObject}
-        nodeLabel={(n: any) => `<div style="background: rgba(0,0,0,0.9); border: 1px solid ${getNodeColor(n.type)}; padding: 6px 10px; border-radius: 8px; font-family: sans-serif; color: white;">
-          <strong style="color: ${getNodeColor(n.type)};">${n.type || 'ENTITY'}</strong>: ${n.name}<br/>
+        nodeLabel={(n: any) => `<div style="background: rgba(3,4,8,0.95); border: 1px solid ${getNodeColor(n.type)}; padding: 6px 12px; border-radius: 10px; font-family: sans-serif; color: white;">
+          <strong style="color: ${getNodeColor(n.type)}; font-size: 11px;">${n.type || 'ENTITY'}</strong>: <span style="font-weight: 700;">${n.name}</span><br/>
           <span style="font-size: 11px; color: #94a3b8;">${n.description || 'Enterprise Memory Node'}</span>
         </div>`}
         onNodeClick={handleNodeClick}
         onNodeHover={(n: any) => setHoverNode(n)}
-        linkColor={() => 'rgba(99, 102, 241, 0.45)'}
-        linkWidth={2.0}
-        linkDirectionalParticles={4}
-        linkDirectionalParticleWidth={2.5}
-        linkDirectionalParticleSpeed={0.008}
+        linkColor={() => 'rgba(99, 102, 241, 0.35)'}
+        linkWidth={1.5}
+        linkDirectionalParticles={2}
+        linkDirectionalParticleWidth={1.8}
+        linkDirectionalParticleSpeed={0.006}
         linkDirectionalParticleColor={() => '#a855f7'}
         backgroundColor="#030408"
       />
 
-      {/* Top Left Unique Header (Synaps AI Network Badge) */}
+      {/* Top Left Header (Minimalist Synaps Memory Graph) */}
       <div className="absolute top-6 left-6 z-40 flex items-center gap-3">
         <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-black/80 border border-indigo-500/30 backdrop-blur-xl shadow-2xl text-white">
           <div className="w-6 h-6 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
@@ -294,7 +287,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
         )}
       </div>
 
-      {/* Graph Reasoning Result Floating Modal (Unique Synaps AI Network Header) */}
+      {/* Graph Reasoning Result Floating Modal */}
       {reasoningResult && (
         <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 animate-in fade-in duration-200">
           <div className="border border-indigo-500/40 bg-black/90 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl relative text-white">
@@ -305,7 +298,6 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
               <X className="w-5 h-5" />
             </button>
             
-            {/* Unique Synaps AI Icon (No Gemini Star Logo) */}
             <div className="flex items-center gap-2.5 mb-3 border-b border-white/10 pb-3">
               <div className="w-7 h-7 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
                 <BrainCircuit className="w-4 h-4 animate-pulse" />
@@ -337,7 +329,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
         </div>
       )}
 
-      {/* Bottom Command Bar (Unique Synaps AI Icon) */}
+      {/* Bottom Command Bar */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-4xl px-6">
         <div className="w-full border border-white/20 bg-black/80 backdrop-blur-2xl rounded-full p-2 flex items-center gap-3 shadow-2xl">
           <div className="flex items-center gap-2 pl-4 pr-2 py-2 border-r border-white/10 shrink-0">
