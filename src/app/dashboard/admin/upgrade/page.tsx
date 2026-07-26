@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, X, RefreshCw, ExternalLink, Copy, Landmark, CreditCard } from 'lucide-react';
+import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, X, RefreshCw, ExternalLink, Copy, Send, Mail } from 'lucide-react';
 
 interface UserRow {
   id: string;
@@ -41,6 +41,12 @@ export default function AdminUpgradePage() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [message, setMessage] = useState('');
 
+  // Email Broadcast State
+  const [broadcastSubject, setBroadcastSubject] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [sendingBroadcast, setSendingBroadcast] = useState(false);
+  const [broadcastResult, setBroadcastResult] = useState('');
+
   const fetchUsers = async () => {
     try {
       const res = await fetch('/api/admin/users');
@@ -56,7 +62,6 @@ export default function AdminUpgradePage() {
 
   useEffect(() => {
     fetchUsers();
-    // Live Polling every 5 seconds for instant activation & refunds!
     const interval = setInterval(fetchUsers, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -98,6 +103,33 @@ export default function AdminUpgradePage() {
     setMessage(`✅ Refund for ${userEmail} marked as complete & resolved.`);
   };
 
+  const handleSendBroadcast = async () => {
+    if (!broadcastSubject.trim() || !broadcastMessage.trim()) return;
+    setSendingBroadcast(true);
+    setBroadcastResult('');
+    try {
+      const res = await fetch('/api/admin/broadcast-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: broadcastSubject,
+          message: broadcastMessage
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBroadcastResult(`✅ Broadcast successfully queued for ${data.recipientsCount} registered users!`);
+        setBroadcastSubject('');
+        setBroadcastMessage('');
+      } else {
+        setBroadcastResult(`❌ ${data.error}`);
+      }
+    } catch (e: any) {
+      setBroadcastResult(`❌ ${e.message}`);
+    }
+    setSendingBroadcast(false);
+  };
+
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
@@ -135,8 +167,8 @@ export default function AdminUpgradePage() {
             <ShieldCheck className="w-6 h-6 text-purple-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-base-content">Owner Admin — Live User Upgrades & Refunds</h1>
-            <p className="text-xs text-base-content/50">Requests & refunds appear in real time. Process refunds via UPI, Bank, Stripe, or PayPal.</p>
+            <h1 className="text-2xl font-bold text-base-content">Owner Admin — User Upgrades & Automated Broadcasts</h1>
+            <p className="text-xs text-base-content/50">Manage user roles, process refunds, and send automated email broadcasts to all signups.</p>
           </div>
         </div>
 
@@ -152,10 +184,59 @@ export default function AdminUpgradePage() {
       )}
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/* LIVE PENDING REFUND REQUESTS SECTION */}
+      {/* AUTOMATED EMAIL BROADCAST ENGINE SECTION */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <div className="p-6 bg-gradient-to-br from-amber-500/10 via-primary/5 to-purple-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-amber-500 font-extrabold text-base">
+            <Mail className="w-5 h-5" /> 📢 Automated Broadcast to All Signed-Up Users ({users.length} Users)
+          </div>
+          <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+            100% Free Automated
+          </span>
+        </div>
+
+        <p className="text-xs text-base-content/70">
+          Type an email subject and update message below. Clicking send will automatically dispatch feature announcements & updates to all {users.length} registered user emails!
+        </p>
+
+        {broadcastResult && (
+          <div className={`p-3 rounded-xl text-xs font-bold ${broadcastResult.startsWith('✅') ? 'bg-success/10 border border-success/30 text-success' : 'bg-red-500/10 border border-red-500/30 text-red-500'}`}>
+            {broadcastResult}
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <input 
+            type="text" 
+            value={broadcastSubject}
+            onChange={e => setBroadcastSubject(e.target.value)}
+            placeholder="Email Subject (e.g. 🚀 New Feature: Spotify-Wrapped & 3D Memory Graph Improvements!)..."
+            className="w-full bg-base-100 border border-base-300 rounded-xl px-4 py-2.5 text-xs text-base-content outline-none font-bold focus:ring-2 focus:ring-amber-500/30"
+          />
+
+          <textarea 
+            rows={4}
+            value={broadcastMessage}
+            onChange={e => setBroadcastMessage(e.target.value)}
+            placeholder="Write your update message here..."
+            className="w-full bg-base-100 border border-base-300 rounded-xl p-4 text-xs text-base-content outline-none focus:ring-2 focus:ring-amber-500/30"
+          />
+
+          <button
+            onClick={handleSendBroadcast}
+            disabled={!broadcastSubject.trim() || !broadcastMessage.trim() || sendingBroadcast}
+            className="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {sendingBroadcast ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {sendingBroadcast ? 'Sending Broadcast Email...' : `Send Automated Update Email to All ${users.length} Registered Users`}
+          </button>
+        </div>
+      </div>
+
+      {/* PENDING REFUNDS SECTION */}
       {pendingRefunds.length > 0 && (
-        <div className="p-6 bg-red-500/10 border-2 border-red-500/40 rounded-3xl space-y-4 shadow-xl animate-in fade-in duration-300">
+        <div className="p-6 bg-red-500/10 border-2 border-red-500/40 rounded-3xl space-y-4 shadow-xl">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-extrabold text-red-500 flex items-center gap-2">
               <RefreshCw className="w-5 h-5 text-red-500 animate-spin" /> 
@@ -177,7 +258,6 @@ export default function AdminUpgradePage() {
                   <span className="text-xs text-base-content/50">Requested {new Date(req.createdAt).toLocaleTimeString()}</span>
                 </div>
 
-                {/* Payout Details */}
                 <div className="p-3 bg-base-200 rounded-xl space-y-1">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-base-content/60">Payout ID / Account Details:</span>
@@ -196,15 +276,6 @@ export default function AdminUpgradePage() {
                 </p>
 
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {req.refundMethod === 'paypal' && (
-                    <button
-                      onClick={() => window.open('https://www.paypal.com/myaccount/transactions', '_blank')}
-                      className="px-4 py-2 rounded-xl bg-[#009cde] hover:bg-[#0085c0] text-white font-bold text-xs flex items-center gap-1.5 shadow-sm"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" /> Open PayPal Activity
-                    </button>
-                  )}
-
                   <button
                     onClick={() => handleResolveRefund(req.id, req.userEmail)}
                     className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-sm"
@@ -218,11 +289,9 @@ export default function AdminUpgradePage() {
         </div>
       )}
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/* LIVE PENDING UPGRADE REQUESTS SECTION */}
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/* PENDING UPGRADES SECTION */}
       {pendingRequests.length > 0 && (
-        <div className="p-6 bg-amber-500/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-xl animate-in fade-in duration-300">
+        <div className="p-6 bg-amber-500/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-xl">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-extrabold text-amber-500 flex items-center gap-2">
               <Bell className="w-5 h-5 text-amber-500 animate-bounce" /> 
@@ -263,7 +332,6 @@ export default function AdminUpgradePage() {
                   <button
                     onClick={() => handleReject(req.id)}
                     className="px-3 py-2.5 rounded-xl bg-base-200 hover:bg-red-500/10 border border-base-300 hover:border-red-500/30 text-base-content/60 hover:text-red-500 text-xs font-bold transition-all"
-                    title="Dismiss Request"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -279,14 +347,14 @@ export default function AdminUpgradePage() {
         <Search className="absolute left-4 top-3.5 w-4 h-4 text-base-content/40" />
         <input
           type="text"
-          placeholder="Search by email or name..."
+          placeholder="Search registered users by email or name..."
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="w-full pl-10 pr-4 py-3 bg-base-100 border border-base-300 rounded-2xl text-sm text-base-content outline-none focus:ring-2 focus:ring-primary/30"
         />
       </div>
 
-      {/* Users table */}
+      {/* Registered Users Table */}
       <div className="bg-base-100 border border-base-300 rounded-3xl overflow-hidden">
         {loading ? (
           <div className="py-16 text-center">
@@ -311,7 +379,6 @@ export default function AdminUpgradePage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  {/* Upgrade to Pro */}
                   <button
                     onClick={() => handleUpgrade(user.id, user.email, 'pro')}
                     disabled={!!upgrading || user.role === 'ADMIN' || user.role === 'OWNER'}
@@ -323,7 +390,6 @@ export default function AdminUpgradePage() {
                     Pro ($7)
                   </button>
 
-                  {/* Upgrade to Enterprise */}
                   <button
                     onClick={() => handleUpgrade(user.id, user.email, 'enterprise')}
                     disabled={!!upgrading || user.role === 'OWNER'}
