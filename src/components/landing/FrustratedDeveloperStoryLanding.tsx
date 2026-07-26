@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Play, ArrowRight, X, Sparkles, BrainCircuit, ShieldCheck, Database, Zap, FileText, CheckCircle2 } from 'lucide-react';
+import { Play, ArrowRight, X, Sparkles, BrainCircuit, ShieldCheck, Database, Zap, CheckCircle2 } from 'lucide-react';
 import gsap from 'gsap';
 
 const EXACT_PROBLEMS = [
-  { icon: '⚠️', text: 'Siloed Knowledge Base', style: 'border-amber-500/50 bg-amber-950/90 text-amber-300 shadow-[0_10px_30px_rgba(245,158,11,0.4)]' },
-  { icon: '⚡', text: 'Manual Context Switching', style: 'border-orange-500/50 bg-orange-950/90 text-orange-300 shadow-[0_10px_30px_rgba(249,115,22,0.4)]' },
-  { icon: '❌', text: 'Unstructured Spreadsheets', style: 'border-rose-500/50 bg-rose-950/90 text-rose-300 shadow-[0_10px_30px_rgba(244,63,94,0.4)]' },
-  { icon: '⚠️', text: 'Vendor Contract Misalignment', style: 'border-yellow-500/50 bg-amber-950/90 text-yellow-300 shadow-[0_10px_30px_rgba(234,179,8,0.4)]' },
-  { icon: '🚨', text: 'CRM Disconnected', style: 'border-red-500/50 bg-red-950/90 text-red-300 shadow-[0_10px_30px_rgba(239,68,68,0.4)]' },
-  { icon: '💥', text: 'Data Mishandling', style: 'border-rose-600/50 bg-rose-950/90 text-rose-300 shadow-[0_10px_30px_rgba(225,29,72,0.4)]' },
-  { icon: '⚡', text: 'Duplicate Work & Bottlenecks', style: 'border-amber-600/50 bg-amber-950/90 text-amber-300 shadow-[0_10px_30px_rgba(217,119,6,0.4)]' }
+  { icon: '⚠️', text: 'Siloed Knowledge Base', style: 'border-amber-500/40 bg-amber-950/90 text-amber-300 shadow-lg' },
+  { icon: '⚡', text: 'Manual Context Switching', style: 'border-orange-500/40 bg-orange-950/90 text-orange-300 shadow-lg' },
+  { icon: '❌', text: 'Unstructured Spreadsheets', style: 'border-rose-500/40 bg-rose-950/90 text-rose-300 shadow-lg' },
+  { icon: '⚠️', text: 'Vendor Contract Misalignment', style: 'border-yellow-500/40 bg-amber-950/90 text-yellow-300 shadow-lg' },
+  { icon: '🚨', text: 'CRM Disconnected', style: 'border-red-500/40 bg-red-950/90 text-red-300 shadow-lg' },
+  { icon: '💥', text: 'Data Mishandling', style: 'border-rose-600/40 bg-rose-950/90 text-rose-300 shadow-lg' },
+  { icon: '⚡', text: 'Duplicate Work & Bottlenecks', style: 'border-amber-600/40 bg-amber-950/90 text-amber-300 shadow-lg' }
 ];
 
 export default function FrustratedDeveloperStoryLanding() {
@@ -43,7 +43,7 @@ export default function FrustratedDeveloperStoryLanding() {
     };
   }, []);
 
-  // GSAP Click-Anywhere Floating Pill Popups
+  // GSAP Click-Anywhere Floating Popup Badges
   useEffect(() => {
     const handleGlobalClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -58,15 +58,15 @@ export default function FrustratedDeveloperStoryLanding() {
       wrapper.style.pointerEvents = "none";
       wrapper.style.zIndex = "9999";
       
-      const pill = document.createElement("div");
-      pill.className = `flex items-center gap-2 px-5 py-2.5 rounded-full border backdrop-blur-xl text-xs sm:text-sm font-bold tracking-wide font-sans ${randomProblem.style}`;
-      pill.innerHTML = `<span>${randomProblem.icon}</span> <span>${randomProblem.text}</span>`;
+      const badge = document.createElement("div");
+      badge.className = `flex items-center gap-2 px-4 py-2 rounded-xl border backdrop-blur-xl text-xs sm:text-sm font-bold tracking-wide font-sans ${randomProblem.style}`;
+      badge.innerHTML = `<span>${randomProblem.icon}</span> <span>${randomProblem.text}</span>`;
       
-      wrapper.appendChild(pill);
+      wrapper.appendChild(badge);
       document.body.appendChild(wrapper);
 
-      const randomRotation = Math.random() * 20 - 10;
-      const randomScale = Math.random() * 0.3 + 0.9;
+      const randomRotation = Math.random() * 16 - 8;
+      const randomScale = Math.random() * 0.2 + 0.95;
 
       gsap.set(wrapper, {
         scale: 0,
@@ -80,15 +80,15 @@ export default function FrustratedDeveloperStoryLanding() {
 
       tl.to(wrapper, {
         scale: randomScale,
-        duration: 0.4,
-        ease: "back.out(1.8)"
+        duration: 0.35,
+        ease: "back.out(1.6)"
       });
 
       tl.to(wrapper, {
-        y: () => `-=${Math.random() * 150 + 150}`,
-        x: () => `+=${Math.random() * 80 - 40}`,
+        y: () => `-=${Math.random() * 140 + 120}`,
+        x: () => `+=${Math.random() * 60 - 30}`,
         opacity: 0,
-        duration: 3.2,
+        duration: 3.0,
         ease: "power1.out",
         onComplete: () => {
           if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
@@ -103,19 +103,14 @@ export default function FrustratedDeveloperStoryLanding() {
   return (
     <div className="w-full min-h-screen bg-[#07080c] text-white font-sans selection:bg-amber-500 selection:text-black overflow-x-hidden relative cursor-crosshair">
       
-      {/* Click Anywhere Interactive Indicator Banner */}
-      <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-black/80 border border-amber-500/40 backdrop-blur-md px-4 py-1.5 rounded-full text-[11px] font-bold text-amber-400 shadow-xl pointer-events-none flex items-center gap-2 animate-bounce">
-        <Sparkles className="w-3.5 h-3.5" /> Click anywhere on screen to spawn enterprise problem pills!
-      </div>
-
       {/* ── PERSISTENT HEADER NAVIGATION ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-[#07080c]/80 border-b border-white/10 backdrop-blur-xl flex items-center justify-between no-popup">
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-[#07080c]/90 border-b border-white/10 backdrop-blur-xl flex items-center justify-between no-popup">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+          <div className="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
             <BrainCircuit className="w-5 h-5" />
           </div>
           <span className="text-xl font-extrabold tracking-wider text-white">SYNAPS</span>
-          <span className="text-[10px] font-mono uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-indigo-400 font-bold ml-1">
             ENTERPRISE OS
           </span>
         </div>
@@ -123,19 +118,19 @@ export default function FrustratedDeveloperStoryLanding() {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setVideoModalOpen(true)}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white transition-all"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white transition-all"
           >
             <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> Watch Video
           </button>
           <Link 
             href="/login" 
-            className="px-4 py-2 rounded-full border border-white/20 text-xs font-bold text-white/80 hover:text-white hover:border-white/40 transition-all"
+            className="px-4 py-2 rounded-xl border border-white/20 text-xs font-bold text-white/80 hover:text-white hover:border-white/40 transition-all"
           >
             Sign In
           </Link>
           <Link 
             href="/demo" 
-            className="px-5 py-2 rounded-full bg-white text-black text-xs font-extrabold uppercase tracking-wider hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_25px_rgba(255,255,255,0.2)]"
+            className="px-5 py-2.5 rounded-xl bg-amber-500 text-black text-xs font-extrabold uppercase tracking-wider hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_25px_rgba(245,158,11,0.3)]"
           >
             Try Free Demo
           </Link>
@@ -145,9 +140,9 @@ export default function FrustratedDeveloperStoryLanding() {
       {/* ── HERO FRAME: PUNCHY 60-SECOND DOCUMENT VALUE PROP ── */}
       <section className="min-h-screen pt-32 pb-16 px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 justify-between">
         <div className="flex-1 space-y-6">
-          <span className="text-xs font-mono uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3.5 py-1 rounded-full border border-amber-500/20 flex items-center gap-2 w-fit">
-            <Zap className="w-3.5 h-3.5 fill-amber-400" /> Grounded Instant Document Review
-          </span>
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-400 tracking-wider uppercase">
+            <Zap className="w-4 h-4 fill-amber-400" /> Grounded Instant Document Review
+          </div>
           <h1 className="text-4xl md:text-6xl lg:text-6xl font-extrabold leading-tight tracking-tight text-white">
             Upload any business document. <span className="text-amber-400">Get AI review, risks & counter-terms in 60 seconds.</span>
           </h1>
@@ -158,13 +153,13 @@ export default function FrustratedDeveloperStoryLanding() {
           <div className="pt-4 flex flex-wrap gap-4 no-popup">
             <Link 
               href="/demo"
-              className="px-8 py-4 bg-amber-500 text-black font-extrabold text-xs uppercase tracking-wider rounded-full hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_30px_rgba(245,158,11,0.4)] flex items-center gap-2"
+              className="px-8 py-4 bg-amber-500 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_30px_rgba(245,158,11,0.4)] flex items-center gap-2"
             >
               Upload Document Now <ArrowRight className="w-4 h-4" />
             </Link>
             <button 
               onClick={() => setVideoModalOpen(true)}
-              className="px-6 py-4 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-white text-xs font-bold flex items-center gap-2"
+              className="px-6 py-4 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 text-white text-xs font-bold flex items-center gap-2"
             >
               <Play className="w-4 h-4 text-amber-400 fill-amber-400" /> Watch 1-Min Product Video
             </button>
@@ -189,7 +184,7 @@ export default function FrustratedDeveloperStoryLanding() {
             alt="Frustrated Developer at Night"
             className="w-full h-full object-cover"
           />
-          <div className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur-md p-4 rounded-2xl border border-white/15 text-xs text-white/90 shadow-2xl">
+          <div className="absolute bottom-6 left-6 right-6 bg-black/85 backdrop-blur-md p-4 rounded-2xl border border-white/15 text-xs text-white/90 shadow-2xl">
             <p className="font-semibold text-amber-400 mb-1">⚡ Instant Document Intelligence:</p>
             <p className="italic">"Pasted 40-page hotel vendor agreement $\rightarrow$ Highlighted Section 4.2 Auto-Renewal Trap in under 42 seconds."</p>
           </div>
@@ -200,7 +195,7 @@ export default function FrustratedDeveloperStoryLanding() {
       <section className="py-24 px-6 md:px-12 bg-[#0a0b12] border-t border-white/5">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row-reverse items-center gap-12">
           <div className="flex-1 space-y-6">
-            <span className="text-xs font-mono uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3.5 py-1 rounded-full border border-indigo-500/20">
+            <span className="text-xs font-mono uppercase tracking-widest text-indigo-400 font-bold block">
               Additional Enterprise Platform Capabilities
             </span>
             <h2 className="text-3xl md:text-5xl font-extrabold leading-tight text-white">
@@ -234,7 +229,7 @@ export default function FrustratedDeveloperStoryLanding() {
       {/* ── FRAME 3: EMBEDDED RECORDED LANDING VIDEO SHOWCASE ── */}
       <section className="py-28 px-6 md:px-12 bg-gradient-to-b from-[#0a0b12] via-[#0d0e1a] to-[#07080c] border-t border-white/5 no-popup">
         <div className="max-w-6xl mx-auto space-y-8 text-center">
-          <span className="text-xs font-mono uppercase tracking-widest text-indigo-400 bg-indigo-500/10 px-3.5 py-1 rounded-full border border-indigo-500/20">
+          <span className="text-xs font-mono uppercase tracking-widest text-indigo-400 font-bold block">
             Interactive Product Showcase
           </span>
           <h2 className="text-3xl md:text-6xl font-extrabold text-white tracking-tight">
@@ -255,7 +250,7 @@ export default function FrustratedDeveloperStoryLanding() {
                   <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
                   <span className="text-xs text-white/50 font-mono ml-2">synaps-landing-video.mp4</span>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
                   Official Walkthrough
                 </span>
               </div>
@@ -314,7 +309,7 @@ export default function FrustratedDeveloperStoryLanding() {
           <div className="pt-4 flex flex-col sm:flex-row justify-center items-center gap-4">
             <Link 
               href="/demo"
-              className="px-10 py-5 bg-amber-500 text-black font-extrabold text-sm uppercase tracking-wider rounded-full hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_40px_rgba(245,158,11,0.5)] flex items-center gap-2"
+              className="px-10 py-5 bg-amber-500 text-black font-extrabold text-sm uppercase tracking-wider rounded-xl hover:bg-amber-400 hover:scale-105 transition-all shadow-[0_0_40px_rgba(245,158,11,0.5)] flex items-center gap-2"
             >
               Start Free Demo Now <ArrowRight className="w-5 h-5" />
             </Link>
@@ -327,7 +322,7 @@ export default function FrustratedDeveloperStoryLanding() {
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
           <button 
             onClick={() => setVideoModalOpen(false)}
-            className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+            className="absolute top-6 right-6 p-3 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all"
           >
             <X className="w-6 h-6" />
           </button>
