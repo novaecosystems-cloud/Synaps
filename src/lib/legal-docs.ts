@@ -13,7 +13,7 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDoc> = {
     slug: 'privacy',
     title: 'Privacy Policy',
     category: 'Privacy & Security',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Comprehensive details on data collection, processing, user rights under GDPR, CCPA, and the Indian DPDP Act 2023.',
     tableOfContents: [
       { id: 'introduction', title: '1. Introduction' },
@@ -27,7 +27,7 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDoc> = {
     contentMd: `
 # Privacy Policy
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Introduction {#introduction}
 Welcome to **Synaps** ("Company", "we", "us", or "our"). Synaps is an Enterprise Intelligence Platform and Digital Twin system. We are committed to protecting your organizational and personal privacy in accordance with applicable global privacy laws, including the European Union General Data Protection Regulation (**GDPR**), the California Consumer Privacy Act (**CCPA / CPRA**), and the Indian Digital Personal Data Protection Act (**DPDP Act 2023**).
@@ -85,15 +85,15 @@ Synaps partners with SOC2 and ISO27001 certified sub-processors to deliver core 
 * **Cloud Infrastructure:** Google Cloud Platform (GCP) & AWS.
 * **Authentication:** Firebase Authentication (Google Cloud).
 * **Database & Vector Storage:** PostgreSQL (Prisma) & Supabase Storage.
-* **AI Routing Engines:** Synaps AI Multi-Agent Engine, Groq, OpenRouter.
+* **AI Routing Engines:** Synaps AI Multi-Agent Engine, Groq, Google Gemini.
 
 ---
 
 ## 7. Contacting Our Data Protection Officer (DPO) {#contact-dpo}
 If you have questions regarding this Privacy Policy or wish to exercise your statutory rights, please contact our Data Protection Officer:
 
-* **Email:** dpo@synaps.ai or privacy@synaps.ai
-* **Postal Address:** Synaps Inc., Attn: Data Protection Officer, Enterprise Legal Dept, D-Block Corporate Tower, India / International Offices.
+* **Email:** novaecosystems@gmail.com
+* **Postal Address:** Synaps AI Legal Dept, Pune, Maharashtra, India / Global Headquarters.
 `
   },
 
@@ -101,7 +101,7 @@ If you have questions regarding this Privacy Policy or wish to exercise your sta
     slug: 'terms',
     title: 'Terms & Conditions',
     category: 'Legal',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Terms of Service governing your use of Synaps Enterprise Intelligence Platform and Digital Twin OS.',
     tableOfContents: [
       { id: 'acceptance', title: '1. Acceptance of Terms' },
@@ -115,7 +115,7 @@ If you have questions regarding this Privacy Policy or wish to exercise your sta
     contentMd: `
 # Terms & Conditions / Terms of Service
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Acceptance of Terms {#acceptance}
 By accessing, registering for, or utilizing the **Synaps** Enterprise Intelligence Platform ("Platform"), you ("Customer", "User", or "Organization") enter into a legally binding agreement governed by these Terms & Conditions ("Terms"). If you represent an entity, you warrant that you have full authority to bind that entity.
@@ -145,7 +145,7 @@ Customer is responsible for maintaining the confidentiality of administrative cr
 
 ## 5. Payment & Subscription Terms {#payment-terms}
 * **Billing Cycles:** Subscriptions are billed on a monthly or annual auto-renewing basis.
-* **Future-Ready Payment Processing:** All payments are invoiced and processed in USD or local currency with PCI-DSS tier-1 payment compliance.
+* **Payment Processing:** All payments are processed via LemonSqueezy Merchant of Record with automated 1-click real-money refunds within 14 days.
 * **Taxes:** Prices exclude applicable GST, VAT, or withholding taxes, which shall be calculated based on Customer jurisdiction.
 
 ---
@@ -159,9 +159,9 @@ To the maximum extent permitted by applicable law:
 ---
 
 ## 7. Governing Law & Dispute Resolution {#governing-law}
-These Terms shall be governed by and construed in accordance with the laws of Delaware, USA (or applicable corporate jurisdiction), without regard to conflict of law principles. Any dispute arising out of these Terms shall be resolved via binding arbitration.
+These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law principles. Any dispute arising out of these Terms shall be resolved via binding arbitration.
 
-**Contact:** Legal queries should be submitted to legal@synaps.ai.
+**Contact:** Legal queries should be submitted to novaecosystems@gmail.com.
 `
   },
 
@@ -169,7 +169,7 @@ These Terms shall be governed by and construed in accordance with the laws of De
     slug: 'acceptable-use',
     title: 'Acceptable Use Policy',
     category: 'Governance & AI',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Guidelines on permitted and prohibited uses of the Synaps Enterprise Platform.',
     tableOfContents: [
       { id: 'purpose', title: '1. Purpose' },
@@ -180,7 +180,7 @@ These Terms shall be governed by and construed in accordance with the laws of De
     contentMd: `
 # Acceptable Use Policy (AUP)
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Purpose {#purpose}
 This Acceptable Use Policy defines the standards of conduct required when using **Synaps**. All users, enterprise tenants, and API consumers must strictly comply with these guidelines to protect system integrity and legal compliance.
@@ -204,7 +204,7 @@ When interacting with Synaps AI Agents, Executive Boardroom models, or Digital T
 ## 4. Monitoring & Enforcement {#enforcement}
 Synaps automatically monitors application telemetry for security threats. Violations may result in temporary account suspension or permanent termination without refund.
 
-Report abuse to: abuse@synaps.ai.
+Report abuse to: novaecosystems@gmail.com.
 `
   },
 
@@ -212,7 +212,7 @@ Report abuse to: abuse@synaps.ai.
     slug: 'cookies',
     title: 'Cookie Policy',
     category: 'Privacy & Security',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Details on session cookies, security tokens, and user preference tracking.',
     tableOfContents: [
       { id: 'what-are-cookies', title: '1. What Are Cookies' },
@@ -222,7 +222,7 @@ Report abuse to: abuse@synaps.ai.
     contentMd: `
 # Cookie Policy
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. What Are Cookies {#what-are-cookies}
 Cookies are small text files stored on your device when visiting websites. Synaps utilizes cookies and local storage tokens strictly for essential session authentication, security checks, and interface preferences.
@@ -247,7 +247,7 @@ You can block or clear cookies via your browser settings. However, disabling ess
     slug: 'security',
     title: 'Security Policy',
     category: 'Privacy & Security',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Technical architecture, encryption standards, SOC2 readiness, and risk management practices.',
     tableOfContents: [
       { id: 'encryption', title: '1. Data Encryption Standards' },
@@ -258,7 +258,7 @@ You can block or clear cookies via your browser settings. However, disabling ess
     contentMd: `
 # Security Policy
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Data Encryption Standards {#encryption}
 * **In Transit:** All HTTP traffic is strictly encrypted using TLS 1.3 with HTTP Strict Transport Security (HSTS) enforced.
@@ -281,7 +281,7 @@ Synaps implements zero-trust authorization. Access to enterprise organization da
 ## 4. Incident Response Plan {#incident-response}
 In the event of a confirmed security incident affecting customer data, Synaps will notify affected enterprise administrators within 72 hours in compliance with GDPR and global breach notification standards.
 
-Security Team Contact: security@synaps.ai.
+Security Team Contact: novaecosystems@gmail.com.
 `
   },
 
@@ -289,7 +289,7 @@ Security Team Contact: security@synaps.ai.
     slug: 'data-processing',
     title: 'Data Processing Notice',
     category: 'Governance & AI',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Data Processing Addendum (DPA) details and sub-processor commitments.',
     tableOfContents: [
       { id: 'scope', title: '1. Scope & Applicability' },
@@ -299,7 +299,7 @@ Security Team Contact: security@synaps.ai.
     contentMd: `
 # Data Processing & Privacy Notice (DPA)
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Scope & Applicability {#scope}
 This Data Processing Notice forms part of the master enterprise agreement for Customers operating in regulated jurisdictions under GDPR, CCPA, or DPDP Act requiring formal data processing terms.
@@ -310,12 +310,14 @@ This Data Processing Notice forms part of the master enterprise agreement for Cu
 Synaps engages the following infrastructure providers:
 * **Google Cloud Platform (GCP):** Primary cloud compute and database hosting.
 * **Supabase Inc:** Encrypted blob and document storage.
-* **API Vault:** Multi-agent LLM routing proxy ('apivault.dev').
+* **LemonSqueezy:** Merchant of Record & Payment processing.
 
 ---
 
 ## 3. International Data Transfers {#transfers}
 Where data transfers outside the European Economic Area (EEA) occur, Synaps relies on Standard Contractual Clauses (SCCs) approved by the European Commission.
+
+Contact DPO: novaecosystems@gmail.com.
 `
   },
 
@@ -323,7 +325,7 @@ Where data transfers outside the European Economic Area (EEA) occur, Synaps reli
     slug: 'ai-policy',
     title: 'AI Usage Policy',
     category: 'Governance & AI',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Responsible AI principles, hallucination safeguards, and model transparency.',
     tableOfContents: [
       { id: 'responsible-ai', title: '1. Responsible AI Principles' },
@@ -333,7 +335,7 @@ Where data transfers outside the European Economic Area (EEA) occur, Synaps reli
     contentMd: `
 # AI Usage & Responsible AI Policy
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Responsible AI Principles {#responsible-ai}
 Synaps builds AI engines designed to augment human executive decision-making with transparency, safety, and accountability.
@@ -354,7 +356,7 @@ AI strategic recommendations, simulation models, and boardroom debate synthesis 
     slug: 'disclaimer',
     title: 'Disclaimer',
     category: 'Legal',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Legal disclaimers regarding AI predictions and business recommendations.',
     tableOfContents: [
       { id: 'general-disclaimer', title: '1. Operational & Financial Disclaimer' },
@@ -363,7 +365,7 @@ AI strategic recommendations, simulation models, and boardroom debate synthesis 
     contentMd: `
 # Legal Disclaimer
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Operational & Financial Disclaimer {#general-disclaimer}
 All simulations, predictive risk scores, revenue projections, and strategic proposals generated by Synaps are analytical models intended for informational decision support. Synaps does NOT provide licensed legal, financial, accounting, or tax advice.
@@ -379,7 +381,7 @@ While Synaps employs state-of-the-art verification and graph grounding, business
     slug: 'copyright',
     title: 'Copyright Notice',
     category: 'Legal',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Intellectual property rights and DMCA copyright takedown procedure.',
     tableOfContents: [
       { id: 'ip-rights', title: '1. Proprietary Rights' },
@@ -388,17 +390,17 @@ While Synaps employs state-of-the-art verification and graph grounding, business
     contentMd: `
 # Copyright Notice & DMCA Policy
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Proprietary Rights {#ip-rights}
-© 2026 Synaps Inc. All rights reserved. The code, user interface, brand assets, and graphics are protected by global copyright and trademark laws.
+© 2026 Synaps AI. All rights reserved. The code, user interface, brand assets, and graphics are protected by global copyright and trademark laws.
 
 ---
 
 ## 2. DMCA Takedown Notice Procedure {#dmca}
 If you believe content hosted on Synaps infringes your copyright, send a written DMCA notice to our designated Copyright Agent:
 
-* **Email:** copyright@synaps.ai
+* **Email:** novaecosystems@gmail.com
 * **Required Info:** Description of copyrighted work, URL/location of infringing material, your contact details, and a statement under penalty of perjury.
 `
   },
@@ -407,7 +409,7 @@ If you believe content hosted on Synaps infringes your copyright, send a written
     slug: 'ip-infringement',
     title: 'IP Infringement Policy',
     category: 'Legal',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Comprehensive policy governing copyright, trademark, patent, and trade secret infringement notices.',
     tableOfContents: [
       { id: 'ip-policy', title: '1. Intellectual Property Protection & Scope' },
@@ -419,10 +421,10 @@ If you believe content hosted on Synaps infringes your copyright, send a written
     contentMd: `
 # Intellectual Property Infringement Policy
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Intellectual Property Protection & Scope {#ip-policy}
-Synaps Inc ("Synaps") respects the intellectual property rights of third parties and expects all users, enterprise tenants, and API consumers of the Synaps Platform to do the same. This Policy covers claims of infringement involving **Copyrights, Trademarks, Patents, and Trade Secrets**.
+Synaps AI ("Synaps") respects the intellectual property rights of third parties and expects all users, enterprise tenants, and API consumers of the Synaps Platform to do the same. This Policy covers claims of infringement involving **Copyrights, Trademarks, Patents, and Trade Secrets**.
 
 ---
 
@@ -443,7 +445,7 @@ Your notice MUST contain the following information:
 If an enterprise tenant or user receives a notice that content uploaded by them has been removed due to an IP claim, and believes the removal was due to mistake or misidentification, a Counter-Notification may be submitted to our IP Agent containing:
 * Identification of the material removed and its former location.
 * A statement under penalty of perjury that the user has a good faith belief that the material was removed or disabled as a result of mistake or misidentification.
-* Consent to jurisdiction in federal or national court.
+* Consent to jurisdiction in court.
 
 ---
 
@@ -455,9 +457,8 @@ In accordance with applicable global IP laws, Synaps maintains a strict **Repeat
 ## 5. Designated IP Agent Contact {#designated-agent}
 All IP Infringement notices and counter-notifications should be sent to our designated IP Enforcement Agent:
 
-* **Email:** ip@synaps.ai or legal@synaps.ai
+* **Email:** novaecosystems@gmail.com
 * **Attn:** Designated Intellectual Property & DMCA Compliance Officer
-* **Postal Address:** Synaps Inc, Corporate Legal Dept, Suite 800, Tech Tower, Delaware, USA.
 `
   },
 
@@ -465,7 +466,7 @@ All IP Infringement notices and counter-notifications should be sent to our desi
     slug: 'contact',
     title: 'Contact Us',
     category: 'Support & Contact',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Official corporate communication channels, headquarters directory, and inquiries.',
     tableOfContents: [
       { id: 'directory', title: '1. Corporate Communications Directory' },
@@ -477,17 +478,15 @@ All IP Infringement notices and counter-notifications should be sent to our desi
 We welcome your inquiries, feedback, and enterprise partnership requests.
 
 ## 1. Corporate Communications Directory {#directory}
-* **General Inquiries:** contact@synaps.ai
-* **Enterprise Sales:** sales@synaps.ai
-* **Legal & Privacy:** legal@synaps.ai / dpo@synaps.ai
-* **Security Reporting:** security@synaps.ai
-* **Customer Support:** support@synaps.ai
+* **General Inquiries & Support:** novaecosystems@gmail.com
+* **Enterprise Sales & Custom Integrations:** novaecosystems@gmail.com
+* **Legal & Privacy Officer:** novaecosystems@gmail.com
+* **Security Reporting:** novaecosystems@gmail.com
 
 ---
 
 ## 2. Office Locations {#offices}
-* **Global Headquarters:** Synaps Technologies Inc., Suite 800, Tech Tower, Delaware, USA.
-* **Regional Development Center:** Synaps Cloud Labs, D-Block Corporate District, India.
+* **Global Headquarters:** Synaps AI, Pune, Maharashtra, India.
 `
   },
 
@@ -495,7 +494,7 @@ We welcome your inquiries, feedback, and enterprise partnership requests.
     slug: 'support',
     title: 'Support & SLA Policy',
     category: 'Support & Contact',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Customer support response times, service level agreements, and help channels.',
     tableOfContents: [
       { id: 'channels', title: '1. Support Channels' },
@@ -504,12 +503,12 @@ We welcome your inquiries, feedback, and enterprise partnership requests.
     contentMd: `
 # Support Policy & SLA
 
-**Effective Date:** July 22, 2026
+**Effective Date:** July 26, 2026
 
 ## 1. Support Channels {#channels}
 Enterprise users access 24/7 priority support via:
 * In-app Assistant Console: /dashboard/assistant
-* Priority Ticket System: support@synaps.ai
+* Priority Email Channel: novaecosystems@gmail.com
 
 ---
 
@@ -524,7 +523,7 @@ Enterprise users access 24/7 priority support via:
     slug: 'security-vulnerability',
     title: 'Report a Security Vulnerability',
     category: 'Support & Contact',
-    lastUpdated: 'July 22, 2026',
+    lastUpdated: 'July 26, 2026',
     summary: 'Vulnerability disclosure program, safe harbor terms, and security contact.',
     tableOfContents: [
       { id: 'disclosure-policy', title: '1. Responsible Disclosure Policy' },
@@ -545,7 +544,7 @@ Researchers agree to:
 ---
 
 ## 2. How to Report {#submission-guidelines}
-Send encrypted vulnerability reports to security@synaps.ai. Include:
+Send vulnerability reports directly to novaecosystems@gmail.com. Include:
 * Vulnerability type (e.g. CSRF, XSS, SSRF, Access Control).
 * Step-by-step proof of concept (PoC).
 * Affected API endpoint or URL.
