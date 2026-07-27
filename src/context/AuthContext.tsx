@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { loginAction, logoutAction } from '@/app/actions/auth';
@@ -8,15 +8,56 @@ import { loginAction, logoutAction } from '@/app/actions/auth';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  sessionExpiresAt: number | null;
+  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true });
+const AuthContext = createContext<AuthContextType>({ 
+  user: null, 
+  loading: true,
+  sessionExpiresAt: null,
+  logout: async () => {},
+});
+
+const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes inactivity threshold
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionExpiresAt, setSessionExpiresAt] = useState<number | null>(null);
+  const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/session', { method: 'POST' });
+      await logoutAction();
+      if (auth) await auth.signOut();
+      setUser(null);
+      setSessionExpiresAt(null);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login?reason=session_expired';
+      }
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  };
+
+  // Reset user inactivity timer on activity
+  const resetInactivityTimer = () => {
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    inactivityTimerRef.current = setTimeout(() => {
+      console.warn('[AUTH] User inactive for 30 minutes. Auto-logging out...');
+      handleLogout();
+    }, INACTIVITY_TIMEOUT_MS);
+  };
 
   useEffect(() => {
+    // 1. Listen for user activity to manage inactivity timeout
+    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    activityEvents.forEach(evt => window.addEventListener(evt, resetInactivityTimer));
+    resetInactivityTimer();
+
+    // 2. Firebase Auth Listener
     if (!auth) {
       console.warn("Firebase Auth is not initialized. Check your environment variables.");
       setLoading(false);
@@ -27,9 +68,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(currentUser);
       
       if (currentUser) {
-        // Automatically sync Firebase token to secure session cookie
         const token = await currentUser.getIdToken();
         await loginAction(token);
+
+        // Fetch session expiration details from API
+        try {
+          const res = await fetch('/api/auth/session');
+          if (res.ok) {
+            const data = await res.json();
+            setSessionExpiresAt(data.expiresAt || null);
+          } else if (res.status === 401) {
+            handleLogout();
+          }
+        } catch (e) {
+          console.warn('Failed to verify session details:', e);
+        }
       } else {
         await logoutAction();
       }
@@ -37,11 +90,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    // 3. Periodic Session Expiration Health Check (Every 3 minutes)
+    const healthInterval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/auth/session');
+        if (res.status === 401) {
+          console.warn('[AUTH] Session expired on server. Logging out...');
+          handleLogout();
+        } else if (res.ok) {
+          const data = await res.json();
+          setSessionExpiresAt(data.expiresAt || null);
+        }
+      } catch (e) {
+        // Silently ignore network check failures
+      }
+    }, 3 * 60 * 1000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(healthInterval);
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      activityEvents.forEach(evt => window.removeEventListener(evt, resetInactivityTimer));
+    };
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, sessionExpiresAt, logout: handleLogout }}>
       {children}
     </AuthContext.Provider>
   );

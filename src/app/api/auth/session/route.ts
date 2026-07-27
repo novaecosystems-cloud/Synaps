@@ -1,71 +1,64 @@
-export const dynamic = 'force-dynamic';
+import { NextRequest, NextResponse } from 'next/server';
+import { verifySessionCookie } from '@/lib/auth-server';
 
-import { NextResponse } from 'next/server';
-import { verifyIdToken, createSessionCookie } from '@/lib/auth-server';
+export async function GET(req: NextRequest) {
+  const sessionCookie = req.cookies.get('synaps-session')?.value;
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const { idToken } = body;
+  if (!sessionCookie) {
+    return NextResponse.json({
+      authenticated: false,
+      reason: 'no_session_cookie',
+    }, { status: 401 });
+  }
 
-    if (!idToken) {
-      return NextResponse.json({ error: 'Missing idToken' }, { status: 400 });
-    }
+  const session = await verifySessionCookie(sessionCookie);
 
-    // 1. Verify the ID token
-    const decoded = await verifyIdToken(idToken);
-    if (!decoded) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+  if (!session) {
+    // Session is invalid or expired
+    const response = NextResponse.json({
+      authenticated: false,
+      reason: 'session_expired',
+    }, { status: 401 });
 
-    // 2. Create a session cookie value
-    const sessionCookie = await createSessionCookie(idToken);
-    if (!sessionCookie) {
-      return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
-    }
-
-    // 3. Try to sync user to DB (optional, best-effort — won't block auth)
-    try {
-      const { rawPrisma } = await import('@/lib/prisma');
-      const email = decoded.email || `${decoded.uid}@synaps.ai`;
-      const existing = await rawPrisma.user.findUnique({ where: { id: decoded.uid } });
-      if (!existing) {
-        const orgName = decoded.name ? `${decoded.name}'s Organization` : 'My Organization';
-        await rawPrisma.organization.create({
-          data: {
-            name: orgName,
-            users: {
-              create: {
-                id: decoded.uid,
-                email,
-                name: decoded.name || null,
-                avatarUrl: decoded.picture || null,
-                role: 'OWNER',
-              },
-            },
-          },
-        });
-      }
-    } catch (dbErr) {
-      // DB sync is best-effort — don't fail auth if DB is unavailable
-      console.warn('[AUTH] DB sync skipped (non-fatal):', (dbErr as Error).message);
-    }
-
-    // 4. Set cookie directly on the response — this is the ONLY reliable way in Next.js 15 Route Handlers
-    const response = NextResponse.json({ success: true, uid: decoded.uid });
-    response.cookies.set('synaps-session', sessionCookie, {
-      maxAge: 60 * 60 * 24 * 5, // 5 days
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+    // Clear expired cookie
+    response.cookies.set('synaps-session', '', {
+      maxAge: 0,
       path: '/',
-      sameSite: 'lax',
     });
 
-    console.log('[AUTH] Session cookie set for UID:', decoded.uid);
     return response;
-
-  } catch (error: any) {
-    console.error('[AUTH] Session creation error:', error);
-    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
+
+  const nowSec = Math.floor(Date.now() / 1000);
+  const expiresAt = session.exp || (nowSec + 86400);
+  const expiresInSeconds = Math.max(0, expiresAt - nowSec);
+
+  return NextResponse.json({
+    authenticated: true,
+    user: {
+      uid: session.uid,
+      email: session.email,
+      name: session.name,
+    },
+    expiresAt,
+    expiresInSeconds,
+    formattedExpiresAt: new Date(expiresAt * 1000).toISOString(),
+  });
+}
+
+export async function POST(req: NextRequest) {
+  // Logout / Terminate Session
+  const response = NextResponse.json({
+    success: true,
+    message: 'Session successfully terminated.',
+  });
+
+  response.cookies.set('synaps-session', '', {
+    maxAge: 0,
+    path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+  });
+
+  return response;
 }

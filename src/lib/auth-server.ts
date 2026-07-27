@@ -57,7 +57,7 @@ export async function verifySessionCookie(sessionCookie: string) {
   
   if (sessionCookie.startsWith('TEST_TOKEN_')) {
     const uid = sessionCookie.replace('TEST_TOKEN_', '');
-    return { uid, email: 'admin@apex-global.com', name: 'Demo Administrator' } as any;
+    return { uid, email: 'admin@apex-global.com', name: 'Demo Administrator', exp: Math.floor(Date.now() / 1000) + (30 * 86400) } as any;
   }
   
   try {
@@ -72,12 +72,20 @@ export async function verifySessionCookie(sessionCookie: string) {
         const parts = sessionCookie.split('.');
         if (parts.length === 3) {
           const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
-          if (payload && (payload.user_id || payload.sub)) {
+          
+          // Enforce JWT Expiration Validation
+          if (payload.exp && payload.exp * 1000 < Date.now()) {
+            console.warn('[AUTH] Session JWT has expired:', new Date(payload.exp * 1000).toISOString());
+            return null;
+          }
+
+          if (payload && (payload.user_id || payload.sub || payload.uid)) {
             return {
-              uid: payload.user_id || payload.sub,
+              uid: payload.user_id || payload.sub || payload.uid,
               email: payload.email || '',
               name: payload.name || '',
-              picture: payload.picture || ''
+              picture: payload.picture || '',
+              exp: payload.exp || Math.floor(Date.now() / 1000) + 86400
             } as any;
           }
         }
