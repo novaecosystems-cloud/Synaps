@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/session', { method: 'POST' });
+      await fetch('/api/auth/session', { method: 'DELETE' });
       await logoutAction();
       if (auth) await auth.signOut();
       setUser(null);

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Play, ArrowRight, X, ShieldCheck, Database, Zap, FileText, CheckCircle2, ArrowUpRight, Lock, Activity, Layers, Download, Terminal, Monitor, Laptop, Check, Copy } from 'lucide-react';
+import { Play, ArrowRight, X, ShieldCheck, Database, Zap, FileText, CheckCircle2, ArrowUpRight, Lock, Activity, Layers } from 'lucide-react';
 
 // Iconic Clean 'S' Logo for Synaps
 const SynapsSLogo = () => (
@@ -13,8 +13,6 @@ const SynapsSLogo = () => (
 
 export default function FrustratedDeveloperStoryLanding() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
-  const [copiedCli, setCopiedCli] = useState(false);
 
   // Initialize Desktop Auto-Skip Landing Page & Smooth Lenis Scrolling
   useEffect(() => {
@@ -44,12 +42,6 @@ export default function FrustratedDeveloperStoryLanding() {
     };
   }, []);
 
-  const copyCliCommand = () => {
-    navigator.clipboard.writeText('npx synapse ask "summarize contract terms"');
-    setCopiedCli(true);
-    setTimeout(() => setCopiedCli(false), 2500);
-  };
-
   return (
     <div className="w-full min-h-screen bg-[#050608] text-white selection:bg-amber-500 selection:text-black relative overflow-x-hidden" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
       
@@ -74,13 +66,6 @@ export default function FrustratedDeveloperStoryLanding() {
             className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white transition-colors"
           >
             <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> Walkthrough
-          </button>
-          
-          <button
-            onClick={() => setDownloadModalOpen(true)}
-            className="text-xs font-bold text-slate-300 hover:text-amber-400 transition-colors flex items-center gap-1.5"
-          >
-            <Download className="w-3.5 h-3.5 text-amber-400" /> Downloads & CLI
           </button>
 
           <Link href="/login" className="text-xs font-bold text-slate-300 hover:text-white transition-colors">
@@ -133,63 +118,6 @@ export default function FrustratedDeveloperStoryLanding() {
           >
             <Play className="w-4 h-4 fill-amber-400 text-amber-400" /> Watch 1-Min Video
           </button>
-
-          <button 
-            onClick={() => setDownloadModalOpen(true)}
-            className="w-full sm:w-auto px-6 py-4 text-slate-300 hover:text-amber-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-          >
-            <Download className="w-4 h-4 text-amber-400" /> Get macOS / Windows / CLI
-          </button>
-        </div>
-
-        {/* ── CLUELY MINIMAL DOWNLOAD BARNER ── */}
-        <div className="max-w-4xl mx-auto mb-16 py-8 px-6 text-left border-t border-b border-white/10 space-y-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="space-y-1">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                ● MULTI-USER SIMULTANEOUS CLOUD SYNC READY
-              </span>
-              <h3 className="text-xl font-black text-white uppercase tracking-tight" style={{ fontFamily: "'Unbounded', sans-serif" }}>
-                DESKTOP APPS (MAC/WINDOWS) & TERMINAL CLI
-              </h3>
-              <p className="text-xs text-slate-400 max-w-xl">
-                Runs 24/7 on thousands of user computers simultaneously with isolated encrypted cloud synchronization.
-              </p>
-            </div>
-
-            {/* Direct Instant Downloads */}
-            <div className="flex flex-wrap items-center gap-3">
-              <a 
-                href="/api/downloads/mac" 
-                download
-                className="px-4 py-2.5 bg-white text-black hover:bg-slate-200 rounded-xl text-xs font-bold transition-all"
-              >
-                Download macOS App
-              </a>
-              <a 
-                href="/api/downloads/win" 
-                download
-                className="px-4 py-2.5 bg-amber-500 text-black hover:bg-amber-400 rounded-xl text-xs font-bold transition-all"
-              >
-                Download Windows App
-              </a>
-            </div>
-          </div>
-
-          {/* Terminal Command Box */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-black font-mono text-xs text-slate-300 border border-white/10">
-            <div className="flex items-center gap-3 overflow-x-auto w-full sm:w-auto">
-              <span className="text-amber-400 font-bold">$</span>
-              <code>npx synapse ask "summarize contract terms"</code>
-            </div>
-            <button 
-              onClick={copyCliCommand}
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[11px] font-sans font-bold transition-all flex items-center gap-1.5 whitespace-nowrap"
-            >
-              {copiedCli ? <Check className="w-3.5 h-3.5 text-amber-400" /> : <Copy className="w-3.5 h-3.5" />}
-              {copiedCli ? 'Copied to Clipboard!' : 'Copy CLI Command'}
-            </button>
-          </div>
         </div>
 
         {/* Cluely Video Mockup Frame with macOS Dots */}
@@ -305,13 +233,6 @@ export default function FrustratedDeveloperStoryLanding() {
             >
               Start Free Demo Now <ArrowRight className="w-4 h-4" />
             </Link>
-
-            <button 
-              onClick={() => setDownloadModalOpen(true)}
-              className="px-8 py-5 text-slate-300 hover:text-amber-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2"
-            >
-              <Download className="w-4 h-4 text-amber-400" /> Download Desktop Apps & CLI
-            </button>
           </div>
         </div>
       </section>
@@ -349,115 +270,6 @@ export default function FrustratedDeveloperStoryLanding() {
           <span>SYNAPS ENTERPRISE OS — ALL RIGHTS RESERVED.</span>
         </div>
       </footer>
-
-      {/* ── MINIMALIST DOWNLOAD MODAL ── */}
-      {downloadModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#090b10] border border-white/10 max-w-2xl w-full rounded-2xl p-8 relative shadow-2xl space-y-6">
-            
-            {/* Modal Header */}
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <div className="flex items-center gap-3">
-                  <SynapsSLogo />
-                  <span className="text-xs font-mono uppercase tracking-widest text-amber-400 font-bold">
-                    SYNAPS DESKTOP & TERMINAL SUITE
-                  </span>
-                </div>
-                <h2 className="text-2xl font-black text-white uppercase pt-2" style={{ fontFamily: "'Unbounded', sans-serif" }}>
-                  DOWNLOAD SYNAPS APPS & CLI
-                </h2>
-                <p className="text-xs text-slate-400">
-                  Runs 24/7 on unlimited computers simultaneously with instant encrypted cloud synchronization.
-                </p>
-              </div>
-
-              <button 
-                onClick={() => setDownloadModalOpen(false)}
-                className="p-2 text-slate-400 hover:text-white transition-all"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Platform Download Options List */}
-            <div className="space-y-4 pt-2 font-sans">
-              
-              {/* Option 1: macOS */}
-              <div className="flex items-center justify-between py-3 border-b border-white/10">
-                <div>
-                  <div className="flex items-center gap-2 text-white font-bold text-sm">
-                    <Laptop className="w-4 h-4 text-amber-400" /> macOS Desktop App
-                  </div>
-                  <p className="text-[11px] text-slate-400">
-                    Universal binary for Apple Silicon (M1/M2/M3/M4) & Intel Macs.
-                  </p>
-                </div>
-                <a 
-                  href="/api/downloads/mac" 
-                  download
-                  className="px-5 py-2.5 bg-white text-black hover:bg-slate-200 font-bold text-xs rounded-xl transition-all"
-                >
-                  Download macOS
-                </a>
-              </div>
-
-              {/* Option 2: Windows */}
-              <div className="flex items-center justify-between py-3 border-b border-white/10">
-                <div>
-                  <div className="flex items-center gap-2 text-white font-bold text-sm">
-                    <Monitor className="w-4 h-4 text-amber-400" /> Windows Desktop App
-                  </div>
-                  <p className="text-[11px] text-slate-400">
-                    Native Windows 10/11 x64 installer with system tray background watcher.
-                  </p>
-                </div>
-                <a 
-                  href="/api/downloads/win" 
-                  download
-                  className="px-5 py-2.5 bg-amber-500 text-black hover:bg-amber-400 font-bold text-xs rounded-xl transition-all"
-                >
-                  Download Windows
-                </a>
-              </div>
-
-              {/* Option 3: Terminal CLI */}
-              <div className="flex items-center justify-between py-3">
-                <div>
-                  <div className="flex items-center gap-2 text-white font-bold text-sm">
-                    <Terminal className="w-4 h-4 text-amber-400" /> Terminal CLI (`synapse`)
-                  </div>
-                  <p className="text-[11px] text-slate-400">
-                    Command-line interface for developer terminals, scripts, & server environments.
-                  </p>
-                </div>
-                <button 
-                  onClick={copyCliCommand}
-                  className="px-5 py-2.5 bg-slate-800 text-white hover:bg-slate-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5"
-                >
-                  {copiedCli ? <Check className="w-3.5 h-3.5 text-amber-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copiedCli ? 'Copied!' : 'Copy CLI Command'}
-                </button>
-              </div>
-
-            </div>
-
-            {/* Terminal Quickstart Command */}
-            <div className="p-4 bg-black rounded-xl space-y-2 font-mono text-xs text-slate-300 border border-white/10">
-              <div className="text-slate-400 text-[11px] font-sans font-bold">Terminal Quickstart One-Liner:</div>
-              <div className="flex items-center justify-between text-amber-400">
-                <span>$ npx synapse ask "What are our high risk liability clauses?"</span>
-                <button onClick={copyCliCommand} className="text-slate-400 hover:text-white text-[11px]">Copy</button>
-              </div>
-            </div>
-
-            <div className="text-center text-[11px] text-slate-500 font-mono pt-2">
-              🔒 Multi-User Encrypted Cloud Sync
-            </div>
-
-          </div>
-        </div>
-      )}
 
       {/* ── VIDEO MODAL ── */}
       {videoModalOpen && (
