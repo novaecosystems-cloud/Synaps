@@ -167,11 +167,11 @@ export default function FrustratedDeveloperStoryLanding() {
                 Download macOS (.dmg)
               </a>
               <a 
-                href="/downloads/Synapse-Windows.exe" 
+                href="/downloads/Synapse-Windows-x64.zip" 
                 download
                 className="px-4 py-2.5 bg-amber-500 text-black hover:bg-amber-400 rounded-xl text-xs font-bold transition-all"
               >
-                Download Windows (.exe)
+                Download Windows (.zip)
               </a>
             </div>
           </div>
@@ -401,11 +401,11 @@ export default function FrustratedDeveloperStoryLanding() {
                   </p>
                 </div>
                 <a 
-                  href="/downloads/Synapse-Windows.exe" 
+                  href="/downloads/Synapse-Windows-x64.zip" 
                   download
                   className="px-5 py-2.5 bg-amber-500 text-black hover:bg-amber-400 font-bold text-xs rounded-xl transition-all"
                 >
-                  Download .exe
+                  Download .zip
                 </a>
               </div>
 
