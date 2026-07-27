@@ -4,7 +4,8 @@
   "private": true,
   "main": "electron/main.js",
   "bin": {
-    "synapse": "./bin/synapse.js"
+    "synaps": "./bin/synaps.js",
+    "synapse": "./bin/synaps.js"
   },
   "scripts": {
     "dev": "next dev --turbopack",
