@@ -51,36 +51,36 @@ export default function FrustratedDeveloperStoryLanding() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#07090e] text-white selection:bg-amber-500 selection:text-black relative overflow-x-hidden" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div className="w-full min-h-screen bg-[#050608] text-white selection:bg-amber-500 selection:text-black relative overflow-x-hidden" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
       
-      {/* ── BACKGROUND AMBIENT GLOW ── */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-gradient-to-b from-amber-500/10 to-transparent blur-[120px] pointer-events-none" />
+      {/* ── AMBIENT CLUELY GLOW ── */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[400px] bg-gradient-to-b from-amber-500/10 via-indigo-500/5 to-transparent blur-[120px] pointer-events-none" />
 
-      {/* ── HEADER NAVIGATION ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-5 bg-[#07090e]/90 backdrop-blur-md flex items-center justify-between border-b border-white/5">
+      {/* ── CLUELY-STYLE FLOATING NAVBAR ── */}
+      <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-5xl px-6 py-3.5 bg-[#0a0c12]/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center justify-between shadow-2xl">
         <div className="flex items-center gap-3">
           <SynapsSLogo />
-          <span className="text-xl font-extrabold tracking-tight text-white" style={{ fontFamily: "'Unbounded', sans-serif" }}>
+          <span className="text-lg font-extrabold tracking-tight text-white uppercase" style={{ fontFamily: "'Unbounded', sans-serif" }}>
             SYNAPS
           </span>
-          <span className="hidden sm:inline-block text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold bg-amber-500/10 px-2.5 py-1 rounded-md">
+          <span className="hidden md:inline-block text-[9px] font-mono uppercase tracking-widest text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full">
             ENTERPRISE OS
           </span>
         </div>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4">
           <button 
             onClick={() => setVideoModalOpen(true)}
-            className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white transition-colors"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white transition-colors"
           >
-            <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> Watch Walkthrough
+            <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> Walkthrough
           </button>
           
           <button
             onClick={() => setDownloadModalOpen(true)}
             className="text-xs font-bold text-slate-300 hover:text-amber-400 transition-colors flex items-center gap-1.5"
           >
-            <Download className="w-3.5 h-3.5 text-amber-400" /> Download Desktop & CLI
+            <Download className="w-3.5 h-3.5 text-amber-400" /> Downloads & CLI
           </button>
 
           <Link href="/login" className="text-xs font-bold text-slate-300 hover:text-white transition-colors">
@@ -89,39 +89,39 @@ export default function FrustratedDeveloperStoryLanding() {
           
           <Link 
             href="/demo" 
-            className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-1.5"
+            className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black text-xs font-black uppercase tracking-wider rounded-full transition-all shadow-md flex items-center gap-1"
             style={{ fontFamily: "'Unbounded', sans-serif" }}
           >
-            Try Free Demo <ArrowUpRight className="w-4 h-4" />
+            Try Demo <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </header>
 
-      {/* ── HERO SECTION ── */}
-      <section className="pt-40 pb-20 px-6 md:px-12 max-w-6xl mx-auto text-center relative z-10">
+      {/* ── CLUELY HERO SECTION ── */}
+      <section className="pt-44 pb-20 px-6 md:px-12 max-w-6xl mx-auto text-center relative z-10">
         
-        {/* Subtitle Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold text-amber-400 mb-8">
-          <Zap className="w-3.5 h-3.5 fill-amber-400" /> Grounded Document Intelligence & 60s Contract Redlining
+        {/* Subtitle Mono Tag */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono tracking-widest uppercase font-bold text-amber-400 mb-8 bg-amber-500/10 border border-amber-500/20">
+          [ ⚡ 60-SECOND CONTRACT REDLINING & 3D MEMORY GRAPH ]
         </div>
 
-        {/* Headline */}
+        {/* Cluely Punchy Uppercase Headline in UNBOUNDED */}
         <h1 
-          className="text-4xl sm:text-6xl md:text-7xl font-black leading-[1.1] tracking-tight uppercase max-w-5xl mx-auto mb-8"
+          className="text-4xl sm:text-6xl md:text-7xl font-black leading-[1.08] tracking-tight uppercase max-w-5xl mx-auto mb-8"
           style={{ fontFamily: "'Unbounded', sans-serif" }}
         >
-          UPLOAD ANY DOCUMENT. <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-200">GET RISKS & COUNTER-TERMS IN 60s.</span>
+          UPLOAD ANY DOCUMENT. <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-300 to-amber-100">GET RISKS & COUNTER-TERMS IN 60s.</span>
         </h1>
 
-        <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-10 font-normal leading-relaxed">
+        <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto mb-10 font-normal leading-relaxed">
           Instantly surface predatory vendor terms, hidden fees, and liability traps with 100% line-level citations. Backed by a 3D Memory Graph and a 10-Agent AI Boardroom.
         </p>
 
-        {/* CTA Buttons - BOX-FREE & NEON-FREE */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-16">
           <Link 
             href="/demo"
-            className="w-full sm:w-auto px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
+            className="w-full sm:w-auto px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-xl"
             style={{ fontFamily: "'Unbounded', sans-serif" }}
           >
             Upload Document Now <ArrowRight className="w-4 h-4" />
@@ -142,12 +142,12 @@ export default function FrustratedDeveloperStoryLanding() {
           </button>
         </div>
 
-        {/* ── MINIMAL MULTI-USER CLOUD SYNC & DOWNLOAD BANNER (NO NEON, NO HEAVY BOX CARDS) ── */}
+        {/* ── CLUELY MINIMAL DOWNLOAD BARNER ── */}
         <div className="max-w-4xl mx-auto mb-16 py-8 px-6 text-left border-t border-b border-white/10 space-y-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-1">
-              <span className="text-[11px] font-mono uppercase tracking-widest text-amber-400 font-bold">
-                ● MULTI-USER SYNCHRONIZED ARCHITECTURE
+              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
+                ● MULTI-USER SIMULTANEOUS CLOUD SYNC READY
               </span>
               <h3 className="text-xl font-black text-white uppercase tracking-tight" style={{ fontFamily: "'Unbounded', sans-serif" }}>
                 DESKTOP APPS (MAC/WINDOWS) & TERMINAL CLI
@@ -176,8 +176,8 @@ export default function FrustratedDeveloperStoryLanding() {
             </div>
           </div>
 
-          {/* Terminal Command Box (Clean Dark Monochrome) */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-black font-mono text-xs text-slate-300">
+          {/* Terminal Command Box */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-black font-mono text-xs text-slate-300 border border-white/10">
             <div className="flex items-center gap-3 overflow-x-auto w-full sm:w-auto">
               <span className="text-amber-400 font-bold">$</span>
               <code>npx synapse ask "summarize contract terms"</code>
@@ -192,8 +192,20 @@ export default function FrustratedDeveloperStoryLanding() {
           </div>
         </div>
 
-        {/* Video Showcase Frame */}
-        <div className="relative group max-w-5xl mx-auto">
+        {/* Cluely Video Mockup Frame with macOS Dots */}
+        <div className="relative group max-w-5xl mx-auto rounded-3xl p-2 bg-[#0c0e14] border border-white/10 shadow-2xl">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#11141c] rounded-t-2xl border-b border-white/10 mb-2 font-mono text-xs text-slate-400">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
+              <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
+              <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
+              <span className="ml-2 font-bold text-white">synaps-intelligence-demo.mp4</span>
+            </div>
+            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest bg-amber-500/10 px-3 py-1 rounded-md">
+              Live Walkthrough
+            </span>
+          </div>
+
           <video
             src="/synaps-landing-video.mp4"
             autoPlay
@@ -201,12 +213,12 @@ export default function FrustratedDeveloperStoryLanding() {
             loop
             playsInline
             controls
-            className="w-full h-auto rounded-2xl shadow-2xl object-cover bg-black border border-white/10"
+            className="w-full h-auto rounded-2xl shadow-2xl object-cover bg-black"
           />
         </div>
       </section>
 
-      {/* ── MINIMAL FEATURES GRID ── */}
+      {/* ── BENTO GRID CAPABILITIES ── */}
       <section className="py-24 px-6 md:px-12 max-w-6xl mx-auto border-t border-white/10 relative z-10">
         
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
@@ -221,7 +233,7 @@ export default function FrustratedDeveloperStoryLanding() {
           </p>
         </div>
 
-        {/* Open Grid Layout without nested box cards */}
+        {/* Open Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           
           {/* Card 1: Auto Redliner */}
@@ -275,7 +287,7 @@ export default function FrustratedDeveloperStoryLanding() {
         </div>
       </section>
 
-      {/* ── BOTTOM CTA BANNER ── */}
+      {/* ── BOTTOM CTA ── */}
       <section className="py-24 px-6 md:px-12 text-center border-t border-white/10 relative z-10">
         <div className="max-w-4xl mx-auto space-y-8">
           <h2 className="text-4xl sm:text-7xl font-black uppercase tracking-tight text-white" style={{ fontFamily: "'Unbounded', sans-serif" }}>
@@ -288,7 +300,7 @@ export default function FrustratedDeveloperStoryLanding() {
           <div className="pt-4 flex flex-col sm:flex-row justify-center items-center gap-4">
             <Link 
               href="/demo"
-              className="px-10 py-5 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-lg"
+              className="px-10 py-5 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-xl"
               style={{ fontFamily: "'Unbounded', sans-serif" }}
             >
               Start Free Demo Now <ArrowRight className="w-4 h-4" />
@@ -338,7 +350,7 @@ export default function FrustratedDeveloperStoryLanding() {
         </div>
       </footer>
 
-      {/* ── MINIMALIST DOWNLOAD MODAL (NO BOX CARDS, NO NEON) ── */}
+      {/* ── MINIMALIST DOWNLOAD MODAL ── */}
       {downloadModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#090b10] border border-white/10 max-w-2xl w-full rounded-2xl p-8 relative shadow-2xl space-y-6">
@@ -368,14 +380,14 @@ export default function FrustratedDeveloperStoryLanding() {
               </button>
             </div>
 
-            {/* Platform Download Options List - Clean Horizontal Divider Layout */}
+            {/* Platform Download Options List */}
             <div className="space-y-4 pt-2 font-sans">
               
               {/* Option 1: macOS */}
               <div className="flex items-center justify-between py-3 border-b border-white/10">
                 <div>
                   <div className="flex items-center gap-2 text-white font-bold text-sm">
-                    <Laptop className="w-4 h-4 text-amber-400" /> macOS Desktop App (.dmg)
+                    <Laptop className="w-4 h-4 text-amber-400" /> macOS Desktop App
                   </div>
                   <p className="text-[11px] text-slate-400">
                     Universal binary for Apple Silicon (M1/M2/M3/M4) & Intel Macs.
@@ -431,7 +443,7 @@ export default function FrustratedDeveloperStoryLanding() {
             </div>
 
             {/* Terminal Quickstart Command */}
-            <div className="p-4 bg-black rounded-xl space-y-2 font-mono text-xs text-slate-300">
+            <div className="p-4 bg-black rounded-xl space-y-2 font-mono text-xs text-slate-300 border border-white/10">
               <div className="text-slate-400 text-[11px] font-sans font-bold">Terminal Quickstart One-Liner:</div>
               <div className="flex items-center justify-between text-amber-400">
                 <span>$ npx synapse ask "What are our high risk liability clauses?"</span>
