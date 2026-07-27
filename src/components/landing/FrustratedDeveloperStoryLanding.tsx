@@ -193,8 +193,20 @@ export default function FrustratedDeveloperStoryLanding() {
         </div>
 
         {/* ── TRIONN MARQUEE RUNNER ── */}
-        <div className="w-full overflow-hidden py-4 border-y border-white/10 my-12 bg-white/[0.02]">
-          <div className="flex items-center gap-12 whitespace-nowrap animate-marquee font-mono text-xs text-slate-400 uppercase font-bold tracking-widest">
+        <div className="w-full overflow-hidden py-4 border-y border-white/10 my-12 bg-white/[0.02] flex">
+          <div className="flex items-center gap-12 whitespace-nowrap animate-marquee font-mono text-xs text-slate-400 uppercase font-bold tracking-widest shrink-0">
+            <span className="flex items-center gap-2 text-amber-400"><Sparkles className="w-3.5 h-3.5" /> 60-SECOND CONTRACT REDLINING</span>
+            <span>•</span>
+            <span>3D ORGANIZATIONAL MEMORY GRAPH</span>
+            <span>•</span>
+            <span className="text-amber-400">10-AGENT EXECUTIVE BOARDROOM</span>
+            <span>•</span>
+            <span>100% LINE-LEVEL CITATIONS</span>
+            <span>•</span>
+            <span className="text-amber-400">DPDP ACT 2023 COMPLIANT AUDIT LOGGING</span>
+            <span>•</span>
+            <span>LOCAL LLM PRIVACY SUPPORT (OLLAMA / LM STUDIO)</span>
+            <span>•</span>
             <span className="flex items-center gap-2 text-amber-400"><Sparkles className="w-3.5 h-3.5" /> 60-SECOND CONTRACT REDLINING</span>
             <span>•</span>
             <span>3D ORGANIZATIONAL MEMORY GRAPH</span>
