@@ -6,7 +6,7 @@ import {
   Play, ArrowRight, X, ShieldCheck, Database, Zap, FileText, 
   CheckCircle2, ArrowUpRight, Lock, Activity, Layers, Download, 
   Laptop, Monitor, Terminal, Sparkles, ChevronDown, Plus, Globe, 
-  Cpu, Award, Star, Compass, Command
+  Cpu, Award, Star, Compass, Command, Users
 } from 'lucide-react';
 
 // Iconic Trionn-Style Synaps Brand Emblem
