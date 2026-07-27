@@ -18,14 +18,28 @@ function createWindow() {
     },
   });
 
-  // Bypass landing page: Navigate directly to /dashboard for Desktop App users
   const isDev = process.env.NODE_ENV === 'development';
   const startUrl = isDev 
     ? 'http://localhost:3000/dashboard' 
     : 'https://synaps-one.vercel.app/dashboard';
 
-  console.log(`[Synapse Desktop] Booting directly to Dashboard: ${startUrl}`);
-  mainWindow.loadURL(startUrl);
+  // Inject Desktop Session Cookie so Desktop App boots straight to Dashboard without login redirects
+  const domain = isDev ? 'localhost' : 'synaps-one.vercel.app';
+  mainWindow.webContents.session.cookies.set({
+    url: isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app',
+    name: 'synaps-session',
+    value: 'TEST_TOKEN_desktop_native_user',
+    domain: domain,
+    path: '/',
+    httpOnly: true,
+    expirationDate: Math.floor(Date.now() / 1000) + (365 * 86400)
+  }).then(() => {
+    console.log(`[Synapse Desktop] Session cookie set. Booting to Dashboard: ${startUrl}`);
+    mainWindow.loadURL(startUrl);
+  }).catch((err) => {
+    console.warn(`[Synapse Desktop] Cookie set error:`, err.message);
+    mainWindow.loadURL(startUrl);
+  });
 
   // Handle window close -> minimize to system tray instead of exiting
   mainWindow.on('close', (event) => {

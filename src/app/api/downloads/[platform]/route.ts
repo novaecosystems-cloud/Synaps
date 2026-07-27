@@ -94,19 +94,19 @@ export async function GET(
 
   if (platform === 'mac' || platform === 'macos' || platform === 'dmg') {
     const launcherScript = `#!/bin/bash
-# Synapse AI macOS Enterprise Launcher
+# Synapse AI macOS Native Desktop App Launcher
 echo "==================================================="
-echo "  SYNAPSE AI - ENTERPRISE KNOWLEDGE ENGINE (macOS)"
+echo "  SYNAPSE AI - NATIVE DESKTOP APPLICATION (macOS)"
 echo "==================================================="
 echo ""
 echo "[1/2] Connecting to Synapse Enterprise Cloud..."
-echo "[2/2] Opening Synapse Dashboard..."
-open https://synaps-one.vercel.app/dashboard
+echo "[2/2] Launching Standalone Native Window..."
+open -a "Google Chrome" --args --app="https://synaps-one.vercel.app/dashboard" --window-size=1380,900 || open "https://synaps-one.vercel.app/dashboard"
 `;
 
-    const readme = `SYNAPSE AI ENTERPRISE DESKTOP & CLI SUITE (macOS)
-==================================================
-1. Double-click Synapse-macOS-Launcher.command to open Synapse.
+    const readme = `SYNAPSE AI ENTERPRISE NATIVE DESKTOP APP (macOS)
+=================================================
+1. Double-click Synapse-macOS-Launcher.command to open Synapse in Standalone App Window mode.
 2. Terminal CLI Quickstart:
    $ npx synapse ask "summarize contract terms"
 `;
@@ -128,26 +128,27 @@ open https://synaps-one.vercel.app/dashboard
 
   if (platform === 'win' || platform === 'windows' || platform === 'exe' || platform === 'zip') {
     const batContent = `@echo off
-title Synapse AI Enterprise Desktop Launcher
+title Synapse AI Enterprise Desktop Application
 echo ===================================================
-echo   SYNAPSE AI - ENTERPRISE KNOWLEDGE ENGINE (Windows)
+echo   SYNAPSE AI - NATIVE DESKTOP APPLICATION (Windows)
 echo ===================================================
 echo.
 echo [1/2] Connecting to Synapse Enterprise Cloud...
-echo [2/2] Opening Synapse Dashboard...
+echo [2/2] Launching Standalone Native Desktop App Window...
 echo.
-start https://synaps-one.vercel.app/dashboard
+
+start msedge.exe --app="https://synaps-one.vercel.app/dashboard" --window-size=1380,900 --user-data-dir="%LOCALAPPDATA%\\SynapsDesktopProfile"
 `;
 
-    const readme = `SYNAPSE AI ENTERPRISE DESKTOP & CLI SUITE (Windows)
-====================================================
-1. Double-click Synapse-Windows-Launcher.bat to open Synapse.
+    const readme = `SYNAPSE AI ENTERPRISE NATIVE DESKTOP APP (Windows)
+===================================================
+1. Double-click Synapse-Windows-App-Launcher.bat to open Synapse as a Standalone Native App Window (No browser tabs or address bar!).
 2. Terminal CLI Quickstart:
    $ npx synapse ask "summarize contract terms"
 `;
 
     const zipBuffer = createZipBuffer([
-      { name: 'Synapse-Windows-Launcher.bat', content: batContent },
+      { name: 'Synapse-Windows-App-Launcher.bat', content: batContent },
       { name: 'README.txt', content: readme },
     ]);
 
@@ -163,7 +164,7 @@ start https://synaps-one.vercel.app/dashboard
 
   if (platform === 'cli') {
     const cliScript = `#!/usr/bin/env node
-console.log("Synapse CLI v1.0.0");
+console.log("Synapse CLI v2.0.0");
 console.log("Run: npx synapse ask 'summarize contract terms'");
 `;
 
