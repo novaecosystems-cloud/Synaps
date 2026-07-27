@@ -36,7 +36,7 @@ export default function AiCreditBadge() {
   return (
     <div 
       onClick={() => window.dispatchEvent(new CustomEvent('synaps:credits_exhausted', { detail: { role: credits.role } }))}
-      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold shadow-inner cursor-pointer hover:bg-primary/20 transition-all"
+      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-xs font-bold shadow-inner cursor-pointer hover:bg-primary/25 transition-all"
       title={`Daily AI Credits: ${credits.remaining} remaining out of ${credits.creditLimit} total daily credits for your role. Click to view upgrade options or discount.`}
     >
       <Zap className="h-3.5 w-3.5 fill-primary text-primary" />

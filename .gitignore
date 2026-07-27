@@ -42,3 +42,20 @@ next-env.d.ts
 .DS_Store
 *.pem
 Thumbs.db
+
+# Media & Heavy Binaries (Privacy Directive)
+*.mp4
+*.avi
+*.mov
+ffmpeg.exe
+slide_*.png
+temp_*.png
+temp_*.html
+compile-yc-pitch.js
+create-16x9-feature-slides.js
+daily-carousel-generator.js
+send-apollo-outreach.js
+export-*.js
+synaps_*.pdf
+synaps_*.html
+

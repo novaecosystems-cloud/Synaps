@@ -1,8 +1,7 @@
-export const dynamic = 'force-dynamic';
-
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { generateEmbedding } from '@/lib/embeddings';
+import { logDataInput } from '@/lib/dpdp-compliance';
 
 import prisma from '@/lib/prisma';
 
@@ -18,6 +17,15 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // DPDP Act 2023: Log input timestamp for query data
+    await logDataInput({
+      userId,
+      organizationId,
+      dataType: 'SEARCH_QUERY_PROMPT',
+      dataIdentifier: 'search-query-' + Date.now(),
+      purpose: '3D Memory Graph Hybrid Vector Search',
+    });
+
     // Log the search in history
     await prisma.searchHistory.create({
       data: { userId, organizationId, query: q }

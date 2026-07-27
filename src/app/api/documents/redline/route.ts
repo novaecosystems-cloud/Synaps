@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { logDataInput } from '@/lib/dpdp-compliance';
 
 export async function POST(req: Request) {
   try {
@@ -8,6 +9,14 @@ export async function POST(req: Request) {
     if (!content && !documentId) {
       return NextResponse.json({ success: false, error: 'Document content or ID is required.' }, { status: 400 });
     }
+
+    // DPDP Act 2023: Log timestamp of user data input
+    await logDataInput({
+      dataType: 'CONTRACT_DOCUMENT',
+      dataIdentifier: documentId || title || 'contract-redline-' + Date.now(),
+      purpose: '60-Second Automated Contract Redlining & Risk Scoring',
+      metadata: { documentLengthBytes: (content || '').length },
+    });
 
     const docText = content || "Standard Hotel Vendor Service Contract with 3-Year Auto-Renewal Clause, 25% Cancellation Penalty, and Unlimited Liability for Operations.";
 
