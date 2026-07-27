@@ -160,18 +160,18 @@ export default function FrustratedDeveloperStoryLanding() {
             {/* Direct Instant Downloads */}
             <div className="flex flex-wrap items-center gap-3">
               <a 
-                href="/downloads/Synapse-macOS.dmg" 
+                href="/api/downloads/mac" 
                 download
                 className="px-4 py-2.5 bg-white text-black hover:bg-slate-200 rounded-xl text-xs font-bold transition-all"
               >
-                Download macOS (.dmg)
+                Download macOS App
               </a>
               <a 
-                href="/downloads/Synapse-Windows-x64.zip" 
+                href="/api/downloads/win" 
                 download
                 className="px-4 py-2.5 bg-amber-500 text-black hover:bg-amber-400 rounded-xl text-xs font-bold transition-all"
               >
-                Download Windows (.zip)
+                Download Windows App
               </a>
             </div>
           </div>
@@ -382,11 +382,11 @@ export default function FrustratedDeveloperStoryLanding() {
                   </p>
                 </div>
                 <a 
-                  href="/downloads/Synapse-macOS.dmg" 
+                  href="/api/downloads/mac" 
                   download
                   className="px-5 py-2.5 bg-white text-black hover:bg-slate-200 font-bold text-xs rounded-xl transition-all"
                 >
-                  Download .dmg
+                  Download macOS
                 </a>
               </div>
 
@@ -394,18 +394,18 @@ export default function FrustratedDeveloperStoryLanding() {
               <div className="flex items-center justify-between py-3 border-b border-white/10">
                 <div>
                   <div className="flex items-center gap-2 text-white font-bold text-sm">
-                    <Monitor className="w-4 h-4 text-amber-400" /> Windows Desktop App (.exe)
+                    <Monitor className="w-4 h-4 text-amber-400" /> Windows Desktop App
                   </div>
                   <p className="text-[11px] text-slate-400">
                     Native Windows 10/11 x64 installer with system tray background watcher.
                   </p>
                 </div>
                 <a 
-                  href="/downloads/Synapse-Windows-x64.zip" 
+                  href="/api/downloads/win" 
                   download
                   className="px-5 py-2.5 bg-amber-500 text-black hover:bg-amber-400 font-bold text-xs rounded-xl transition-all"
                 >
-                  Download .zip
+                  Download Windows
                 </a>
               </div>
 
