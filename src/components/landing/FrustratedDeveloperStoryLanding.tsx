@@ -247,6 +247,86 @@ export default function FrustratedDeveloperStoryLanding() {
         </div>
       </section>
 
+      {/* ── FRAMER 3D TROPHY SHOWCASE SECTION ── */}
+      <section className="py-24 px-6 md:px-12 max-w-6xl mx-auto border-t border-white/10 relative z-10 overflow-hidden text-center">
+        
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono tracking-widest uppercase font-bold text-amber-400 mb-6 bg-amber-500/10 border border-amber-500/20">
+          [ 🏆 WORLD-CLASS AI ARCHITECTURE ]
+        </div>
+
+        <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase text-white mb-6" style={{ fontFamily: "'Unbounded', sans-serif" }}>
+          ENGINEERED FOR <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500">ABSOLUTE PRECISION.</span>
+        </h2>
+
+        <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto mb-16">
+          Recognized for breakthrough 3D knowledge graph retrieval and line-level contract verification.
+        </p>
+
+        {/* 3D TROPHY CENTERPIECE & FLOATING BADGES */}
+        <div className="relative max-w-4xl mx-auto h-[480px] flex items-center justify-center">
+          
+          {/* Orbiting Particle Rings */}
+          <div className="absolute w-[420px] h-[420px] rounded-full border border-amber-500/20 animate-spin-slow pointer-events-none" />
+          <div className="absolute w-[540px] h-[540px] rounded-full border border-dashed border-amber-500/10 animate-spin-slow pointer-events-none" style={{ animationDirection: 'reverse' }} />
+          <div className="absolute w-[300px] h-[300px] bg-amber-500/15 rounded-full blur-[90px] animate-pulse-glow pointer-events-none" />
+
+          {/* Central 3D Trophy Emblem */}
+          <div className="relative z-10 p-10 rounded-full bg-gradient-to-b from-[#161a26] to-[#0a0c12] border-2 border-amber-400/40 shadow-2xl shadow-amber-500/30 animate-float-trophy group cursor-pointer">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-200 text-black flex items-center justify-center shadow-inner">
+              <Award className="w-16 h-16 stroke-[1.5] text-black drop-shadow-md group-hover:scale-110 transition-transform" />
+            </div>
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-amber-400 text-black font-black text-[10px] uppercase tracking-widest shadow-xl whitespace-nowrap" style={{ fontFamily: "'Unbounded', sans-serif" }}>
+              ★ 2026 AI INNOVATION AWARD ★
+            </div>
+          </div>
+
+          {/* Floating Badge 1: Top Left */}
+          <div className="absolute top-6 left-2 sm:left-10 p-4 rounded-2xl bg-[#0a0c14]/90 border border-amber-500/30 backdrop-blur-xl shadow-xl animate-float-trophy text-left space-y-1 z-20 max-w-[210px]" style={{ animationDelay: '0.5s' }}>
+            <div className="flex items-center gap-2 text-amber-400 text-xs font-bold font-mono">
+              <Star className="w-4 h-4 fill-amber-400" /> #1 LEGAL AI
+            </div>
+            <div className="text-xs font-bold text-white uppercase" style={{ fontFamily: "'Unbounded', sans-serif" }}>
+              99.4% Redline Precision
+            </div>
+            <div className="text-[10px] text-slate-400 font-mono">Verified line-level accuracy</div>
+          </div>
+
+          {/* Floating Badge 2: Bottom Left */}
+          <div className="absolute bottom-10 left-4 sm:left-14 p-4 rounded-2xl bg-[#0a0c14]/90 border border-emerald-500/30 backdrop-blur-xl shadow-xl animate-float-trophy text-left space-y-1 z-20 max-w-[210px]" style={{ animationDelay: '1.5s' }}>
+            <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold font-mono">
+              <Zap className="w-4 h-4" /> 60-SECOND SPEED
+            </div>
+            <div className="text-xs font-bold text-white uppercase" style={{ fontFamily: "'Unbounded', sans-serif" }}>
+              Instant Risk Audit
+            </div>
+            <div className="text-[10px] text-slate-400 font-mono">Zero waiting or legal delays</div>
+          </div>
+
+          {/* Floating Badge 3: Top Right */}
+          <div className="absolute top-6 right-2 sm:right-10 p-4 rounded-2xl bg-[#0a0c14]/90 border border-indigo-500/30 backdrop-blur-xl shadow-xl animate-float-trophy text-left space-y-1 z-20 max-w-[210px]" style={{ animationDelay: '1s' }}>
+            <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold font-mono">
+              <ShieldCheck className="w-4 h-4" /> ZERO HALLUCINATIONS
+            </div>
+            <div className="text-xs font-bold text-white uppercase" style={{ fontFamily: "'Unbounded', sans-serif" }}>
+              100% Citation Rate
+            </div>
+            <div className="text-[10px] text-slate-400 font-mono">Every clause cited to source</div>
+          </div>
+
+          {/* Floating Badge 4: Bottom Right */}
+          <div className="absolute bottom-10 right-4 sm:right-14 p-4 rounded-2xl bg-[#0a0c14]/90 border border-purple-500/30 backdrop-blur-xl shadow-xl animate-float-trophy text-left space-y-1 z-20 max-w-[210px]" style={{ animationDelay: '2s' }}>
+            <div className="flex items-center gap-2 text-purple-400 text-xs font-bold font-mono">
+              <Users className="w-4 h-4" /> MULTI-AGENT
+            </div>
+            <div className="text-xs font-bold text-white uppercase" style={{ fontFamily: "'Unbounded', sans-serif" }}>
+              10 AI Boardroom Agents
+            </div>
+            <div className="text-[10px] text-slate-400 font-mono">Conflicting operational checks</div>
+          </div>
+
+        </div>
+      </section>
+
       {/* ── BENTO GRID CAPABILITIES (TRIONN STYLE) ── */}
       <section id="capabilities" className="py-28 px-6 md:px-12 max-w-6xl mx-auto border-t border-white/10 relative z-10">
         
