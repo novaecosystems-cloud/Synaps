@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import PolicyResponseFormatter from '@/components/ui/PolicyResponseFormatter';
 
 export default function DigitalTwinPage() {
   const [twinState, setTwinState] = useState<any | null>(null);
@@ -231,14 +232,18 @@ export default function DigitalTwinPage() {
           </div>
 
           {cloneResponse && (
-            <div className="p-5 bg-base-100 border border-indigo-500/30 rounded-2xl space-y-2 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between text-xs font-extrabold text-indigo-400 border-b border-base-200 pb-2">
-                <span>Documented Policy & Historical Decision Analysis</span>
-                <span className="text-[10px] text-base-content/40 font-mono">MEMORY-ENGINE-v2</span>
+            <div className="p-6 bg-base-100 border border-indigo-500/30 rounded-3xl space-y-4 animate-in fade-in duration-200 shadow-xl">
+              <div className="flex items-center justify-between text-xs font-extrabold text-indigo-400 border-b border-base-200/80 pb-3">
+                <span className="flex items-center gap-2 text-indigo-300 font-bold uppercase tracking-wider text-xs">
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  Documented Policy & Historical Decision Analysis
+                </span>
+                <span className="text-[10px] text-indigo-400 font-mono bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20 font-bold">
+                  MEMORY-ENGINE-v2
+                </span>
               </div>
-              <p className="text-xs text-base-content/80 leading-relaxed white-space-pre-wrap font-sans">
-                {cloneResponse}
-              </p>
+              
+              <PolicyResponseFormatter text={cloneResponse} />
             </div>
           )}
         </div>

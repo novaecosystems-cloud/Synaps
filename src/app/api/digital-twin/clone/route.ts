@@ -58,7 +58,20 @@ Core Decision Principles:
 ${founderCloneProfile.decisionPrinciples.map((p, i) => `${i + 1}. ${p}`).join('\n')}
 Governance Directive: ${founderCloneProfile.customDirectives}
 
-Analyze the operational scenario and output a structured, policy-aligned recommendation. Include citations to documented principles.`
+Format your output into distinct, well-spaced sections:
+**Risk Assessment & Strategic Impact**
+(Clear analysis of the risk)
+
+**Policy Alignment**
+(How this aligns with core principles)
+
+**Executive Action Plan**
+1. Action step one
+2. Action step two
+3. Action step three
+
+**Citations:**
+* Core Decision Principle X: ...`
         },
         {
           role: 'user',
