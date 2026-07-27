@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Play, ArrowRight, X, ShieldCheck, Database, Zap, FileText, CheckCircle2, ArrowUpRight, Lock, Activity, Layers } from 'lucide-react';
+import { Play, ArrowRight, X, ShieldCheck, Database, Zap, FileText, CheckCircle2, ArrowUpRight, Lock, Activity, Layers, Download, Laptop, Monitor, Terminal } from 'lucide-react';
 
 // Iconic Clean 'S' Logo for Synaps
 const SynapsSLogo = () => (
@@ -68,6 +68,14 @@ export default function FrustratedDeveloperStoryLanding() {
             <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> Walkthrough
           </button>
 
+          <a
+            href="/api/downloads/win"
+            download
+            className="hidden md:flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-amber-400 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5 text-amber-400" /> Desktop Apps
+          </a>
+
           <Link href="/login" className="text-xs font-bold text-slate-300 hover:text-white transition-colors">
             Sign In
           </Link>
@@ -102,8 +110,8 @@ export default function FrustratedDeveloperStoryLanding() {
           Instantly surface predatory vendor terms, hidden fees, and liability traps with 100% line-level citations. Backed by a 3D Memory Graph and a 10-Agent AI Boardroom.
         </p>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-16">
+        {/* CTA Buttons - SLEEK & BOX-FREE */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
           <Link 
             href="/demo"
             className="w-full sm:w-auto px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-xl"
@@ -118,6 +126,22 @@ export default function FrustratedDeveloperStoryLanding() {
           >
             <Play className="w-4 h-4 fill-amber-400 text-amber-400" /> Watch 1-Min Video
           </button>
+
+          <a 
+            href="/api/downloads/mac"
+            download
+            className="w-full sm:w-auto px-5 py-4 text-slate-300 hover:text-amber-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+          >
+            <Laptop className="w-4 h-4 text-amber-400" /> macOS App
+          </a>
+
+          <a 
+            href="/api/downloads/win"
+            download
+            className="w-full sm:w-auto px-5 py-4 text-slate-300 hover:text-amber-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+          >
+            <Monitor className="w-4 h-4 text-amber-400" /> Windows App
+          </a>
         </div>
 
         {/* Cluely Video Mockup Frame with macOS Dots */}
@@ -233,6 +257,22 @@ export default function FrustratedDeveloperStoryLanding() {
             >
               Start Free Demo Now <ArrowRight className="w-4 h-4" />
             </Link>
+
+            <a 
+              href="/api/downloads/win"
+              download
+              className="px-8 py-5 text-slate-300 hover:text-amber-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2"
+            >
+              <Download className="w-4 h-4 text-amber-400" /> Download Windows App
+            </a>
+
+            <a 
+              href="/api/downloads/mac"
+              download
+              className="px-8 py-5 text-slate-300 hover:text-amber-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2"
+            >
+              <Laptop className="w-4 h-4 text-amber-400" /> Download macOS App
+            </a>
           </div>
         </div>
       </section>
