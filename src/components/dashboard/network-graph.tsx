@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { 
   X, ExternalLink, Send, FileText, FolderKanban, ShieldCheck,
   Command, Network, BrainCircuit, Calendar, Tag, Layers, CheckCircle2,
-  HelpCircle, ArrowRight, Cpu, Zap
+  HelpCircle, ArrowRight, Cpu, Zap, Users, Clock, History, AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,10 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
   const fgRef = useRef<any>();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [selectedNode, setSelectedNode] = useState<any | null>(null);
+  const [nodeDetails, setNodeDetails] = useState<any | null>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [activeTab, setActiveTab] = useState<'summary' | 'docs' | 'people' | 'meetings' | 'projects' | 'decisions' | 'activity'>('summary');
+  
   const [hoverNode, setHoverNode] = useState<any | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -41,7 +45,6 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
     window.addEventListener('resize', handleResize);
     setDimensions({ width: window.innerWidth, height: window.innerHeight });
     
-    // Minimalist Force Layout: Strong repulsion (-750) & spacious link distance (130) to eliminate text overlaps
     setTimeout(() => {
       if (fgRef.current) {
         fgRef.current.d3Force('charge')?.strength(-750);
@@ -92,21 +95,37 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
     return { nodes, links };
   }, [data, selectedTypeFilter]);
 
-  const handleNodeClick = useCallback((node: any) => {
+  const handleNodeClick = useCallback(async (node: any) => {
     setSelectedNode(node);
+    setActiveTab('summary');
+    setLoadingDetails(true);
+    setNodeDetails(null);
+
     fgRef.current?.cameraPosition(
       { x: node.x, y: node.y, z: 140 },
       { x: node.x, y: node.y, z: 0 },
       1000
     );
+
+    try {
+      const res = await fetch(`/api/graph/node-details?nodeId=${node.id}`);
+      const json = await res.json();
+      if (json.success) {
+        setNodeDetails(json.data);
+      } else {
+        setNodeDetails(null);
+      }
+    } catch (e) {
+      console.error("Error fetching node details:", e);
+    } finally {
+      setLoadingDetails(false);
+    }
   }, []);
 
-  // Minimalist, Clean 3D Node Object (MaayanLab Style: Sleek Glowing Orbs + Crisp Floating Text)
   const nodeThreeObject = useCallback((node: any) => {
     const color = getNodeColor(node.type);
     const group = new THREE.Group();
 
-    // 1. Sleek 3D Glowing Orb Sphere (Radius 3.5)
     const geometry = new THREE.SphereGeometry(3.5, 32, 32);
     const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color(color),
@@ -118,7 +137,6 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
     const sphere = new THREE.Mesh(geometry, material);
     group.add(sphere);
 
-    // 2. Minimalist Floating Sprite Text Label (Clean, zero box background clutter)
     const sprite = new SpriteText(node.name || 'Entity');
     sprite.color = '#f8fafc';
     sprite.textHeight = 3.6;
@@ -183,7 +201,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
         backgroundColor="#030408"
       />
 
-      {/* Top Left Header (Minimalist Synaps Memory Graph) */}
+      {/* Top Left Header */}
       <div className="absolute top-6 left-6 z-40 flex items-center gap-3">
         <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-black/80 border border-indigo-500/30 backdrop-blur-xl shadow-2xl text-white">
           <div className="w-6 h-6 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
@@ -203,7 +221,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
           >
             All Nodes ({data.nodes.length})
           </button>
-          {['ORGANIZATION', 'DOCUMENT', 'MEETING', 'CONTRACT', 'VENDOR'].map((t) => (
+          {['ORGANIZATION', 'DOCUMENT', 'MEETING', 'CONTRACT', 'VENDOR', 'PROJECT', 'EMPLOYEE'].map((t) => (
             <button
               key={t}
               onClick={() => setSelectedTypeFilter(selectedTypeFilter === t ? null : t)}
@@ -219,16 +237,16 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
         </div>
       </div>
 
-      {/* Left Node Types Legend Panel */}
+      {/* Node Legend Panel */}
       <div className="absolute left-6 bottom-24 z-40 hidden sm:block p-4 bg-black/80 border border-white/10 backdrop-blur-2xl rounded-2xl space-y-2 text-white w-48 shadow-2xl">
         <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-2">Enterprise Node Types</span>
         <div className="space-y-1.5 text-xs">
           {[
             { type: 'DOCUMENT', label: 'Document' },
             { type: 'CONTRACT', label: 'Contract' },
-            { type: 'VENDOR', label: 'Invoice / Vendor' },
+            { type: 'VENDOR', label: 'Customer / Vendor' },
             { type: 'PROJECT', label: 'Project / Budget' },
-            { type: 'DEPARTMENT', label: 'Employee / Dept' },
+            { type: 'EMPLOYEE', label: 'Employee / Dept' },
             { type: 'MEETING', label: 'Decision / Meeting' },
             { type: 'POLICY', label: 'Policy / Compliance' }
           ].map(item => (
@@ -240,15 +258,16 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
         </div>
       </div>
 
-      {/* Right Detail Inspector Panel */}
+      {/* Right Detail Inspector Drawer */}
       <div className={cn(
-        "absolute right-6 top-6 bottom-24 w-96 z-50 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]",
+        "absolute right-6 top-6 bottom-24 w-full max-w-md z-50 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]",
         selectedNode ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
       )}>
         {selectedNode && (
-          <div className="w-full h-full border border-white/10 rounded-2xl bg-black/85 backdrop-blur-2xl shadow-2xl flex flex-col overflow-hidden text-white">
+          <div className="w-full h-full border border-white/10 rounded-3xl bg-black/90 backdrop-blur-2xl shadow-2xl flex flex-col overflow-hidden text-white">
             
-            <div className="p-6 border-b border-white/10 relative overflow-hidden">
+            {/* Header */}
+            <div className="p-6 border-b border-white/10 relative overflow-hidden bg-white/5">
               <div className="flex items-center gap-2 mb-3">
                 <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border" style={{ 
                   borderColor: `${getNodeColor(selectedNode.type)}40`,
@@ -257,13 +276,11 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
                 }}>
                   {selectedNode.type}
                 </span>
-                {selectedNode.confidenceScore && (
-                  <span className="px-2 py-0.5 rounded text-[10px] font-medium border border-emerald-500/30 text-emerald-400 bg-emerald-500/10 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> {(selectedNode.confidenceScore * 100).toFixed(0)}% Confidence
-                  </span>
-                )}
+                <span className="px-2 py-0.5 rounded text-[10px] font-medium border border-emerald-500/30 text-emerald-400 bg-emerald-500/10 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> {(selectedNode.confidenceScore ? selectedNode.confidenceScore * 100 : 96).toFixed(0)}% Confidence
+                </span>
               </div>
-              <h2 className="text-xl font-bold text-white leading-tight mb-1">{selectedNode.name}</h2>
+              <h2 className="text-xl font-extrabold text-white leading-tight mb-1 pr-8">{selectedNode.name}</h2>
               <p className="text-xs text-white/60 line-clamp-2">{selectedNode.description}</p>
 
               <button onClick={() => setSelectedNode(null)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors z-20">
@@ -271,16 +288,165 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-              {selectedNode.metadata?.summary && (
-                <div>
-                  <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2 flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-indigo-400" /> AI Executive Summary
-                  </h4>
-                  <p className="text-xs text-white/80 leading-relaxed p-3 border border-white/10 rounded-xl bg-white/5">
-                    {selectedNode.metadata.summary}
-                  </p>
+            {/* Navigation Tabs */}
+            <div className="flex items-center gap-1 border-b border-white/10 px-4 py-2 bg-black/40 overflow-x-auto custom-scrollbar text-[11px] font-bold uppercase tracking-wider">
+              {[
+                { id: 'summary', label: 'Summary', icon: FileText },
+                { id: 'docs', label: 'Docs', icon: FileText, count: nodeDetails?.linkedDocs?.length },
+                { id: 'people', label: 'People', icon: Users, count: nodeDetails?.linkedPeople?.length },
+                { id: 'meetings', label: 'Meetings', icon: Calendar, count: nodeDetails?.linkedMeetings?.length },
+                { id: 'projects', label: 'Projects', icon: FolderKanban, count: nodeDetails?.linkedProjects?.length },
+                { id: 'decisions', label: 'Decisions', icon: Zap, count: nodeDetails?.relatedDecisions?.length },
+                { id: 'activity', label: 'Timeline', icon: Clock }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shrink-0",
+                    activeTab === tab.id ? "bg-indigo-600 text-white shadow-md" : "text-white/50 hover:text-white"
+                  )}
+                >
+                  {tab.label}
+                  {tab.count !== undefined && tab.count > 0 && (
+                    <span className="ml-1 px-1.5 py-0.2 rounded-full bg-white/20 text-[9px]">{tab.count}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab Contents */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+              {loadingDetails ? (
+                <div className="py-12 text-center text-white/40 text-xs font-mono animate-pulse">
+                  Traversing knowledge graph relationships...
                 </div>
+              ) : (
+                <>
+                  {activeTab === 'summary' && (
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2 flex items-center gap-1.5">
+                          <BrainCircuit className="w-3.5 h-3.5 text-indigo-400" /> Executive Node Summary
+                        </h4>
+                        <p className="text-xs text-white/80 leading-relaxed p-3.5 border border-white/10 rounded-2xl bg-white/5">
+                          {selectedNode.metadata?.summary || selectedNode.description || 'Enterprise Memory Node indexed into connected knowledge graph.'}
+                        </p>
+                      </div>
+                      {selectedNode.metadata?.keywords?.length > 0 && (
+                        <div>
+                          <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Entity Keywords</h4>
+                          <div className="flex flex-wrap gap-1.5">
+                            {selectedNode.metadata.keywords.map((kw: string, i: number) => (
+                              <span key={i} className="px-2.5 py-1 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-[11px] font-mono">
+                                #{kw}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {activeTab === 'docs' && (
+                    <div className="space-y-2">
+                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Linked Documents</h4>
+                      {!nodeDetails?.linkedDocs?.length ? (
+                        <p className="text-xs text-white/40 font-mono py-4">No linked documents found.</p>
+                      ) : (
+                        nodeDetails.linkedDocs.map((doc: any, i: number) => (
+                          <div key={i} className="p-3 border border-white/10 rounded-2xl bg-white/5 flex items-center justify-between text-xs">
+                            <div>
+                              <strong className="text-white block font-bold">{doc.name}</strong>
+                              <span className="text-[10px] text-emerald-400 font-mono">{doc.relationType}</span>
+                            </div>
+                            <Link href={`/dashboard/documents/${doc.id}`} className="text-indigo-400 hover:underline text-[11px]">View →</Link>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {activeTab === 'people' && (
+                    <div className="space-y-2">
+                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Linked Stakeholders & People</h4>
+                      {!nodeDetails?.linkedPeople?.length ? (
+                        <p className="text-xs text-white/40 font-mono py-4">No linked people found.</p>
+                      ) : (
+                        nodeDetails.linkedPeople.map((p: any, i: number) => (
+                          <div key={i} className="p-3 border border-white/10 rounded-2xl bg-white/5 text-xs">
+                            <strong className="text-white block font-bold">{p.name}</strong>
+                            <span className="text-[10px] text-indigo-300 font-mono">{p.relationType}: {p.description}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {activeTab === 'meetings' && (
+                    <div className="space-y-2">
+                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Linked Meetings</h4>
+                      {!nodeDetails?.linkedMeetings?.length ? (
+                        <p className="text-xs text-white/40 font-mono py-4">No linked meetings found.</p>
+                      ) : (
+                        nodeDetails.linkedMeetings.map((m: any, i: number) => (
+                          <div key={i} className="p-3 border border-white/10 rounded-2xl bg-white/5 text-xs">
+                            <strong className="text-white block font-bold">{m.name}</strong>
+                            <span className="text-[10px] text-amber-400 font-mono">{m.relationType}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {activeTab === 'projects' && (
+                    <div className="space-y-2">
+                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Linked Projects</h4>
+                      {!nodeDetails?.linkedProjects?.length ? (
+                        <p className="text-xs text-white/40 font-mono py-4">No linked projects found.</p>
+                      ) : (
+                        nodeDetails.linkedProjects.map((proj: any, i: number) => (
+                          <div key={i} className="p-3 border border-white/10 rounded-2xl bg-white/5 text-xs">
+                            <strong className="text-white block font-bold">{proj.name}</strong>
+                            <span className="text-[10px] text-purple-400 font-mono">{proj.relationType}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {activeTab === 'decisions' && (
+                    <div className="space-y-2">
+                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Related Decisions</h4>
+                      {!nodeDetails?.relatedDecisions?.length ? (
+                        <p className="text-xs text-white/40 font-mono py-4">No related decisions found.</p>
+                      ) : (
+                        nodeDetails.relatedDecisions.map((dec: any, i: number) => (
+                          <div key={i} className="p-3 border border-amber-500/30 rounded-2xl bg-amber-500/10 text-xs">
+                            <strong className="text-amber-300 block font-bold">{dec.name}</strong>
+                            <span className="text-[10px] text-white/60 font-mono">{dec.evidence || dec.description}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {activeTab === 'activity' && (
+                    <div className="space-y-2">
+                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Recent Node Activity</h4>
+                      {!nodeDetails?.recentActivity?.length ? (
+                        <p className="text-xs text-white/40 font-mono py-4">No recent activity recorded.</p>
+                      ) : (
+                        nodeDetails.recentActivity.map((act: any, i: number) => (
+                          <div key={i} className="p-3 border border-white/10 rounded-2xl bg-white/5 text-xs font-mono">
+                            <span className="text-indigo-400 block text-[10px]">{new Date(act.date).toLocaleDateString()}</span>
+                            <span className="text-white/80">{act.activity}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -289,8 +455,8 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
 
       {/* Graph Reasoning Result Floating Modal */}
       {reasoningResult && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 animate-in fade-in duration-200">
-          <div className="border border-indigo-500/40 bg-black/90 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl relative text-white">
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 w-full max-w-3xl px-4 animate-in fade-in duration-200">
+          <div className="border border-indigo-500/40 bg-black/95 backdrop-blur-2xl rounded-3xl p-6 shadow-2xl relative text-white max-h-[80vh] overflow-y-auto custom-scrollbar">
             <button 
               onClick={() => setReasoningResult(null)} 
               className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-white/10 text-white/50 hover:text-white"
@@ -298,28 +464,83 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
               <X className="w-5 h-5" />
             </button>
             
-            <div className="flex items-center gap-2.5 mb-3 border-b border-white/10 pb-3">
-              <div className="w-7 h-7 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+            {/* Answer Header */}
+            <div className="flex items-center gap-2.5 mb-4 border-b border-white/10 pb-3">
+              <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0">
                 <BrainCircuit className="w-4 h-4 animate-pulse" />
               </div>
-              <h3 className="font-extrabold text-sm text-indigo-300 uppercase tracking-wider">Enterprise Graph Reasoning Answer</h3>
-              <span className="ml-auto text-xs bg-indigo-500/20 text-indigo-300 px-2.5 py-0.5 rounded-full border border-indigo-500/30 font-bold">
-                {reasoningResult.confidenceScore}% Confidence
+              <div>
+                <h3 className="font-extrabold text-sm text-indigo-300 uppercase tracking-wider">Enterprise Living Graph Answer</h3>
+                <span className="text-[10px] text-white/40 font-mono">Grounded in company memory & knowledge graph</span>
+              </div>
+              <span className="ml-auto text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30 font-bold flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> {reasoningResult.confidenceScore}% Confidence
               </span>
             </div>
 
-            <div className="text-sm leading-relaxed text-slate-200 mb-4 max-h-60 overflow-y-auto custom-scrollbar pr-2 whitespace-pre-wrap">
+            {/* Answer Content */}
+            <div className="text-sm leading-relaxed text-slate-200 mb-6 p-4 rounded-2xl bg-white/5 border border-white/10 whitespace-pre-wrap font-sans">
               {reasoningResult.answer}
             </div>
 
-            {reasoningResult.relationshipPaths && reasoningResult.relationshipPaths.length > 0 && (
+            {/* Related Entities */}
+            {reasoningResult.relatedEntities && reasoningResult.relatedEntities.length > 0 && (
+              <div className="mb-4">
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-2">Connected Entities</span>
+                <div className="flex flex-wrap gap-2">
+                  {reasoningResult.relatedEntities.map((ent: any, idx: number) => (
+                    <div key={idx} className="px-3 py-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 text-xs font-mono flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full" style={{ background: getNodeColor(ent.type) }} />
+                      <strong className="text-white">{ent.name}</strong>
+                      <span className="text-[10px] text-indigo-300">({ent.relation || ent.type})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sources & Citations */}
+            {reasoningResult.sources && reasoningResult.sources.length > 0 && (
+              <div className="mb-4">
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-2">Sources & Traceability</span>
+                <div className="flex flex-wrap gap-2">
+                  {reasoningResult.sources.map((src: string, idx: number) => (
+                    <span key={idx} className="px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-mono">
+                      ✓ {src}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Timeline */}
+            {reasoningResult.timeline && reasoningResult.timeline.length > 0 && (
+              <div className="mb-4 border-t border-white/10 pt-3">
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-2 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-amber-400" /> Event Timeline Sequence
+                </span>
+                <div className="space-y-1.5 font-mono text-xs">
+                  {reasoningResult.timeline.map((t: any, idx: number) => (
+                    <div key={idx} className="p-2 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                      <span className="text-amber-400 font-bold">{t.date}</span>
+                      <span className="text-white/80">{t.event}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Similar Past Events */}
+            {reasoningResult.similarPastEvents && reasoningResult.similarPastEvents.length > 0 && (
               <div className="border-t border-white/10 pt-3">
-                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-1.5">Graph Traversal Paths</span>
-                <div className="space-y-1.5">
-                  {reasoningResult.relationshipPaths.map((pathStr: string, idx: number) => (
-                    <div key={idx} className="text-xs text-indigo-300 bg-indigo-950/40 border border-indigo-500/20 p-2.5 rounded-xl flex items-center gap-2 font-mono">
-                      <ArrowRight className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                      <span>{pathStr}</span>
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-2 flex items-center gap-1">
+                  <History className="w-3.5 h-3.5 text-purple-400" /> Similar Historical Events
+                </span>
+                <div className="space-y-1.5 font-mono text-xs">
+                  {reasoningResult.similarPastEvents.map((ev: any, idx: number) => (
+                    <div key={idx} className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                      <strong className="text-purple-300 block">{ev.event}</strong>
+                      <span className="text-white/60 text-[10px]">{ev.relevance}</span>
                     </div>
                   ))}
                 </div>

@@ -35,6 +35,9 @@ export interface ExtractedGraphData {
   }[];
 }
 
+/**
+ * Automatically extracts & builds graph entity nodes and relationship links from Document text
+ */
 export async function extractGraphFromDocument(documentId: string, textContent: string, organizationId: string): Promise<ExtractedGraphData> {
   const doc = await prisma.document.findUnique({
     where: { id: documentId },
@@ -113,7 +116,7 @@ RULES:
     }
 
     // Persist Entities and Relationships into Prisma database
-    const entityMap = new Map<string, string>(); // name -> id
+    const entityMap = new Map<string, string>();
 
     for (const ent of graphData.entities) {
       const existing = await prisma.graphEntity.findFirst({
@@ -203,4 +206,208 @@ RULES:
     console.error("Error in extractGraphFromDocument:", error);
     throw error;
   }
+}
+
+/**
+ * Automatically creates & connects a Meeting node to Speakers (Employees), Decisions, and Projects
+ */
+export async function extractGraphFromMeeting(meetingId: string, organizationId: string) {
+  try {
+    const meeting = await prisma.meeting.findUnique({
+      where: { id: meetingId }
+    });
+    if (!meeting) return;
+
+    // 1. Create or update Meeting Entity Node
+    const meetingEntity = await prisma.graphEntity.upsert({
+      where: {
+        id: `meeting-${meeting.id}`
+      },
+      create: {
+        id: `meeting-${meeting.id}`,
+        organizationId,
+        documentId: meeting.documentId,
+        name: meeting.title,
+        type: 'MEETING',
+        description: meeting.summary || `Meeting held on ${new Date(meeting.date).toLocaleDateString()}`,
+        metadata: {
+          date: meeting.date,
+          speakers: meeting.speakers,
+          decisions: meeting.decisions,
+          actionItems: meeting.actionItems
+        },
+        confidenceScore: 0.98
+      },
+      update: {
+        name: meeting.title,
+        description: meeting.summary || '',
+        metadata: {
+          date: meeting.date,
+          speakers: meeting.speakers,
+          decisions: meeting.decisions,
+          actionItems: meeting.actionItems
+        }
+      }
+    });
+
+    // 2. Link speakers as EMPLOYEE nodes
+    const speakers = (meeting.speakers as any[]) || [];
+    for (const sp of speakers) {
+      if (!sp.name) continue;
+      const empEntity = await prisma.graphEntity.findFirst({
+        where: { organizationId, name: sp.name }
+      }) || await prisma.graphEntity.create({
+        data: {
+          organizationId,
+          name: sp.name,
+          type: 'EMPLOYEE',
+          description: `Speaker in ${meeting.title} (${sp.role || 'Participant'})`,
+          confidenceScore: 0.9
+        }
+      });
+
+      // Link Employee -> ATTENDED -> Meeting
+      await prisma.graphRelationship.create({
+        data: {
+          organizationId,
+          sourceEntityId: empEntity.id,
+          targetEntityId: meetingEntity.id,
+          relationType: 'ATTENDED',
+          description: `${sp.name} attended ${meeting.title}`,
+          confidenceScore: 0.95
+        }
+      }).catch(() => {});
+    }
+
+    // 3. Link decisions as DECISION nodes
+    const decisions = (meeting.decisions as any[]) || [];
+    for (const dec of decisions) {
+      const decTitle = typeof dec === 'string' ? dec : dec.decision || dec.title;
+      if (!decTitle) continue;
+
+      const decEntity = await prisma.graphEntity.create({
+        data: {
+          organizationId,
+          name: decTitle,
+          type: 'DECISION',
+          description: `Decision reached during ${meeting.title}`,
+          confidenceScore: 0.95
+        }
+      }).catch(() => null);
+
+      if (decEntity) {
+        // Link Meeting -> ORIGINATED -> Decision
+        await prisma.graphRelationship.create({
+          data: {
+            organizationId,
+            sourceEntityId: meetingEntity.id,
+            targetEntityId: decEntity.id,
+            relationType: 'ORIGINATED',
+            description: `Decision originated from meeting ${meeting.title}`,
+            confidenceScore: 0.95
+          }
+        }).catch(() => {});
+      }
+    }
+
+  } catch (err) {
+    console.error("Error in extractGraphFromMeeting:", err);
+  }
+}
+
+/**
+ * Detailed Graph Node Inspector fetcher with multi-tenancy enforcement.
+ * Resolves linked documents, linked people, linked meetings, linked projects, decisions, and timeline activity.
+ */
+export async function getNodeDetails(nodeId: string, organizationId: string) {
+  // Fetch primary entity node
+  const entity = await prisma.graphEntity.findFirst({
+    where: { id: nodeId, organizationId },
+    include: {
+      document: {
+        select: { id: true, name: true, mimeType: true, sizeBytes: true, createdAt: true }
+      }
+    }
+  });
+
+  if (!entity) return null;
+
+  // Fetch all 1-hop outgoing and incoming relationships
+  const relationships = await prisma.graphRelationship.findMany({
+    where: {
+      organizationId,
+      OR: [
+        { sourceEntityId: nodeId },
+        { targetEntityId: nodeId }
+      ]
+    },
+    include: {
+      sourceEntity: true,
+      targetEntity: true,
+      document: { select: { id: true, name: true } }
+    }
+  });
+
+  const linkedDocs: any[] = [];
+  const linkedPeople: any[] = [];
+  const linkedMeetings: any[] = [];
+  const linkedProjects: any[] = [];
+  const relatedDecisions: any[] = [];
+  const recentActivity: any[] = [];
+
+  // Group connected nodes by domain type
+  for (const rel of relationships) {
+    const neighbor = rel.sourceEntityId === nodeId ? rel.targetEntity : rel.sourceEntity;
+    if (!neighbor) continue;
+
+    const item = {
+      id: neighbor.id,
+      name: neighbor.name,
+      type: neighbor.type,
+      description: neighbor.description,
+      relationType: rel.relationType,
+      evidence: rel.evidence || rel.description
+    };
+
+    const type = (neighbor.type || '').toUpperCase();
+    if (type === 'DOCUMENT' || type === 'CONTRACT' || type === 'REPORT') linkedDocs.push(item);
+    else if (type === 'EMPLOYEE' || type === 'DEPARTMENT' || type === 'CUSTOMER') linkedPeople.push(item);
+    else if (type === 'MEETING') linkedMeetings.push(item);
+    else if (type === 'PROJECT') linkedProjects.push(item);
+    else if (type === 'DECISION') relatedDecisions.push(item);
+
+    recentActivity.push({
+      date: rel.createdAt,
+      activity: `${rel.relationType}: ${rel.description || neighbor.name}`
+    });
+  }
+
+  // Also include document if directly attached
+  if (entity.document && !linkedDocs.some(d => d.id === entity.document?.id)) {
+    linkedDocs.unshift({
+      id: entity.document.id,
+      name: entity.document.name,
+      type: 'DOCUMENT',
+      description: `Primary source document (${entity.document.mimeType})`
+    });
+  }
+
+  return {
+    entity: {
+      id: entity.id,
+      name: entity.name,
+      type: entity.type,
+      description: entity.description,
+      metadata: entity.metadata || {},
+      properties: entity.properties || {},
+      confidenceScore: entity.confidenceScore,
+      createdAt: entity.createdAt
+    },
+    linkedDocs,
+    linkedPeople,
+    linkedMeetings,
+    linkedProjects,
+    relatedDecisions,
+    recentActivity: recentActivity.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10)
+  };
 }
