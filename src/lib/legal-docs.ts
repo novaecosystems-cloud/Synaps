@@ -56,44 +56,68 @@ We process your personal data under the following legal bases:
 
 ---
 
-## 4. Regional Privacy Rights (GDPR, CCPA, DPDP Act) {#regional-compliance}
 
-### A. European Union (GDPR)
-Under GDPR Articles 15–22, EU data subjects possess rights to:
-* Access, rectify, or erase personal data ("Right to be Forgotten").
-* Restrict or object to automated processing.
-* Request data portability in a machine-readable JSON format.
+## 4. Regional Privacy Rights (Global Compliance) {#regional-compliance}
+
+### A. European Union & United Kingdom (GDPR / UK GDPR)
+Under GDPR Articles 15-22 and UK GDPR, EU and UK data subjects have the right to:
+* **Access** personal data we hold about you (Article 15).
+* **Rectify** inaccurate data (Article 16).
+* **Erase** personal data ("Right to be Forgotten") (Article 17).
+* **Restrict** processing in certain circumstances (Article 18).
+* **Data portability** in JSON/CSV format (Article 20).
+* **Object** to processing based on legitimate interests (Article 21).
+* **Lodge a complaint** with your national supervisory authority or the UK ICO.
 
 ### B. California Residents (CCPA / CPRA)
-California residents have the right to know what personal information is collected, request deletion, opt-out of the sale/sharing of personal data (Synaps does **not** sell personal data), and receive non-discriminatory treatment.
+California residents have the right to know what personal information is collected, request deletion, opt-out of the sale/sharing of personal data (Synaps does **NOT** sell personal data), correct inaccurate data, and receive non-discriminatory treatment. Exercise rights: novaecosystems@gmail.com — Subject: "CCPA Privacy Request".
 
-### C. India (DPDP Act 2023)
-Pursuant to the Digital Personal Data Protection Act 2023, Indian Data Principals have rights to seek summary of personal data processed, register grievances with our Data Protection Officer, and nominate individuals in the event of incapacity.
+### C. Other US States (Virginia, Colorado, Connecticut, Texas)
+Residents of these states have similar rights to access, delete, correct, and opt out of targeted advertising under their respective state privacy laws.
+
+### D. India (DPDP Act 2023)
+Pursuant to the Digital Personal Data Protection Act 2023, Indian Data Principals have the right to obtain a summary of personal data processed, correct or erase personal data, nominate a representative, withdraw consent at any time, and register grievances with our Grievance Officer (72-hour acknowledgement, 30-day resolution).
+
+### E. Canada (PIPEDA + Quebec Law 25)
+Canadian residents have the right to access, correct, and request deletion of personal information, and lodge complaints with the Office of the Privacy Commissioner of Canada (OPC).
+
+### F. Australia (Privacy Act 1988 - Australian Privacy Principles)
+Australian individuals have the right to access (APP 12) and correct (APP 13) personal information, and lodge complaints with the Office of the Australian Information Commissioner (OAIC).
+
+### G. Singapore (PDPA 2012)
+Singapore residents have the right to access, correct, and withdraw consent for data collection, and lodge complaints with the Personal Data Protection Commission (PDPC).
 
 ---
 
 ## 5. Data Retention & Deletion {#data-retention}
-We retain enterprise data only for the duration of your active subscription or as necessary to comply with legal obligations:
+We retain enterprise data only for the duration of your active subscription or as legally required:
 * **Active Customer Data:** Retained for the lifecycle of the enterprise organization account.
-* **Deleted Tenant Data:** Permanently purged from primary database instances and vector storage within 30 days of account termination.
-* **Audit Logs:** Preserved for 365 days for legal audit compliance.
+* **Deleted Tenant Data:** Permanently purged within **30 days** of account termination.
+* **Audit Logs:** Preserved for **365 days** for legal and regulatory compliance.
+* **Payment Records:** Retained for **7 years** as required by financial regulations across India, EU, USA, and Australia.
+
+To request early data deletion, email: novaecosystems@gmail.com — Subject: "Data Deletion Request".
 
 ---
 
 ## 6. Sub-Processors & Integrations {#third-party}
-Synaps partners with SOC2 and ISO27001 certified sub-processors to deliver core cloud services:
-* **Cloud Infrastructure:** Google Cloud Platform (GCP) & AWS.
-* **Authentication:** Firebase Authentication (Google Cloud).
-* **Database & Vector Storage:** PostgreSQL (Prisma) & Supabase Storage.
-* **AI Routing Engines:** Synaps AI Multi-Agent Engine, Groq, Google Gemini.
+Synaps partners with verified sub-processors (see our full [Data Processing Agreement](/legal/data-processing)):
+* **Cloud Infrastructure:** Google Cloud Platform (GCP) — primary compute and database hosting.
+* **Authentication:** Firebase Authentication (Google Cloud) — session management.
+* **Storage:** Supabase Inc. — encrypted document blob storage.
+* **Payments:** LemonSqueezy (Merchant of Record) — PCI-DSS Level 1 compliant.
+* **AI Inference:** Groq Inc. & Google Gemini — zero data retention API usage.
+* **Analytics:** Vercel Web Analytics — anonymised, aggregate usage data only.
 
 ---
 
 ## 7. Contacting Our Data Protection Officer (DPO) {#contact-dpo}
-If you have questions regarding this Privacy Policy or wish to exercise your statutory rights, please contact our Data Protection Officer:
+To exercise your rights or ask questions about this Privacy Policy:
 
 * **Email:** novaecosystems@gmail.com
-* **Postal Address:** Synaps AI Legal Dept, Pune, Maharashtra, India / Global Headquarters.
+* **Subject Line:** "Privacy Request — [Your Right] — [Your Country]"
+* **Postal Address:** Synaps AI Legal & Compliance Dept., Pune, Maharashtra 411001, India
+* **Response SLA:** 72-hour acknowledgement — 30-day resolution (GDPR/DPDP) — 45 days (CCPA)
 `
   },
 
@@ -159,7 +183,20 @@ To the maximum extent permitted by applicable law:
 ---
 
 ## 7. Governing Law & Dispute Resolution {#governing-law}
-These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law principles. Any dispute arising out of these Terms shall be resolved via binding arbitration.
+
+### Primary Governing Law
+These Terms shall be governed by and construed in accordance with the laws of **India** (jurisdiction: Pune, Maharashtra), without regard to conflict of law principles.
+
+### Regional Provisions
+* **EU / UK Customers:** Mandatory EU/UK consumer protection laws that cannot be excluded by contract apply. Nothing in these Terms limits statutory rights under EU Directive 2019/770, UK Consumer Rights Act 2015, or GDPR.
+* **USA / California Customers:** California residents retain the right to bring individual claims in small claims court. To the maximum extent permitted by law, class action waiver applies.
+* **India Customers:** Disputes subject to the Arbitration & Conciliation Act 1996 (as amended), with arbitration seat in Pune, Maharashtra, India.
+* **Australia Customers:** Australian Consumer Law (Competition and Consumer Act 2010) rights cannot be excluded and supersede any conflicting clause. Implied guarantees under the ACL apply to consumer customers.
+* **Canada Customers:** Quebec residents retain rights under the Quebec Consumer Protection Act regardless of governing law clause.
+* **Singapore Customers:** Disputes may be referred to the Singapore Mediation Centre (SMC) prior to arbitration.
+
+### Class Action Waiver
+To the maximum extent permitted by applicable law, you agree to resolve disputes on an individual basis. This waiver does not apply where prohibited by law.
 
 **Contact:** Legal queries should be submitted to novaecosystems@gmail.com.
 `

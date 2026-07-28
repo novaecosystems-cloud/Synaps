@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
 
 export const metadata: Metadata = {
   title: "Synaps AI — 3D Corporate Memory & 10-Agent AI Boardroom",
@@ -41,6 +42,7 @@ export default function RootLayout({
             {children}
             <Toaster />
             <Analytics />
+            <CookieConsentBanner />
           </AuthProvider>
         </ThemeProvider>
       </body>

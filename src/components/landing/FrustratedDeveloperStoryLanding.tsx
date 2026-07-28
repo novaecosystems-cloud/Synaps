@@ -500,25 +500,47 @@ export default function FrustratedDeveloperStoryLanding() {
 
       {/* ── FOOTER WITH LEGAL LINKS ── */}
       <footer className="py-14 px-6 md:px-12 border-t border-white/10 text-center font-mono text-xs text-slate-400 space-y-6 relative z-10">
-        <div className="flex flex-wrap items-center justify-center gap-6 font-sans text-xs">
+        <div className="flex flex-wrap items-center justify-center gap-4 font-sans text-xs">
           <Link href="/legal/privacy" className="hover:text-amber-400 transition-colors flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> Privacy Policy (GDPR / CCPA / DPDP)
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> Privacy Policy
+          </Link>
+          <span className="text-slate-700">•</span>
+          <Link href="/legal/cookies" className="hover:text-amber-400 transition-colors">
+            Cookie Policy
           </Link>
           <span className="text-slate-700">•</span>
           <Link href="/legal/terms" className="hover:text-amber-400 transition-colors">
             Terms of Service
           </Link>
           <span className="text-slate-700">•</span>
+          <Link href="/legal/data-processing" className="hover:text-amber-400 transition-colors">
+            Data Processing Agreement
+          </Link>
+          <span className="text-slate-700">•</span>
           <Link href="/legal/disclaimer" className="hover:text-amber-400 transition-colors text-amber-400 font-bold">
             AI Legal Disclaimer
           </Link>
           <span className="text-slate-700">•</span>
-          <Link href="/legal/refund" className="hover:text-amber-400 transition-colors">
-            14-Day Refund & Cancellation
-          </Link>
-          <span className="text-slate-700">•</span>
           <Link href="/legal/acceptable-use" className="hover:text-amber-400 transition-colors">
             Acceptable Use Policy
+          </Link>
+        </div>
+
+        {/* CCPA "Do Not Sell" — Required by California Law */}
+        <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] font-sans">
+          <span className="text-slate-600">🇺🇸 California Residents:</span>
+          <button
+            onClick={() => {
+              localStorage.setItem('synaps-cookie-consent', JSON.stringify({ essential: true, analytics: false, marketing: false, decided: true, timestamp: Date.now() }));
+              alert('Your Do Not Sell/Share preference has been saved. We do not sell your personal data.');
+            }}
+            className="text-amber-400/80 hover:text-amber-400 underline font-bold transition-colors cursor-pointer"
+          >
+            Do Not Sell or Share My Personal Information (CCPA)
+          </button>
+          <span className="text-slate-700">•</span>
+          <Link href="/legal/privacy#regional-compliance" className="text-slate-500 hover:text-slate-300 transition-colors">
+            GDPR · DPDP · PIPEDA · PDPA Rights
           </Link>
         </div>
 
@@ -528,9 +550,10 @@ export default function FrustratedDeveloperStoryLanding() {
 
         <div className="flex items-center justify-center gap-3 text-slate-500 text-[11px] pt-2">
           <SynapsEmblem />
-          <span>SYNAPS ENTERPRISE OS — ALL RIGHTS RESERVED.</span>
+          <span>© 2026 SYNAPS AI — ALL RIGHTS RESERVED.</span>
         </div>
       </footer>
+
 
       {/* ── VIDEO MODAL ── */}
       {videoModalOpen && (
