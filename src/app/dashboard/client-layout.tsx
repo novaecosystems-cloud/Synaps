@@ -71,6 +71,7 @@ const sidebarSections: MenuSection[] = [
         name: 'AI Intelligence', 
         icon: Sparkles,
         children: [
+          { name: 'Chief of Staff', href: '/dashboard/chief-of-staff' },
           { name: 'AI Boardroom', href: '/dashboard/boardroom' },
           { name: 'Digital Twin OS', href: '/dashboard/digital-twin' },
           { name: 'Strategy Studio', href: '/dashboard/strategy' },
