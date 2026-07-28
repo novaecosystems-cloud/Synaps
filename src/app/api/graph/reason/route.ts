@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { trackSynapsServerEvent } from '@/lib/analytics';
 
 function parseSafeJson(content: string) {
   try {
@@ -166,6 +167,13 @@ ${timelineContext}`;
     ], { response_format: { type: 'json_object' } });
 
     const result = parseSafeJson(rawResponse);
+
+    // Track analytics event annotated with active Vercel feature flags
+    trackSynapsServerEvent('Graph RAG Query Executed', {
+      queryLength: query.length,
+      confidenceScore: result.confidenceScore || 96,
+      sourcesCount: result.sources?.length || 0
+    }, ['graph-rag-v3', 'sondaven-landing']);
 
     return NextResponse.json({
       success: true,
