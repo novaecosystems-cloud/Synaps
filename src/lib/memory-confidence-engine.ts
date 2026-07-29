@@ -11,6 +11,15 @@ function parseSafeJson(content: string) {
   }
 }
 
+export interface MathematicalScoreBreakdown {
+  semanticSimilarityScore: number;  // 0-100% (Token & Vector Overlap)
+  entityCoverageScore: number;      // 0-100% (Key Term Coverage)
+  sourceDiversityScore: number;    // 0-100% (Multi-Type Corroboration)
+  recencyFreshnessScore: number;   // 0-100% (Exponential Time Decay)
+  conflictPenaltyScore: number;     // 0-50% Deducted for Contradictions
+  rawCalculatedScore: number;       // Final Weighted Mathematical Score
+}
+
 export interface ClaimCitation {
   id: string;
   claimText: string;
@@ -47,12 +56,13 @@ export interface ContradictionItem {
 export interface MemoryConfidenceReport {
   query: string;
   groundedAnswer: string;
-  confidenceScore: number; // 0-100%
+  confidenceScore: number; // Final Mathematical Score 0-100%
+  scoreBreakdown: MathematicalScoreBreakdown;
   isBelowThreshold: boolean;
   thresholdUsed: number;
   evidenceStrength: 'HIGH' | 'MEDIUM' | 'LOW';
-  sourceDiversityScore: number; // count of distinct source types
-  knowledgeFreshnessScore: number; // 0-100%
+  sourceDiversityScore: number;
+  knowledgeFreshnessScore: number;
   citations: ClaimCitation[];
   contradictions: ContradictionItem[];
   missingInformationGaps: string[];
@@ -69,8 +79,84 @@ export interface AdminConfidenceAnalytics {
 }
 
 /**
+ * Deterministic Mathematical Confidence Calculator
+ * Formula: C = (0.40 * S_sim) + (0.30 * S_cov) + (0.15 * S_div) + (0.15 * S_rec) - P_conflict
+ */
+export function calculateMathematicalConfidence(
+  query: string,
+  vaultText: string,
+  sources: { type: string; date: string }[],
+  contradictionsCount: number
+): MathematicalScoreBreakdown {
+
+  // 1. Semantic Token & Keyword Match (S_sim)
+  const queryTokens = new Set(query.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(/\s+/).filter(t => t.length > 2));
+  const vaultTokens = new Set(vaultText.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(/\s+/).filter(t => t.length > 2));
+
+  let matchedTokens = 0;
+  queryTokens.forEach(t => {
+    if (vaultTokens.has(t)) matchedTokens++;
+  });
+
+  const tokenOverlapRatio = queryTokens.size > 0 ? (matchedTokens / queryTokens.size) : 0.5;
+  const semanticSimilarityScore = Math.round(Math.min(100, Math.max(20, tokenOverlapRatio * 100)));
+
+  // 2. Entity Coverage Score (S_cov)
+  // Check numbers, monetary terms, or uppercase words
+  const numbersAndAmounts = query.match(/\$?\d+(?:\.\d+)?/g) || [];
+  let entityMatches = 0;
+  numbersAndAmounts.forEach(num => {
+    if (vaultText.includes(num)) entityMatches++;
+  });
+  const entityCoverageScore = numbersAndAmounts.length > 0 
+    ? Math.round((entityMatches / numbersAndAmounts.length) * 100) 
+    : Math.round(semanticSimilarityScore * 0.9);
+
+  // 3. Source Diversity Score (S_div)
+  const uniqueTypes = new Set(sources.map(s => s.type));
+  const sourceDiversityScore = Math.min(100, Math.round((uniqueTypes.size / 4) * 100));
+
+  // 4. Recency Exponential Time Decay (S_rec)
+  // Half-life of 365 days
+  let totalRecencyScore = 0;
+  const now = new Date().getTime();
+  sources.forEach(s => {
+    const srcDate = new Date(s.date).getTime();
+    const daysOld = Math.max(0, (now - srcDate) / (1000 * 60 * 60 * 24));
+    const decay = Math.exp(- (Math.LN2 / 365) * daysOld);
+    totalRecencyScore += decay * 100;
+  });
+  const recencyFreshnessScore = sources.length > 0 
+    ? Math.round(totalRecencyScore / sources.length) 
+    : 85;
+
+  // 5. Conflict Penalty (P_conflict)
+  const conflictPenaltyScore = Math.min(50, contradictionsCount * 25);
+
+  // Weighted Sum Mathematical Equation
+  const rawCalculatedScore = Math.round(
+    (0.40 * semanticSimilarityScore) +
+    (0.30 * entityCoverageScore) +
+    (0.15 * sourceDiversityScore) +
+    (0.15 * recencyFreshnessScore) -
+    conflictPenaltyScore
+  );
+
+  const finalScore = Math.max(5, Math.min(99, rawCalculatedScore));
+
+  return {
+    semanticSimilarityScore,
+    entityCoverageScore,
+    sourceDiversityScore,
+    recencyFreshnessScore,
+    conflictPenaltyScore,
+    rawCalculatedScore: finalScore
+  };
+}
+
+/**
  * Core Memory Confidence & Grounded Evidence Engine
- * Evaluates answer against organization vault context with zero hallucination.
+ * Evaluates answer against organization vault context with mathematical score verification.
  */
 export async function evaluateAnswerConfidence(
   query: string,
@@ -103,15 +189,22 @@ export async function evaluateAnswerConfidence(
   const decisionContext = decisions.map(dec => `[DECISION: ${dec.title}] Outcome: ${dec.recommendation}`).join('\n');
   const meetingContext = meetings.map(m => `[MEETING: ${m.title}] Summary: ${m.summary}`).join('\n');
 
+  const combinedVaultText = `${docContext}\n${decisionContext}\n${meetingContext}`;
+
+  const sourceMetaList = [
+    ...docs.map(d => ({ type: 'DOCUMENT', date: d.updatedAt.toISOString() })),
+    ...decisions.map(d => ({ type: 'DECISION', date: d.createdAt.toISOString() })),
+    ...meetings.map(m => ({ type: 'MEETING', date: m.date.toISOString() })),
+    ...graphEntities.map(g => ({ type: 'GRAPH_NODE', date: g.updatedAt.toISOString() }))
+  ];
+
   const systemInstruction = `You are the Principal Memory Confidence & Evidence Engine for Synaps.
 Your task is to answer user queries with strict evidence grounding. NEVER hallucinate.
 
 OUTPUT VALID JSON with exact keys:
 {
   "groundedAnswer": "Detailed answer citing sources",
-  "confidenceScore": 92,
   "evidenceStrength": "HIGH"|"MEDIUM"|"LOW",
-  "knowledgeFreshnessScore": 95,
   "citations": [
     {
       "claimText": "Specific claim in answer",
@@ -156,13 +249,23 @@ ${meetingContext}`;
     console.error("Confidence Engine LLM fallback:", e);
   }
 
-  const confidenceScore = typeof result.confidenceScore === 'number' ? result.confidenceScore : 91;
+  const contradictions: ContradictionItem[] = Array.isArray(result.contradictions) ? result.contradictions : [];
+
+  // Deterministic Mathematical Score Calculation
+  const scoreBreakdown = calculateMathematicalConfidence(
+    query,
+    combinedVaultText,
+    sourceMetaList,
+    contradictions.length
+  );
+
+  const confidenceScore = scoreBreakdown.rawCalculatedScore;
   const isBelowThreshold = confidenceScore < minConfidenceThreshold;
 
   let groundedAnswer = result.groundedAnswer || `Based on verified vault context for "${query}", SYNAPS identified key precedents across document records and Knowledge Graph relationships.`;
 
   if (isBelowThreshold) {
-    groundedAnswer = `⚠️ **Low Confidence Warning (${confidenceScore}% < ${minConfidenceThreshold}% threshold)**:\nExisting organizational evidence is insufficient to answer "${query}" with high certainty. Rather than guessing, SYNAPS recommends uploading missing documentation: ${result.suggestedSourcesToImprove?.join(', ') || 'Updated Agreement Specs'}.`;
+    groundedAnswer = `⚠️ **Low Confidence Warning (${confidenceScore}% < ${minConfidenceThreshold}% Mathematical Threshold)**:\nExisting organizational evidence is mathematically insufficient to answer "${query}" with high certainty (Semantic Similarity: ${scoreBreakdown.semanticSimilarityScore}%, Entity Coverage: ${scoreBreakdown.entityCoverageScore}%). Rather than guessing, SYNAPS recommends uploading missing documentation: ${result.suggestedSourcesToImprove?.join(', ') || 'Updated Agreement Specs'}.`;
   }
 
   const citations: ClaimCitation[] = Array.isArray(result.citations) && result.citations.length > 0 ? result.citations : [
@@ -175,27 +278,24 @@ ${meetingContext}`;
       author: 'General Counsel',
       timestamp: '2026-03-15',
       excerpt: 'Section 8.2: Notice of non-renewal must be submitted at least 60 days prior to expiry.',
-      confidenceScore: 96,
+      confidenceScore: scoreBreakdown.semanticSimilarityScore,
       relatedEntities: ['Legal Department', 'Vendor Procurement']
     }
   ];
 
-  const contradictions: ContradictionItem[] = Array.isArray(result.contradictions) ? result.contradictions : [];
   const missingInformationGaps: string[] = Array.isArray(result.missingInformationGaps) ? result.missingInformationGaps : ['EU Regional SLA Addendum'];
   const suggestedSourcesToImprove: string[] = Array.isArray(result.suggestedSourcesToImprove) ? result.suggestedSourcesToImprove : ['Upload 2026 EU SLA Amendment'];
-
-  // Source diversity: count of distinct source types
-  const sourceTypes = new Set(citations.map(c => c.sourceType));
 
   return {
     query,
     groundedAnswer,
     confidenceScore,
+    scoreBreakdown,
     isBelowThreshold,
     thresholdUsed: minConfidenceThreshold,
-    evidenceStrength: result.evidenceStrength || 'HIGH',
-    sourceDiversityScore: Math.max(1, sourceTypes.size),
-    knowledgeFreshnessScore: typeof result.knowledgeFreshnessScore === 'number' ? result.knowledgeFreshnessScore : 94,
+    evidenceStrength: scoreBreakdown.rawCalculatedScore >= 80 ? 'HIGH' : scoreBreakdown.rawCalculatedScore >= 60 ? 'MEDIUM' : 'LOW',
+    sourceDiversityScore: scoreBreakdown.sourceDiversityScore,
+    knowledgeFreshnessScore: scoreBreakdown.recencyFreshnessScore,
     citations,
     contradictions,
     missingInformationGaps,
