@@ -2,11 +2,11 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import LandoNorrisSynapsLanding from '@/components/landing/LandoNorrisSynapsLanding';
+import MadeWithGSAPSynapsLanding from '@/components/landing/MadeWithGSAPSynapsLanding';
 
 export const metadata = {
-  title: 'Synaps AI — Enterprise Decision Intelligence Operating System',
-  description: 'Unify company data across CRM, Spreadsheets, Emails & Documents into a Grounded 3D Memory Graph and Executive Digital Twins.',
+  title: 'Made With SYNAPS — Enterprise Decision Intelligence Operating System Showcase',
+  description: 'Explore the high-resolution showcase of SYNAPS: Executive Operational Briefings, Multi-Agent Flight Control, Executive Digital Twins, AI Strategy Studio, and Decision Memory.',
 };
 
 export default async function RootPage() {
@@ -20,6 +20,6 @@ export default async function RootPage() {
     }
   }
 
-  // Render Ultra-Sleek Lando Norris-Inspired Landing Page with 45° Interactive Tilted Document
-  return <LandoNorrisSynapsLanding />;
+  // Render MadeWithGSAP Replica Landing Page with Automatic High-Res Application Slideshow & Cookie Consent
+  return <MadeWithGSAPSynapsLanding />;
 }
