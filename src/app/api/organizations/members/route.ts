@@ -50,7 +50,7 @@ export async function PATCH(req: NextRequest) {
         userId: memberId,
         organizationId: currentLeader.organizationId,
         title: `Role Updated`,
-        content: `Your role in the organization was updated to ${role} by ${currentLeader.name || 'a Leader'}.`,
+        message: `Your role in the organization was updated to ${role} by ${currentLeader.name || 'a Leader'}.`,
         type: 'ROLE_CHANGED'
       }
     });
@@ -106,12 +106,13 @@ export async function DELETE(req: NextRequest) {
     });
 
     // Notify user
+    const removedOrg = await prisma.organization.findUnique({ where: { id: currentLeader.organizationId! }, select: { name: true } });
     await prisma.notification.create({
       data: {
         userId: memberId,
         organizationId: currentLeader.organizationId,
         title: `Removed from Organization`,
-        content: `You were removed from ${currentLeader.organizationId} by ${currentLeader.name || 'a Leader'}.`,
+        message: `You were removed from ${removedOrg?.name || 'the organization'} by ${currentLeader.name || 'a Leader'}.`,
         type: 'MEMBER_REMOVED'
       }
     });

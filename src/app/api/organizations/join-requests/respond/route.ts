@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
           userId: joinRequest.userId,
           organizationId: joinRequest.organizationId,
           title: `Welcome to ${joinRequest.organization.name}! 🎉`,
-          content: `Your request to join ${joinRequest.organization.name} was approved by ${leaderUser.name || 'a Leader'}.`,
+          message: `Your request to join ${joinRequest.organization.name} was approved by ${leaderUser.name || 'a Leader'}.`,
           type: 'MEMBER_APPROVED'
         }
       });
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
           userId: joinRequest.userId,
           organizationId: joinRequest.organizationId,
           title: `Join Request Update`,
-          content: `Your request to join ${joinRequest.organization.name} was declined.`,
+          message: `Your request to join ${joinRequest.organization.name} was declined.`,
           type: 'MEMBER_REJECTED'
         }
       });

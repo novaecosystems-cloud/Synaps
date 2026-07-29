@@ -55,7 +55,8 @@ export async function createSessionCookie(token: string) {
 export async function verifySessionCookie(sessionCookie: string) {
   if (!sessionCookie) return null;
   
-  if (sessionCookie.startsWith('TEST_TOKEN_')) {
+  // TEST_TOKEN bypass only for development/test environments
+  if (process.env.NODE_ENV !== 'production' && sessionCookie.startsWith('TEST_TOKEN_')) {
     const uid = sessionCookie.replace('TEST_TOKEN_', '');
     return { uid, email: 'admin@apex-global.com', name: 'Demo Administrator', exp: Math.floor(Date.now() / 1000) + (30 * 86400) } as any;
   }

@@ -66,14 +66,8 @@ export async function POST(req: NextRequest) {
         userId: leader.id,
         organizationId: org.id,
         title: `Join Request from ${userName}`,
-        content: `${userName} wants to join ${org.name}.`,
-        type: 'JOIN_REQUEST',
-        metadata: {
-          requestId: joinRequest.id,
-          requesterId: decoded.uid,
-          requesterName: userName,
-          requesterEmail: decoded.email
-        }
+        message: `${userName} wants to join ${org.name}.`,
+        type: 'JOIN_REQUEST' as const,
       }));
 
       if (leaderNotifications.length > 0) {
