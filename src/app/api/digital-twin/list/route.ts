@@ -4,9 +4,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
-import { runExecutiveBoardroomSimulation } from '@/lib/executive-digital-twin';
+import { getDefaultExecutiveTwins } from '@/lib/executive-digital-twin';
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('synaps-session')?.value;
@@ -15,30 +15,15 @@ export async function POST(req: NextRequest) {
     const decoded = await verifySessionCookie(sessionCookie);
     if (!decoded || !decoded.uid) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    let dbUser: any = null;
-    try {
-      dbUser = await prisma.user.findUnique({
-        where: { id: decoded.uid },
-        select: { organizationId: true }
-      });
-    } catch (e) {}
-
-    const organizationId = dbUser?.organizationId || 'demo_apex_org_id';
-
-    const { scenarioPrompt } = await req.json();
-    if (!scenarioPrompt) {
-      return NextResponse.json({ success: false, error: 'scenarioPrompt parameter is required' }, { status: 400 });
-    }
-
-    const simulationResult = await runExecutiveBoardroomSimulation(scenarioPrompt, organizationId);
+    const defaultTwins = getDefaultExecutiveTwins();
 
     return NextResponse.json({
       success: true,
-      data: simulationResult
+      data: Object.values(defaultTwins)
     });
 
   } catch (error: any) {
-    console.error("POST /api/digital-twin/simulate error:", error);
+    console.error("GET /api/digital-twin/list error:", error);
     return NextResponse.json({ success: false, error: error.message || 'Server error' }, { status: 500 });
   }
 }
