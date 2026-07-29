@@ -3,82 +3,80 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
 
-/* ─── App Showcase slides ────────────────────────────────────────── */
+// Register GSAP plugins on client
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+/* ─── Real SYNAPS Showcase Modules ───────────────────────────────── */
 const SLIDES = [
   {
     id: 1,
     src: '/showcase/executive_overview.png',
-    label: 'Executive Briefing',
+    label: 'Executive Operational Briefings',
     tag: 'AI COO Engine',
+    desc: 'Provides automated daily C-suite briefings, cross-departmental KPI tracking, and real-time operational risk scoring from ingested enterprise files.',
+    specs: ['Automated PDF/Doc Briefing Generation', 'Real-Time Risk & Opportunity Matrix', 'Cross-Department Alignment Scoring', 'Strict Zero-Hallucination Grounding']
   },
   {
     id: 2,
     src: '/showcase/mission_control.png',
-    label: 'Mission Control',
-    tag: 'Multi-Agent',
+    label: 'Multi-Agent Flight Control',
+    tag: 'Agent Swarm',
+    desc: 'Air traffic control for specialized AI agents — Research, Finance, Legal, Security, HR, and Strategy — executing concurrent enterprise tasks.',
+    specs: ['10 Specialized Agent Personas', 'Parallel Task Execution Pipeline', 'Inter-Agent Conflict Resolution', 'Full Audit Log & Provenance Tracing']
   },
   {
     id: 3,
     src: '/showcase/digital_twins.png',
-    label: 'Executive Twins',
+    label: 'Executive Digital Twins',
     tag: 'Boardroom Sim',
+    desc: 'Simulate high-stakes enterprise decisions across 8 C-suite persona twins (CEO, CFO, CTO, Legal, HR, etc.) with grounded debate synthesis.',
+    specs: ['8 Persona Decision Simulation', 'Stress-testing Strategic Options', 'Consensus & Divergence Heatmaps', 'Instant Debate Record Generation']
   },
   {
     id: 4,
     src: '/showcase/ai_strategy.png',
-    label: 'AI Strategy Studio',
-    tag: '11-Stage Roadmap',
+    label: 'AI Strategy & Blueprint Studio',
+    tag: 'Roadmap Generator',
+    desc: 'Generates 11-stage enterprise technology blueprints, competitive SWOT matrices, risk mitigations, and execution roadmaps.',
+    specs: ['11-Stage Transformation Roadmap', 'Automated Competitive Threat Scanning', 'Resource & Budget Allocation Plan', 'Risk Mitigation Playbook']
   },
   {
     id: 5,
     src: '/showcase/decision_memory.png',
-    label: 'Decision Memory',
-    tag: 'Precedent Graph',
+    label: 'Decision Memory & Graph Engine',
+    tag: 'Precedent Memory',
+    desc: 'Persists every past corporate decision, underlying assumptions, and outcomes. Search historical precedent graph with cosine similarity.',
+    specs: ['Vector Graph Precedent Index', 'Assumption vs Outcome Validation', 'Semantic Decision Search', 'Institutional Knowledge Continuity']
   },
 ];
 
-/* ─── Testimonials ───────────────────────────────────────────────── */
-const TESTIS = [
+/* ─── Real Value Pillars (Authentic, no fake reviews) ───────────── */
+const VALUE_PILLARS = [
   {
-    text: 'SYNAPS is a total gem. The memory graph is stunning, the AI briefings are crystal clear, and the grounded confidence scores are beautifully structured. It gets a big thumbs-up from our entire executive team.',
-    name: 'Priya Sharma',
-    role: 'Chief Operating Officer\nNovaEco Systems',
-    img: null,
+    title: 'Grounded Intelligence',
+    desc: 'Every insight, recommendation, and briefing is strictly anchored in your enterprise knowledge base with source verification.',
   },
   {
-    text: 'The SYNAPS resources are so well-crafted that the AI Digital Twins often become the centrepiece of every boardroom session. The precedent memory engine is thoughtfully explained and made easy to act on immediately.',
-    name: 'Jordan Gilroy',
-    role: 'Head of Strategy\nEnterprise Analytics',
-    img: null,
+    title: 'Multi-Agent Autonomy',
+    desc: '10 specialized agent roles operate in parallel to conduct thorough analysis across finance, compliance, technology, and operations.',
   },
   {
-    text: 'A beautiful resource for making data-driven decisions. The Multi-Agent Flight Control pushes creative limits with zero hallucination. You\'ll be running boardroom simulations in minutes.',
-    name: 'Lucas Bigot',
-    role: 'CTO\nCreative Studio',
-    img: null,
+    title: 'Boardroom Simulation',
+    desc: 'Test critical strategic moves against digital twin executive personas before taking them to the board.',
   },
   {
-    text: 'As a decision-maker, I\'ve used many AI tools, and SYNAPS taught me new ways to approach enterprise challenges. I wish a tool like this had existed when I was starting out.',
-    name: 'Henri Heymans',
-    role: 'Managing Director\nConsulting Group',
-    img: null,
-  },
-  {
-    text: 'SYNAPS\'s decision memory has been an enormous ally in crafting memorable business outcomes. It\'s a tool that was missing from our enterprise community, and I\'m glad we now have it.',
-    name: 'Victor Work',
-    role: 'Chief Strategy Officer',
-    img: null,
-  },
-  {
-    text: 'Using SYNAPS is a plug-and-play experience. No bloated prompts, no overengineering, just efficient grounded intelligence. I can say it\'s the best resource for enterprise AI decision-making!',
-    name: 'Reksa Andhika',
-    role: 'Operations Lead\nScale-up Ventures',
-    img: null,
+    title: 'Precedent Memory',
+    desc: 'Never repeat past mistakes. SYNAPS indexes historical decisions, trade-offs, and lessons learned across your organization.',
   },
 ];
 
-/* ─── Cookie Banner ───────────────────────────────────────────────── */
+/* ─── Cookie Banner Component ─────────────────────────────────────── */
 function CookieBanner() {
   const [show, setShow] = useState(false);
 
@@ -106,31 +104,30 @@ function CookieBanner() {
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 9999,
-        background: '#fff',
-        border: '1px solid #e5e5e5',
+        background: '#ffffff',
+        border: '1px solid #111111',
         borderRadius: 16,
         padding: '20px 28px',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
-        maxWidth: 520,
-        width: 'calc(100% - 48px)',
+        boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
+        maxWidth: 500,
+        width: 'calc(100% - 40px)',
         display: 'flex',
         flexDirection: 'column',
         gap: 16,
       }}
     >
       <div>
-        <p style={{ fontSize: 13, fontWeight: 700, color: '#111', marginBottom: 6 }}>
-          🍪 We value your privacy
+        <p style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 6 }}>
+          🍪 Cookie Preferences
         </p>
         <p style={{ fontSize: 12, color: '#555', lineHeight: 1.6 }}>
-          We use cookies to enhance your browsing experience, serve personalized
-          content, and analyze our traffic. By clicking &quot;Accept all&quot;, you consent
-          to our use of cookies.
+          SYNAPS uses essential local session storage to maintain your operational workspace preferences and security state.
         </p>
       </div>
       <div style={{ display: 'flex', gap: 10 }}>
         <button
           onClick={accept}
+          className="roll-btn"
           style={{
             flex: 1,
             padding: '10px 20px',
@@ -141,10 +138,9 @@ function CookieBanner() {
             fontSize: 12,
             fontWeight: 700,
             cursor: 'pointer',
-            letterSpacing: '0.03em',
           }}
         >
-          Accept all
+          Accept All
         </button>
         <button
           onClick={decline}
@@ -155,7 +151,7 @@ function CookieBanner() {
             border: '1px solid #ccc',
             borderRadius: 8,
             fontSize: 12,
-            fontWeight: 500,
+            fontWeight: 600,
             cursor: 'pointer',
           }}
         >
@@ -166,20 +162,32 @@ function CookieBanner() {
   );
 }
 
-/* ─── Auto-sliding showcase carousel ─────────────────────────────── */
-function ShowcaseCarousel() {
+/* ─── Interactive Roll-Text Button Component (MWG Signature Effect) ─ */
+function RollLink({ href, children, className = '', style = {} }: { href: string; children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  return (
+    <a href={href} className={`roll-wrapper ${className}`} style={style}>
+      <span className="roll-inner">
+        <span className="roll-text">{children}</span>
+        <span className="roll-text roll-hover">{children}</span>
+      </span>
+    </a>
+  );
+}
+
+/* ─── Draggable High-Res Showcase Carousel ───────────────────────── */
+function ShowcaseCarousel({ onSelectModule }: { onSelectModule: (index: number) => void }) {
   const [current, setCurrent] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [offsetX, setOffsetX] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
   const n = SLIDES.length;
 
   const startAutoplay = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       setCurrent(prev => (prev + 1) % n);
-    }, 3500);
+    }, 4000);
   }, [n]);
 
   useEffect(() => {
@@ -208,27 +216,13 @@ function ShowcaseCarousel() {
     startAutoplay();
   };
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setStartX(e.touches[0].clientX);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-  };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 50) {
-      if (dx < 0) setCurrent(prev => (prev + 1) % n);
-      else setCurrent(prev => (prev - 1 + n) % n);
-    }
-    startAutoplay();
-  };
-
   return (
     <div style={{ position: 'relative', overflow: 'hidden', userSelect: 'none' }}>
-      {/* Slides */}
+      {/* Slides track */}
       <div
-        ref={trackRef}
         style={{
           display: 'flex',
-          transition: dragging ? 'none' : 'transform 0.65s cubic-bezier(0.4,0,0.2,1)',
+          transition: dragging ? 'none' : 'transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)',
           transform: `translateX(calc(-${current * 100}% + ${offsetX}px))`,
           cursor: dragging ? 'grabbing' : 'grab',
         }}
@@ -236,316 +230,286 @@ function ShowcaseCarousel() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
         {SLIDES.map((slide, i) => (
           <div
             key={slide.id}
+            onClick={() => !dragging && onSelectModule(i)}
             style={{
               minWidth: '100%',
               position: 'relative',
               aspectRatio: '16/9',
-              background: '#f0f0f0',
+              background: '#e9e9e9',
               borderRadius: 20,
               overflow: 'hidden',
+              border: '1px solid #d0d0d0',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.06)',
             }}
           >
             <Image
               src={slide.src}
               alt={slide.label}
               fill
-              quality={100}
+              unoptimized
               priority={i === 0}
-              style={{ objectFit: 'cover', objectPosition: 'top' }}
+              style={{
+                objectFit: 'cover',
+                objectPosition: 'top',
+                imageRendering: 'crisp-edges',
+              }}
             />
           </div>
         ))}
       </div>
 
-      {/* Bottom info bar */}
+      {/* Control bar below slideshow */}
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginTop: 16,
+          marginTop: 20,
           padding: '0 4px',
         }}
       >
-        {/* Slide counter */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#111', fontFamily: 'monospace' }}>
-            {String(current + 1).padStart(3, '0')}
+          <span style={{ fontSize: 14, fontWeight: 900, fontFamily: 'monospace', color: '#111' }}>
+            #{String(current + 1).padStart(3, '0')}
           </span>
-          <span style={{ fontSize: 12, color: '#888' }}>{SLIDES[current].tag}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', color: '#666', letterSpacing: '0.05em' }}>
+            {SLIDES[current].tag}
+          </span>
         </div>
 
-        {/* Dot indicators */}
-        <div style={{ display: 'flex', gap: 6 }}>
+        {/* Indicators */}
+        <div style={{ display: 'flex', gap: 8 }}>
           {SLIDES.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}
               style={{
-                width: i === current ? 24 : 8,
+                width: i === current ? 28 : 8,
                 height: 8,
                 borderRadius: 4,
-                background: i === current ? '#111' : '#ddd',
+                background: i === current ? '#111' : '#ccc',
                 border: 'none',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                 padding: 0,
               }}
             />
           ))}
         </div>
 
-        {/* Current label */}
-        <span style={{ fontSize: 12, color: '#888', fontStyle: 'italic' }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#444' }}>
           {SLIDES[current].label}
         </span>
       </div>
 
-      {/* "Drag to explore" label */}
-      <p
-        style={{
-          textAlign: 'center',
-          fontSize: 11,
-          color: '#aaa',
-          marginTop: 8,
-          letterSpacing: '0.05em',
-          textTransform: 'uppercase',
-        }}
-      >
-        Drag to explore the collection
+      <p style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#aaa', marginTop: 12, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        ← DRAG OR CLICK TO EXPLORE MODULES →
       </p>
     </div>
   );
 }
 
-/* ─── Main Page Component ─────────────────────────────────────────── */
-export default function MadeWithSynapsPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
+/* ─── Main Landing Component ─────────────────────────────────────── */
+export default function MadeWithSynapsLanding() {
+  const [selectedModule, setSelectedModule] = useState<number | null>(null);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('annual');
   const [email, setEmail] = useState('');
-  const [emailDone, setEmailDone] = useState(false);
+  const [subscribed, setSubscribed] = useState(false);
+  const mainRef = useRef<HTMLDivElement>(null);
+
+  // Initialize Lenis smooth scroll & GSAP ScrollTrigger
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // GSAP animations for elements with .gsap-reveal
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('.gsap-reveal').forEach((el) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              toggleActions: 'play none none none',
+            },
+          }
+        );
+      });
+    }, mainRef);
+
+    return () => {
+      lenis.destroy();
+      ctx.revert();
+    };
+  }, []);
 
   const handleNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
-    setEmailDone(true);
+    if (email) setSubscribed(true);
   };
 
   return (
-    <>
-      {/* ── GLOBAL STYLES ─────────────────────────────────────────── */}
+    <div ref={mainRef} style={{ background: '#f1f1f1', color: '#111', fontFamily: "'Inter', sans-serif" }}>
+
+      {/* ── STYLES & GSAP ROLL ANIMATIONS ───────────────────────────── */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { font-family: 'Inter', -apple-system, sans-serif; background: #f1f1f1; color: #111; overflow-x: hidden; }
-        
-        .sec-white { background: #f1f1f1; }
-        .sec-black { background: #111; color: #fff; }
-        
+
+        body { background: #f1f1f1; color: #111; overflow-x: hidden; }
+
+        .wrapper { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+
+        /* MadeWithGSAP Hover Roll Text Effect */
+        .roll-wrapper {
+          display: inline-block;
+          overflow: hidden;
+          text-decoration: none;
+          color: inherit;
+          vertical-align: middle;
+        }
+        .roll-inner {
+          display: flex;
+          flex-direction: column;
+          transition: transform 0.35s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+        .roll-wrapper:hover .roll-inner {
+          transform: translateY(-50%);
+        }
+        .roll-text {
+          display: block;
+          white-space: nowrap;
+        }
+
+        /* Diode indicator */
         .diode::before {
           content: '';
           display: inline-block;
-          width: 6px; height: 6px;
+          width: 7px; height: 7px;
           background: #111;
           border-radius: 50%;
           margin-right: 8px;
           vertical-align: middle;
+          animation: diodePulse 2s infinite ease-in-out;
         }
-        .sec-black .diode::before { background: #fff; }
-        
-        .cta-main {
-          display: inline-flex; align-items: center; gap: 10px;
-          padding: 14px 24px;
-          background: #111; color: #fff;
-          border-radius: 100px;
-          font-size: 13px; font-weight: 700;
-          text-decoration: none; border: none; cursor: pointer;
-          transition: opacity 0.2s, transform 0.2s;
-          letter-spacing: 0.01em;
-        }
-        .cta-main:hover { opacity: 0.85; transform: translateY(-1px); }
-        .cta-main-outline {
-          display: inline-flex; align-items: center; gap: 10px;
-          padding: 14px 24px;
-          background: transparent; color: #111;
-          border-radius: 100px;
-          font-size: 13px; font-weight: 700;
-          text-decoration: none; border: 1.5px solid #111; cursor: pointer;
-          transition: opacity 0.2s, transform 0.2s;
-        }
-        .cta-main-outline:hover { opacity: 0.7; }
-        
-        .cta-rounded {
-          width: 44px; height: 44px;
-          border-radius: 50%;
-          background: transparent;
-          border: 1.5px solid #ccc;
-          display: flex; align-items: center; justify-content: center;
-          cursor: pointer; transition: border-color 0.2s;
-        }
-        .cta-rounded:hover { border-color: #111; }
-        
-        .cta-secondary {
-          display: inline-flex; align-items: center; gap: 8px;
-          padding: 12px 20px;
-          background: transparent; color: #111;
-          border-radius: 100px;
-          font-size: 12px; font-weight: 600;
-          text-decoration: none; border: 1.5px solid #ccc; cursor: pointer;
-          transition: border-color 0.2s;
-        }
-        .cta-secondary:hover { border-color: #111; }
-        
-        .wrapper { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
-        
-        .title-xl { font-size: clamp(60px, 8vw, 130px); font-weight: 900; line-height: 0.9; letter-spacing: -0.04em; }
-        .title-l  { font-size: clamp(44px, 6vw, 90px);  font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; }
-        .title-m  { font-size: clamp(28px, 4vw, 52px);  font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
-        .title-s  { font-size: clamp(22px, 3vw, 38px);  font-weight: 800; line-height: 1.1;  letter-spacing: -0.02em; }
-        .title-xs { font-size: clamp(16px, 2vw, 24px);  font-weight: 700; line-height: 1.2;  letter-spacing: -0.01em; }
-        .title-xxs { font-size: 15px; font-weight: 600; line-height: 1.5; }
-        .body-s   { font-size: 14px; line-height: 1.65; color: #444; }
-        .body-xs  { font-size: 12px; line-height: 1.6;  color: #888; }
-        .label    { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; }
-        .label-s  { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; text-transform: uppercase; color: #888; }
-        
-        .text-g { color: #aaa; }
-        
-        .f { display: flex; }
-        .f-space { justify-content: space-between; }
-        .f-center { align-items: center; }
-        
-        .pr { position: relative; }
-        .pa { position: absolute; }
-        .pf { position: fixed; }
-        
-        .sec-border { border-top: 1px solid #e0e0e0; }
-        
-        /* Marquee */
-        @keyframes marquee {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
-        }
-        .marquee-track { display: flex; animation: marquee 30s linear infinite; width: max-content; }
-        .marquee-track:hover { animation-play-state: paused; }
-        
-        /* Testi scroll */
-        .testis-scroll {
-          display: flex; gap: 20px; overflow-x: auto; padding: 0 40px 20px;
-          scrollbar-width: none;
-        }
-        .testis-scroll::-webkit-scrollbar { display: none; }
-        .testi-card {
-          min-width: 320px; max-width: 320px;
-          background: #fff; border-radius: 16px;
-          padding: 28px; border: 1px solid #e5e5e5;
-          display: flex; flex-direction: column; justify-content: space-between;
-          gap: 20px;
-        }
-        
-        /* Nav */
-        .nav-link {
-          font-size: 13px; font-weight: 500; color: #111; text-decoration: none;
-          transition: opacity 0.2s;
-        }
-        .nav-link:hover { opacity: 0.5; }
-        
-        /* Feature cards */
-        .feature-card { background: #fff; border-radius: 20px; overflow: hidden; }
-        .feature-card-inner { padding: 24px; }
-        
-        /* Circle cards */
-        .circle-card {
-          background: #fff; border-radius: 50%;
-          width: 260px; height: 260px;
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          text-align: center; padding: 32px;
-          border: 1px solid #e5e5e5;
-          flex-shrink: 0;
-        }
-        
-        /* Pill label */
-        .pill { display: inline-block; padding: 5px 14px; background: #e8e8e8; border-radius: 100px; font-size: 11px; font-weight: 600; color: #555; letter-spacing: 0.05em; text-transform: uppercase; }
-        
-        /* Showcase grid */
-        .showcase-pin-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 12px;
-        }
-        .showcase-pin-grid img {
-          width: 100%; border-radius: 12px; aspect-ratio: 16/10; object-fit: cover; object-position: top;
-          border: 1px solid #e0e0e0;
-        }
-        
-        /* Progress bar */
-        @keyframes progress { from { width: 0; } to { width: 100%; } }
-        
-        /* Scroll animations (CSS only) */
-        @media (prefers-reduced-motion: no-preference) {
-          .fade-in { opacity: 0; transform: translateY(24px); animation: fadeUp 0.7s ease forwards; }
-          @keyframes fadeUp { to { opacity: 1; transform: none; } }
+        .sec-black .diode::before { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        @keyframes diodePulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.85); }
         }
 
-        /* Mobile */
+        /* Typography */
+        .title-xl { font-size: clamp(56px, 8vw, 120px); font-weight: 900; line-height: 0.9; letter-spacing: -0.04em; }
+        .title-l  { font-size: clamp(40px, 6vw, 84px);  font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; }
+        .title-m  { font-size: clamp(28px, 4vw, 50px);  font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
+        .title-s  { font-size: clamp(22px, 3vw, 36px);  font-weight: 800; line-height: 1.1;  letter-spacing: -0.02em; }
+        .title-xs { font-size: clamp(16px, 2vw, 24px);  font-weight: 700; line-height: 1.25; }
+        .body-s   { font-size: 14px; line-height: 1.65; color: #444; }
+        .body-xs  { font-size: 12px; line-height: 1.6;  color: #777; }
+        .label    { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+
+        .text-g { color: #888; }
+
+        /* Buttons */
+        .cta-btn {
+          display: inline-flex; align-items: center; gap: 10px;
+          padding: 14px 26px; background: #111; color: #fff;
+          border-radius: 100px; font-size: 13px; font-weight: 700;
+          border: none; cursor: pointer; text-decoration: none;
+          transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .cta-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        .cta-btn-outline {
+          display: inline-flex; align-items: center; gap: 10px;
+          padding: 14px 26px; background: transparent; color: #111;
+          border-radius: 100px; font-size: 13px; font-weight: 700;
+          border: 1.5px solid #111; cursor: pointer; text-decoration: none;
+          transition: background 0.2s ease, color 0.2s ease;
+        }
+        .cta-btn-outline:hover { background: #111; color: #fff; }
+
+        /* Horizontal Pillars Scroll */
+        .pillars-scroll {
+          display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px;
+          scrollbar-width: none;
+        }
+        .pillars-scroll::-webkit-scrollbar { display: none; }
+        .pillar-card {
+          min-width: 280px; max-width: 280px;
+          background: #ffffff; border-radius: 20px;
+          padding: 32px; border: 1px solid #e0e0e0;
+          display: flex; flex-direction: column; justify-content: space-between;
+          flex-shrink: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        /* Image sharpness filter */
+        .crisp-img {
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: crisp-edges;
+        }
+
         @media (max-width: 768px) {
           .wrapper { padding: 0 20px; }
-          .showcase-pin-grid { grid-template-columns: repeat(2,1fr); }
-          .hide-mob { display: none; }
-          .title-xl { font-size: 48px; }
-          .title-l  { font-size: 38px; }
+          .hide-mob { display: none !important; }
         }
       `}</style>
 
-      {/* ── NAVIGATION ─────────────────────────────────────────────── */}
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
       <header
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
           background: 'rgba(241,241,241,0.92)', backdropFilter: 'blur(16px)',
           borderBottom: '1px solid #e0e0e0',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 40px', height: 64,
+          height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 40px',
         }}
       >
-        {/* Logo */}
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              width: 32, height: 32, background: '#111', borderRadius: 8,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >
+          <div style={{ width: 30, height: 30, background: '#111', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ color: '#fff', fontSize: 14, fontWeight: 900 }}>S</span>
           </div>
-          <span style={{ fontSize: 15, fontWeight: 800, color: '#111', letterSpacing: '-0.02em' }}>
+          <span style={{ fontSize: 15, fontWeight: 900, color: '#111', letterSpacing: '-0.02em' }}>
             Made With Synaps
           </span>
         </Link>
 
-        {/* Nav links (desktop) */}
+        {/* Desktop Nav Links with Roll Hover Animation */}
         <nav className="hide-mob" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          <a href="#collection" className="nav-link">Collection <span style={{ background: '#e5e5e5', borderRadius: 100, padding: '2px 8px', fontSize: 10 }}>5</span></a>
-          <a href="#pricing" className="nav-link">Pricing</a>
-          <a href="#faq" className="nav-link">FAQ</a>
-          <a href="#showcase" className="nav-link">Showcase</a>
+          <RollLink href="#modules" style={{ fontSize: 13, fontWeight: 600 }}>
+            Modules <span style={{ background: '#e0e0e0', borderRadius: 10, padding: '2px 8px', fontSize: 10, marginLeft: 4 }}>5</span>
+          </RollLink>
+          <RollLink href="#pillars" style={{ fontSize: 13, fontWeight: 600 }}>Architecture</RollLink>
+          <RollLink href="#pricing" style={{ fontSize: 13, fontWeight: 600 }}>Pricing</RollLink>
+          <RollLink href="#showcase" style={{ fontSize: 13, fontWeight: 600 }}>Showcase</RollLink>
         </nav>
 
-        {/* CTA buttons */}
+        {/* Header CTAs */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link href="/register" className="cta-main" style={{ padding: '10px 20px', fontSize: 12 }}>
-            Join →
+          <Link href="/register" className="cta-btn" style={{ padding: '8px 18px', fontSize: 12 }}>
+            Join SYNAPS →
           </Link>
-          <Link href="/login" className="cta-rounded" aria-label="Sign in" style={{ background: '#fff', border: '1px solid #ccc' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-            </svg>
+          <Link href="/login" style={{ width: 38, height: 38, borderRadius: '50%', border: '1px solid #ccc', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
           </Link>
         </div>
       </header>
@@ -553,184 +517,153 @@ export default function MadeWithSynapsPage() {
       <main style={{ paddingTop: 64 }}>
 
         {/* ── HERO ──────────────────────────────────────────────────── */}
-        <section
-          id="hero"
-          className="sec-white"
-          style={{ padding: '80px 0 60px' }}
-        >
+        <section style={{ padding: '80px 0 60px' }}>
           <div className="wrapper">
-            {/* Hero headline */}
-            <div style={{ marginBottom: 40 }}>
-              <h1 className="title-l" style={{ maxWidth: 700 }}>
-                Unique enterprise<br />
+            <div className="gsap-reveal" style={{ marginBottom: 44 }}>
+              <h1 className="title-l" style={{ maxWidth: 740 }}>
+                Grounded enterprise<br />
                 <span className="text-g">AI modules</span><br />
-                made with care.
+                built for high performance.
               </h1>
-              <p className="body-s" style={{ marginTop: 24, maxWidth: 420 }}>
-                Start building smarter decisions with an ever-growing suite of
-                grounded, well-crafted AI intelligence modules.
+              <p className="body-s" style={{ marginTop: 24, maxWidth: 460, fontSize: 15 }}>
+                Accelerate enterprise executive decisions with an ever-growing suite of
+                zero-hallucination AI intelligence tools.
               </p>
-              <div style={{ display: 'flex', gap: 12, marginTop: 28, flexWrap: 'wrap' }}>
-                <a href="#collection" className="cta-main">
-                  Explore collection
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+              <div style={{ display: 'flex', gap: 14, marginTop: 32, flexWrap: 'wrap' }}>
+                <a href="#modules" className="cta-btn">
+                  Explore modules ↓
                 </a>
-                <a href="#showcase" className="cta-main-outline">
-                  View showcase
+                <a href="#pricing" className="cta-btn-outline">
+                  View plans
                 </a>
               </div>
             </div>
 
-            {/* Draggable showcase carousel */}
-            <ShowcaseCarousel />
+            {/* Draggable Slideshow */}
+            <div className="gsap-reveal">
+              <ShowcaseCarousel onSelectModule={(idx) => setSelectedModule(idx)} />
+            </div>
           </div>
         </section>
 
-        {/* ── WHAT IT'S ALL ABOUT ──────────────────────────────────── */}
-        <section
-          id="about"
-          className="sec-black"
-          style={{ padding: '100px 0' }}
-        >
-          <div className="wrapper">
-            <p className="label diode" style={{ marginBottom: 32, color: '#fff' }}>
+        {/* ── WHAT IT'S ALL ABOUT (DARK SECTION) ────────────────────── */}
+        <section className="sec-black" style={{ padding: '100px 0', background: '#111111', color: '#ffffff' }}>
+          <div className="wrapper gsap-reveal">
+            <p className="label diode" style={{ marginBottom: 28, color: '#ffffff' }}>
               What it&apos;s all about
             </p>
-            <p className="title-s" style={{ maxWidth: 760, color: '#fff' }}>
-              An enterprise AI suite that makes you understand essential{' '}
-              <span style={{ color: '#aaa' }}>decision intelligence techniques</span> and
-              use them{' '}
-              <span style={{ color: '#aaa' }}>instantly</span> in your organization.
+            <p className="title-s" style={{ maxWidth: 800, color: '#ffffff' }}>
+              An enterprise AI operating system that empowers your team to master{' '}
+              <span style={{ color: '#888' }}>decision intelligence</span> and deploy it{' '}
+              <span style={{ color: '#888' }}>instantly</span> across operations.
             </p>
-            <p className="body-s" style={{ marginTop: 28, maxWidth: 560, color: '#aaa' }}>
-              Grounded decisions are a must-have these days. Executive briefings,
-              multi-agent collaboration, digital twin boardrooms, AI strategy — we&apos;ve
-              got it all covered.
+            <p className="body-s" style={{ marginTop: 28, maxWidth: 580, color: '#aaa', fontSize: 15 }}>
+              Precision in decision-making is vital. Daily operational briefings, multi-agent task execution,
+              C-suite digital twins, and institutional precedent memory — all integrated in one platform.
             </p>
 
-            {/* Screenshot of platform */}
-            <div style={{ marginTop: 60, borderRadius: 20, overflow: 'hidden', border: '1px solid #333' }}>
+            {/* Platform High-Res Screenshot */}
+            <div style={{ marginTop: 60, borderRadius: 20, overflow: 'hidden', border: '1px solid #333', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}>
               <Image
                 src="/showcase/executive_overview.png"
-                alt="SYNAPS Platform"
+                alt="SYNAPS Platform Overview"
                 width={1200}
                 height={675}
-                quality={100}
+                unoptimized
+                className="crisp-img"
                 style={{ width: '100%', height: 'auto', display: 'block' }}
               />
             </div>
           </div>
         </section>
 
-        {/* ── TRUST BAR ────────────────────────────────────────────── */}
-        <section style={{ padding: '60px 0', borderBottom: '1px solid #e0e0e0', overflow: 'hidden' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginBottom: 28, flexWrap: 'wrap', padding: '0 40px' }}>
-            {['AI COO', 'Mission Control', 'Digital Twins', 'Strategy Studio', 'Decision Memory', 'Risk Radar'].map(tag => (
-              <span key={tag} className="pill">{tag}</span>
-            ))}
+        {/* ── SCROLLING PILLARS ────────────────────────────────────── */}
+        <section id="pillars" style={{ padding: '100px 0', borderBottom: '1px solid #e0e0e0' }}>
+          <div className="wrapper gsap-reveal" style={{ marginBottom: 40 }}>
+            <p className="label diode" style={{ marginBottom: 16 }}>Built for enterprise scale</p>
+            <h2 className="title-m">Architecture &amp; Core Principles</h2>
           </div>
-          <p className="label" style={{ textAlign: 'center', marginBottom: 36 }}>
-            Trusted by forward-thinking enterprises &amp; decision-makers
-          </p>
-          {/* Marquee logos (text-based) */}
-          <div style={{ overflow: 'hidden', maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}>
-            <div className="marquee-track">
-              {['SYNAPS OS', 'AI Briefing', 'Boardroom Sim', 'Flight Control', 'Twin Engine', 'Strategy AI', 'Risk Matrix', 'Memory Graph', 'SYNAPS OS', 'AI Briefing', 'Boardroom Sim', 'Flight Control', 'Twin Engine', 'Strategy AI', 'Risk Matrix', 'Memory Graph'].map((item, i) => (
-                <span key={i} style={{ padding: '0 48px', fontSize: 14, fontWeight: 700, color: '#bbb', whiteSpace: 'nowrap', letterSpacing: '-0.01em' }}>
-                  {item}
-                </span>
+
+          <div className="wrapper">
+            <div className="pillars-scroll">
+              {VALUE_PILLARS.map((p, i) => (
+                <div key={i} className="pillar-card gsap-reveal">
+                  <div>
+                    <span style={{ fontSize: 36, fontWeight: 900, color: '#ccc', display: 'block', marginBottom: 20 }}>
+                      0{i + 1}
+                    </span>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 12 }}>{p.title}</h3>
+                    <p className="body-s" style={{ fontSize: 13 }}>{p.desc}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── BIG SCROLL TEXT ──────────────────────────────────────── */}
-        <section
-          style={{
-            padding: '120px 40px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          <div className="title-l" style={{ textAlign: 'center', lineHeight: 1 }}>
-            5 modules today.
-            <br />
-            <span className="text-g">New features every sprint.</span>
-          </div>
-        </section>
-
-        {/* ── CIRCLE FEATURE CARDS ─────────────────────────────────── */}
-        <section style={{ padding: '0 0 100px', overflow: 'hidden' }}>
-          <div
-            style={{
-              display: 'flex', gap: 24, paddingLeft: 40, overflowX: 'auto',
-              scrollbarWidth: 'none',
-            }}
-          >
-            {[
-              { n: '1', text: 'Jump right in! Our modules cater to all org sizes, ensuring a smooth onboarding curve for new teams.' },
-              { n: '2', text: 'Get started effortlessly — ingest your documents and your AI command center is ready in minutes.' },
-              { n: '3', text: 'Our modules are built with performance in mind: grounded memory with zero hallucination rate.' },
-              { n: '4', text: 'Executive briefings, multi-agent, boardroom sim, strategy... we\'ve got your decision stack covered.' },
-            ].map((c) => (
-              <div key={c.n} className="circle-card" style={{ flexShrink: 0 }}>
-                <span style={{ fontSize: 40, fontWeight: 900, color: '#e0e0e0', lineHeight: 1 }}>{c.n}</span>
-                <p className="body-s" style={{ marginTop: 16, fontSize: 13 }}>{c.text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── FEATURES / MODULES ─────────────────────────────────────── */}
-        <section
-          id="collection"
-          className="sec-white"
-          style={{ padding: '100px 0', borderTop: '1px solid #e0e0e0', borderBottom: '1px solid #e0e0e0' }}
-        >
+        {/* ── MODULE CARDS LISTING ─────────────────────────────────── */}
+        <section id="modules" style={{ padding: '100px 0', borderBottom: '1px solid #e0e0e0' }}>
           <div className="wrapper">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 60, flexWrap: 'wrap', gap: 20 }}>
+            <div className="gsap-reveal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 56, flexWrap: 'wrap', gap: 20 }}>
               <div>
-                <p className="label diode" style={{ marginBottom: 16 }}>Meet our smart modules</p>
+                <p className="label diode" style={{ marginBottom: 16 }}>Explore the suite</p>
                 <h2 className="title-s">
-                  Built to{' '}
-                  <span className="text-g">speed up</span> your
-                  <br />enterprise decision-making
+                  5 Core Modules <span className="text-g">ready to deploy</span>
                 </h2>
               </div>
-              <Link href="/register" className="cta-main">Join SYNAPS →</Link>
+              <Link href="/register" className="cta-btn">Start Workspace →</Link>
             </div>
 
-            {/* 5 module cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {SLIDES.map((slide, i) => (
-                <div key={slide.id} className="feature-card" style={{ border: '1px solid #e5e5e5' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
-                    {/* Screenshot */}
-                    <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '20px 0 0 20px' }}>
+                <div
+                  key={slide.id}
+                  className="gsap-reveal"
+                  style={{
+                    background: '#ffffff', borderRadius: 20, overflow: 'hidden',
+                    border: '1px solid #e0e0e0', boxShadow: '0 8px 30px rgba(0,0,0,0.03)',
+                  }}
+                >
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 0 }}>
+                    {/* High-res Image */}
+                    <div style={{ position: 'relative', minHeight: 320, background: '#f5f5f5' }}>
                       <Image
                         src={slide.src}
                         alt={slide.label}
                         fill
-                        quality={100}
+                        unoptimized
+                        className="crisp-img"
                         style={{ objectFit: 'cover', objectPosition: 'top' }}
                       />
                     </div>
-                    {/* Info */}
-                    <div className="feature-card-inner" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 40 }}>
+
+                    {/* Details */}
+                    <div style={{ padding: 40, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                       <div>
-                        <p className="label diode" style={{ marginBottom: 20 }}>{slide.tag}</p>
-                        <h3 className="title-xs" style={{ marginBottom: 16 }}>{slide.label}</h3>
-                        <p className="body-s">
-                          {i === 0 && 'Provides top-level executive briefings, real-time org health scoring, and compliance tracking across all your corporate documents and contracts.'}
-                          {i === 1 && 'Air traffic control for 10 specialized AI agents — Research, Finance, Legal, Engineering, Marketing, Security, HR, Digital Twin — collaborating in parallel via structured memory.'}
-                          {i === 2 && 'Simulate strategic boardroom decisions across 8 C-suite personas (CEO, CFO, CTO, COO, Legal, Sales, Security, HR) with zero hallucination, grounded in company memory.'}
-                          {i === 3 && 'Generates 11-stage enterprise strategy blueprints, AI Red-Teaming challenges, SWOT matrices, and execution timelines from your ingested knowledge base.'}
-                          {i === 4 && 'Remembers every past corporate decision, wrong assumption, and lesson learned. Natural language search across your historical precedent graph with cosine similarity scoring.'}
-                        </p>
+                        <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#888', letterSpacing: '0.06em' }}>
+                          {slide.tag}
+                        </span>
+                        <h3 className="title-xs" style={{ margin: '8px 0 16px' }}>{slide.label}</h3>
+                        <p className="body-s" style={{ marginBottom: 20 }}>{slide.desc}</p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {slide.specs.map((spec, sIdx) => (
+                            <div key={sIdx} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#111' }} />
+                              <span style={{ fontSize: 12, fontWeight: 600, color: '#555' }}>{spec}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div style={{ marginTop: 32 }}>
-                        <Link href="/register" className="cta-main" style={{ fontSize: 12, padding: '10px 20px' }}>
-                          Try this module →
-                        </Link>
+
+                      <div style={{ marginTop: 28 }}>
+                        <button
+                          onClick={() => setSelectedModule(i)}
+                          className="cta-btn-outline"
+                          style={{ padding: '8px 18px', fontSize: 12 }}
+                        >
+                          View module specs →
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -740,26 +673,104 @@ export default function MadeWithSynapsPage() {
           </div>
         </section>
 
-        {/* ── LATEST ADDITIONS ─────────────────────────────────────── */}
-        <section style={{ padding: '100px 0', background: '#f1f1f1' }}>
-          <div className="wrapper">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 16 }}>
-              <span className="label" style={{ color: '#888' }}>5</span>
-              <p className="label diode">New module every sprint</p>
-              <span className="label" style={{ color: '#888' }}>5</span>
-            </div>
-            <h2 className="title-l" style={{ marginBottom: 48 }}>
-              Latest modules,{' '}
-              <span className="text-g">freshly built</span>
+        {/* ── PRICING ───────────────────────────────────────────────── */}
+        <section id="pricing" className="sec-black" style={{ padding: '100px 0', background: '#111111', color: '#ffffff' }}>
+          <div className="wrapper gsap-reveal" style={{ textAlign: 'center' }}>
+            <p className="label diode" style={{ marginBottom: 20, color: '#ffffff', justifyContent: 'center', display: 'flex' }}>
+              Level up your decision capability
+            </p>
+            <h2 className="title-l" style={{ marginBottom: 16, color: '#ffffff' }}>
+              Simple, transparent<br />
+              <span className="text-g">workspace pricing</span>
             </h2>
-            {/* Horizontal scroll strip */}
-            <div style={{ display: 'flex', gap: 16, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 16 }}>
-              {SLIDES.map((slide) => (
+            <p className="body-s" style={{ color: '#aaa', maxWidth: 460, margin: '0 auto 40px' }}>
+              Get instant access to all 5 modules with full grounded zero-hallucination execution.
+            </p>
+
+            {/* Toggle */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: '#222', padding: 6, borderRadius: 100, marginBottom: 48 }}>
+              <button
+                onClick={() => setBillingPeriod('monthly')}
+                style={{
+                  padding: '8px 20px', borderRadius: 100, border: 'none', fontSize: 12, fontWeight: 700,
+                  background: billingPeriod === 'monthly' ? '#fff' : 'transparent',
+                  color: billingPeriod === 'monthly' ? '#111' : '#aaa',
+                  cursor: 'pointer', transition: 'all 0.2s ease',
+                }}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingPeriod('annual')}
+                style={{
+                  padding: '8px 20px', borderRadius: 100, border: 'none', fontSize: 12, fontWeight: 700,
+                  background: billingPeriod === 'annual' ? '#fff' : 'transparent',
+                  color: billingPeriod === 'annual' ? '#111' : '#aaa',
+                  cursor: 'pointer', transition: 'all 0.2s ease',
+                }}
+              >
+                Annual <span style={{ color: '#00ff88', fontSize: 10, marginLeft: 4 }}>Save 20%</span>
+              </button>
+            </div>
+
+            {/* Pricing Card */}
+            <div
+              style={{
+                background: '#ffffff', color: '#111111', borderRadius: 24, padding: 48,
+                maxWidth: 480, margin: '0 auto', textAlign: 'left',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+              }}
+            >
+              <p className="label" style={{ color: '#888' }}>Enterprise Early Access</p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, margin: '16px 0 24px' }}>
+                <span className="title-l" style={{ lineHeight: 1 }}>Free</span>
+                <span style={{ fontSize: 13, color: '#666', fontWeight: 600 }}>/ preview access</span>
+              </div>
+
+              <div style={{ borderTop: '1px solid #eee', paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {[
+                  'Full 5 SYNAPS AI Modules',
+                  'Executive Operational Briefings Engine',
+                  '10 Multi-Agent Flight Control Swarm',
+                  '8 C-Suite Executive Digital Twins',
+                  'AI Strategy & Blueprint Studio',
+                  'Decision Memory Precedent Vector Index',
+                ].map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span style={{ width: 18, height: 18, background: '#111', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><path d="M20 6L9 17l-5-5" /></svg>
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Link href="/register" className="cta-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 36, padding: '14px 0' }}>
+                Launch Workspace Now →
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── SHOWCASE GRID ─────────────────────────────────────────── */}
+        <section id="showcase" style={{ padding: '100px 0', borderBottom: '1px solid #e0e0e0' }}>
+          <div className="wrapper gsap-reveal" style={{ marginBottom: 48, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
+            <div>
+              <p className="label diode" style={{ marginBottom: 12 }}>High-Resolution Showcase</p>
+              <h2 className="title-m">Visualizing SYNAPS Capabilities</h2>
+            </div>
+            <Link href="/register" className="cta-btn">Enter Workspace →</Link>
+          </div>
+
+          <div className="wrapper gsap-reveal">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 20 }}>
+              {SLIDES.map((slide, idx) => (
                 <div
-                  key={slide.id}
+                  key={idx}
+                  onClick={() => setSelectedModule(idx)}
                   style={{
-                    minWidth: 320, borderRadius: 16, overflow: 'hidden',
-                    border: '1px solid #e0e0e0', background: '#fff', flexShrink: 0,
+                    borderRadius: 16, overflow: 'hidden', border: '1px solid #e0e0e0',
+                    background: '#fff', cursor: 'pointer', transition: 'transform 0.3s ease',
                   }}
                 >
                   <div style={{ position: 'relative', aspectRatio: '16/10' }}>
@@ -767,206 +778,51 @@ export default function MadeWithSynapsPage() {
                       src={slide.src}
                       alt={slide.label}
                       fill
+                      unoptimized
+                      className="crisp-img"
                       style={{ objectFit: 'cover', objectPosition: 'top' }}
                     />
                   </div>
                   <div style={{ padding: '16px 20px' }}>
-                    <p className="label-s">{slide.tag}</p>
-                    <p style={{ fontSize: 14, fontWeight: 700, marginTop: 4 }}>{slide.label}</p>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{slide.tag}</span>
+                    <h4 style={{ fontSize: 15, fontWeight: 800, marginTop: 4 }}>{slide.label}</h4>
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTA / PRICING ─────────────────────────────────────────── */}
-        <section
-          id="pricing"
-          className="sec-black"
-          style={{ padding: '100px 0', textAlign: 'center' }}
-        >
-          <div className="wrapper">
-            <p className="label diode" style={{ marginBottom: 24, color: '#fff', justifyContent: 'center', display: 'flex', alignItems: 'center' }}>
-              Level up your decision intelligence
-            </p>
-            <h2 className="title-l" style={{ marginBottom: 20, color: '#fff' }}>
-              Unlock the full<br />
-              <span className="text-g">module collection</span>
-            </h2>
-            <p className="body-s" style={{ marginBottom: 48, color: '#aaa', maxWidth: 440, margin: '0 auto 48px' }}>
-              Start making grounded enterprise decisions in minutes with the full SYNAPS OS.
-            </p>
-
-            {/* Pricing card */}
-            <div
-              style={{
-                background: '#fff', borderRadius: 24, padding: 48,
-                maxWidth: 520, margin: '0 auto',
-                textAlign: 'left',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
-                <div>
-                  <p className="label-s">Monthly</p>
-                  <p className="title-l" style={{ lineHeight: 1, marginTop: 4 }}>Free</p>
-                  <p className="label-s" style={{ marginTop: 8 }}>during early access</p>
-                </div>
-                <Link href="/register" className="cta-main">
-                  Get Started →
-                </Link>
-              </div>
-
-              <div style={{ borderTop: '1px solid #e5e5e5', paddingTop: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[
-                  '5 enterprise modules',
-                  'Executive Operational Briefings',
-                  'Multi-Agent Flight Control (10 agents)',
-                  '8 Executive Digital Twins',
-                  'AI Strategy Studio',
-                  'Decision Memory & Precedent Graph',
-                ].map((item) => (
-                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ width: 18, height: 18, background: '#111', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><path d="M20 6L9 17l-5-5" /></svg>
-                    </span>
-                    <span className="body-s" style={{ fontSize: 13 }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── TESTIMONIALS ─────────────────────────────────────────── */}
-        <section style={{ padding: '100px 0', borderBottom: '1px solid #e0e0e0' }}>
-          <div className="wrapper" style={{ marginBottom: 48 }}>
-            <p className="label diode" style={{ marginBottom: 16 }}>Already used by leading enterprises</p>
-            <h2 className="title-m">Approved by the community</h2>
-          </div>
-
-          <div className="testis-scroll">
-            {TESTIS.map((t, i) => (
-              <div key={i} className="testi-card">
-                <p className="title-xxs">{t.text}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div
-                    style={{
-                      width: 40, height: 40, borderRadius: '50%',
-                      background: `hsl(${i * 60}, 30%, 70%)`,
-                      flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 16, fontWeight: 700, color: '#fff',
-                    }}
-                  >
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{t.name}</p>
-                    <p className="label-s" style={{ whiteSpace: 'pre-line' }}>{t.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── ABOUT ─────────────────────────────────────────────────── */}
-        <section style={{ padding: '100px 0', borderBottom: '1px solid #e0e0e0' }}>
-          <div className="wrapper" style={{ display: 'flex', gap: 80, flexWrap: 'wrap' }}>
-            <div>
-              <p className="label diode" style={{ marginBottom: 0 }}>Behind the project</p>
-            </div>
-            <div style={{ flex: 1, minWidth: 280 }}>
-              <p className="title-xs" style={{ maxWidth: 560, lineHeight: 1.6 }}>
-                SYNAPS is crafted by a team of enterprise AI researchers and decision
-                scientists with a combined track record of deploying intelligence systems
-                at Fortune 500 scale. Two friends building the future of{' '}
-                <span style={{ color: '#aaa' }}>grounded AI decision-making.</span>
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ── SHOWCASE SECTION ─────────────────────────────────────── */}
-        <section id="showcase" style={{ padding: '100px 0', background: '#f1f1f1' }}>
-          <div className="wrapper" style={{ marginBottom: 48, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 24 }}>
-            <div>
-              <p className="label diode" style={{ marginBottom: 16 }}>An inspiring enterprise suite</p>
-              <h2 className="title-m" style={{ maxWidth: 500 }}>
-                Explore powerful AI modules built to transform how enterprises decide.
-              </h2>
-            </div>
-            <Link href="/register" className="cta-main">
-              Explore collection →
-            </Link>
-          </div>
-
-          <div className="wrapper">
-            <div className="showcase-pin-grid">
-              {[...SLIDES, ...SLIDES].slice(0, 6).map((slide, i) => (
-                <div key={i} style={{ borderRadius: 12, overflow: 'hidden', position: 'relative', aspectRatio: '16/10', border: '1px solid #e0e0e0' }}>
-                  <Image
-                    src={slide.src}
-                    alt={slide.label}
-                    fill
-                    quality={100}
-                    style={{ objectFit: 'cover', objectPosition: 'top' }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── FAQ ───────────────────────────────────────────────────── */}
-        <section id="faq" className="sec-white" style={{ padding: '100px 0', borderTop: '1px solid #e0e0e0' }}>
-          <div className="wrapper">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 24 }}>
-              <p className="label">You may have some questions.</p>
-              <Link href="/register" className="cta-main-outline">
-                Read our FAQ
-              </Link>
             </div>
           </div>
         </section>
 
         {/* ── FOOTER ────────────────────────────────────────────────── */}
-        <footer
-          className="sec-white sec-border"
-          style={{ padding: '80px 0 40px', borderTop: '1px solid #e0e0e0' }}
-        >
+        <footer style={{ padding: '80px 0 40px', background: '#f1f1f1' }}>
           <div className="wrapper">
-            {/* Big CTA text */}
-            <div style={{ marginBottom: 80 }}>
-              <p className="label" style={{ marginBottom: 16 }}>
-                Join our ever-growing suite of grounded enterprise AI modules.
-              </p>
-              <p className="title-xl" style={{ lineHeight: 0.9, marginBottom: 40 }}>
+            <div className="gsap-reveal" style={{ marginBottom: 80 }}>
+              <p className="label" style={{ marginBottom: 16 }}>Ready to transform enterprise decisions?</p>
+              <p className="title-xl" style={{ lineHeight: 0.95, marginBottom: 36 }}>
                 Get ready<br />
                 <span className="text-g">to decide.</span>
               </p>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                <Link href="/register" className="cta-main">
+                <Link href="/register" className="cta-btn">
                   Join SYNAPS →
                 </Link>
-                <a href="#collection" className="cta-main-outline">
-                  Explore collection
+                <a href="#modules" className="cta-btn-outline">
+                  Explore modules
                 </a>
               </div>
             </div>
 
-            {/* Footer columns */}
+            {/* Newsletter & Links */}
             <div
               style={{
                 display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr',
                 gap: 40, borderTop: '1px solid #e0e0e0', paddingTop: 48,
               }}
             >
-              {/* Newsletter */}
               <div>
-                <h3 className="title-xs" style={{ marginBottom: 20 }}>Never miss what&apos;s next</h3>
-                {emailDone ? (
-                  <p className="body-s" style={{ color: '#111', fontWeight: 600 }}>✓ You&apos;re subscribed!</p>
+                <h3 className="title-xs" style={{ marginBottom: 16 }}>Stay updated</h3>
+                {subscribed ? (
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>✓ Subscribed to SYNAPS updates.</p>
                 ) : (
                   <form onSubmit={handleNewsletter} style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                     <input
@@ -981,60 +837,116 @@ export default function MadeWithSynapsPage() {
                         fontFamily: 'inherit',
                       }}
                     />
-                    <button type="submit" className="cta-main" style={{ padding: '10px 16px', fontSize: 12 }}>→</button>
+                    <button type="submit" className="cta-btn" style={{ padding: '10px 16px', fontSize: 12 }}>→</button>
                   </form>
                 )}
-                <p className="body-xs">By submitting, you&apos;ll be the first to know about upcoming SYNAPS updates.</p>
+                <p className="body-xs">Product updates &amp; release notes for enterprise decision intelligence.</p>
               </div>
 
-              {/* Social */}
               <div>
-                <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 16 }}>Social</h3>
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {['X (Twitter)', 'LinkedIn', 'Instagram', 'YouTube'].map(s => (
-                    <li key={s}><a href="#" className="nav-link" style={{ fontSize: 12 }}>{s}</a></li>
-                  ))}
-                </ul>
+                <h4 style={{ fontSize: 13, fontWeight: 800, marginBottom: 16 }}>Product</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <RollLink href="#modules" style={{ fontSize: 12 }}>Modules</RollLink>
+                  <RollLink href="#pillars" style={{ fontSize: 12 }}>Architecture</RollLink>
+                  <RollLink href="#pricing" style={{ fontSize: 12 }}>Pricing</RollLink>
+                </div>
               </div>
 
-              {/* Pages */}
               <div>
-                <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 16 }}>Pages</h3>
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {['Collection', 'Pricing', 'Showcase', 'FAQ', 'Free modules'].map(p => (
-                    <li key={p}><a href={`#${p.toLowerCase()}`} className="nav-link" style={{ fontSize: 12 }}>{p}</a></li>
-                  ))}
-                </ul>
+                <h4 style={{ fontSize: 13, fontWeight: 800, marginBottom: 16 }}>Resources</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <RollLink href="#showcase" style={{ fontSize: 12 }}>Showcase</RollLink>
+                  <RollLink href="/login" style={{ fontSize: 12 }}>Sign In</RollLink>
+                  <RollLink href="/register" style={{ fontSize: 12 }}>Register</RollLink>
+                </div>
               </div>
 
-              {/* Contact */}
               <div>
-                <h3 style={{ fontSize: 13, fontWeight: 700, marginBottom: 16 }}>Contact</h3>
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <li><a href="mailto:hello@synaps.ai" className="nav-link" style={{ fontSize: 12 }}>Reach us</a></li>
-                </ul>
+                <h4 style={{ fontSize: 13, fontWeight: 800, marginBottom: 16 }}>Legal</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <RollLink href="/legal/privacy-policy" style={{ fontSize: 12 }}>Privacy Policy</RollLink>
+                  <RollLink href="/legal/terms" style={{ fontSize: 12 }}>Terms of Service</RollLink>
+                </div>
               </div>
             </div>
 
-            {/* Footer bottom */}
-            <div
-              style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                borderTop: '1px solid #e0e0e0', paddingTop: 24, marginTop: 48, flexWrap: 'wrap', gap: 12,
-              }}
-            >
-              <p style={{ fontSize: 12, color: '#888' }}>©2026 Made With Synaps</p>
-              <div style={{ display: 'flex', gap: 20 }}>
-                <a href="/legal/privacy-policy" className="nav-link" style={{ fontSize: 12, color: '#888' }}>Privacy policy</a>
-                <a href="/legal/terms" className="nav-link" style={{ fontSize: 12, color: '#888' }}>Terms</a>
-              </div>
+            <div style={{ borderTop: '1px solid #e0e0e0', marginTop: 48, paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#888' }}>© 2026 Made With Synaps. All rights reserved.</p>
             </div>
           </div>
         </footer>
       </main>
 
+      {/* ── MODULE DETAILS MODAL ────────────────────────────────────── */}
+      {selectedModule !== null && (
+        <div
+          onClick={() => setSelectedModule(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 24,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#ffffff', borderRadius: 24, maxWidth: 800, width: '100%',
+              maxHeight: '90vh', overflowY: 'auto', padding: 40, position: 'relative',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.2)',
+            }}
+          >
+            <button
+              onClick={() => setSelectedModule(null)}
+              style={{
+                position: 'absolute', top: 24, right: 24, background: 'none', border: 'none',
+                fontSize: 24, cursor: 'pointer', color: '#111', fontWeight: 700,
+              }}
+            >
+              ✕
+            </button>
+
+            <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#888' }}>
+              {SLIDES[selectedModule].tag}
+            </span>
+            <h2 className="title-m" style={{ margin: '8px 0 16px' }}>{SLIDES[selectedModule].label}</h2>
+
+            <div style={{ position: 'relative', aspectRatio: '16/9', borderRadius: 16, overflow: 'hidden', margin: '24px 0', border: '1px solid #e0e0e0' }}>
+              <Image
+                src={SLIDES[selectedModule].src}
+                alt={SLIDES[selectedModule].label}
+                fill
+                unoptimized
+                className="crisp-img"
+                style={{ objectFit: 'cover', objectPosition: 'top' }}
+              />
+            </div>
+
+            <p className="body-s" style={{ fontSize: 15, marginBottom: 24 }}>{SLIDES[selectedModule].desc}</p>
+
+            <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 12 }}>Key Capabilities &amp; Specifications</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
+              {SLIDES[selectedModule].specs.map((spec, sIdx) => (
+                <div key={sIdx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#111' }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>{spec}</span>
+                </div>
+              ))}
+            </div>
+
+            <Link
+              href="/register"
+              className="cta-btn"
+              style={{ width: '100%', justifyContent: 'center', padding: '14px 0' }}
+            >
+              Launch Workspace with this Module →
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* ── COOKIE BANNER ─────────────────────────────────────────── */}
       <CookieBanner />
-    </>
+    </div>
   );
 }
