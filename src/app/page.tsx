@@ -2,11 +2,11 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import FrustratedDeveloperStoryLanding from '@/components/landing/FrustratedDeveloperStoryLanding';
+import LandoNorrisSynapsLanding from '@/components/landing/LandoNorrisSynapsLanding';
 
 export const metadata = {
-  title: 'Synaps AI — Enterprise Intelligence Operating System',
-  description: 'Unify company data across CRM, Spreadsheets, Emails & Documents into a Grounded 3D Memory Graph.',
+  title: 'Synaps AI — Enterprise Decision Intelligence Operating System',
+  description: 'Unify company data across CRM, Spreadsheets, Emails & Documents into a Grounded 3D Memory Graph and Executive Digital Twins.',
 };
 
 export default async function RootPage() {
@@ -20,6 +20,6 @@ export default async function RootPage() {
     }
   }
 
-  // Render Frustrated Developer Story Mode Landing Page with Embedded Recorded Video
-  return <FrustratedDeveloperStoryLanding />;
+  // Render Ultra-Sleek Lando Norris-Inspired Landing Page with 45° Interactive Tilted Document
+  return <LandoNorrisSynapsLanding />;
 }
