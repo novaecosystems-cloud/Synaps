@@ -11,9 +11,16 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-interface ChiefOfStaffClientProps {
-  initialBriefing: any;
-  initialMonitoring: any;
+interface ProactiveActionRecommendation {
+  id: string;
+  category: string;
+  issue: string;
+  urgency: string;
+  recommendedAction: string;
+  why: string;
+  supportingEvidence?: string[];
+  estimatedImpact: string;
+  confidenceScore: number;
 }
 
 export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring }: ChiefOfStaffClientProps) {

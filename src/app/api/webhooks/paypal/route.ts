@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
               organizationId: user.organizationId || 'default_org',
               userId: user.id,
               action: 'PAYMENT_RECEIVED',
-              resource: 'PayPal Subscription',
+              entityType: 'PayPal Subscription',
+              entityId: user.id,
               details: `Received $${amountPaid} via PayPal. Account role updated to ${newRole} (${newLimit} daily AI credits).`
             }
           });

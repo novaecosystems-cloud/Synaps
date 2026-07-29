@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, Bell, CheckCircle, FileText, BrainCircuit, Activity, FolderKanban, Settings, Mail, Smartphone, Send, Slack, MessageSquare, Zap, ExternalLink } from 'lucide-react';
+import { Loader2, Bell, CheckCircle, FileText, BrainCircuit, Activity, FolderKanban, Settings, Mail, Smartphone, Send, MessageSquare, Zap, ExternalLink } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function NotificationsClient({ userId, organizationId }: { userId: string, organizationId: string }) {

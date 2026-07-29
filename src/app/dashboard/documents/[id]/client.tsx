@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   FileText, AlertTriangle, ShieldCheck, CheckCircle2, XCircle, 
   TrendingUp, Users, Scale, Cpu, Radio, Sparkles, ChevronLeft, 
-  ArrowRight, Download, RefreshCw, GitCompare, LayerGroup, Lock, ExternalLink, Info, Loader2
+  ArrowRight, Download, RefreshCw, GitCompare, Layers, Lock, ExternalLink, Info, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

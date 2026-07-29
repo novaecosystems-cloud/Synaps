@@ -22,13 +22,13 @@ export default async function DocumentsPage() {
 
   if (!user) redirect('/login');
 
-  // Fetch all org documents
-  const res = await getDocuments(user.organizationId);
+  const orgId = user.organizationId || 'default-org';
+  const res = await getDocuments(orgId);
   const documents = res.success ? res.documents : [];
 
   return (
     <DocumentsClient 
-      organizationId={user.organizationId} 
+      organizationId={orgId} 
       initialDocuments={documents || []} 
     />
   );

@@ -230,26 +230,26 @@ ${combinedText || doc.name}`;
 
   // 3. Auto-update Company Brain Knowledge Graph in Database
   try {
-    // Create or update GraphEntity for Document
-    await prisma.graphEntity.upsert({
-      where: {
-        organizationId_externalId: {
-          organizationId,
-          externalId: `doc-${doc.id}`
-        }
-      },
-      create: {
-        organizationId,
-        externalId: `doc-${doc.id}`,
-        name: doc.name,
-        type: 'DOCUMENT',
-        metadata: { documentType, summaries }
-      },
-      update: {
-        name: doc.name,
-        metadata: { documentType, summaries }
-      }
+    const existing = await prisma.graphEntity.findFirst({
+      where: { organizationId, name: doc.name }
     });
+    if (existing) {
+      await prisma.graphEntity.update({
+        where: { id: existing.id },
+        data: { metadata: { documentType, summaries: summaries as any } }
+      });
+    } else {
+      await prisma.graphEntity.create({
+        data: {
+          organizationId,
+          documentId: doc.id,
+          name: doc.name,
+          type: 'DOCUMENT',
+          description: `Document: ${doc.name}`,
+          metadata: { documentType, summaries: summaries as any }
+        }
+      });
+    }
   } catch (e) {}
 
   return {

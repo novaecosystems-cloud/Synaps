@@ -48,7 +48,8 @@ export async function POST(req: NextRequest) {
             organizationId: targetUser?.organizationId || 'default_org',
             userId: targetUser?.id || callerId,
             action: 'PENDING_UPGRADE_REQUEST',
-            resource: 'Billing & Payments',
+            entityType: 'Billing & Payments',
+            entityId: emailToUse,
             details: JSON.stringify({
               userEmail: emailToUse,
               userName: targetUser?.name || emailToUse.split('@')[0],
@@ -101,7 +102,8 @@ export async function POST(req: NextRequest) {
             organizationId: targetUser?.organizationId || 'default_org',
             userId: targetUser?.id || callerId,
             action: 'PENDING_REFUND_REQUEST',
-            resource: 'Billing & Payments',
+            entityType: 'Billing & Payments',
+            entityId: emailToUse,
             details: JSON.stringify({
               userEmail: emailToUse,
               refundMethod: refundMethod || 'paypal',
@@ -172,7 +174,8 @@ export async function POST(req: NextRequest) {
           organizationId: 'default_org',
           userId: callerId,
           action: 'PLAN_UPGRADED',
-          resource: 'Billing & Subscriptions',
+          entityType: 'Billing & Subscriptions',
+          entityId: callerId,
           details: `User upgraded to ${planId?.toUpperCase() || 'PRO'} plan. Daily AI credits increased to ${newCreditLimit}.`
         }
       });

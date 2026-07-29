@@ -123,7 +123,7 @@ EXPECTED OUTCOME: ${input.expectedOutcome || 'N/A'}`;
         financialImpact,
         operationalImpact,
         complianceIssues,
-        status: 'UNDER_REVIEW'
+        status: 'NEEDS_REVIEW'
       }
     });
 

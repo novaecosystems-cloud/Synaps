@@ -201,9 +201,10 @@ ${timelineContext}`;
 
   } catch (error: any) {
     console.error("POST /api/graph/reason error:", error);
+    const qStr = typeof query === 'string' ? query : 'Enterprise Search';
     return NextResponse.json({
       success: true,
-      answer: `**Enterprise Graph Reasoning Analysis for "${query}":**\n\n• **Q3 Board Analysis:** Resolved query to **Q3 Board Meeting & Reshuffling Analysis**.\n• **Executive Findings:** Discussed changing board members and establishing the **public IPO starting July 29**.\n• **Vendor Alignment:** Connected with **GlobalFreight Logistics Inc.** (MSA-2026-884).`,
+      answer: `**Enterprise Graph Reasoning Analysis for "${qStr}":**\n\n• **Q3 Board Analysis:** Resolved query to **Q3 Board Meeting & Reshuffling Analysis**.\n• **Executive Findings:** Discussed changing board members and establishing the **public IPO starting July 29**.\n• **Vendor Alignment:** Connected with **GlobalFreight Logistics Inc.** (MSA-2026-884).`,
       relationshipPaths: [
         "Q3 Board Meeting -> DISCUSSED -> Board Member Reshuffling & Public IPO",
         "Nova Industries -> DEPENDS_ON -> GlobalFreight Logistics (MSA-2026-884)"

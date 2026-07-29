@@ -37,22 +37,23 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid organization name' }, { status: 400 });
     }
 
+    const orgId = user.organizationId || 'default-org';
     const beforeState = user.organization;
 
     const updatedOrg = await prisma.organization.update({
-      where: { id: user.organizationId },
+      where: { id: orgId },
       data: { name }
     });
 
     // Audit logging
     await prisma.auditLog.create({
       data: {
-        organizationId: user.organizationId,
+        organizationId: orgId,
         userId: user.id,
         action: 'ORGANIZATION_UPDATED',
         entityType: 'ORGANIZATION',
         entityId: updatedOrg.id,
-        before: { name: beforeState.name },
+        before: { name: beforeState?.name || '' },
         after: { name: updatedOrg.name },
       }
     });

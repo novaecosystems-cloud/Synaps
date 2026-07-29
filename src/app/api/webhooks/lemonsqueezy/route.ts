@@ -74,7 +74,8 @@ export async function POST(req: NextRequest) {
             organizationId: targetUser?.organizationId || 'default_org',
             userId: targetUser?.id || 'lemon_squeezy_system',
             action: 'LEMONSQUEEZY_PAYMENT_SUCCESS',
-            resource: 'Billing & Payments',
+            entityType: 'Billing & Payments',
+            entityId: userEmail,
             details: `LemonSqueezy order created for ${userEmail}. Upgraded to ${newRole} (${newLimit} Daily Credits).`
           }
         });
@@ -98,7 +99,8 @@ export async function POST(req: NextRequest) {
             organizationId: targetUser?.organizationId || 'default_org',
             userId: targetUser?.id || 'lemon_squeezy_system',
             action: 'LEMONSQUEEZY_REFUND_PROCESSED',
-            resource: 'Billing & Payments',
+            entityType: 'Billing & Payments',
+            entityId: userEmail,
             details: `LemonSqueezy 100% refund processed for ${userEmail}. Account reset to Starter Tier (50 credits/day).`
           }
         });

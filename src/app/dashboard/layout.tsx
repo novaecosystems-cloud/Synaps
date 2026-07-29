@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect('/login');
   }
 
-  let user = null;
+  let user: { id: string; organizationId: string | null; email: string } | null = null;
   try {
     user = await prisma.user.findUnique({
       where: { id: decoded.uid },

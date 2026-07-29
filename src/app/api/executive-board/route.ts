@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Query is required for Executive Board analysis' }, { status: 400 });
     }
 
+    const organizationId = dbUser?.organizationId || 'default-org';
     const meetingResult = await runExecutiveBoardMeeting(query, organizationId);
 
     return NextResponse.json({

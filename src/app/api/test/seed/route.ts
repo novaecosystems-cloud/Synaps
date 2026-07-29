@@ -38,6 +38,7 @@ export async function POST(req: Request) {
             id: p.id,
             name: p.name,
             organizationId: orgId,
+            ownerId: uid,
           }
         });
       }
@@ -48,10 +49,11 @@ export async function POST(req: Request) {
         await rawPrisma.document.create({
           data: {
             id: d.id,
-            title: d.title,
-            content: d.content || '',
+            name: d.title || 'Untitled Document',
             organizationId: orgId,
-            authorId: uid,
+            ownerId: uid,
+            mimeType: 'application/pdf',
+            sizeBytes: 1024
           }
         });
       }

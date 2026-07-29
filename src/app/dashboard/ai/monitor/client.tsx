@@ -74,7 +74,7 @@ export default function AIMonitorClient() {
           AI Mathematical Confidence & Evidence Inspector
         </h1>
         <p className="text-xs text-indigo-200/70 max-w-3xl leading-relaxed">
-          Calculates accurate mathematical confidence scores using weighted token overlap ($S_{sim}$), entity coverage ($S_{cov}$), source diversity ($S_{div}$), exponential time decay ($S_{rec}$), and contradiction penalties ($P_{conflict}$). Zero guesswork.
+          Calculates accurate mathematical confidence scores using weighted token overlap (S_sim), entity coverage (S_cov), source diversity (S_div), exponential time decay (S_rec), and contradiction penalties (P_conflict). Zero guesswork.
         </p>
       </div>
 

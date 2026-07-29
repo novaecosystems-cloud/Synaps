@@ -27,7 +27,7 @@ export default function PolicyResponseFormatter({ text }: FormatterProps) {
                 <Bookmark className="w-3.5 h-3.5" /> Documented Policy Citations
               </div>
               <ul className="space-y-1.5 pl-2">
-                {section.items.map((cit, cIdx) => (
+                {section.items?.map((cit, cIdx) => (
                   <li key={cIdx} className="flex items-start gap-2 text-xs text-indigo-300/90 font-medium">
                     <span className="text-amber-400 font-bold">•</span>
                     <span>{cit}</span>
@@ -56,7 +56,7 @@ export default function PolicyResponseFormatter({ text }: FormatterProps) {
                 <h5 className="font-extrabold text-xs text-base-content uppercase tracking-wider">{section.title}</h5>
               )}
               <div className="grid grid-cols-1 gap-2">
-                {section.items.map((item, iIdx) => (
+                {section.items?.map((item, iIdx) => (
                   <div key={iIdx} className="p-3 bg-base-200/60 rounded-xl border border-base-300 flex items-start gap-2.5">
                     <div className="w-5 h-5 rounded-md bg-indigo-500/10 text-indigo-400 font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5 border border-indigo-500/20">
                       {iIdx + 1}
@@ -73,7 +73,7 @@ export default function PolicyResponseFormatter({ text }: FormatterProps) {
 
         return (
           <p key={idx} className="text-xs leading-relaxed text-base-content/90 font-normal">
-            {formatBoldText(section.content)}
+            {formatBoldText(section.content || '')}
           </p>
         );
       })}

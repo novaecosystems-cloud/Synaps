@@ -38,7 +38,7 @@ Include:
       : `<li><a href="${baseUrl}/dashboard/documents" style="color: #f59e0b; font-weight: bold;">📄 Explore All Documents</a></li>`;
 
     const projectLinksHtml = projects.length > 0
-      ? projects.map(p => `<li style="margin-bottom: 6px;"><a href="${baseUrl}/dashboard/projects/${p.id}" style="color: #6366f1; font-weight: bold; text-decoration: underline;">📁 ${p.title || p.name}</a> — <span style="color: #94a3b8; font-size: 11px;">Project Dashboard</span></li>`).join('')
+      ? projects.map(p => `<li style="margin-bottom: 6px;"><a href="${baseUrl}/dashboard/projects/${p.id}" style="color: #6366f1; font-weight: bold; text-decoration: underline;">📁 ${p.name}</a> — <span style="color: #94a3b8; font-size: 11px;">Project Dashboard</span></li>`).join('')
       : `<li><a href="${baseUrl}/dashboard/projects" style="color: #6366f1; font-weight: bold;">📁 View Active Projects</a></li>`;
 
     const htmlContent = `

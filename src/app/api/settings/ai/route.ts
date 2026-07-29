@@ -33,7 +33,8 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { aiSettings } = body;
 
-    const beforeState = user.organization.settings;
+    const orgId = user.organizationId || 'default-org';
+    const beforeState = user.organization?.settings || {};
     
     const existingSettings = typeof beforeState === 'object' && beforeState !== null ? beforeState : {};
     const newSettings = {
@@ -42,13 +43,13 @@ export async function PUT(req: NextRequest) {
     };
 
     const updatedOrg = await prisma.organization.update({
-      where: { id: user.organizationId },
+      where: { id: orgId },
       data: { settings: newSettings }
     });
 
     await prisma.auditLog.create({
       data: {
-        organizationId: user.organizationId,
+        organizationId: orgId,
         userId: user.id,
         action: 'AI_SETTINGS_UPDATED',
         entityType: 'ORGANIZATION',
