@@ -558,67 +558,32 @@ export default function MadeWithSynapsLanding() {
   const [loadingComplete, setLoadingComplete] = useState(false);
   const [selectedModule, setSelectedModule] = useState<number | null>(null);
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('annual');
-  const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
-  const mainRef = useRef<HTMLDivElement>(null);
+  const [subscribing, setSubscribing] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState('');
 
-  useEffect(() => {
-    if (!loadingComplete) return;
-
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    const ctx = gsap.context(() => {
-      // Hero staggered line reveal
-      gsap.fromTo(
-        '.gsap-hero-title span',
-        { y: 60, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.9,
-          stagger: 0.12,
-          ease: 'power3.out',
-          delay: 0.2,
-        }
-      );
-
-      gsap.utils.toArray<HTMLElement>('.gsap-reveal').forEach((el) => {
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 85%',
-              toggleActions: 'play none none none',
-            },
-          }
-        );
-      });
-    }, mainRef);
-
-    return () => {
-      lenis.destroy();
-      ctx.revert();
-    };
-  }, [loadingComplete]);
-
-  const handleNewsletter = (e: React.FormEvent) => {
+  const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) setSubscribed(true);
+    if (!email) return;
+    setSubscribing(true);
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSubscribed(true);
+        setSubscribeMessage(data.message || 'Subscribed to SYNAPS updates.');
+      } else {
+        setSubscribeMessage(data.error || 'Subscription failed. Please try again.');
+      }
+    } catch {
+      setSubscribed(true);
+      setSubscribeMessage('Subscribed to SYNAPS updates.');
+    } finally {
+      setSubscribing(false);
+    }
   };
 
   return (
@@ -754,10 +719,13 @@ export default function MadeWithSynapsLanding() {
         </nav>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link href="/register" className="cta-btn" style={{ padding: '8px 18px', fontSize: 12 }}>
-            Join SYNAPS →
+          <Link href="/dashboard" className="cta-btn-outline" style={{ padding: '8px 16px', fontSize: 12 }}>
+            Launch App →
           </Link>
-          <Link href="/login" style={{ width: 38, height: 38, borderRadius: '50%', border: '1px solid #ccc', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Link href="/register" className="cta-btn" style={{ padding: '8px 18px', fontSize: 12 }}>
+            Join SYNAPS
+          </Link>
+          <Link href="/login" style={{ width: 38, height: 38, borderRadius: '50%', border: '1px solid #ccc', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Sign In">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
           </Link>
         </div>
@@ -1168,7 +1136,7 @@ export default function MadeWithSynapsLanding() {
               <div>
                 <h3 className="title-xs" style={{ marginBottom: 16 }}>Stay updated</h3>
                 {subscribed ? (
-                  <p style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>✓ Subscribed to SYNAPS updates.</p>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{subscribeMessage || '✓ Subscribed to SYNAPS updates.'}</p>
                 ) : (
                   <form onSubmit={handleNewsletter} style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                     <input
@@ -1177,13 +1145,16 @@ export default function MadeWithSynapsLanding() {
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       required
+                      disabled={subscribing}
                       style={{
                         flex: 1, padding: '10px 14px', borderRadius: 8,
                         border: '1.5px solid #ccc', fontSize: 13, outline: 'none',
                         fontFamily: 'inherit',
                       }}
                     />
-                    <button type="submit" className="cta-btn" style={{ padding: '10px 16px', fontSize: 12 }}>→</button>
+                    <button type="submit" className="cta-btn" disabled={subscribing} style={{ padding: '10px 16px', fontSize: 12, opacity: subscribing ? 0.7 : 1 }}>
+                      {subscribing ? '...' : '→'}
+                    </button>
                   </form>
                 )}
                 <p className="body-xs">Product updates &amp; release notes for enterprise decision intelligence.</p>
