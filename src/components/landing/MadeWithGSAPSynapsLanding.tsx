@@ -155,6 +155,171 @@ const LEGAL_DOCS_LIST = [
   { slug: 'security-vulnerability', title: 'Vulnerability Program', category: 'Support', desc: 'Responsible disclosure & safe harbor.' },
 ];
 
+/* ─── Preloader Screen with Percentage Counter & Text Loader ──────── */
+function Preloader({ onComplete }: { onComplete: () => void }) {
+  const [progress, setProgress] = useState(0);
+  const [loadingText, setLoadingText] = useState('INITIALIZING SYNAPS CORE...');
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const texts = [
+      'INITIALIZING SYNAPS CORE...',
+      'LOADING GRAPH PRECEDENTS...',
+      'INDEXING C-SUITE DIGITAL TWINS...',
+      'GROUNDING ZERO-HALLUCINATION SUITE...',
+      'SYNAPS ENGINE READY'
+    ];
+
+    let currentProgress = 0;
+    const interval = setInterval(() => {
+      currentProgress += Math.floor(Math.random() * 12) + 6;
+      if (currentProgress >= 100) {
+        currentProgress = 100;
+        clearInterval(interval);
+        setLoadingText(texts[4]);
+        setProgress(100);
+
+        // GSAP Slide-up curtain reveal timeline
+        setTimeout(() => {
+          if (overlayRef.current) {
+            gsap.to(overlayRef.current, {
+              yPercent: -100,
+              duration: 1.1,
+              ease: 'power4.inOut',
+              onComplete: () => {
+                onComplete();
+              }
+            });
+          }
+        }, 300);
+      } else {
+        setProgress(currentProgress);
+        const idx = Math.floor((currentProgress / 100) * 4);
+        setLoadingText(texts[idx]);
+      }
+    }, 90);
+
+    return () => clearInterval(interval);
+  }, [onComplete]);
+
+  return (
+    <div
+      ref={overlayRef}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 999999,
+        background: '#111111',
+        color: '#ffffff',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: '60px 40px',
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 28, height: 28, background: '#00ff88', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ color: '#111', fontSize: 14, fontWeight: 900 }}>S</span>
+          </div>
+          <span style={{ fontSize: 14, fontWeight: 900, letterSpacing: '-0.02em', color: '#fff' }}>SYNAPS AI OS</span>
+        </div>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#00ff88', letterSpacing: '0.08em' }}>[ MADE WITH GSAP ENGINE ]</span>
+      </div>
+
+      <div style={{ maxWidth: 800 }}>
+        <p style={{ fontSize: 12, fontWeight: 800, color: '#888', letterSpacing: '0.1em', marginBottom: 12 }}>
+          {loadingText}
+        </p>
+        <div style={{ width: '100%', height: 4, background: '#222', borderRadius: 2, overflow: 'hidden', marginBottom: 24 }}>
+          <div
+            style={{
+              width: `${progress}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #00ff88, #ffffff)',
+              transition: 'width 0.1s linear',
+            }}
+          />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <h1 style={{ fontSize: 'clamp(64px, 12vw, 160px)', fontWeight: 900, lineHeight: 0.8, letterSpacing: '-0.05em', color: '#ffffff' }}>
+          {progress}%
+        </h1>
+        <p style={{ fontSize: 12, color: '#666', maxWidth: 300, textAlign: 'right', lineHeight: 1.5 }}>
+          Enterprise Decision Intelligence Platform • Powered by Grounded Graph Memory
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Circular Rotating Text Badge Component ─────────────────────── */
+function RotatingCircleBadge({ text = "MADE WITH SYNAPS • DECISION INTELLIGENCE • ", size = 130 }: { text?: string; size?: number }) {
+  const circleRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (circleRef.current) {
+      gsap.to(circleRef.current, {
+        rotation: 360,
+        repeat: -1,
+        duration: 14,
+        ease: 'none',
+      });
+    }
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: size,
+        height: size,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <svg
+        ref={circleRef}
+        viewBox="0 0 100 100"
+        width={size}
+        height={size}
+        style={{ position: 'absolute', inset: 0, overflow: 'visible' }}
+      >
+        <path
+          id="textPath"
+          d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+          fill="none"
+        />
+        <text style={{ fontSize: 9.2, fontWeight: 800, fill: '#111111', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <textPath href="#textPath" startOffset="0%">
+            {text}
+          </textPath>
+        </text>
+      </svg>
+      {/* Center Icon */}
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: '50%',
+          background: '#111111',
+          color: '#ffffff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 17L17 7M17 7H7M17 7V17" /></svg>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Cookie Banner Component ─────────────────────────────────────── */
 function CookieBanner() {
   const [show, setShow] = useState(false);
@@ -240,7 +405,7 @@ function CookieBanner() {
   );
 }
 
-/* ─── Interactive Roll-Text Button Component ────────────────────── */
+/* ─── Interactive Roll-Text Link Component ──────────────────────── */
 function RollLink({ href, children, className = '', style = {} }: { href: string; children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   return (
     <a href={href} className={`roll-wrapper ${className}`} style={style}>
@@ -390,6 +555,7 @@ function ShowcaseCarousel({ onSelectModule }: { onSelectModule: (index: number) 
 
 /* ─── Main Landing Component ─────────────────────────────────────── */
 export default function MadeWithSynapsLanding() {
+  const [loadingComplete, setLoadingComplete] = useState(false);
   const [selectedModule, setSelectedModule] = useState<number | null>(null);
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('annual');
   const [email, setEmail] = useState('');
@@ -397,6 +563,8 @@ export default function MadeWithSynapsLanding() {
   const mainRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!loadingComplete) return;
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -409,6 +577,20 @@ export default function MadeWithSynapsLanding() {
     requestAnimationFrame(raf);
 
     const ctx = gsap.context(() => {
+      // Hero staggered line reveal
+      gsap.fromTo(
+        '.gsap-hero-title span',
+        { y: 60, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.9,
+          stagger: 0.12,
+          ease: 'power3.out',
+          delay: 0.2,
+        }
+      );
+
       gsap.utils.toArray<HTMLElement>('.gsap-reveal').forEach((el) => {
         gsap.fromTo(
           el,
@@ -432,7 +614,7 @@ export default function MadeWithSynapsLanding() {
       lenis.destroy();
       ctx.revert();
     };
-  }, []);
+  }, [loadingComplete]);
 
   const handleNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
@@ -441,6 +623,9 @@ export default function MadeWithSynapsLanding() {
 
   return (
     <div ref={mainRef} style={{ background: '#f1f1f1', color: '#111', fontFamily: "'Inter', sans-serif" }}>
+
+      {/* ── PRELOADER COUNTER SCREEN ─────────────────────────────── */}
+      <Preloader onComplete={() => setLoadingComplete(true)} />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -580,26 +765,33 @@ export default function MadeWithSynapsLanding() {
 
       <main style={{ paddingTop: 64 }}>
 
-        {/* ── HERO ──────────────────────────────────────────────────── */}
+        {/* ── HERO WITH ROTATING CIRCLE BADGE ────────────────────────── */}
         <section style={{ padding: '80px 0 60px' }}>
           <div className="wrapper">
-            <div className="gsap-reveal" style={{ marginBottom: 44 }}>
-              <h1 className="title-l" style={{ maxWidth: 740 }}>
-                Grounded enterprise<br />
-                <span className="text-g">AI modules</span><br />
-                built for high performance.
-              </h1>
-              <p className="body-s" style={{ marginTop: 24, maxWidth: 460, fontSize: 15 }}>
-                Accelerate enterprise executive decisions with an ever-growing suite of
-                zero-hallucination AI intelligence tools.
-              </p>
-              <div style={{ display: 'flex', gap: 14, marginTop: 32, flexWrap: 'wrap' }}>
-                <a href="#modules" className="cta-btn">
-                  Explore modules ↓
-                </a>
-                <a href="#pricing" className="cta-btn-outline">
-                  View plans &amp; pricing
-                </a>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 44, flexWrap: 'wrap', gap: 24 }}>
+              <div>
+                <h1 className="title-l gsap-hero-title" style={{ maxWidth: 740 }}>
+                  <span style={{ display: 'block' }}>Grounded enterprise</span>
+                  <span style={{ display: 'block' }} className="text-g">AI modules</span>
+                  <span style={{ display: 'block' }}>built for high performance.</span>
+                </h1>
+                <p className="body-s" style={{ marginTop: 24, maxWidth: 460, fontSize: 15 }}>
+                  Accelerate enterprise executive decisions with an ever-growing suite of
+                  zero-hallucination AI intelligence tools.
+                </p>
+                <div style={{ display: 'flex', gap: 14, marginTop: 32, flexWrap: 'wrap' }}>
+                  <a href="#modules" className="cta-btn">
+                    Explore modules ↓
+                  </a>
+                  <a href="#pricing" className="cta-btn-outline">
+                    View plans &amp; pricing
+                  </a>
+                </div>
+              </div>
+
+              {/* ── ROTATING CIRCULAR TEXT BADGE ─────────────────────── */}
+              <div className="hide-mob" style={{ paddingTop: 10 }}>
+                <RotatingCircleBadge text="SYNAPS DECISION INTELLIGENCE • GSAP DRIVEN • " size={140} />
               </div>
             </div>
 
@@ -788,7 +980,7 @@ export default function MadeWithSynapsLanding() {
                       border: tier.popular ? '2px solid #ffffff' : '1px solid #333333',
                       display: 'flex',
                       flexDirection: 'column',
-                      justify: 'space-between',
+                      justifyContent: 'space-between',
                       position: 'relative',
                       boxShadow: tier.popular ? '0 20px 60px rgba(255,255,255,0.1)' : 'none',
                     }}
