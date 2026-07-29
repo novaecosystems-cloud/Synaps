@@ -7,7 +7,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 
-// Register GSAP plugins on client
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
@@ -56,7 +55,7 @@ const SLIDES = [
   },
 ];
 
-/* ─── Real Value Pillars (Authentic, no fake reviews) ───────────── */
+/* ─── Real Value Pillars ─────────────────────────────────────────── */
 const VALUE_PILLARS = [
   {
     title: 'Grounded Intelligence',
@@ -74,6 +73,86 @@ const VALUE_PILLARS = [
     title: 'Precedent Memory',
     desc: 'Never repeat past mistakes. SYNAPS indexes historical decisions, trade-offs, and lessons learned across your organization.',
   },
+];
+
+/* ─── Real SYNAPS Pricing Tiers ─────────────────────────────────── */
+const PRICING_TIERS = [
+  {
+    id: 'starter',
+    name: 'Starter Tier',
+    badge: 'Free Tier',
+    priceMonthly: '$0',
+    priceYearly: '$0',
+    period: '/ month',
+    desc: 'Ideal for testing AI document search and baseline queries across your workspace.',
+    popular: false,
+    features: [
+      '50 AI Credits / Day',
+      '1 Organization Workspace',
+      'AI Chat Assistant & RAG Search',
+      'Basic Operational Risk Scanner',
+      'Standard Support'
+    ],
+    cta: 'Get Started Free →',
+    ctaLink: '/register'
+  },
+  {
+    id: 'pro',
+    name: 'Pro Intelligence',
+    badge: 'Popular • 50% OFF',
+    priceMonthly: '$7',
+    priceYearly: '$5',
+    period: '/ month',
+    desc: 'Full multi-agent suite & 10-Agent AI Boardroom for growing executive teams.',
+    popular: true,
+    features: [
+      '500 AI Credits / Day',
+      'Collaborative 10-Agent AI Boardroom',
+      'AI Strategy Studio & SWOT Blueprint',
+      'Digital Twin OS (15 System Nodes)',
+      '3D Corporate Memory Graph Engine',
+      '14-Day 100% Refund Guarantee'
+    ],
+    cta: 'Upgrade to Pro ($7) →',
+    ctaLink: '/register?plan=pro'
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise Max',
+    badge: 'Max Limit ($20 Cap)',
+    priceMonthly: '$20',
+    priceYearly: '$16',
+    period: '/ month',
+    desc: 'Unlimited AI capabilities for power users, executive boards & large enterprises.',
+    popular: false,
+    features: [
+      '10,000 AI Credits / Day (Unlimited)',
+      'Custom Fine-Tuned AI Models',
+      'Unlimited Workspaces & Multi-Tenancy',
+      'Permanent Audit Log Retention',
+      'Dedicated 24/7 Success Manager',
+      'Cancel & Refund Anytime Guarantee'
+    ],
+    cta: 'Get Enterprise Max ($20) →',
+    ctaLink: '/register?plan=enterprise'
+  }
+];
+
+/* ─── Full Legal & Governance Documents List ─────────────────────── */
+const LEGAL_DOCS_LIST = [
+  { slug: 'privacy', title: 'Privacy Policy', category: 'Privacy & Security', desc: 'GDPR, CCPA & Indian DPDP Act 2023 compliance.' },
+  { slug: 'terms', title: 'Terms & Conditions', category: 'Legal', desc: 'SaaS licensing, multi-tenant isolation, and jurisdiction.' },
+  { slug: 'acceptable-use', title: 'Acceptable Use Policy', category: 'Governance & AI', desc: 'Prohibited abuse & AI conduct standards.' },
+  { slug: 'cookies', title: 'Cookie Policy', category: 'Privacy & Security', desc: 'Essential session cookies & zero ad-tracking.' },
+  { slug: 'security', title: 'Security Policy', category: 'Privacy & Security', desc: 'AES-256, TLS 1.3, SOC2 readiness & RBAC.' },
+  { slug: 'data-processing', title: 'Data Processing Notice', category: 'Governance & AI', desc: 'DPA terms & authorized sub-processors.' },
+  { slug: 'ai-policy', title: 'AI Responsible Usage', category: 'Governance & AI', desc: 'Zero-hallucination safeguards & grounding.' },
+  { slug: 'disclaimer', title: 'Legal Disclaimer', category: 'Legal', desc: 'AI analytical output & decision support terms.' },
+  { slug: 'copyright', title: 'Copyright & DMCA', category: 'Legal', desc: 'Proprietary IP protection & takedown procedures.' },
+  { slug: 'ip-infringement', title: 'IP Infringement Policy', category: 'Legal', desc: 'Trademark, patent & trade secret claim process.' },
+  { slug: 'contact', title: 'Contact Directory', category: 'Support', desc: 'Global corporate email & office headquarters.' },
+  { slug: 'support', title: 'Support & SLA Policy', category: 'Support', desc: '24/7 incident SLA response guarantees.' },
+  { slug: 'security-vulnerability', title: 'Vulnerability Program', category: 'Support', desc: 'Responsible disclosure & safe harbor.' },
 ];
 
 /* ─── Cookie Banner Component ─────────────────────────────────────── */
@@ -118,16 +197,15 @@ function CookieBanner() {
     >
       <div>
         <p style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 6 }}>
-          🍪 Cookie Preferences
+          🍪 Cookie &amp; Session Preferences
         </p>
         <p style={{ fontSize: 12, color: '#555', lineHeight: 1.6 }}>
-          SYNAPS uses essential local session storage to maintain your operational workspace preferences and security state.
+          SYNAPS uses essential local session storage to maintain your operational workspace security and interface state. Zero ad tracking.
         </p>
       </div>
       <div style={{ display: 'flex', gap: 10 }}>
         <button
           onClick={accept}
-          className="roll-btn"
           style={{
             flex: 1,
             padding: '10px 20px',
@@ -162,7 +240,7 @@ function CookieBanner() {
   );
 }
 
-/* ─── Interactive Roll-Text Button Component (MWG Signature Effect) ─ */
+/* ─── Interactive Roll-Text Button Component ────────────────────── */
 function RollLink({ href, children, className = '', style = {} }: { href: string; children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   return (
     <a href={href} className={`roll-wrapper ${className}`} style={style}>
@@ -218,7 +296,6 @@ function ShowcaseCarousel({ onSelectModule }: { onSelectModule: (index: number) 
 
   return (
     <div style={{ position: 'relative', overflow: 'hidden', userSelect: 'none' }}>
-      {/* Slides track */}
       <div
         style={{
           display: 'flex',
@@ -262,7 +339,6 @@ function ShowcaseCarousel({ onSelectModule }: { onSelectModule: (index: number) 
         ))}
       </div>
 
-      {/* Control bar below slideshow */}
       <div
         style={{
           display: 'flex',
@@ -281,7 +357,6 @@ function ShowcaseCarousel({ onSelectModule }: { onSelectModule: (index: number) 
           </span>
         </div>
 
-        {/* Indicators */}
         <div style={{ display: 'flex', gap: 8 }}>
           {SLIDES.map((_, i) => (
             <button
@@ -321,7 +396,6 @@ export default function MadeWithSynapsLanding() {
   const [subscribed, setSubscribed] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
 
-  // Initialize Lenis smooth scroll & GSAP ScrollTrigger
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -334,7 +408,6 @@ export default function MadeWithSynapsLanding() {
     }
     requestAnimationFrame(raf);
 
-    // GSAP animations for elements with .gsap-reveal
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>('.gsap-reveal').forEach((el) => {
         gsap.fromTo(
@@ -369,7 +442,6 @@ export default function MadeWithSynapsLanding() {
   return (
     <div ref={mainRef} style={{ background: '#f1f1f1', color: '#111', fontFamily: "'Inter', sans-serif" }}>
 
-      {/* ── STYLES & GSAP ROLL ANIMATIONS ───────────────────────────── */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -379,7 +451,6 @@ export default function MadeWithSynapsLanding() {
 
         .wrapper { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
 
-        /* MadeWithGSAP Hover Roll Text Effect */
         .roll-wrapper {
           display: inline-block;
           overflow: hidden;
@@ -400,7 +471,6 @@ export default function MadeWithSynapsLanding() {
           white-space: nowrap;
         }
 
-        /* Diode indicator */
         .diode::before {
           content: '';
           display: inline-block;
@@ -417,7 +487,6 @@ export default function MadeWithSynapsLanding() {
           50% { opacity: 0.4; transform: scale(0.85); }
         }
 
-        /* Typography */
         .title-xl { font-size: clamp(56px, 8vw, 120px); font-weight: 900; line-height: 0.9; letter-spacing: -0.04em; }
         .title-l  { font-size: clamp(40px, 6vw, 84px);  font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; }
         .title-m  { font-size: clamp(28px, 4vw, 50px);  font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
@@ -429,7 +498,6 @@ export default function MadeWithSynapsLanding() {
 
         .text-g { color: #888; }
 
-        /* Buttons */
         .cta-btn {
           display: inline-flex; align-items: center; gap: 10px;
           padding: 14px 26px; background: #111; color: #fff;
@@ -448,7 +516,6 @@ export default function MadeWithSynapsLanding() {
         }
         .cta-btn-outline:hover { background: #111; color: #fff; }
 
-        /* Horizontal Pillars Scroll */
         .pillars-scroll {
           display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px;
           scrollbar-width: none;
@@ -462,7 +529,6 @@ export default function MadeWithSynapsLanding() {
           flex-shrink: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
 
-        /* Image sharpness filter */
         .crisp-img {
           image-rendering: -webkit-optimize-contrast;
           image-rendering: crisp-edges;
@@ -493,17 +559,15 @@ export default function MadeWithSynapsLanding() {
           </span>
         </Link>
 
-        {/* Desktop Nav Links with Roll Hover Animation */}
         <nav className="hide-mob" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
           <RollLink href="#modules" style={{ fontSize: 13, fontWeight: 600 }}>
             Modules <span style={{ background: '#e0e0e0', borderRadius: 10, padding: '2px 8px', fontSize: 10, marginLeft: 4 }}>5</span>
           </RollLink>
           <RollLink href="#pillars" style={{ fontSize: 13, fontWeight: 600 }}>Architecture</RollLink>
           <RollLink href="#pricing" style={{ fontSize: 13, fontWeight: 600 }}>Pricing</RollLink>
-          <RollLink href="#showcase" style={{ fontSize: 13, fontWeight: 600 }}>Showcase</RollLink>
+          <RollLink href="#legal" style={{ fontSize: 13, fontWeight: 600 }}>Legal &amp; Governance</RollLink>
         </nav>
 
-        {/* Header CTAs */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Link href="/register" className="cta-btn" style={{ padding: '8px 18px', fontSize: 12 }}>
             Join SYNAPS →
@@ -534,12 +598,11 @@ export default function MadeWithSynapsLanding() {
                   Explore modules ↓
                 </a>
                 <a href="#pricing" className="cta-btn-outline">
-                  View plans
+                  View plans &amp; pricing
                 </a>
               </div>
             </div>
 
-            {/* Draggable Slideshow */}
             <div className="gsap-reveal">
               <ShowcaseCarousel onSelectModule={(idx) => setSelectedModule(idx)} />
             </div>
@@ -562,7 +625,6 @@ export default function MadeWithSynapsLanding() {
               C-suite digital twins, and institutional precedent memory — all integrated in one platform.
             </p>
 
-            {/* Platform High-Res Screenshot */}
             <div style={{ marginTop: 60, borderRadius: 20, overflow: 'hidden', border: '1px solid #333', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}>
               <Image
                 src="/showcase/executive_overview.png"
@@ -625,7 +687,6 @@ export default function MadeWithSynapsLanding() {
                   }}
                 >
                   <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 0 }}>
-                    {/* High-res Image */}
                     <div style={{ position: 'relative', minHeight: 320, background: '#f5f5f5' }}>
                       <Image
                         src={slide.src}
@@ -637,7 +698,6 @@ export default function MadeWithSynapsLanding() {
                       />
                     </div>
 
-                    {/* Details */}
                     <div style={{ padding: 40, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                       <div>
                         <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#888', letterSpacing: '0.06em' }}>
@@ -673,7 +733,7 @@ export default function MadeWithSynapsLanding() {
           </div>
         </section>
 
-        {/* ── PRICING ───────────────────────────────────────────────── */}
+        {/* ── PRICING SECTION (AUTHENTIC SYNAPS TIERS) ─────────────── */}
         <section id="pricing" className="sec-black" style={{ padding: '100px 0', background: '#111111', color: '#ffffff' }}>
           <div className="wrapper gsap-reveal" style={{ textAlign: 'center' }}>
             <p className="label diode" style={{ marginBottom: 20, color: '#ffffff', justifyContent: 'center', display: 'flex' }}>
@@ -683,71 +743,166 @@ export default function MadeWithSynapsLanding() {
               Simple, transparent<br />
               <span className="text-g">workspace pricing</span>
             </h2>
-            <p className="body-s" style={{ color: '#aaa', maxWidth: 460, margin: '0 auto 40px' }}>
-              Get instant access to all 5 modules with full grounded zero-hallucination execution.
+            <p className="body-s" style={{ color: '#aaa', maxWidth: 520, margin: '0 auto 40px' }}>
+              Instant access to all 5 SYNAPS AI modules with full grounded zero-hallucination execution. 14-day 100% refund guarantee.
             </p>
 
-            {/* Toggle */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: '#222', padding: 6, borderRadius: 100, marginBottom: 48 }}>
+            {/* Billing Period Toggle */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: '#222', padding: 6, borderRadius: 100, marginBottom: 56 }}>
               <button
                 onClick={() => setBillingPeriod('monthly')}
                 style={{
-                  padding: '8px 20px', borderRadius: 100, border: 'none', fontSize: 12, fontWeight: 700,
+                  padding: '8px 24px', borderRadius: 100, border: 'none', fontSize: 12, fontWeight: 700,
                   background: billingPeriod === 'monthly' ? '#fff' : 'transparent',
                   color: billingPeriod === 'monthly' ? '#111' : '#aaa',
                   cursor: 'pointer', transition: 'all 0.2s ease',
                 }}
               >
-                Monthly
+                Monthly Billing
               </button>
               <button
                 onClick={() => setBillingPeriod('annual')}
                 style={{
-                  padding: '8px 20px', borderRadius: 100, border: 'none', fontSize: 12, fontWeight: 700,
+                  padding: '8px 24px', borderRadius: 100, border: 'none', fontSize: 12, fontWeight: 700,
                   background: billingPeriod === 'annual' ? '#fff' : 'transparent',
                   color: billingPeriod === 'annual' ? '#111' : '#aaa',
                   cursor: 'pointer', transition: 'all 0.2s ease',
                 }}
               >
-                Annual <span style={{ color: '#00ff88', fontSize: 10, marginLeft: 4 }}>Save 20%</span>
+                Annual Billing <span style={{ color: '#00ff88', fontSize: 10, marginLeft: 4 }}>Save Up To 30%</span>
               </button>
             </div>
 
-            {/* Pricing Card */}
-            <div
-              style={{
-                background: '#ffffff', color: '#111111', borderRadius: 24, padding: 48,
-                maxWidth: 480, margin: '0 auto', textAlign: 'left',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
-              }}
-            >
-              <p className="label" style={{ color: '#888' }}>Enterprise Early Access</p>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, margin: '16px 0 24px' }}>
-                <span className="title-l" style={{ lineHeight: 1 }}>Free</span>
-                <span style={{ fontSize: 13, color: '#666', fontWeight: 600 }}>/ preview access</span>
-              </div>
+            {/* 3 Pricing Cards Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 28, textAlign: 'left' }}>
+              {PRICING_TIERS.map((tier) => {
+                const price = billingPeriod === 'annual' ? tier.priceYearly : tier.priceMonthly;
+                return (
+                  <div
+                    key={tier.id}
+                    style={{
+                      background: tier.popular ? '#ffffff' : '#1a1a1a',
+                      color: tier.popular ? '#111111' : '#ffffff',
+                      borderRadius: 24,
+                      padding: 40,
+                      border: tier.popular ? '2px solid #ffffff' : '1px solid #333333',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justify: 'space-between',
+                      position: 'relative',
+                      boxShadow: tier.popular ? '0 20px 60px rgba(255,255,255,0.1)' : 'none',
+                    }}
+                  >
+                    {tier.popular && (
+                      <div
+                        style={{
+                          position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                          background: '#00ff88', color: '#111', fontSize: 10, fontWeight: 900,
+                          padding: '4px 16px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: '0.05em',
+                        }}
+                      >
+                        {tier.badge}
+                      </div>
+                    )}
 
-              <div style={{ borderTop: '1px solid #eee', paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {[
-                  'Full 5 SYNAPS AI Modules',
-                  'Executive Operational Briefings Engine',
-                  '10 Multi-Agent Flight Control Swarm',
-                  '8 C-Suite Executive Digital Twins',
-                  'AI Strategy & Blueprint Studio',
-                  'Decision Memory Precedent Vector Index',
-                ].map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ width: 18, height: 18, background: '#111', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><path d="M20 6L9 17l-5-5" /></svg>
-                    </span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>{item}</span>
+                    <div>
+                      <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: tier.popular ? '#666' : '#888', letterSpacing: '0.05em' }}>
+                        {tier.name}
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, margin: '16px 0 12px' }}>
+                        <span className="title-l" style={{ color: tier.popular ? '#111' : '#fff', lineHeight: 1 }}>{price}</span>
+                        <span style={{ fontSize: 13, color: tier.popular ? '#666' : '#aaa', fontWeight: 600 }}>{tier.period}</span>
+                      </div>
+                      <p style={{ fontSize: 13, color: tier.popular ? '#444' : '#aaa', lineHeight: 1.5, marginBottom: 28 }}>
+                        {tier.desc}
+                      </p>
+
+                      <div style={{ borderTop: `1px solid ${tier.popular ? '#eee' : '#333'}`, paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {tier.features.map((feat, fIdx) => (
+                          <div key={fIdx} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <span style={{ width: 16, height: 16, borderRadius: '50%', background: tier.popular ? '#111' : '#00ff88', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={tier.popular ? '#fff' : '#111'} strokeWidth="3.5"><path d="M20 6L9 17l-5-5" /></svg>
+                            </span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: tier.popular ? '#222' : '#ddd' }}>{feat}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: 36 }}>
+                      <Link
+                        href={tier.ctaLink}
+                        className={tier.popular ? 'cta-btn' : 'cta-btn-outline'}
+                        style={{
+                          width: '100%', justifyContent: 'center', padding: '14px 0',
+                          borderColor: tier.popular ? 'transparent' : '#fff', color: tier.popular ? '#fff' : '#fff',
+                        }}
+                      >
+                        {tier.cta}
+                      </Link>
+                    </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-              <Link href="/register" className="cta-btn" style={{ width: '100%', justifyContent: 'center', marginTop: 36, padding: '14px 0' }}>
-                Launch Workspace Now →
-              </Link>
+        {/* ── LEGAL, GOVERNANCE & COMPLIANCE SECTION ─────────────── */}
+        <section id="legal" style={{ padding: '100px 0', borderBottom: '1px solid #e0e0e0', background: '#ffffff' }}>
+          <div className="wrapper">
+            <div className="gsap-reveal" style={{ marginBottom: 48 }}>
+              <p className="label diode" style={{ marginBottom: 12 }}>Enterprise Governance</p>
+              <h2 className="title-m" style={{ marginBottom: 16 }}>Legal, Security &amp; Compliance Directory</h2>
+              <p className="body-s" style={{ maxWidth: 640 }}>
+                SYNAPS adheres to international privacy and compliance frameworks including GDPR, CCPA, Indian DPDP Act 2023, and SOC2 security standards. Review our complete governance documentation below.
+              </p>
+            </div>
+
+            {/* Legal Docs Cards Grid */}
+            <div className="gsap-reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+              {LEGAL_DOCS_LIST.map((doc) => (
+                <Link
+                  key={doc.slug}
+                  href={`/legal/${doc.slug}`}
+                  style={{
+                    display: 'block', textDecoration: 'none', color: 'inherit',
+                    padding: 28, borderRadius: 16, border: '1px solid #e0e0e0',
+                    background: '#f9f9f9', transition: 'all 0.25s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#111';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.background = '#fff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#e0e0e0';
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.background = '#f9f9f9';
+                  }}
+                >
+                  <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: '#888', letterSpacing: '0.05em' }}>
+                    {doc.category}
+                  </span>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, margin: '8px 0 6px', color: '#111' }}>
+                    {doc.title} →
+                  </h3>
+                  <p style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>
+                    {doc.desc}
+                  </p>
+                </Link>
+              ))}
+            </div>
+
+            {/* Note & DPO Contact */}
+            <div className="gsap-reveal" style={{ marginTop: 48, padding: 32, borderRadius: 20, background: '#111', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
+              <div>
+                <h4 style={{ fontSize: 16, fontWeight: 800, marginBottom: 6 }}>Need Custom Enterprise DPA or Security Questionnaire?</h4>
+                <p style={{ fontSize: 13, color: '#aaa' }}>Our Data Protection Officer and Legal team respond within 24 hours.</p>
+              </div>
+              <a href="mailto:novaecosystems@gmail.com" className="cta-btn" style={{ background: '#fff', color: '#111', padding: '12px 24px', fontSize: 12 }}>
+                Email Legal Team →
+              </a>
             </div>
           </div>
         </section>
@@ -812,10 +967,9 @@ export default function MadeWithSynapsLanding() {
               </div>
             </div>
 
-            {/* Newsletter & Links */}
             <div
               style={{
-                display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr',
+                display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr',
                 gap: 40, borderTop: '1px solid #e0e0e0', paddingTop: 48,
               }}
             >
@@ -849,23 +1003,31 @@ export default function MadeWithSynapsLanding() {
                   <RollLink href="#modules" style={{ fontSize: 12 }}>Modules</RollLink>
                   <RollLink href="#pillars" style={{ fontSize: 12 }}>Architecture</RollLink>
                   <RollLink href="#pricing" style={{ fontSize: 12 }}>Pricing</RollLink>
-                </div>
-              </div>
-
-              <div>
-                <h4 style={{ fontSize: 13, fontWeight: 800, marginBottom: 16 }}>Resources</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <RollLink href="#showcase" style={{ fontSize: 12 }}>Showcase</RollLink>
-                  <RollLink href="/login" style={{ fontSize: 12 }}>Sign In</RollLink>
-                  <RollLink href="/register" style={{ fontSize: 12 }}>Register</RollLink>
                 </div>
               </div>
 
               <div>
-                <h4 style={{ fontSize: 13, fontWeight: 800, marginBottom: 16 }}>Legal</h4>
+                <h4 style={{ fontSize: 13, fontWeight: 800, marginBottom: 16 }}>Support</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <RollLink href="/legal/privacy-policy" style={{ fontSize: 12 }}>Privacy Policy</RollLink>
-                  <RollLink href="/legal/terms" style={{ fontSize: 12 }}>Terms of Service</RollLink>
+                  <RollLink href="/legal/contact" style={{ fontSize: 12 }}>Contact Us</RollLink>
+                  <RollLink href="/legal/support" style={{ fontSize: 12 }}>Support Policy &amp; SLA</RollLink>
+                  <RollLink href="/legal/security-vulnerability" style={{ fontSize: 12 }}>Security Vulnerability</RollLink>
+                  <RollLink href="/login" style={{ fontSize: 12 }}>Sign In</RollLink>
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ fontSize: 13, fontWeight: 800, marginBottom: 16 }}>Legal &amp; Compliance</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <RollLink href="/legal/privacy" style={{ fontSize: 12 }}>Privacy Policy (GDPR / CCPA)</RollLink>
+                  <RollLink href="/legal/terms" style={{ fontSize: 12 }}>Terms &amp; Conditions</RollLink>
+                  <RollLink href="/legal/acceptable-use" style={{ fontSize: 12 }}>Acceptable Use Policy</RollLink>
+                  <RollLink href="/legal/cookies" style={{ fontSize: 12 }}>Cookie Policy</RollLink>
+                  <RollLink href="/legal/security" style={{ fontSize: 12 }}>Security Policy</RollLink>
+                  <RollLink href="/legal/data-processing" style={{ fontSize: 12 }}>Data Processing Notice (DPA)</RollLink>
+                  <RollLink href="/legal/ai-policy" style={{ fontSize: 12 }}>AI Responsible Usage</RollLink>
+                  <RollLink href="/legal/ip-infringement" style={{ fontSize: 12 }}>IP Infringement Policy</RollLink>
                 </div>
               </div>
             </div>
