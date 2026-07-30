@@ -694,3 +694,10 @@ body {
     margin: 1cm;
   }
 }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+

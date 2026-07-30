@@ -25,6 +25,7 @@ function parseSafeJson(content: string) {
 }
 
 export async function POST(req: NextRequest) {
+  let query: any = undefined;
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('synaps-session')?.value;
@@ -43,7 +44,8 @@ export async function POST(req: NextRequest) {
 
     const organizationId = dbUser?.organizationId || 'demo_apex_org_id';
 
-    let { query } = await req.json();
+    const body = await req.json();
+    query = body?.query;
     if (!query) return NextResponse.json({ success: false, error: 'Query parameter is required' }, { status: 400 });
 
     const rawQuery = query.toLowerCase().trim();
