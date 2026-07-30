@@ -5,7 +5,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
-import CinematicEnterpriseMorph from './CinematicEnterpriseMorph';
+
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, TextPlugin);
@@ -70,49 +70,7 @@ class TextScrambler {
   }
 }
 
-// ─── 4D TESSERACT CANVAS (compact) ───────────────────────────────────────────
-const TV4D: number[][] = [];
-for (let i = 0; i < 16; i++) TV4D.push([((i>>0)&1)*2-1,((i>>1)&1)*2-1,((i>>2)&1)*2-1,((i>>3)&1)*2-1]);
-const TE: [number,number][] = [];
-for (let i=0;i<16;i++) for (let j=i+1;j<16;j++){let d=0;for(let k=0;k<4;k++) if(TV4D[i][k]!==TV4D[j][k])d++;if(d===1)TE.push([i,j]);}
-function r4(v:number[],a:number,p:[number,number]):number[]{const r=[...v];const[x,y]=p;r[x]=v[x]*Math.cos(a)-v[y]*Math.sin(a);r[y]=v[x]*Math.sin(a)+v[y]*Math.cos(a);return r;}
-function p4to3(v:number[]):number[]{const d=2-v[3];return[v[0]/d,v[1]/d,v[2]/d];}
-function p3to2(v:number[]):[number,number]{const d=3-v[2];return[v[0]/d,v[1]/d];}
 
-function TesseractCanvas() {
-  const ref = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef(0);
-  const t = useRef(0);
-  useEffect(()=>{
-    const c=ref.current; if(!c) return;
-    const ctx=c.getContext('2d'); if(!ctx) return;
-    const draw=()=>{
-      c.width=c.offsetWidth; c.height=c.offsetHeight;
-      ctx.clearRect(0,0,c.width,c.height);
-      t.current+=0.003;
-      const pts=TV4D.map(v=>{
-        let r=[...v];
-        r=r4(r,t.current*0.7,[0,1]);r=r4(r,t.current*0.5,[2,3]);r=r4(r,t.current*0.3,[0,3]);r=r4(r,t.current*0.4,[1,2]);
-        const p=p4to3(r); const p2=p3to2(p);
-        return[p2[0]*c.width*0.2+c.width/2,p2[1]*c.height*0.2+c.height/2] as [number,number];
-      });
-      TE.forEach(([a,b])=>{
-        const [x1,y1]=pts[a],[x2,y2]=pts[b];
-        const br=1-Math.min((Math.hypot(x1-c.width/2,y1-c.height/2)+Math.hypot(x2-c.width/2,y2-c.height/2))/(c.width*0.9),0.8);
-        ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
-        ctx.strokeStyle=`rgba(202,255,0,${br*0.6})`;ctx.lineWidth=0.8;ctx.stroke();
-      });
-      pts.forEach(([x,y],i)=>{
-        ctx.beginPath();ctx.arc(x,y,TV4D[i][3]>0?2:3,0,Math.PI*2);
-        ctx.fillStyle=TV4D[i][3]>0?'#CAFF00':'#FFFFFF';ctx.fill();
-      });
-      animRef.current=requestAnimationFrame(draw);
-    };
-    draw();
-    return()=>cancelAnimationFrame(animRef.current);
-  },[]);
-  return <canvas ref={ref} style={{width:'100%',height:'100%',display:'block'}}/>;
-}
 
 // ─── HORIZONTAL MARQUEE ───────────────────────────────────────────────────────
 const MARQUEE_ITEMS = [
@@ -423,47 +381,13 @@ export default function MadeWithGSAPSynapsLanding() {
         <Marquee />
       </div>
 
-      {/* ── 4D ANIMATION SECTION ─────────────────────────────────────────────── */}
-      <section id="console" style={{ padding: '120px 40px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 60, flexWrap: 'wrap', gap: 24 }}>
-          <div className="reveal-child">
-            <div className="suite-num" style={{ marginBottom: 12 }}>#001</div>
-            <h2 className="display-md">
-              Where enterprise<br />
-              <span className="display-lime">knowledge lives.</span>
-            </h2>
-          </div>
-          <div style={{ maxWidth: 360 }} className="reveal-child">
-            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              Every PDF, Slack message, email thread, and contract is ingested into a 4D corporate memory graph — making every decision traceable and provable.
-            </p>
-          </div>
-        </div>
-        <div className="glass-card reveal-child" style={{ height: 560, display: 'flex', alignItems: 'stretch', gap: 0, overflow: 'hidden', borderRadius: 28 }}>
-          <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
-            <CinematicEnterpriseMorph />
-          </div>
-          <div style={{ width: 280, background: '#0a0a0a', borderLeft: '1px solid rgba(255,255,255,0.06)', padding: 28, display: 'flex', flexDirection: 'column', gap: 16, flexShrink: 0 }} className="hide-mob">
-            <div className="section-label" style={{ marginBottom: 4 }}>KNOWLEDGE SOURCES</div>
-            {['Documents & PDFs', 'Email Threads', 'CRM & Contracts', 'Slack & Teams', 'Calendar & Notes', 'Databases', 'Drive & Storage'].map((src, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: i < 3 ? '#CAFF00' : 'rgba(255,255,255,0.15)', display: 'block', flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: i < 3 ? '#fff' : 'rgba(255,255,255,0.3)', fontWeight: 500 }}>{src}</span>
-              </div>
-            ))}
-            <div style={{ marginTop: 'auto', padding: '14px 18px', background: 'rgba(202,255,0,0.08)', border: '1px solid rgba(202,255,0,0.2)', borderRadius: 14 }}>
-              <div style={{ fontSize: 22, fontFamily: "'Syne', sans-serif", fontWeight: 900, color: '#CAFF00' }}>4D</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2, fontFamily: "'JetBrains Mono', monospace" }}>KNOWLEDGE GRAPH ACTIVE</div>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* ── SUITE CARDS ──────────────────────────────────────────────────────── */}
-      <section id="suite" style={{ padding: '120px 40px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
+      <section id="console" style={{ padding: '120px 40px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 60, flexWrap: 'wrap', gap: 24 }}>
           <div className="reveal-child">
-            <div className="suite-num" style={{ marginBottom: 12 }}>#002</div>
+            <div className="suite-num" style={{ marginBottom: 12 }}>#001</div>
             <h2 className="display-md">
               Four intelligence<br />
               <span className="display-dim">modules.</span>
@@ -507,36 +431,12 @@ export default function MadeWithGSAPSynapsLanding() {
         <Marquee reverse />
       </div>
 
-      {/* ── FEATURE — TESSERACT ──────────────────────────────────────────────── */}
-      <section style={{ padding: '120px 40px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
-        <div className="reveal-child" style={{ marginBottom: 60 }}>
-          <div className="suite-num" style={{ marginBottom: 12 }}>#003</div>
-          <h2 className="display-md">
-            A 4D view of<br />
-            <span className="display-lime">your organization.</span>
-          </h2>
-        </div>
-        <div className="glass-card reveal-child" style={{ height: 420, position: 'relative', borderRadius: 28, overflow: 'hidden', background: '#000' }}>
-          <TesseractCanvas />
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', padding: 36 }}>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              {['Documents', 'Emails', 'Contracts', 'Teams', 'CRM', 'Tasks'].map((label, i) => (
-                <span key={i} style={{ padding: '6px 14px', background: 'rgba(202,255,0,0.1)', border: '1px solid rgba(202,255,0,0.25)', borderRadius: 999, fontSize: 12, fontWeight: 600, color: '#CAFF00', fontFamily: "'JetBrains Mono', monospace" }}>
-                  {label}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div style={{ position: 'absolute', top: 36, right: 36 }}>
-            <div className="section-label">4D CORPORATE MEMORY GRAPH</div>
-          </div>
-        </div>
-      </section>
+
 
       {/* ── HOW IT WORKS ──────────────────────────────────────────────────────── */}
       <section id="agents" style={{ padding: '120px 40px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
         <div style={{ marginBottom: 60 }}>
-          <div className="suite-num reveal-child" style={{ marginBottom: 12 }}>#004</div>
+          <div className="suite-num reveal-child" style={{ marginBottom: 12 }}>#002</div>
           <h2 className="display-md reveal-child">
             From raw data<br />
             <span className="display-dim">to board-ready decisions.</span>
@@ -557,46 +457,13 @@ export default function MadeWithGSAPSynapsLanding() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS / SOCIAL PROOF ───────────────────────────────────────── */}
-      <section style={{ padding: '120px 40px', background: '#080808', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }} className="reveal-section">
-        <div style={{ maxWidth: 1400, margin: '0 auto' }}>
-          <div style={{ marginBottom: 60 }}>
-            <div className="suite-num reveal-child" style={{ marginBottom: 12 }}>#005</div>
-            <h2 className="display-md reveal-child">
-              Unique decision effects,<br />
-              <span className="display-lime">made with care.</span>
-            </h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }} className="reveal-child">
-            {[
-              { q: '"Synaps gave us a complete legal audit of 3 years of contracts in under 2 minutes. Absolutely game-changing."', name: 'Arjun Mehta', role: 'General Counsel', company: 'Series B SaaS' },
-              { q: '"Our executive briefings used to take 3 hours every Monday. Synaps generates them automatically, grounded in actual data."', name: 'Priya Nair', role: 'Chief of Staff', company: 'Enterprise FinTech' },
-              { q: '"The boardroom simulation feature is unlike anything I\'ve seen — our CFO twin actually disagreed with a decision that saved us $2M."', name: 'Marcus Schwartz', role: 'CEO', company: 'Manufacturing Co.' },
-            ].map((t, i) => (
-              <div key={i} className="glass-card lift" style={{ padding: 32, background: '#0a0a0a' }}>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, marginBottom: 28, fontFamily: "'Plus Jakarta Sans', sans-serif", fontStyle: 'italic' }}>
-                  {t.q}
-                </div>
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#CAFF00', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, color: '#000', flexShrink: 0 }}>
-                    {t.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{t.name}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace" }}>{t.role} · {t.company}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* ── PRICING ───────────────────────────────────────────────────────────── */}
       <section id="pricing" style={{ padding: '120px 40px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 60, flexWrap: 'wrap', gap: 24 }}>
           <div>
-            <div className="suite-num reveal-child" style={{ marginBottom: 12 }}>#006</div>
+            <div className="suite-num reveal-child" style={{ marginBottom: 12 }}>#003</div>
             <h2 className="display-md reveal-child">
               Transparent pricing,<br />
               <span className="display-lime">built for teams.</span>
