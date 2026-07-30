@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import MicrosoftClarity from "@/components/MicrosoftClarity";
 
 export const metadata: Metadata = {
   title: "Synaps AI — 3D Corporate Memory & 10-Agent AI Boardroom",
@@ -36,7 +37,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=Unbounded:wght@700;800;900&family=Space+Grotesk:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
-        {/* Microsoft Clarity Analytics */}
+        {/* Microsoft Clarity Analytics Script Fallback */}
         <Script
           id="microsoft-clarity"
           strategy="afterInteractive"
@@ -54,6 +55,7 @@ export default function RootLayout({
       <body className="antialiased selection:bg-black selection:text-white min-h-screen overflow-x-hidden" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <AuthProvider>
+            <MicrosoftClarity />
             {children}
             <Toaster />
             <Analytics />
