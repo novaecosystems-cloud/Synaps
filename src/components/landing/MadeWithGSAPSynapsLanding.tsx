@@ -5,6 +5,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
+import CinematicEnterpriseMorph from './CinematicEnterpriseMorph';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, TextPlugin);
@@ -669,6 +670,20 @@ export default function MadeWithGSAPSynapsLanding() {
             <div style={{ width: 1, height: 40, background: 'linear-gradient(to bottom, rgba(16,185,129,0.5), transparent)' }} />
           </div>
         </div>
+      </section>
+
+      {/* ── CINEMATIC 4D ENTERPRISE MORPHING ANIMATION SECTION ───────────── */}
+      <section style={{ maxWidth: 1260, margin: '0 auto', padding: '40px 30px 20px 30px', position: 'relative', zIndex: 10 }}>
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          <span className="tag-pill">ENGINEERING-GRADE 4D KNOWLEDGE NARRATIVE</span>
+          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(28px, 3.5vw, 48px)', fontWeight: 900, color: '#FFF', marginTop: 14 }}>
+            From Information to <span style={{ background: 'linear-gradient(135deg, #10B981, #6366F1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Intelligence</span>
+          </h2>
+          <p style={{ fontSize: 15, color: '#94A3B8', marginTop: 10, maxWidth: 640, margin: '10px auto 0 auto' }}>
+            An interactive 4D hypercube narrative mapping enterprise data, unified knowledge, cross-departmental connections, and continuous organizational memory.
+          </p>
+        </div>
+        <CinematicEnterpriseMorph />
       </section>
 
       {/* ── STATS ROW ─────────────────────────────────────────────────────── */}
