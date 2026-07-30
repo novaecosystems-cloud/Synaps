@@ -11,6 +11,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 export default function DecisionsPage() {
   const [decisions, setDecisions] = useState<any[]>([]);
@@ -196,6 +197,9 @@ export default function DecisionsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Active Knowledge Selector Bar */}
+      <ActiveKnowledgeSelector />
 
       {/* ── NATURAL LANGUAGE DECISION MEMORY SEARCH BAR ────────────── */}
       <div className="p-6 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/30 text-white rounded-3xl shadow-xl space-y-4">

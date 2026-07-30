@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
+import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 const AGENT_TYPE_ICONS: Record<string, any> = {
   RESEARCH: Sparkles,
@@ -137,6 +138,9 @@ export default function MissionControlClient() {
           </div>
         )}
       </div>
+
+      {/* Active Knowledge Selector Bar */}
+      <ActiveKnowledgeSelector />
 
       {/* ── MISSION LAUNCH BAR ────────────────────────────────────── */}
       {!activeMission && (

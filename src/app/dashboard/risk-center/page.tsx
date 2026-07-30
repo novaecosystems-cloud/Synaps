@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 export default function RiskCenterPage() {
   const [dashboardData, setDashboardData] = useState<any | null>(null);
@@ -125,6 +126,9 @@ export default function RiskCenterPage() {
           {scanning ? 'Running AI Risk Scanner...' : 'Run Live AI Risk Scan'}
         </Button>
       </div>
+
+      {/* Active Knowledge Selector Bar */}
+      <ActiveKnowledgeSelector />
 
       {loading ? (
         <div className="w-full py-20 flex flex-col items-center justify-center text-base-content">

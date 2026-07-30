@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 export default function DigitalTwinClient() {
   const [twins, setTwins] = useState<any[]>([]);
@@ -78,6 +79,9 @@ export default function DigitalTwinClient() {
           Simulate strategic decisions across your C-suite (CEO, CFO, CTO, COO, Legal, Sales, Marketing, HR). Every twin grounds recommendations in historical company memory, documents, and risk tolerances without hallucination.
         </p>
       </div>
+
+      {/* Active Knowledge Selector Bar */}
+      <ActiveKnowledgeSelector />
 
       {/* ── MULTI-TWIN BOARDROOM SIMULATION STAGE ────────────────────── */}
       <div className="p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-4">

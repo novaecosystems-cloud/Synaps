@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
+import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 interface Citation {
   documentId?: string;
@@ -281,6 +282,9 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
           </p>
         </div>
       </div>
+
+      {/* Active Knowledge Selector Bar */}
+      <ActiveKnowledgeSelector />
 
       {/* 2. EXECUTIVE SCORECARDS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 interface ProactiveActionRecommendation {
   id: string;
@@ -102,6 +103,9 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
           </Button>
         </div>
       </div>
+
+      {/* Active Knowledge Selector Bar */}
+      <ActiveKnowledgeSelector />
 
       {/* ── TODAY'S PRIORITIES & WEEKLY SUMMARY ──────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
