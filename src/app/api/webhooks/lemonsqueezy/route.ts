@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { ROLE_CREDIT_LIMITS } from '@/lib/ai-credit-limiter';
+import { checkIdempotency, saveIdempotencyResponse } from '@/lib/idempotency';
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,6 +28,16 @@ export async function POST(req: NextRequest) {
     const eventName = body?.meta?.event_name;
     const customData = body?.meta?.custom_data || {};
     const userEmail = body?.data?.attributes?.user_email || customData.user_email;
+
+    // Webhook event deduplication via Idempotency Engine
+    const webhookEventId = body?.data?.id ? `ls_evt_${body.data.id}` : `ls_evt_${eventName}_${userEmail}`;
+    if (webhookEventId) {
+      const { isDuplicate, isProcessing } = checkIdempotency(webhookEventId);
+      if (isDuplicate || isProcessing) {
+        console.log(`[LemonSqueezy Webhook] Duplicate webhook event ignored: ${webhookEventId}`);
+        return NextResponse.json({ success: true, message: 'Duplicate webhook event safely ignored', event: eventName });
+      }
+    }
 
     console.log(`[LemonSqueezy Webhook] Event: ${eventName}, Email: ${userEmail}`);
 
@@ -105,6 +116,10 @@ export async function POST(req: NextRequest) {
           }
         });
       } catch (e) {}
+    }
+
+    if (webhookEventId) {
+      saveIdempotencyResponse(webhookEventId, { success: true, event: eventName });
     }
 
     return NextResponse.json({ success: true, event: eventName });

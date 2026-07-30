@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getLemonSqueezyCheckoutUrl, triggerLemonSqueezyApiRefund } from '@/lib/lemonsqueezy';
+import { generateIdempotencyKey } from '@/lib/idempotency';
 
 interface MultiStepPaywallProps {
   isOpen: boolean;
@@ -57,6 +58,7 @@ export default function MultiStepPaywallModal({
   const [refundReason, setRefundReason] = useState('');
   const [refundRequested, setRefundRequested] = useState(false);
   const [refundSubmitting, setRefundSubmitting] = useState(false);
+  const [noticeSubmitting, setNoticeSubmitting] = useState(false);
   const [paymentSuccessState, setPaymentSuccessState] = useState(false);
   const [checkoutNoticeSent, setCheckoutNoticeSent] = useState(false);
 
@@ -91,38 +93,53 @@ export default function MultiStepPaywallModal({
   };
 
   const handleSendPaymentNotice = async () => {
-    if (!userEmail.trim()) return;
+    if (!userEmail.trim() || noticeSubmitting) return;
+
+    setNoticeSubmitting(true);
+    const idempKey = generateIdempotencyKey('pay_notice');
+
     try {
       await fetch('/api/settings/billing/upgrade', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Idempotency-Key': idempKey
+        },
         body: JSON.stringify({
           action: 'payment_notice',
           userEmail: userEmail.trim(),
-          planId: selectedPlan
+          planId: selectedPlan,
+          idempotencyKey: idempKey
         })
       });
     } catch (e) {}
 
     setCheckoutNoticeSent(true);
+    setNoticeSubmitting(false);
     triggerPaymentSuccessState();
   };
 
   const handleRequestRefund = async () => {
     const emailToUse = refundUserEmail.trim() || userEmail.trim();
-    if (!emailToUse) return;
+    if (!emailToUse || refundSubmitting) return;
     
     setRefundSubmitting(true);
+    const idempKey = generateIdempotencyKey('refund_req');
+
     try {
       await fetch('/api/settings/billing/upgrade', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Idempotency-Key': idempKey
+        },
         body: JSON.stringify({
           action: 'refund_request',
           userEmail: emailToUse,
           refundMethod: 'lemonsqueezy',
           refundPayoutDetails: emailToUse,
-          reason: refundReason || '14-Day 100% Money-Back Guarantee'
+          reason: refundReason || '14-Day 100% Money-Back Guarantee',
+          idempotencyKey: idempKey
         })
       });
 
@@ -486,10 +503,11 @@ export default function MultiStepPaywallModal({
                         />
                         <button 
                           onClick={handleSendPaymentNotice}
-                          disabled={!userEmail.trim()}
-                          className="btn btn-primary btn-sm rounded-xl text-xs font-bold px-4"
+                          disabled={!userEmail.trim() || noticeSubmitting}
+                          className="btn btn-primary btn-sm rounded-xl text-xs font-bold px-4 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Verify & Activate ({selectedPlan === 'pro' ? 'Pro $7' : 'Max $20'})
+                          {noticeSubmitting && <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0" />}
+                          {noticeSubmitting ? 'Verifying Safely...' : `Verify & Activate (${selectedPlan === 'pro' ? 'Pro $7' : 'Max $20'})`}
                         </button>
                       </div>
                       {checkoutNoticeSent && (

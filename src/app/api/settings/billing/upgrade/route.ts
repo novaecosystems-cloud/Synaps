@@ -5,8 +5,10 @@ import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { ROLE_CREDIT_LIMITS } from '@/lib/ai-credit-limiter';
+import { checkIdempotency, saveIdempotencyResponse, clearIdempotencyKey } from '@/lib/idempotency';
 
 export async function POST(req: NextRequest) {
+  let idempotencyKey = '';
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('synaps-session')?.value;
@@ -19,7 +21,34 @@ export async function POST(req: NextRequest) {
     }
 
     const callerId = decoded?.uid || 'demo-admin-id';
-    const { planId, action, userEmail, reason, refundMethod, refundPayoutDetails, requestId } = await req.json();
+    
+    // Extract Idempotency Key from headers or request body
+    idempotencyKey = req.headers.get('x-idempotency-key') || '';
+    const body = await req.json();
+    if (!idempotencyKey && body?.idempotencyKey) {
+      idempotencyKey = body.idempotencyKey;
+    }
+
+    // Check for duplicate / concurrent payment requests
+    if (idempotencyKey) {
+      const { isDuplicate, isProcessing, cachedResponse } = checkIdempotency(idempotencyKey);
+      if (isProcessing) {
+        return NextResponse.json(
+          { error: 'A payment or upgrade request with this idempotency key is currently processing. Please wait.' },
+          { status: 429 }
+        );
+      }
+      if (isDuplicate && cachedResponse) {
+        console.log(`[Idempotency Engine] Duplicate payment request blocked for key: ${idempotencyKey}`);
+        return NextResponse.json({
+          ...cachedResponse,
+          isDuplicate: true,
+          notice: 'Duplicate payment request safely prevented via Idempotency Engine.'
+        });
+      }
+    }
+
+    const { planId, action, userEmail, reason, refundMethod, refundPayoutDetails, requestId } = body;
 
     // 1. Handle User Payment Notice / Upgrade Request
     if (action === 'payment_notice') {
@@ -183,15 +212,24 @@ export async function POST(req: NextRequest) {
 
     ROLE_CREDIT_LIMITS[newRole] = newCreditLimit;
 
-    return NextResponse.json({
+    const resPayload = {
       success: true,
       message: `Plan upgraded successfully to ${planId?.toUpperCase() || 'PRO'}! Daily AI credit limit increased to ${newCreditLimit}.`,
       planId,
       newRole,
       newCreditLimit
-    });
+    };
+
+    if (idempotencyKey) {
+      saveIdempotencyResponse(idempotencyKey, resPayload);
+    }
+
+    return NextResponse.json(resPayload);
 
   } catch (error: any) {
+    if (idempotencyKey) {
+      clearIdempotencyKey(idempotencyKey);
+    }
     console.error('POST /api/settings/billing/upgrade error:', error);
     return NextResponse.json({
       success: true,
