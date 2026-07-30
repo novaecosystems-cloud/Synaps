@@ -29,6 +29,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
 import SynapsWrappedModal from '@/components/SynapsWrappedModal';
+import { BackgroundTaskProvider } from '@/context/BackgroundTaskContext';
+
+const MasterExportButton = dynamic(() => import('@/components/MasterExportButton'), { ssr: false });
+const BackgroundTaskWidget = dynamic(() => import('@/components/BackgroundTaskWidget'), { ssr: false });
 
 const NotificationDropdown = dynamic(() => import('@/components/NotificationDropdown'), { ssr: false });
 const GlobalSearch = dynamic(() => import('@/components/GlobalSearch').then(mod => mod.GlobalSearch), { ssr: false });
@@ -232,7 +236,8 @@ export default function ClientLayout({ children, user }: { children: React.React
   };
 
   return (
-    <div className="flex h-screen w-full bg-background overflow-hidden relative tour-dashboard">
+    <BackgroundTaskProvider>
+      <div className="flex h-screen w-full bg-background overflow-hidden relative tour-dashboard">
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div 
@@ -375,6 +380,12 @@ export default function ClientLayout({ children, user }: { children: React.React
           {/* Top Actions (Responsive 9:16 Action Bar) */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             
+            {/* Background Task Indicator Widget */}
+            <BackgroundTaskWidget />
+
+            {/* Master Export Reports Dropdown */}
+            <MasterExportButton />
+            
             {/* Spotify-Wrapped Style Executive Progress Card Button */}
             <button
               onClick={() => setIsWrappedModalOpen(true)}
@@ -433,5 +444,6 @@ export default function ClientLayout({ children, user }: { children: React.React
         </>
       )}
     </div>
+    </BackgroundTaskProvider>
   );
 }

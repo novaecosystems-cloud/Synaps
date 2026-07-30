@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 
 interface Citation {
   documentId?: string;
@@ -235,9 +236,44 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
                 <h1 className="text-2xl font-bold tracking-tight text-white">Executive Operational Briefing</h1>
               </div>
             </div>
-            <button onClick={fetchBriefData} className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-medium flex items-center gap-2 transition-all">
-              <RefreshCw className="w-3.5 h-3.5" /> Refresh Intelligence
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => downloadAsPDF({
+                  title: 'Executive Operational Briefing',
+                  subtitle: 'SYNAPS AI COO Command Console Report',
+                  sections: [
+                    {
+                      heading: 'Executive Brief Summary',
+                      content: data.executiveBrief,
+                      kvPairs: {
+                        'Org Health Score': `${data.healthScore}/100`,
+                        'Knowledge Coverage': `${data.knowledgeCoverage}%`,
+                        'Risk Level': data.riskLevel,
+                        'Decision Confidence': `${data.decisionConfidence}%`
+                      }
+                    }
+                  ]
+                })}
+                className="px-3 py-1.5 rounded-full bg-emerald-500 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 hover:bg-emerald-400 cursor-pointer shadow-md"
+              >
+                <FileText className="w-3.5 h-3.5" /> PDF Brief
+              </button>
+              <button
+                onClick={() => downloadAsCSV('executive-briefing', {
+                  executiveBrief: data.executiveBrief,
+                  healthScore: data.healthScore,
+                  knowledgeCoverage: data.knowledgeCoverage,
+                  riskLevel: data.riskLevel,
+                  decisionConfidence: data.decisionConfidence
+                })}
+                className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+              >
+                CSV
+              </button>
+              <button onClick={fetchBriefData} className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-medium flex items-center gap-2 transition-all">
+                <RefreshCw className="w-3.5 h-3.5" /> Refresh
+              </button>
+            </div>
           </div>
 
           <p className="text-sm text-slate-200 leading-relaxed max-w-4xl bg-white/5 border border-white/10 p-4 rounded-2xl backdrop-blur-md">

@@ -9,6 +9,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 
 const AGENT_TYPE_ICONS: Record<string, any> = {
   RESEARCH: Sparkles,
@@ -396,10 +397,47 @@ export default function MissionControlClient() {
               </div>
             </div>
 
-            {/* Sources & Execution Telemetry */}
-            <div className="pt-3 border-t border-base-300 flex justify-between items-center text-xs font-mono">
-              <span className="text-base-content/60">Execution Time: {selectedTask.executionTimeMs}ms</span>
-              <span className="text-emerald-400 font-bold">{selectedTask.confidenceScore}% Confidence</span>
+            {/* Sources & Execution Telemetry + Export Actions */}
+            <div className="pt-3 border-t border-base-300 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs font-mono">
+              <div className="flex items-center gap-3">
+                <span className="text-base-content/60">Execution Time: {selectedTask.executionTimeMs}ms</span>
+                <span className="text-emerald-400 font-bold">{selectedTask.confidenceScore}% Confidence</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    downloadAsPDF({
+                      title: `${selectedTask.title} — AI Mission Task Report`,
+                      subtitle: `Assigned Agent: ${selectedTask.assignedAgent} | Status: ${selectedTask.status}`,
+                      sections: [
+                        {
+                          heading: 'Concise Reasoning Summary',
+                          content: selectedTask.reasoningSummary
+                        },
+                        {
+                          heading: 'Structured Task Outputs',
+                          kvPairs: selectedTask.outputs || {}
+                        },
+                        {
+                          heading: 'Task Inputs',
+                          content: JSON.stringify(selectedTask.inputs, null, 2)
+                        }
+                      ]
+                    });
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition-all shadow-md flex items-center gap-1 cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5" /> Download PDF
+                </button>
+                <button
+                  onClick={() => {
+                    downloadAsCSV(selectedTask.title.toLowerCase().replace(/\s+/g, '-'), selectedTask.outputs || selectedTask);
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-500 transition-all shadow-md flex items-center gap-1 cursor-pointer"
+                >
+                  Download CSV
+                </button>
+              </div>
             </div>
           </div>
         </div>
