@@ -836,52 +836,110 @@ export default function MadeWithGSAPSynapsLanding() {
       {/* ── PRICING SECTION ──────────────────────────────────────────────── */}
       <section id="pricing" style={{ padding: '100px 30px', background: '#060810', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translateX(-50%)', width: 800, height: 400, background: 'radial-gradient(ellipse, rgba(16,185,129,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: 680, margin: '0 auto', position: 'relative' }}>
+        <div style={{ maxWidth: 1140, margin: '0 auto', position: 'relative' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <span className="tag-pill">MEMBERSHIP & ENTERPRISE ACCESS</span>
+            <span className="tag-pill">TRANSPARENT ENTERPRISE PRICING</span>
             <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(32px, 4vw, 52px)', fontWeight: 900, color: '#FFF', marginTop: 16, lineHeight: 1.1 }}>
               Unlock the full<br />
               <span style={{ background: 'linear-gradient(135deg, #10B981, #6366F1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>intelligence suite</span>
             </h2>
+            <p style={{ fontSize: 15, color: '#64748B', marginTop: 12 }}>Pick the plan designed for your organization's decision scale.</p>
           </div>
 
-          <div className="pricing-card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 36 }}>
-              <button onClick={() => setIsAnnual(false)} style={{ background: 'none', border: 'none', fontSize: 15, fontWeight: 700, color: !isAnnual ? '#FFF' : '#475569', cursor: 'pointer', transition: 'color 0.2s' }}>Quarterly</button>
-              <div onClick={() => setIsAnnual(!isAnnual)} style={{ width: 52, height: 28, background: isAnnual ? '#10B981' : '#1E293B', borderRadius: 20, padding: 3, cursor: 'pointer', transition: 'background 0.3s' }}>
-                <div style={{ width: 22, height: 22, background: '#FFF', borderRadius: '50%', transform: isAnnual ? 'translateX(24px)' : 'translateX(0)', transition: 'transform 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }} />
+          {/* Pricing Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyCenter: 'center', gap: 16, marginBottom: 44, justifyContent: 'center' }}>
+            <button onClick={() => setIsAnnual(false)} style={{ background: 'none', border: 'none', fontSize: 14, fontWeight: 700, color: !isAnnual ? '#FFF' : '#475569', cursor: 'pointer' }}>Monthly</button>
+            <div onClick={() => setIsAnnual(!isAnnual)} style={{ width: 52, height: 28, background: isAnnual ? '#10B981' : '#1E293B', borderRadius: 20, padding: 3, cursor: 'pointer', transition: 'background 0.3s' }}>
+              <div style={{ width: 22, height: 22, background: '#FFF', borderRadius: '50%', transform: isAnnual ? 'translateX(24px)' : 'translateX(0)', transition: 'transform 0.3s' }} />
+            </div>
+            <button onClick={() => setIsAnnual(true)} style={{ background: 'none', border: 'none', fontSize: 14, fontWeight: 700, color: isAnnual ? '#FFF' : '#475569', cursor: 'pointer' }}>
+              Annual <span style={{ background: 'rgba(16,185,129,0.2)', color: '#10B981', padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 800 }}>Save 20%</span>
+            </button>
+          </div>
+
+          {/* 3 Pricing Cards Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 28 }}>
+            
+            {/* Free Trial / Starter Card */}
+            <div className="pricing-card" style={{ padding: '36px 30px', textAlign: 'left' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#64748B', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12 }}>STARTER TRIAL</div>
+              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 44, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>
+                $0 <span style={{ fontSize: 14, color: '#475569', fontWeight: 600 }}>/ 14 days</span>
               </div>
-              <button onClick={() => setIsAnnual(true)} style={{ background: 'none', border: 'none', fontSize: 15, fontWeight: 700, color: isAnnual ? '#FFF' : '#475569', cursor: 'pointer', transition: 'color 0.2s' }}>
-                Annual <sup style={{ background: 'rgba(16,185,129,0.2)', color: '#10B981', padding: '2px 6px', borderRadius: 10, fontSize: 10 }}>-20%</sup>
-              </button>
+              <p style={{ fontSize: 13, color: '#64748B', marginBottom: 24 }}>Ideal for evaluating document ingestion and memory graphs.</p>
+
+              <ul style={{ listStyle: 'none', fontSize: 13, color: '#94A3B8', lineHeight: 2.2, marginBottom: 32, padding: 0 }}>
+                {['100 Free AI Credits', 'Single User Org Workspace', 'Basic Document Ingestion (up to 10 MB)', 'Standard AI Assistant Chat', 'Export PDF / CSV Reports'].map((item, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ color: '#10B981', fontWeight: 800 }}>✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link href="/login" className="cta-secondary" style={{ width: '100%', justifyContent: 'center', fontSize: 13, padding: '12px 0', borderRadius: 12, textAlign: 'center', display: 'block' }}>
+                Start 14-Day Free Trial
+              </Link>
             </div>
 
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1 }}>
-              <span style={{ fontSize: 64, fontWeight: 900, color: '#FFF' }}>${isAnnual ? '39' : '49'}</span>
-              <span style={{ fontSize: 16, color: '#475569', fontWeight: 600 }}>/month</span>
+            {/* Pro Member Card ($7/mo) */}
+            <div className="pricing-card" style={{ padding: '36px 30px', textAlign: 'left', border: '1px solid rgba(16,185,129,0.4)', background: 'linear-gradient(145deg, #0B131E, #0F172A)', boxShadow: '0 0 40px rgba(16,185,129,0.15)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: '#10B981', letterSpacing: '1px', textTransform: 'uppercase' }}>PRO MEMBER</span>
+                <span style={{ background: '#10B981', color: '#000', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 10 }}>MOST POPULAR</span>
+              </div>
+              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 44, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>
+                ${isAnnual ? '7' : '9'} <span style={{ fontSize: 14, color: '#475569', fontWeight: 600 }}>/month</span>
+              </div>
+              <p style={{ fontSize: 13, color: '#64748B', marginBottom: 24 }}>For growing teams requiring full AI multi-agent orchestration.</p>
+
+              <ul style={{ listStyle: 'none', fontSize: 13, color: '#94A3B8', lineHeight: 2.2, marginBottom: 32, padding: 0 }}>
+                {[
+                  '1,000 AI Reasoning Credits / mo',
+                  'Multi-Agent Flight Control (10 Parallel Agents)',
+                  'Full 3D Corporate Memory Graph',
+                  'Universal PDF & CSV Export Engine',
+                  'Multi-Tenant Org Isolation & Team Invites',
+                  'Priority GPU Processing Queue'
+                ].map((item, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ color: '#10B981', fontWeight: 800 }}>✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link href="/login" className="cta-primary" style={{ width: '100%', justifyContent: 'center', fontSize: 13, padding: '13px 0', borderRadius: 12, textAlign: 'center', display: 'block', background: 'linear-gradient(135deg, #10B981, #059669)', boxShadow: '0 8px 25px rgba(16,185,129,0.3)' }}>
+                Get Started with Pro ($7/mo) →
+              </Link>
             </div>
-            <div style={{ fontSize: 13, color: '#334155', marginTop: 6, marginBottom: 36 }}>{isAnnual ? 'billed annually · save $120/yr' : 'billed quarterly'}</div>
 
-            <ul style={{ listStyle: 'none', textAlign: 'left', fontSize: 14, lineHeight: 2.2, color: '#94A3B8', marginBottom: 36 }}>
-              {[
-                'Unlimited Executive Operational Briefing Console',
-                'Multi-Agent Flight Control System (10 Parallel Personas)',
-                'Executive Digital Twins & Boardroom Simulation Engine',
-                'AI Strategy Studio & 11-Stage Roadmap Generator',
-                'REST API, TypeScript & Python SDK access',
-                '24/7 Enterprise Priority Support & 99.9% Uptime SLA',
-              ].map((f, i) => (
-                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ width: 20, height: 20, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#10B981', flexShrink: 0 }}>✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
+            {/* Enterprise Max Card ($20/mo) */}
+            <div className="pricing-card" style={{ padding: '36px 30px', textAlign: 'left', border: '1px solid rgba(99,102,241,0.4)' }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#6366F1', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 12 }}>ENTERPRISE MAX</div>
+              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 44, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>
+                ${isAnnual ? '20' : '25'} <span style={{ fontSize: 14, color: '#475569', fontWeight: 600 }}>/month</span>
+              </div>
+              <p style={{ fontSize: 13, color: '#64748B', marginBottom: 24 }}>For C-suite executive teams, boardroom simulations & strategy roadmaps.</p>
 
-            <Link href="/login" className="cta-primary" style={{ width: '100%', justifyContent: 'center', fontSize: 15, padding: '16px 0', borderRadius: 14 }}>
-              <span>Get Started with Synaps Pro</span><span>→</span>
-            </Link>
-            <p style={{ fontSize: 12, color: '#334155', marginTop: 16 }}>No credit card required · 14-day free trial</p>
+              <ul style={{ listStyle: 'none', fontSize: 13, color: '#94A3B8', lineHeight: 2.2, marginBottom: 32, padding: 0 }}>
+                {[
+                  'Unlimited AI Reasoning Credits',
+                  '110 Enterprise Decision Models',
+                  '8 C-Suite Digital Twins & Boardroom Simulation',
+                  'AI Strategy Studio & 11-Stage Transformation Roadmap',
+                  'Custom Webhooks & REST API Access',
+                  'Dedicated Account Manager & 99.9% SLA'
+                ].map((item, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ color: '#6366F1', fontWeight: 800 }}>✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link href="/login" className="cta-primary" style={{ width: '100%', justifyContent: 'center', fontSize: 13, padding: '13px 0', borderRadius: 12, textAlign: 'center', display: 'block', background: 'linear-gradient(135deg, #6366F1, #4F46E5)' }}>
+                Unlock Enterprise Max ($20/mo) →
+              </Link>
+            </div>
+
           </div>
         </div>
       </section>
