@@ -9,6 +9,7 @@ import { Analytics } from "@vercel/analytics/react";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import MicrosoftClarity from "@/components/MicrosoftClarity";
 import AppUpdateNotifier from "@/components/AppUpdateNotifier";
+import { getSoftwareApplicationJsonLd } from "@/lib/openseo";
 
 export const metadata: Metadata = {
   title: "Synaps AI — 3D Corporate Memory & 10-Agent AI Boardroom",
@@ -50,6 +51,13 @@ export default function RootLayout({
                   y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
               })(window, document, "clarity", "script", "xuccocifvr");
             `,
+          }}
+        />
+        {/* OpenSEO Schema.org JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(getSoftwareApplicationJsonLd())
           }}
         />
       </head>
