@@ -38,6 +38,17 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
 
   // Node type filter
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string | null>(null);
+  const [autoRotate, setAutoRotate] = useState(false);
+
+  useEffect(() => {
+    if (fgRef.current) {
+      const controls = fgRef.current.controls();
+      if (controls) {
+        controls.autoRotate = autoRotate;
+        controls.autoRotateSpeed = 0.8;
+      }
+    }
+  }, [autoRotate]);
 
   useEffect(() => {
     setMounted(true);
@@ -210,8 +221,19 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
           <span className="font-extrabold text-sm tracking-wider uppercase">Synaps Memory Graph</span>
         </div>
 
-        {/* Node Filters */}
+        {/* Node Filters & Controls */}
         <div className="hidden md:flex items-center gap-1.5 p-1 bg-black/80 border border-white/10 backdrop-blur-xl rounded-2xl">
+          <button
+            onClick={() => setAutoRotate(!autoRotate)}
+            className={cn(
+              "px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border",
+              autoRotate ? "bg-emerald-600 text-white border-emerald-400 shadow-md" : "text-white/60 hover:text-white border-transparent"
+            )}
+          >
+            <RefreshCw className={cn("w-3 h-3", autoRotate && "animate-spin")} />
+            {autoRotate ? 'Orbit Active' : '3D Orbit'}
+          </button>
+
           <button
             onClick={() => setSelectedTypeFilter(null)}
             className={cn(
