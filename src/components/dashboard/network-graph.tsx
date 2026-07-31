@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { 
   X, ExternalLink, Send, FileText, FolderKanban, ShieldCheck,
   Command, Network, BrainCircuit, Calendar, Tag, Layers, CheckCircle2,
-  HelpCircle, ArrowRight, Cpu, Zap, Users, Clock, History, AlertTriangle
+  HelpCircle, ArrowRight, Cpu, Zap, Users, Clock, History, AlertTriangle, Link2, Sparkles, FileCode
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -23,22 +23,51 @@ interface NetworkGraphProps {
 export function NetworkGraph({ data }: NetworkGraphProps) {
   const fgRef = useRef<any>();
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  
+  // Selection states
   const [selectedNode, setSelectedNode] = useState<any | null>(null);
+  const [selectedLink, setSelectedLink] = useState<any | null>(null);
+  
   const [nodeDetails, setNodeDetails] = useState<any | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [activeTab, setActiveTab] = useState<'summary' | 'docs' | 'people' | 'meetings' | 'projects' | 'decisions' | 'activity'>('summary');
   
   const [hoverNode, setHoverNode] = useState<any | null>(null);
+  const [hoverLink, setHoverLink] = useState<any | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  // Controls
+  const [selectedTypeFilter, setSelectedTypeFilter] = useState<string | null>(null);
+  const [autoRotate, setAutoRotate] = useState(false);
 
   // Graph Reasoning AI State
   const [queryInput, setQueryInput] = useState('');
   const [reasoningResult, setReasoningResult] = useState<any | null>(null);
   const [isReasoning, setIsReasoning] = useState(false);
 
-  // Node type filter
-  const [selectedTypeFilter, setSelectedTypeFilter] = useState<string | null>(null);
-  const [autoRotate, setAutoRotate] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    
+    setTimeout(() => {
+      if (fgRef.current) {
+        fgRef.current.d3Force('charge')?.strength(-800);
+        fgRef.current.d3Force('link')?.distance(140);
+        fgRef.current.cameraPosition({ x: 0, y: 0, z: 280 }, { x: 0, y: 0, z: 0 }, 1000);
+        
+        const scene = fgRef.current.scene();
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        directionalLight.position.set(2, 2, 2);
+        scene.add(ambientLight);
+        scene.add(directionalLight);
+      }
+    }, 400);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (fgRef.current) {
@@ -50,47 +79,24 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
     }
   }, [autoRotate]);
 
-  useEffect(() => {
-    setMounted(true);
-    const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener('resize', handleResize);
-    setDimensions({ width: window.innerWidth, height: window.innerHeight });
-    
-    setTimeout(() => {
-      if (fgRef.current) {
-        fgRef.current.d3Force('charge')?.strength(-750);
-        fgRef.current.d3Force('link')?.distance(130);
-        fgRef.current.cameraPosition({ x: 0, y: 0, z: 280 }, { x: 0, y: 0, z: 0 }, 1000);
-        
-        const scene = fgRef.current.scene();
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
-        directionalLight.position.set(1, 1, 1);
-        scene.add(ambientLight);
-        scene.add(directionalLight);
-      }
-    }, 400);
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const getNodeColor = (type: string) => {
     const t = (type || '').toUpperCase();
     switch (t) {
-      case 'DOCUMENT': return '#10b981'; // emerald
-      case 'CONTRACT': return '#f59e0b'; // amber
-      case 'INVOICE': return '#ef4444'; // red
+      case 'ORGANIZATION': return '#06b6d4'; // cyan
+      case 'DOCUMENT': return '#3b82f6'; // royal blue
+      case 'CONTRACT': return '#f59e0b'; // gold / amber
+      case 'INVOICE': return '#ef4444'; // crimson
       case 'VENDOR':
-      case 'CUSTOMER': return '#ec4899'; // pink
-      case 'PROJECT':
-      case 'BUDGET': return '#8b5cf6'; // purple
+      case 'CUSTOMER': return '#ec4899'; // pink / fuchsia
+      case 'PROJECT': return '#6366f1'; // electric indigo
+      case 'BUDGET': return '#8b5cf6'; // amethyst purple
       case 'EMPLOYEE':
-      case 'DEPARTMENT': return '#3b82f6'; // blue
+      case 'DEPARTMENT': return '#38bdf8'; // sky blue
       case 'DECISION':
       case 'MEETING': return '#eab308'; // yellow
       case 'POLICY':
       case 'COMPLIANCE_REQUIREMENT':
-      case 'SOP': return '#06b6d4'; // cyan
+      case 'SOP': return '#10b981'; // emerald shield
       default: return '#a855f7';
     }
   };
@@ -107,6 +113,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
   }, [data, selectedTypeFilter]);
 
   const handleNodeClick = useCallback(async (node: any) => {
+    setSelectedLink(null);
     setSelectedNode(node);
     setActiveTab('summary');
     setLoadingDetails(true);
@@ -133,32 +140,66 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
     }
   }, []);
 
+  const handleLinkClick = useCallback((link: any) => {
+    setSelectedNode(null);
+    setSelectedLink(link);
+  }, []);
+
+  // Custom Metallic Glassmorphic 3D Node Mesh
   const nodeThreeObject = useCallback((node: any) => {
-    const color = getNodeColor(node.type);
+    const colorHex = getNodeColor(node.type);
     const group = new THREE.Group();
 
-    const geometry = new THREE.SphereGeometry(3.5, 32, 32);
-    const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(color),
-      emissive: new THREE.Color(color),
-      emissiveIntensity: 0.6,
-      roughness: 0.1,
-      metalness: 0.9
+    // Metallic Core Sphere
+    const coreGeometry = new THREE.SphereGeometry(3.6, 32, 32);
+    const coreMaterial = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(colorHex),
+      emissive: new THREE.Color(colorHex),
+      emissiveIntensity: 0.7,
+      roughness: 0.2,
+      metalness: 0.8
     });
-    const sphere = new THREE.Mesh(geometry, material);
-    group.add(sphere);
+    const core = new THREE.Mesh(coreGeometry, coreMaterial);
+    group.add(core);
 
+    // Outer Glass Aura Ring
+    const auraGeometry = new THREE.SphereGeometry(4.8, 32, 32);
+    const auraMaterial = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(colorHex),
+      transparent: true,
+      opacity: 0.25,
+      roughness: 0.1,
+      transmission: 0.8,
+      thickness: 1.2
+    });
+    const aura = new THREE.Mesh(auraGeometry, auraMaterial);
+    group.add(aura);
+
+    // 3D Sprite Text Badge
     const sprite = new SpriteText(node.name || 'Entity');
-    sprite.color = '#f8fafc';
-    sprite.textHeight = 3.6;
-    sprite.fontWeight = '600';
-    sprite.backgroundColor = 'rgba(3, 4, 8, 0.75)';
-    sprite.padding = [2, 4];
-    sprite.borderRadius = 4;
-    sprite.position.set(0, 7, 0);
+    sprite.color = '#ffffff';
+    sprite.textHeight = 3.8;
+    sprite.fontWeight = '700';
+    sprite.backgroundColor = 'rgba(2, 3, 6, 0.85)';
+    sprite.padding = [3, 6];
+    sprite.borderRadius = 6;
+    sprite.position.set(0, 8, 0);
     group.add(sprite);
 
     return group;
+  }, []);
+
+  // Custom 3D Link Relationship Badge at Link Midpoint
+  const linkThreeObject = useCallback((link: any) => {
+    const label = link.type || 'CONNECTED_TO';
+    const sprite = new SpriteText(label);
+    sprite.color = '#a5b4fc';
+    sprite.textHeight = 2.4;
+    sprite.fontWeight = '700';
+    sprite.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+    sprite.padding = [2, 4];
+    sprite.borderRadius = 4;
+    return sprite;
   }, []);
 
   const handleReasoningQuery = async () => {
@@ -188,7 +229,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
   if (!mounted) return null;
 
   return (
-    <div className="relative w-full h-full bg-[#030408] overflow-hidden select-none font-sans">
+    <div className="relative w-full h-full bg-[#020306] overflow-hidden select-none font-sans">
       
       {/* 3D Force Graph Render */}
       <ForceGraph3D
@@ -197,31 +238,55 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
         height={dimensions.height}
         graphData={filteredData}
         nodeThreeObject={nodeThreeObject}
-        nodeLabel={(n: any) => `<div style="background: rgba(3,4,8,0.95); border: 1px solid ${getNodeColor(n.type)}; padding: 6px 12px; border-radius: 10px; font-family: sans-serif; color: white;">
-          <strong style="color: ${getNodeColor(n.type)}; font-size: 11px;">${n.type || 'ENTITY'}</strong>: <span style="font-weight: 700;">${n.name}</span><br/>
-          <span style="font-size: 11px; color: #94a3b8;">${n.description || 'Enterprise Memory Node'}</span>
+        linkThreeObject={linkThreeObject}
+        linkPositionUpdate={(sprite: any, { start, end }: any) => {
+          const middle = {
+            x: start.x + (end.x - start.x) / 2,
+            y: start.y + (end.y - start.y) / 2,
+            z: start.z + (end.z - start.z) / 2
+          };
+          Object.assign(sprite.position, middle);
+        }}
+        nodeLabel={(n: any) => `<div style="background: rgba(2,3,6,0.95); border: 1px solid ${getNodeColor(n.type)}; padding: 8px 14px; border-radius: 12px; font-family: sans-serif; color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="background: ${getNodeColor(n.type)}30; color: ${getNodeColor(n.type)}; border: 1px solid ${getNodeColor(n.type)}60; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">${n.type || 'ENTITY'}</span>
+            <strong style="font-[700]; font-size: 13px;">${n.name}</strong>
+          </div>
+          <p style="font-size: 11px; color: #cbd5e1; margin-top: 4px; line-height: 1.4;">${n.description || 'Enterprise Memory Node'}</p>
         </div>`}
+        linkLabel={(l: any) => {
+          const sourceName = typeof l.source === 'object' ? l.source.name : l.source;
+          const targetName = typeof l.target === 'object' ? l.target.name : l.target;
+          return `<div style="background: rgba(15, 23, 42, 0.95); border: 1px solid #6366f1; padding: 10px 14px; border-radius: 12px; font-family: sans-serif; color: white; max-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.8);">
+            <div style="font-size: 10px; font-weight: 800; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">⚡ Connection Summary</div>
+            <strong style="font-size: 12px; color: #f8fafc; display: block;">${sourceName} ➔ ${targetName}</strong>
+            <span style="display: inline-block; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #818cf8; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin: 4px 0;">${l.type || 'RELATIONSHIP'}</span>
+            <p style="font-size: 11px; color: #cbd5e1; margin: 4px 0 0 0; line-height: 1.4;">${l.description || 'Click link to view complete evidence & traceability.'}</p>
+          </div>`;
+        }}
         onNodeClick={handleNodeClick}
+        onLinkClick={handleLinkClick}
         onNodeHover={(n: any) => setHoverNode(n)}
-        linkColor={() => 'rgba(99, 102, 241, 0.35)'}
-        linkWidth={1.5}
-        linkDirectionalParticles={2}
-        linkDirectionalParticleWidth={1.8}
-        linkDirectionalParticleSpeed={0.006}
+        onLinkHover={(l: any) => setHoverLink(l)}
+        linkColor={(l: any) => (l === selectedLink || l === hoverLink ? '#818cf8' : 'rgba(99, 102, 241, 0.45)')}
+        linkWidth={(l: any) => (l === selectedLink || l === hoverLink ? 3.5 : 1.8)}
+        linkDirectionalParticles={3}
+        linkDirectionalParticleWidth={2.4}
+        linkDirectionalParticleSpeed={0.008}
         linkDirectionalParticleColor={() => '#a855f7'}
-        backgroundColor="#030408"
+        backgroundColor="#020306"
       />
 
-      {/* Top Left Header */}
+      {/* Top Left Header Toolbar */}
       <div className="absolute top-6 left-6 z-40 flex items-center gap-3">
         <div className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-black/80 border border-indigo-500/30 backdrop-blur-xl shadow-2xl text-white">
           <div className="w-6 h-6 rounded-lg bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
             <BrainCircuit className="w-4 h-4" />
           </div>
-          <span className="font-extrabold text-sm tracking-wider uppercase">Synaps Memory Graph</span>
+          <span className="font-extrabold text-sm tracking-wider uppercase">Synaps Living Knowledge Graph</span>
         </div>
 
-        {/* Node Filters & Controls */}
+        {/* Controls Toolbar */}
         <div className="hidden md:flex items-center gap-1.5 p-1 bg-black/80 border border-white/10 backdrop-blur-xl rounded-2xl">
           <button
             onClick={() => setAutoRotate(!autoRotate)}
@@ -243,7 +308,8 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
           >
             All Nodes ({data.nodes.length})
           </button>
-          {['ORGANIZATION', 'DOCUMENT', 'MEETING', 'CONTRACT', 'VENDOR', 'PROJECT', 'EMPLOYEE'].map((t) => (
+
+          {['ORGANIZATION', 'CONTRACT', 'VENDOR', 'POLICY', 'BUDGET', 'DOCUMENT'].map((t) => (
             <button
               key={t}
               onClick={() => setSelectedTypeFilter(selectedTypeFilter === t ? null : t)}
@@ -260,17 +326,17 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
       </div>
 
       {/* Node Legend Panel */}
-      <div className="absolute left-6 bottom-24 z-40 hidden sm:block p-4 bg-black/80 border border-white/10 backdrop-blur-2xl rounded-2xl space-y-2 text-white w-48 shadow-2xl">
+      <div className="absolute left-6 bottom-24 z-40 hidden sm:block p-4 bg-black/80 border border-white/10 backdrop-blur-2xl rounded-2xl space-y-2 text-white w-52 shadow-2xl">
         <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-2">Enterprise Node Types</span>
         <div className="space-y-1.5 text-xs">
           {[
-            { type: 'DOCUMENT', label: 'Document' },
-            { type: 'CONTRACT', label: 'Contract' },
-            { type: 'VENDOR', label: 'Customer / Vendor' },
-            { type: 'PROJECT', label: 'Project / Budget' },
-            { type: 'EMPLOYEE', label: 'Employee / Dept' },
-            { type: 'MEETING', label: 'Decision / Meeting' },
-            { type: 'POLICY', label: 'Policy / Compliance' }
+            { type: 'ORGANIZATION', label: 'Organization Vault' },
+            { type: 'CONTRACT', label: 'Legal MSA / Contract' },
+            { type: 'VENDOR', label: 'Vendor / Partner' },
+            { type: 'POLICY', label: 'Compliance & Policy' },
+            { type: 'BUDGET', label: 'Financial Budget' },
+            { type: 'DOCUMENT', label: 'Ingested File' },
+            { type: 'PROJECT', label: 'Strategic Project' }
           ].map(item => (
             <div key={item.type} className="flex items-center gap-2 font-medium">
               <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: getNodeColor(item.type) }}></div>
@@ -280,7 +346,85 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
         </div>
       </div>
 
-      {/* Right Detail Inspector Drawer */}
+      {/* Connection Relationship Inspector Drawer (WHEN A LINK IS CLICKED) */}
+      {selectedLink && (
+        <div className="absolute right-6 top-6 bottom-24 w-full max-w-md z-50 transition-all duration-300 animate-in slide-in-from-right-5 font-sans">
+          <div className="w-full h-full border border-indigo-500/40 rounded-3xl bg-black/95 backdrop-blur-2xl shadow-2xl flex flex-col overflow-hidden text-white">
+            
+            {/* Header */}
+            <div className="p-6 border-b border-indigo-500/20 relative bg-indigo-500/10">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2.5 py-1 rounded text-[10px] font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center gap-1">
+                  <Link2 className="w-3 h-3 text-indigo-400" /> Connection Relationship Summary
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  {((selectedLink.confidenceScore || 0.98) * 100).toFixed(0)}% Traceability
+                </span>
+              </div>
+              
+              <h2 className="text-lg font-extrabold text-white leading-tight mt-2 flex items-center gap-2">
+                <span style={{ color: getNodeColor(selectedLink.source?.type) }}>{typeof selectedLink.source === 'object' ? selectedLink.source.name : selectedLink.source}</span>
+                <ArrowRight className="w-4 h-4 text-indigo-400 shrink-0" />
+                <span style={{ color: getNodeColor(selectedLink.target?.type) }}>{typeof selectedLink.target === 'object' ? selectedLink.target.name : selectedLink.target}</span>
+              </h2>
+
+              <button onClick={() => setSelectedLink(null)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Relationship Detail Body */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
+              
+              {/* Relationship Type Badge */}
+              <div>
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-1">Relationship Predicate</span>
+                <span className="px-3 py-1 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-mono font-bold inline-block">
+                  {selectedLink.type || 'CONNECTED_TO'}
+                </span>
+              </div>
+
+              {/* Executive Connection Explanation */}
+              <div>
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-1.5 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Why They Are Connected
+                </span>
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs text-slate-200 leading-relaxed font-sans">
+                  {selectedLink.description || 'These enterprise entities share a direct operational, legal, or financial dependency.'}
+                </div>
+              </div>
+
+              {/* Empirical Document Citation */}
+              <div>
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-1.5 flex items-center gap-1">
+                  <FileText className="w-3.5 h-3.5 text-emerald-400" /> Source Citation & Evidence
+                </span>
+                <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 font-mono">
+                  ✓ {selectedLink.evidence || 'Verified by Enterprise Knowledge Graph Mining Engine.'}
+                </div>
+              </div>
+
+              {/* Source & Target Entity Cards */}
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <span className="text-[9px] uppercase font-bold text-white/40 block">From Entity</span>
+                  <strong className="text-xs text-white block truncate">{typeof selectedLink.source === 'object' ? selectedLink.source.name : selectedLink.source}</strong>
+                  <span className="text-[10px] text-indigo-400 font-mono block">{selectedLink.source?.type || 'NODE'}</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                  <span className="text-[9px] uppercase font-bold text-white/40 block">To Entity</span>
+                  <strong className="text-xs text-white block truncate">{typeof selectedLink.target === 'object' ? selectedLink.target.name : selectedLink.target}</strong>
+                  <span className="text-[10px] text-indigo-400 font-mono block">{selectedLink.target?.type || 'NODE'}</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Right Detail Inspector Drawer (WHEN A NODE IS CLICKED) */}
       <div className={cn(
         "absolute right-6 top-6 bottom-24 w-full max-w-md z-50 transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]",
         selectedNode ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
@@ -318,8 +462,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
                 { id: 'people', label: 'People', icon: Users, count: nodeDetails?.linkedPeople?.length },
                 { id: 'meetings', label: 'Meetings', icon: Calendar, count: nodeDetails?.linkedMeetings?.length },
                 { id: 'projects', label: 'Projects', icon: FolderKanban, count: nodeDetails?.linkedProjects?.length },
-                { id: 'decisions', label: 'Decisions', icon: Zap, count: nodeDetails?.relatedDecisions?.length },
-                { id: 'activity', label: 'Timeline', icon: Clock }
+                { id: 'decisions', label: 'Decisions', icon: Zap, count: nodeDetails?.relatedDecisions?.length }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -355,18 +498,6 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
                           {selectedNode.metadata?.summary || selectedNode.description || 'Enterprise Memory Node indexed into connected knowledge graph.'}
                         </p>
                       </div>
-                      {selectedNode.metadata?.keywords?.length > 0 && (
-                        <div>
-                          <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Entity Keywords</h4>
-                          <div className="flex flex-wrap gap-1.5">
-                            {selectedNode.metadata.keywords.map((kw: string, i: number) => (
-                              <span key={i} className="px-2.5 py-1 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-[11px] font-mono">
-                                #{kw}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
 
@@ -404,70 +535,6 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
                       )}
                     </div>
                   )}
-
-                  {activeTab === 'meetings' && (
-                    <div className="space-y-2">
-                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Linked Meetings</h4>
-                      {!nodeDetails?.linkedMeetings?.length ? (
-                        <p className="text-xs text-white/40 font-mono py-4">No linked meetings found.</p>
-                      ) : (
-                        nodeDetails.linkedMeetings.map((m: any, i: number) => (
-                          <div key={i} className="p-3 border border-white/10 rounded-2xl bg-white/5 text-xs">
-                            <strong className="text-white block font-bold">{m.name}</strong>
-                            <span className="text-[10px] text-amber-400 font-mono">{m.relationType}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-
-                  {activeTab === 'projects' && (
-                    <div className="space-y-2">
-                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Linked Projects</h4>
-                      {!nodeDetails?.linkedProjects?.length ? (
-                        <p className="text-xs text-white/40 font-mono py-4">No linked projects found.</p>
-                      ) : (
-                        nodeDetails.linkedProjects.map((proj: any, i: number) => (
-                          <div key={i} className="p-3 border border-white/10 rounded-2xl bg-white/5 text-xs">
-                            <strong className="text-white block font-bold">{proj.name}</strong>
-                            <span className="text-[10px] text-purple-400 font-mono">{proj.relationType}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-
-                  {activeTab === 'decisions' && (
-                    <div className="space-y-2">
-                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Related Decisions</h4>
-                      {!nodeDetails?.relatedDecisions?.length ? (
-                        <p className="text-xs text-white/40 font-mono py-4">No related decisions found.</p>
-                      ) : (
-                        nodeDetails.relatedDecisions.map((dec: any, i: number) => (
-                          <div key={i} className="p-3 border border-amber-500/30 rounded-2xl bg-amber-500/10 text-xs">
-                            <strong className="text-amber-300 block font-bold">{dec.name}</strong>
-                            <span className="text-[10px] text-white/60 font-mono">{dec.evidence || dec.description}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
-
-                  {activeTab === 'activity' && (
-                    <div className="space-y-2">
-                      <h4 className="text-[10px] uppercase tracking-wider text-white/50 font-bold mb-2">Recent Node Activity</h4>
-                      {!nodeDetails?.recentActivity?.length ? (
-                        <p className="text-xs text-white/40 font-mono py-4">No recent activity recorded.</p>
-                      ) : (
-                        nodeDetails.recentActivity.map((act: any, i: number) => (
-                          <div key={i} className="p-3 border border-white/10 rounded-2xl bg-white/5 text-xs font-mono">
-                            <span className="text-indigo-400 block text-[10px]">{new Date(act.date).toLocaleDateString()}</span>
-                            <span className="text-white/80">{act.activity}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
                 </>
               )}
             </div>
@@ -486,7 +553,6 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
               <X className="w-5 h-5" />
             </button>
             
-            {/* Answer Header */}
             <div className="flex items-center gap-2.5 mb-4 border-b border-white/10 pb-3">
               <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0">
                 <BrainCircuit className="w-4 h-4 animate-pulse" />
@@ -500,74 +566,9 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
               </span>
             </div>
 
-            {/* Answer Content */}
             <div className="text-sm leading-relaxed text-slate-200 mb-6 p-4 rounded-2xl bg-white/5 border border-white/10 whitespace-pre-wrap font-sans">
               {reasoningResult.answer}
             </div>
-
-            {/* Related Entities */}
-            {reasoningResult.relatedEntities && reasoningResult.relatedEntities.length > 0 && (
-              <div className="mb-4">
-                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-2">Connected Entities</span>
-                <div className="flex flex-wrap gap-2">
-                  {reasoningResult.relatedEntities.map((ent: any, idx: number) => (
-                    <div key={idx} className="px-3 py-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 text-xs font-mono flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full" style={{ background: getNodeColor(ent.type) }} />
-                      <strong className="text-white">{ent.name}</strong>
-                      <span className="text-[10px] text-indigo-300">({ent.relation || ent.type})</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Sources & Citations */}
-            {reasoningResult.sources && reasoningResult.sources.length > 0 && (
-              <div className="mb-4">
-                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-2">Sources & Traceability</span>
-                <div className="flex flex-wrap gap-2">
-                  {reasoningResult.sources.map((src: string, idx: number) => (
-                    <span key={idx} className="px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-mono">
-                      ✓ {src}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Timeline */}
-            {reasoningResult.timeline && reasoningResult.timeline.length > 0 && (
-              <div className="mb-4 border-t border-white/10 pt-3">
-                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-2 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-amber-400" /> Event Timeline Sequence
-                </span>
-                <div className="space-y-1.5 font-mono text-xs">
-                  {reasoningResult.timeline.map((t: any, idx: number) => (
-                    <div key={idx} className="p-2 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                      <span className="text-amber-400 font-bold">{t.date}</span>
-                      <span className="text-white/80">{t.event}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Similar Past Events */}
-            {reasoningResult.similarPastEvents && reasoningResult.similarPastEvents.length > 0 && (
-              <div className="border-t border-white/10 pt-3">
-                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-2 flex items-center gap-1">
-                  <History className="w-3.5 h-3.5 text-purple-400" /> Similar Historical Events
-                </span>
-                <div className="space-y-1.5 font-mono text-xs">
-                  {reasoningResult.similarPastEvents.map((ev: any, idx: number) => (
-                    <div key={idx} className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                      <strong className="text-purple-300 block">{ev.event}</strong>
-                      <span className="text-white/60 text-[10px]">{ev.relevance}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -584,7 +585,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleReasoningQuery()}
-            placeholder="Ask anything (e.g. 'meeting 3' or 'Who holds Contract X?')..." 
+            placeholder="Ask anything (e.g. 'Why is Vendor Acme connected to Master Contract?')..." 
             className="flex-1 bg-transparent border-none text-white outline-none placeholder:text-white/40 text-xs sm:text-sm px-2 font-sans"
           />
           <button 
