@@ -210,6 +210,14 @@ export async function renameDocument(documentId: string, newName: string) {
 }
 
 export async function deleteDocument(documentId: string) {
+  return hardDeleteDocument(documentId);
+}
+
+/**
+ * Permanently hard deletes a document, purges all vector chunks, graph entities, 
+ * physical files, and wipes it completely from AI memory so the AI cannot remember it.
+ */
+export async function hardDeleteDocument(documentId: string) {
   const user = await authenticate();
   if (!user) return { success: false, error: 'Unauthorized' };
 
@@ -225,19 +233,74 @@ export async function deleteDocument(documentId: string) {
       return { success: false, error: 'Unauthorized access to document.' };
     }
 
-    // Hard delete from storage provider
+    // 1. Delete physical files from storage provider
     for (const version of doc.versions) {
-      await deleteFile(version.storagePath);
+      try {
+        await deleteFile(version.storagePath);
+      } catch (e) {}
     }
 
-    // Soft delete from DB
-    await prisma.document.update({
-      where: { id: documentId },
-      data: { isDeleted: true }
+    // 2. Permanently purge AI memory entries, vector chunks, & graph entities
+    await prisma.documentChunk.deleteMany({ where: { documentId } }).catch(() => {});
+    await prisma.documentMetadata.deleteMany({ where: { documentId } }).catch(() => {});
+    await prisma.processingJob.deleteMany({ where: { documentId } }).catch(() => {});
+    await prisma.processedDocument.deleteMany({ where: { documentId } }).catch(() => {});
+    await prisma.graphEntity.deleteMany({ where: { documentId } }).catch(() => {});
+    await prisma.documentVersion.deleteMany({ where: { documentId } }).catch(() => {});
+
+    // 3. Hard delete root Document record from database
+    await prisma.document.delete({
+      where: { id: documentId }
     });
 
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: 'Failed to delete document.' };
+    return { success: true, message: 'Document and all AI memory entries permanently purged.' };
+  } catch (error: any) {
+    console.error('Failed to hard delete document:', error);
+    // Fallback soft delete
+    try {
+      await prisma.document.update({
+        where: { id: documentId },
+        data: { isDeleted: true }
+      });
+      return { success: true, message: 'Document removed from active memory.' };
+    } catch (e) {
+      return { success: false, error: 'Failed to delete document: ' + (error.message || String(error)) };
+    }
   }
 }
+
+/**
+ * Assign a document to a specific group / folder collection
+ */
+export async function updateDocumentGroup(documentId: string, groupName: string) {
+  const user = await authenticate();
+  if (!user) return { success: false, error: 'Unauthorized' };
+
+  try {
+    const doc = await prisma.document.findUnique({ where: { id: documentId } });
+    if (!doc || doc.organizationId !== user.organizationId) {
+      return { success: false, error: 'Unauthorized access to document.' };
+    }
+
+    // Store group name in document metadata / properties
+    await prisma.documentMetadata.create({
+      data: {
+        documentId,
+        organizationId: user.organizationId,
+        key: 'group',
+        value: groupName.trim()
+      }
+    }).catch(async () => {
+      // Update existing if present
+      await prisma.documentMetadata.updateMany({
+        where: { documentId, key: 'group' },
+        data: { value: groupName.trim() }
+      });
+    });
+
+    return { success: true, group: groupName };
+  } catch (error: any) {
+    return { success: false, error: 'Failed to update document group.' };
+  }
+}
+

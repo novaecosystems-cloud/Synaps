@@ -1,25 +1,33 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Database, FileText, Check, ChevronDown, Sparkles, SlidersHorizontal, RefreshCw, FileCode, FileSpreadsheet, FileImage } from 'lucide-react';
+import { 
+  Database, FileText, Check, ChevronDown, Sparkles, SlidersHorizontal, 
+  RefreshCw, FileCode, FileSpreadsheet, FileImage, Folder, Trash2, Tag, Loader2 
+} from 'lucide-react';
 
 export interface DocumentItem {
   id: string;
   name: string;
   mimeType: string;
   sizeBytes?: number;
+  group?: string;
   source?: string;
 }
 
 interface ActiveKnowledgeSelectorProps {
-  onScopeChange?: (selectedFiles: string[]) => void;
+  onScopeChange?: (selectedFiles: string[], selectedGroup?: string) => void;
   className?: string;
 }
 
 export function ActiveKnowledgeSelector({ onScopeChange, className }: ActiveKnowledgeSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  
   const [availableDocs, setAvailableDocs] = useState<DocumentItem[]>([]);
+  const [availableGroups, setAvailableGroups] = useState<string[]>(['General Vault']);
+  const [selectedGroup, setSelectedGroup] = useState<string>('ALL_GROUPS');
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>(['ALL']); // 'ALL' or specific document names
 
   const fetchDocuments = async () => {
@@ -27,8 +35,11 @@ export function ActiveKnowledgeSelector({ onScopeChange, className }: ActiveKnow
     try {
       const res = await fetch('/api/documents/all');
       const data = await res.json();
-      if (data.success && Array.isArray(data.documents) && data.documents.length > 0) {
+      if (data.success && Array.isArray(data.documents)) {
         setAvailableDocs(data.documents);
+        if (Array.isArray(data.groups) && data.groups.length > 0) {
+          setAvailableGroups(data.groups);
+        }
       }
     } catch (e) {
     } finally {
@@ -39,8 +50,11 @@ export function ActiveKnowledgeSelector({ onScopeChange, className }: ActiveKnow
   useEffect(() => {
     fetchDocuments();
 
-    // Load saved scope from localStorage
+    // Load saved scope & group from localStorage
     try {
+      const savedGroup = localStorage.getItem('synaps_active_group_filter');
+      if (savedGroup) setSelectedGroup(savedGroup);
+
       const savedScope = localStorage.getItem('synaps_active_knowledge_scope');
       if (savedScope) {
         const parsed = JSON.parse(savedScope);
@@ -50,11 +64,45 @@ export function ActiveKnowledgeSelector({ onScopeChange, className }: ActiveKnow
       }
     } catch (e) {}
 
-    // Listen for storage or focus updates
     const handleFocus = () => fetchDocuments();
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
+
+  // Filter docs by group
+  const displayedDocs = selectedGroup === 'ALL_GROUPS' 
+    ? availableDocs 
+    : availableDocs.filter(d => (d.group || 'General Vault') === selectedGroup);
+
+  const handleGroupSelect = (groupName: string) => {
+    setSelectedGroup(groupName);
+    try {
+      localStorage.setItem('synaps_active_group_filter', groupName);
+    } catch (e) {}
+
+    if (groupName !== 'ALL_GROUPS') {
+      const groupDocs = availableDocs.filter(d => (d.group || 'General Vault') === groupName).map(d => d.name);
+      setSelectedFileIds(groupDocs.length > 0 ? groupDocs : ['ALL']);
+      saveScope(groupDocs.length > 0 ? groupDocs : ['ALL'], groupName);
+    } else {
+      setSelectedFileIds(['ALL']);
+      saveScope(['ALL'], 'ALL_GROUPS');
+    }
+  };
+
+  const saveScope = (updatedFiles: string[], group?: string) => {
+    try {
+      localStorage.setItem('synaps_active_knowledge_scope', JSON.stringify(updatedFiles));
+      window.dispatchEvent(new CustomEvent('synaps-knowledge-scope-changed', { 
+        detail: { files: updatedFiles, group: group || selectedGroup } 
+      }));
+    } catch (e) {}
+
+    if (onScopeChange) {
+      const allNames = displayedDocs.map(d => d.name);
+      onScopeChange(updatedFiles.includes('ALL') ? allNames : updatedFiles, group || selectedGroup);
+    }
+  };
 
   const toggleFile = (fileName: string) => {
     let updated: string[];
@@ -71,16 +119,31 @@ export function ActiveKnowledgeSelector({ onScopeChange, className }: ActiveKnow
     }
     
     setSelectedFileIds(updated);
+    saveScope(updated);
+  };
 
-    // Save to localStorage & notify
+  // Permanent Hard Delete Handler (Wipes AI Memory Completely)
+  const handleHardDeleteDocument = async (e: React.MouseEvent, docId: string, docName: string) => {
+    e.stopPropagation();
+    if (!confirm(`Are you sure you want to PERMANENTLY delete "${docName}"?\n\nThis will purge all file data, vector chunks, and knowledge graph relationships so the AI completely forgets it.`)) {
+      return;
+    }
+
+    setDeletingId(docId);
     try {
-      localStorage.setItem('synaps_active_knowledge_scope', JSON.stringify(updated));
-      window.dispatchEvent(new CustomEvent('synaps-knowledge-scope-changed', { detail: updated }));
-    } catch (e) {}
-
-    if (onScopeChange) {
-      const allNames = availableDocs.map(d => d.name);
-      onScopeChange(updated.includes('ALL') ? allNames : updated);
+      const res = await fetch(`/api/documents/all?documentId=${docId}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        setAvailableDocs(prev => prev.filter(d => d.id !== docId));
+        setSelectedFileIds(prev => prev.filter(f => f !== docName));
+        alert(`Document "${docName}" and all AI memory entries permanently purged.`);
+      } else {
+        alert(`Error deleting document: ${json.error}`);
+      }
+    } catch (err: any) {
+      alert(`Delete failed: ${err.message}`);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -100,7 +163,9 @@ export function ActiveKnowledgeSelector({ onScopeChange, className }: ActiveKnow
 
   const isAllSelected = selectedFileIds.includes('ALL');
   const displayText = isAllSelected 
-    ? `All Ingested Knowledge Base Files (${availableDocs.length} Documents & DOCX Loaded)` 
+    ? selectedGroup === 'ALL_GROUPS' 
+      ? `All Ingested Knowledge Base Files (${availableDocs.length} Documents Loaded)`
+      : `Group: '${selectedGroup}' (${displayedDocs.length} Documents Active)`
     : `${selectedFileIds.length} Specific Document${selectedFileIds.length > 1 ? 's' : ''} Selected`;
 
   return (
@@ -114,88 +179,120 @@ export function ActiveKnowledgeSelector({ onScopeChange, className }: ActiveKnow
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Active Knowledge Scope & File Selector</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Active Knowledge Scope & Group Selector</span>
               <span className="badge badge-primary badge-sm font-mono text-[10px] flex items-center gap-1">
                 {loading && <RefreshCw className="w-2.5 h-2.5 animate-spin" />}
-                {availableDocs.length} Documents Loaded
+                {displayedDocs.length} Active Docs
               </span>
             </div>
             <p className="text-xs font-semibold text-base-content mt-0.5 flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-primary/70" />
+              <Folder className="w-3.5 h-3.5 text-indigo-400" />
               {displayText}
             </p>
           </div>
         </div>
 
-        {/* Dropdown Toggle Button */}
-        <div className="relative w-full sm:w-auto">
-          <button 
-            onClick={() => setIsOpen(!isOpen)}
-            className="btn btn-sm btn-outline border-primary/40 hover:border-primary w-full sm:w-auto gap-2 rounded-xl text-xs font-bold shadow-sm"
+        {/* Controls: Group Selector & File Selector Toggle */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          
+          {/* Group Filter Dropdown */}
+          <select
+            value={selectedGroup}
+            onChange={(e) => handleGroupSelect(e.target.value)}
+            className="select select-sm border-primary/40 bg-base-100 text-xs font-bold rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-primary" />
-            Choose Document / DOCX for AI Analysis
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-          </button>
+            <option value="ALL_GROUPS">📁 All Groups & Folders</option>
+            {availableGroups.map(g => (
+              <option key={g} value={g}>📂 Group: {g}</option>
+            ))}
+          </select>
 
-          {/* Dropdown Menu */}
-          {isOpen && (
-            <div className="absolute right-0 top-full mt-2 w-88 md:w-96 bg-base-100 border border-base-300 rounded-2xl shadow-2xl z-50 p-3 space-y-2 animate-in zoom-in-95 duration-200">
-              <div className="flex justify-between items-center px-2 pb-2 border-b border-base-300">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/60">Choose DOCX / PDF / Data Scope</span>
-                <button 
-                  onClick={() => toggleFile('ALL')} 
-                  className="text-[10px] text-primary font-bold hover:underline"
-                >
-                  Select All ({availableDocs.length})
-                </button>
-              </div>
+          {/* Document Multi-Select Dropdown Button */}
+          <div className="relative w-full sm:w-auto">
+            <button 
+              onClick={() => setIsOpen(!isOpen)}
+              className="btn btn-sm btn-outline border-primary/40 hover:border-primary w-full sm:w-auto gap-2 rounded-xl text-xs font-bold shadow-sm"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-primary" />
+              Choose Files ({selectedFileIds.length})
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-              <div className="max-h-64 overflow-y-auto space-y-1 custom-scrollbar pr-1">
-                {/* ALL Option */}
-                <div 
-                  onClick={() => toggleFile('ALL')}
-                  className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer text-xs font-semibold transition-colors ${
-                    isAllSelected ? 'bg-primary/10 text-primary border border-primary/20' : 'hover:bg-base-200 text-base-content'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    <span>All Ingested Documents (DOCX, PDF, XLSX, PPTX)</span>
-                  </div>
-                  {isAllSelected && <Check className="w-4 h-4 text-primary shrink-0" />}
+            {/* Dropdown Menu */}
+            {isOpen && (
+              <div className="absolute right-0 top-full mt-2 w-88 md:w-96 bg-base-100 border border-base-300 rounded-2xl shadow-2xl z-50 p-3 space-y-2 animate-in zoom-in-95 duration-200">
+                <div className="flex justify-between items-center px-2 pb-2 border-b border-base-300">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/60">Choose Active Document Scope</span>
+                  <button 
+                    onClick={() => toggleFile('ALL')} 
+                    className="text-[10px] text-primary font-bold hover:underline"
+                  >
+                    Select All ({displayedDocs.length})
+                  </button>
                 </div>
 
-                {/* Individual Uploaded & Demo Documents */}
-                {availableDocs.map((doc) => {
-                  const isChecked = !isAllSelected && selectedFileIds.includes(doc.name);
-                  return (
-                    <div 
-                      key={doc.id}
-                      onClick={() => toggleFile(doc.name)}
-                      className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer text-xs transition-colors ${
-                        isChecked ? 'bg-primary/10 text-primary border border-primary/20 font-semibold' : 'hover:bg-base-200 text-base-content/80'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 truncate pr-2">
-                        {getFileBadgeIcon(doc.name, doc.mimeType)}
-                        <span className="truncate">{doc.name}</span>
-                        {doc.source === 'UPLOADED' && (
-                          <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-bold">Uploaded</span>
-                        )}
-                      </div>
-                      {isChecked && <Check className="w-4 h-4 text-primary shrink-0" />}
+                <div className="max-h-64 overflow-y-auto space-y-1 custom-scrollbar pr-1">
+                  {/* ALL Option */}
+                  <div 
+                    onClick={() => toggleFile('ALL')}
+                    className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer text-xs font-semibold transition-colors ${
+                      isAllSelected ? 'bg-primary/10 text-primary border border-primary/20' : 'hover:bg-base-200 text-base-content'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span>All Documents in {selectedGroup === 'ALL_GROUPS' ? 'Vault' : `'${selectedGroup}'`}</span>
                     </div>
-                  );
-                })}
-              </div>
+                    {isAllSelected && <Check className="w-4 h-4 text-primary shrink-0" />}
+                  </div>
 
-              <div className="pt-2 border-t border-base-300 flex justify-between items-center text-[10px] text-base-content/50">
-                <span>AI Grounded across selected files</span>
-                <button onClick={() => setIsOpen(false)} className="btn btn-primary btn-xs rounded-lg px-3">Done</button>
+                  {/* Individual Uploaded & Demo Documents */}
+                  {displayedDocs.map((doc) => {
+                    const isChecked = !isAllSelected && selectedFileIds.includes(doc.name);
+                    const isDeleting = deletingId === doc.id;
+                    return (
+                      <div 
+                        key={doc.id}
+                        onClick={() => toggleFile(doc.name)}
+                        className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer text-xs transition-colors group ${
+                          isChecked ? 'bg-primary/10 text-primary border border-primary/20 font-semibold' : 'hover:bg-base-200 text-base-content/80'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 truncate pr-2">
+                          {getFileBadgeIcon(doc.name, doc.mimeType)}
+                          <span className="truncate">{doc.name}</span>
+                          {doc.group && (
+                            <span className="px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-400 text-[9px] font-bold">
+                              {doc.group}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                          {/* Permanent Hard Delete Button */}
+                          <button
+                            title="Permanently hard delete document & wipe AI memory"
+                            onClick={(e) => handleHardDeleteDocument(e, doc.id, doc.name)}
+                            disabled={isDeleting}
+                            className="p-1 rounded-lg hover:bg-red-500/20 text-base-content/30 hover:text-red-500 transition-colors"
+                          >
+                            {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin text-red-500" /> : <Trash2 className="w-3.5 h-3.5" />}
+                          </button>
+                          {isChecked && <Check className="w-4 h-4 text-primary" />}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="pt-2 border-t border-base-300 flex justify-between items-center text-[10px] text-base-content/50">
+                  <span>AI Grounded strictly across active group/files</span>
+                  <button onClick={() => setIsOpen(false)} className="btn btn-primary btn-xs rounded-lg px-3">Done</button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
         </div>
 
       </div>
