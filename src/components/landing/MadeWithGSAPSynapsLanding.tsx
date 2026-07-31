@@ -9,6 +9,8 @@ import { TextPlugin } from 'gsap/TextPlugin';
 
 import WaitlistModal from '../WaitlistModal';
 import SpotlightTiltCard from './SpotlightTiltCard';
+import MagneticButton from './MagneticButton';
+import NeonGridBackground from './NeonGridBackground';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, TextPlugin);
@@ -213,7 +215,8 @@ export default function MadeWithGSAPSynapsLanding() {
   ) : SUITES;
 
   return (
-    <div style={{ background: '#000', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", minHeight: '100vh', overflowX: 'hidden' }}>
+    <div style={{ background: '#000', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", minHeight: '100vh', overflowX: 'hidden' }} className="relative">
+      <NeonGridBackground />
 
       {/* ── GLOBAL CSS ─────────────────────────────────────────────────────── */}
       <style>{`
