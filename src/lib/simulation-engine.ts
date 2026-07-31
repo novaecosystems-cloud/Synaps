@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { runMathMonteCarloSimulation, MonteCarloRunResult } from './monte-carlo-engine';
 
 function parseSafeJson(content: string) {
   try {
@@ -54,6 +55,7 @@ export interface SimulationResult {
     maxEstimate: string;
     confidenceBounds: string;
   };
+  monteCarloMath?: MonteCarloRunResult;
   timestamp: string;
 }
 
@@ -196,6 +198,15 @@ You MUST return valid JSON with:
     const parsed = parseSafeJson(rawContent);
 
     if (parsed && parsed.scenarios && parsed.scenarios.expected) {
+      // Calculate mathematical Monte Carlo stats
+      const monteCarloMath = runMathMonteCarloSimulation({
+        baseRevenue: 2500000,
+        growthRateMean: (parsed.scenarios.expected.netProfitabilityDelta || 12.5) / 100,
+        volatility: 0.22,
+        numSimulations: 10000,
+        timeHorizonYears: 1
+      });
+
       return {
         decisionType,
         decisionDetails,
@@ -207,6 +218,7 @@ You MUST return valid JSON with:
           maxEstimate: '+24.8% Margin',
           confidenceBounds: '95% Confidence Interval'
         },
+        monteCarloMath,
         timestamp: new Date().toISOString()
       };
     }
@@ -281,6 +293,13 @@ function getFallbackSimulationObject(decisionType: string, decisionDetails: stri
       maxEstimate: '+24.8% Margin',
       confidenceBounds: '95% Confidence Interval based on Monte-Carlo scenario bounds'
     },
+    monteCarloMath: runMathMonteCarloSimulation({
+      baseRevenue: 2500000,
+      growthRateMean: 0.125,
+      volatility: 0.22,
+      numSimulations: 10000,
+      timeHorizonYears: 1
+    }),
     timestamp: new Date().toISOString()
   };
 }

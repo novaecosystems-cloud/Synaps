@@ -319,6 +319,104 @@ export default function SimulationsPage() {
 
           </div>
 
+          {/* MONTE CARLO MATHEMATICAL STATS & FORMULA ENGINE */}
+          {simulationResult.monteCarloMath && (
+            <div className="p-8 bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 border border-cyan-500/30 text-white rounded-3xl shadow-2xl space-y-6">
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-4">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/20 border border-cyan-500/30 px-3 py-1 rounded-full">
+                    Stochastic Drift-Diffusion Engine
+                  </span>
+                  <h3 className="text-xl font-bold text-white mt-2 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-cyan-400" />
+                    10,000 Monte Carlo Simulation Runs (Geometric Brownian Motion)
+                  </h3>
+                  <p className="text-xs text-slate-300 mt-1">
+                    Stochastic math models incorporating Box-Muller normal sampling, VaR 95% downside bounds, and CVaR Expected Shortfall.
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-extrabold text-cyan-400 block font-mono">
+                    ${(simulationResult.monteCarloMath.meanProjectedRevenue).toLocaleString()}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Mean Expected Revenue (t=1 Yr)</span>
+                </div>
+              </div>
+
+              {/* STAT CARDS GRID */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">P10 Downside</span>
+                  <span className="text-lg font-bold text-red-400 font-mono">${(simulationResult.monteCarloMath.p10WorstCase).toLocaleString()}</span>
+                  <span className="text-[10px] text-slate-500 block mt-1">10th Percentile Cutoff</span>
+                </div>
+
+                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">P50 Median</span>
+                  <span className="text-lg font-bold text-cyan-400 font-mono">${(simulationResult.monteCarloMath.p50Expected).toLocaleString()}</span>
+                  <span className="text-[10px] text-slate-500 block mt-1">50th Percentile Expected</span>
+                </div>
+
+                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">P90 Upside</span>
+                  <span className="text-lg font-bold text-emerald-400 font-mono">${(simulationResult.monteCarloMath.p90Optimistic).toLocaleString()}</span>
+                  <span className="text-[10px] text-slate-500 block mt-1">90th Percentile Target</span>
+                </div>
+
+                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">VaR 95% (Downside)</span>
+                  <span className="text-lg font-bold text-amber-400 font-mono">${(simulationResult.monteCarloMath.var95).toLocaleString()}</span>
+                  <span className="text-[10px] text-slate-500 block mt-1">Max Risk at 95% CI</span>
+                </div>
+              </div>
+
+              {/* HISTOGRAM FREQUENCY DISTRIBUTION */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-cyan-300">
+                  Simulated Frequency Distribution Histogram (15 Bins)
+                </h4>
+
+                <div className="grid grid-cols-15 gap-1 items-end h-28 pt-4 pb-2 border-b border-white/10">
+                  {simulationResult.monteCarloMath.distributionHistogram?.map((bin: any, idx: number) => {
+                    const maxFreq = Math.max(...simulationResult.monteCarloMath.distributionHistogram.map((b: any) => b.frequency));
+                    const heightPercent = maxFreq > 0 ? (bin.frequency / maxFreq) * 100 : 0;
+
+                    return (
+                      <div key={idx} className="flex flex-col items-center h-full justify-end group relative" title={`$${bin.binStart.toLocaleString()} - $${bin.binEnd.toLocaleString()}: ${bin.count} runs (${bin.frequency}%)`}>
+                        <div 
+                          className="w-full bg-cyan-500/60 group-hover:bg-cyan-400 transition-all rounded-t-sm"
+                          style={{ height: `${heightPercent}%` }}
+                        />
+                        <span className="text-[8px] font-mono text-slate-400 mt-1 truncate w-full text-center">{bin.frequency}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* MATHEMATICAL FORMULAS DISPLAY */}
+              <div className="space-y-3 pt-2">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-cyan-300">
+                  Grounded Mathematical Formulas Executed
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {simulationResult.monteCarloMath.mathematicalFormulasUsed?.map((f: any, idx: number) => (
+                    <div key={idx} className="p-3.5 bg-black/40 border border-cyan-500/20 rounded-2xl space-y-1">
+                      <span className="font-bold text-xs text-slate-200 block">{f.name}</span>
+                      <code className="text-xs text-cyan-400 font-mono bg-cyan-950/60 px-2 py-1 rounded block w-full overflow-x-auto">
+                        {f.formula}
+                      </code>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-tight">{f.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          )}
+
         </div>
       ) : (
         <div className="w-full py-16 text-center bg-base-100 border border-base-300 border-dashed rounded-3xl space-y-4">
