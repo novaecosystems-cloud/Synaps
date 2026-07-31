@@ -136,6 +136,7 @@ const STATS = [
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function MadeWithGSAPSynapsLanding() {
   const [isAnnual, setIsAnnual] = useState(true);
+  const [billingCycle, setBillingCycle] = useState<'weekly' | 'monthly' | 'annual'>('weekly');
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCard, setActiveCard] = useState(0);
@@ -488,70 +489,103 @@ export default function MadeWithGSAPSynapsLanding() {
               <span className="display-lime">built for teams.</span>
             </h2>
           </div>
-          {/* Toggle */}
-          <div className="reveal-child" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: !isAnnual ? '#fff' : 'rgba(255,255,255,0.35)', cursor: 'pointer' }} onClick={() => setIsAnnual(false)}>Monthly</span>
-            <div onClick={() => setIsAnnual(!isAnnual)} style={{ width: 48, height: 26, background: isAnnual ? '#CAFF00' : 'rgba(255,255,255,0.1)', borderRadius: 999, padding: 3, cursor: 'pointer', transition: 'background 0.3s', flexShrink: 0 }}>
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: isAnnual ? '#000' : '#fff', transform: isAnnual ? 'translateX(22px)' : 'translateX(0)', transition: 'transform 0.3s' }} />
-            </div>
-            <span style={{ fontSize: 13, fontWeight: 600, color: isAnnual ? '#fff' : 'rgba(255,255,255,0.35)', cursor: 'pointer' }} onClick={() => setIsAnnual(true)}>
-              Annual <span style={{ background: '#CAFF00', color: '#000', padding: '2px 8px', borderRadius: 999, fontSize: 10, fontWeight: 800, marginLeft: 4 }}>−20%</span>
-            </span>
+          {/* 3-Way Toggle */}
+          <div className="reveal-child" style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.06)', padding: '4px 6px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.1)' }}>
+            <button 
+              onClick={() => setBillingCycle('weekly')} 
+              style={{ 
+                background: billingCycle === 'weekly' ? '#CAFF00' : 'transparent', 
+                color: billingCycle === 'weekly' ? '#000' : 'rgba(255,255,255,0.6)', 
+                padding: '6px 14px', borderRadius: 999, fontSize: 12, fontWeight: 800, border: 'none', cursor: 'pointer', transition: 'all 0.2s' 
+              }}
+            >
+              Weekly <span style={{ background: '#000', color: '#CAFF00', padding: '1px 6px', borderRadius: 999, fontSize: 9 }}>$1.99</span>
+            </button>
+
+            <button 
+              onClick={() => setBillingCycle('monthly')} 
+              style={{ 
+                background: billingCycle === 'monthly' ? '#CAFF00' : 'transparent', 
+                color: billingCycle === 'monthly' ? '#000' : 'rgba(255,255,255,0.6)', 
+                padding: '6px 14px', borderRadius: 999, fontSize: 12, fontWeight: 800, border: 'none', cursor: 'pointer', transition: 'all 0.2s' 
+              }}
+            >
+              Monthly
+            </button>
+
+            <button 
+              onClick={() => setBillingCycle('annual')} 
+              style={{ 
+                background: billingCycle === 'annual' ? '#CAFF00' : 'transparent', 
+                color: billingCycle === 'annual' ? '#000' : 'rgba(255,255,255,0.6)', 
+                padding: '6px 14px', borderRadius: 999, fontSize: 12, fontWeight: 800, border: 'none', cursor: 'pointer', transition: 'all 0.2s' 
+              }}
+            >
+              Annual <span style={{ background: '#000', color: '#CAFF00', padding: '1px 6px', borderRadius: 999, fontSize: 9 }}>−50%</span>
+            </button>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }} className="reveal-child">
 
           {/* Starter */}
-          <div className="pricing-card">
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', fontFamily: "'JetBrains Mono', monospace", marginBottom: 28 }}>STARTER TRIAL</div>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 56, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8 }}>$0</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginBottom: 32 }}>14-day free trial</div>
+          <SpotlightTiltCard className="p-8">
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', fontFamily: "'JetBrains Mono', monospace", marginBottom: 28 }}>STARTER TRIAL</div>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 52, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8 }}>$0</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 32 }}>14-day free trial</div>
             <div className="sep" style={{ marginBottom: 28 }} />
             {['100 AI Credits', 'Single User Workspace', 'Basic Document Ingestion (10 MB)', 'Standard AI Chat', 'PDF & CSV Export'].map((f, i) => (
-              <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 14, fontSize: 13, color: 'rgba(255,255,255,0.4)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 14, fontSize: 13, color: 'rgba(255,255,255,0.7)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <span style={{ color: '#CAFF00', fontWeight: 800, flexShrink: 0 }}>✓</span>{f}
               </div>
             ))}
             <Link href="/login" className="btn-outline" style={{ width: '100%', justifyContent: 'center', marginTop: 28, borderRadius: 14 }}>
               Start free trial
             </Link>
-          </div>
+          </SpotlightTiltCard>
 
           {/* Pro — featured */}
-          <div className="pricing-card featured" style={{ transform: 'scale(1.03)' }}>
+          <SpotlightTiltCard glowColor="rgba(202, 255, 0, 0.35)" className="p-8 border-lime-400/60 ring-2 ring-lime-400/30">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#000', letterSpacing: '0.12em', fontFamily: "'JetBrains Mono', monospace" }}>PRO MEMBER</div>
-              <span style={{ background: '#000', color: '#CAFF00', fontSize: 10, fontWeight: 800, padding: '3px 10px', borderRadius: 999 }}>POPULAR</span>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#CAFF00', letterSpacing: '0.12em', fontFamily: "'JetBrains Mono', monospace" }}>PRO MEMBER</div>
+              <span style={{ background: '#CAFF00', color: '#000', fontSize: 10, fontWeight: 800, padding: '3px 10px', borderRadius: 999 }}>LOWEST ENTRY</span>
             </div>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 56, fontWeight: 900, color: '#000', lineHeight: 1, marginBottom: 8 }}>${isAnnual ? '7' : '9'}</div>
-            <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.5)', marginBottom: 32 }}>per month{isAnnual ? ', billed annually' : ', billed monthly'}</div>
-            <div className="sep" style={{ background: 'rgba(0,0,0,0.1)', marginBottom: 28 }} />
-            {['1,000 AI Reasoning Credits / mo', '10 Parallel AI Agents', 'Full 3D Corporate Memory Graph', 'Universal PDF & CSV Export', 'Multi-Tenant Org Isolation', 'Team Invites & Roles'].map((f, i) => (
-              <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 14, fontSize: 13, color: 'rgba(0,0,0,0.6)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                <span style={{ color: '#000', fontWeight: 800, flexShrink: 0 }}>✓</span>{f}
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 52, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8 }}>
+              {billingCycle === 'weekly' ? '$1.99' : billingCycle === 'annual' ? '$5' : '$7'}
+            </div>
+            <div style={{ fontSize: 13, color: '#CAFF00', fontWeight: 700, marginBottom: 32 }}>
+              {billingCycle === 'weekly' ? 'per week, cancel anytime' : billingCycle === 'annual' ? 'per month, billed annually' : 'per month'}
+            </div>
+            <div className="sep" style={{ background: 'rgba(255,255,255,0.1)', marginBottom: 28 }} />
+            {['500 AI Reasoning Credits / day', '10 Parallel AI Agents', 'Full 3D Corporate Memory Graph', 'Universal PDF & CSV Export', 'Multi-Tenant Org Isolation', 'Team Invites & Roles'].map((f, i) => (
+              <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 14, fontSize: 13, color: 'rgba(255,255,255,0.85)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                <span style={{ color: '#CAFF00', fontWeight: 800, flexShrink: 0 }}>✓</span>{f}
               </div>
             ))}
-            <Link href="/login" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: '#000', color: '#CAFF00', borderRadius: 14, padding: '14px 0', fontWeight: 800, fontSize: 14, textDecoration: 'none', marginTop: 28, width: '100%', transition: 'all 0.2s' }}>
-              Get Pro — ${isAnnual ? '7' : '9'}/mo →
+            <Link href="/login" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: '#CAFF00', color: '#000', borderRadius: 14, padding: '14px 0', fontWeight: 800, fontSize: 14, textDecoration: 'none', marginTop: 28, width: '100%', transition: 'all 0.2s' }}>
+              Get Pro — {billingCycle === 'weekly' ? '$1.99/wk' : billingCycle === 'annual' ? '$5/mo' : '$7/mo'} →
             </Link>
-          </div>
+          </SpotlightTiltCard>
 
           {/* Enterprise */}
-          <div className="pricing-card">
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', fontFamily: "'JetBrains Mono', monospace", marginBottom: 28 }}>ENTERPRISE MAX</div>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 56, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8 }}>${isAnnual ? '20' : '25'}</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginBottom: 32 }}>per month{isAnnual ? ', billed annually' : ', billed monthly'}</div>
+          <SpotlightTiltCard className="p-8">
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', fontFamily: "'JetBrains Mono', monospace", marginBottom: 28 }}>ENTERPRISE MAX</div>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 52, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8 }}>
+              {billingCycle === 'weekly' ? '$4.99' : billingCycle === 'annual' ? '$16' : '$20'}
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 32 }}>
+              {billingCycle === 'weekly' ? 'per week, cancel anytime' : billingCycle === 'annual' ? 'per month, billed annually' : 'per month'}
+            </div>
             <div className="sep" style={{ marginBottom: 28 }} />
-            {['Unlimited AI Reasoning Credits', '110 Enterprise Decision Models', '8 C-Suite Digital Twins', 'Boardroom Simulation Engine', 'AI Strategy Studio & Roadmap', 'Dedicated Account Manager & 99.9% SLA'].map((f, i) => (
-              <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 14, fontSize: 13, color: 'rgba(255,255,255,0.4)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            {['Unlimited 10,000 AI Credits / day', '110 Enterprise Decision Models', '8 C-Suite Digital Twins', 'Boardroom Simulation Engine', 'AI Strategy Studio & Roadmap', 'Dedicated Account Manager & 99.9% SLA'].map((f, i) => (
+              <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 14, fontSize: 13, color: 'rgba(255,255,255,0.7)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <span style={{ color: '#CAFF00', fontWeight: 800, flexShrink: 0 }}>✓</span>{f}
               </div>
             ))}
             <Link href="/login" className="btn-lime" style={{ width: '100%', justifyContent: 'center', marginTop: 28, borderRadius: 14 }}>
               Unlock Enterprise →
             </Link>
-          </div>
+          </SpotlightTiltCard>
 
         </div>
         <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 24, fontFamily: "'JetBrains Mono', monospace" }}>No credit card required · 14-day free trial · Cancel anytime</p>
