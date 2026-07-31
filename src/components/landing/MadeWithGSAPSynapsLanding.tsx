@@ -8,6 +8,7 @@ import { TextPlugin } from 'gsap/TextPlugin';
 
 
 import WaitlistModal from '../WaitlistModal';
+import SpotlightTiltCard from './SpotlightTiltCard';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, TextPlugin);
@@ -405,29 +406,38 @@ export default function MadeWithGSAPSynapsLanding() {
         {/* Card grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }} className="grid-2">
           {SUITES.map((suite, idx) => (
-            <div key={idx} className="glass-card lift" style={{ padding: 36, cursor: 'pointer', background: activeCard === idx ? '#111' : '#080808', borderColor: activeCard === idx ? 'rgba(202,255,0,0.3)' : 'rgba(255,255,255,0.06)' }} onClick={() => setActiveCard(idx)}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
-                <div className="suite-num">#{suite.id}</div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: activeCard === idx ? '#CAFF00' : 'rgba(255,255,255,0.2)', letterSpacing: '0.08em', fontFamily: "'JetBrains Mono', monospace" }}>{suite.tag}</span>
-              </div>
-              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 28, fontWeight: 900, color: '#fff', lineHeight: 1.1, marginBottom: 10, letterSpacing: '-0.02em' }}>{suite.label}</h3>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', marginBottom: 0, fontWeight: 500 }}>{suite.sub}</p>
+            <SpotlightTiltCard 
+              key={idx} 
+              glowColor="rgba(202, 255, 0, 0.2)"
+              className="p-8 cursor-pointer"
+            >
+              <div onClick={() => setActiveCard(idx)} className="h-full flex flex-col justify-between">
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+                    <div className="suite-num">#{suite.id}</div>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: activeCard === idx ? '#CAFF00' : 'rgba(255,255,255,0.4)', letterSpacing: '0.08em', fontFamily: "'JetBrains Mono', monospace" }}>{suite.tag}</span>
+                  </div>
+                  <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: 26, fontWeight: 900, color: '#fff', lineHeight: 1.1, marginBottom: 8, letterSpacing: '-0.02em' }}>{suite.label}</h3>
+                  <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 0, fontWeight: 500 }}>{suite.sub}</p>
 
-              <div style={{ marginTop: 28, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, marginBottom: 20, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{suite.desc}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  {suite.specs.map((spec, si) => (
-                    <div key={si} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
-                      <span style={{ color: '#CAFF00', fontSize: 10 }}>✓</span> {spec}
+                  <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, marginBottom: 16, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{suite.desc}</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {suite.specs.map((spec, si) => (
+                        <div key={si} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
+                          <span style={{ color: '#CAFF00', fontSize: 10, fontWeight: 800 }}>✓</span> {spec}
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
-                <div style={{ marginTop: 20, display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 40, fontWeight: 900, color: '#CAFF00' }}>{suite.stat}</span>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace" }}>{suite.statLabel}</span>
+
+                <div style={{ marginTop: 24, display: 'flex', alignItems: 'baseline', gap: 8, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span style={{ fontFamily: "'Syne', sans-serif", fontSize: 38, fontWeight: 900, color: '#CAFF00' }}>{suite.stat}</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: "'JetBrains Mono', monospace" }}>{suite.statLabel}</span>
                 </div>
               </div>
-            </div>
+            </SpotlightTiltCard>
           ))}
         </div>
       </section>
