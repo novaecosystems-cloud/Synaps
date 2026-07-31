@@ -1,0 +1,55 @@
+# Synaps AI — Enterprise Decision Intelligence Layer & 3D Corporate Memory
+
+> Synaps AI transforms complex document libraries into an interactive 3D Knowledge Graph, a 10-Agent AI Boardroom, and an autonomous AI COO Command Console.
+
+## Business Overview
+
+Synaps AI is an enterprise decision intelligence platform designed for C-Suite executives (CEOs, CFOs, CTOs, COOs, General Counsels) and operational leaders. It ingests an organization's entire document history—PDFs, Word contracts (.docx), spreadsheets (.xlsx), presentations (.pptx), emails, and images—into an interconnected 3D Corporate Memory Graph.
+
+Unlike generic LLM chatbots that produce unverified hallucinations, Synaps AI operates as a zero-retention Data Fiduciary, providing 100% line-level source provenance and multi-tenant isolation across all organizational data.
+
+## Key Product Modules & Features
+
+- **3D Corporate Memory Graph**: Multi-dimensional WebGL visual graph mapping dependencies, compliance risks, and business decisions across time.
+- **Multi-Agent Flight Control System**: Orchestrates 10 specialized parallel AI agent personas (Research, Finance, Legal, Engineering, Marketing, Operations, Security, HR, Document, Digital Twin) collaborating in real time.
+- **Collaborative AI Executive Boardroom**: Simulates live C-suite debate and consensus voting (CEO, CFO, CTO, Legal, HR) on strategic business decisions before capital commitment.
+- **Executive Digital Twin OS**: War-gaming engine for stress-testing strategic scenarios, supplier delays, cost overruns, and market expansion.
+- **AI COO Command Console**: Real-time executive operational briefings, health scorecards (0-100), and automated anomaly audits.
+- **AI Strategy Studio**: Generates 11-stage enterprise transformation roadmaps, Red-Team AI challenges, and SWOT blueprints.
+- **Prediction & Risk Center**: Automated scanner for contract expiries, missing signatures, policy conflicts, and compliance gaps.
+- **Enterprise Decision Memory Engine**: Natural language search across historical corporate decisions, evaluating past precedents and lessons learned.
+- **Single-Shot Multi-Format Ingestion**: Ingests PDFs, Word (.docx), Excel (.xlsx), PPTX, and scanned images up to 10GB per file.
+- **Universal Export Engine**: Instant, board-ready PDF and CSV strategic report generation across all executive dashboards.
+
+## Key Pages & Site Navigation
+
+- [Landing Page](https://synaps.ai/): Product overview, module demonstrations, 4D memory architecture, and pricing tiers.
+- [Login / SSO Portal](https://synaps.ai/login): Multi-tenant authentication and single sign-on access.
+- [Executive Operational Briefing](https://synaps.ai/dashboard): AI COO Command Console, health scorecards, and executive summaries.
+- [3D Corporate Memory Graph](https://synaps.ai/dashboard/graph): Interactive WebGL 3D knowledge graph and entity relationship visualization.
+- [Multi-Agent Flight Control](https://synaps.ai/dashboard/mission-control): Real-time air traffic control for 10 parallel AI agents.
+- [AI Executive Boardroom](https://synaps.ai/dashboard/boardroom): Multi-role boardroom debate, consensus voting, and strategic verdict engine.
+- [Executive Digital Twin OS](https://synaps.ai/dashboard/digital-twin): Scenario simulation, risk modeling, and twin persona management.
+- [Chief of Staff Intelligence](https://synaps.ai/dashboard/chief-of-staff): Proactive enterprise monitoring across 8 operational channels.
+- [AI Strategy Studio](https://synaps.ai/dashboard/strategy): Strategic objective formulation, 11-stage roadmaps, and SWOT generation.
+- [Prediction & Risk Center](https://synaps.ai/dashboard/risk-center): Contract risk scanner, churn prediction, and policy conflict detection.
+- [Decision Memory Engine](https://synaps.ai/dashboard/decisions): Historical decision precedent search, post-mortems, and outcome tracking.
+- [Document Vault](https://synaps.ai/dashboard/documents): Multi-format document upload, OCR processing, and version management.
+- [Requirement Explorer](https://synaps.ai/dashboard/requirements): RFP requirement extraction and coverage analysis.
+- [Analytics & Auditing](https://synaps.ai/dashboard/analytics): Enterprise usage analytics, AI credit consumption, and system audit logs.
+- [Pricing & Subscription Management](https://synaps.ai/dashboard/settings/billing): Starter ($0), Pro Intelligence ($7/mo), and Enterprise Max ($20/mo) subscription management.
+- [Privacy Policy](https://synaps.ai/legal/privacy): DPDP Data Fiduciary compliance and zero-retention data policies.
+- [Terms of Service](https://synaps.ai/legal/terms): Enterprise SLA, security guarantees, and terms of service.
+
+## Technical Specifications & Architecture
+
+- **Framework**: Next.js 15 App Router, TypeScript, React 19.
+- **Styling & Motion**: TailwindCSS, DaisyUI, GSAP (ScrollTrigger, TextPlugin), Three.js / React Three Fiber.
+- **Database & Storage**: Prisma ORM, PostgreSQL, Google Cloud Storage / Supabase.
+- **Security & Idempotency**: 256-Bit SSL, HMAC SHA256 Webhook Verification, Client/Server Idempotency Engine (`x-idempotency-key`).
+- **Analytics & Tracking**: Microsoft Clarity, Vercel Analytics.
+
+## Contact & Enterprise Inquiry
+
+- **Website**: https://synaps.ai
+- **Organization**: SYNAPS Technologies Inc.
