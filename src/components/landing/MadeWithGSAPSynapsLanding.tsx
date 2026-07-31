@@ -7,6 +7,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
 
 
+import WaitlistModal from '../WaitlistModal';
+
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, TextPlugin);
 }
@@ -134,6 +136,7 @@ export default function MadeWithGSAPSynapsLanding() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCard, setActiveCard] = useState(0);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
 
   const heroWordRef = useRef<HTMLSpanElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -308,6 +311,7 @@ export default function MadeWithGSAPSynapsLanding() {
           {['Console', 'Agents', 'Boardroom', 'Strategy', 'Pricing'].map(item => (
             <a key={item} href={`#${item.toLowerCase()}`} className="nav-link">{item}</a>
           ))}
+          <Link href="/demo" className="nav-link" style={{ color: '#CAFF00', fontWeight: 700 }}>⚡ Demo Mode</Link>
         </nav>
 
         {/* CTA */}
@@ -315,10 +319,12 @@ export default function MadeWithGSAPSynapsLanding() {
           <button onClick={() => setSearchOpen(true)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', padding: '8px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '0.05em' }} className="hide-mob">
             ⌘ K
           </button>
-          <Link href="/login" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: 13, fontWeight: 600, padding: '8px 16px' }}>Sign in</Link>
-          <Link href="/login" className="btn-lime" style={{ padding: '10px 22px', fontSize: 13 }}>
-            JOIN <span>↓</span>
+          <Link href="/demo" style={{ color: '#CAFF00', border: '1px solid rgba(202,255,0,0.3)', textDecoration: 'none', fontSize: 13, fontWeight: 700, padding: '8px 16px', borderRadius: 999 }}>
+            ⚡ Try Demo
           </Link>
+          <button onClick={() => setWaitlistOpen(true)} className="btn-lime" style={{ padding: '10px 22px', fontSize: 13 }}>
+            🔥 JOIN WAITLIST <span>↓</span>
+          </button>
         </div>
       </header>
 
@@ -625,6 +631,9 @@ export default function MadeWithGSAPSynapsLanding() {
           </div>
         </div>
       )}
+
+      {/* WAITLIST MODAL */}
+      <WaitlistModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
 
     </div>
   );
