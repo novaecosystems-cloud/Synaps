@@ -17,8 +17,10 @@ interface CurrencyConfig {
   label: string;
   rates: {
     free: number;
+    proWeekly: number;
     proMonthly: number;
     proYearly: number;
+    enterpriseWeekly: number;
     enterpriseMonthly: number;
     enterpriseYearly: number;
   };
@@ -29,30 +31,30 @@ const CURRENCIES: CurrencyConfig[] = [
     code: 'USD',
     symbol: '$',
     label: 'USD ($)',
-    rates: { free: 0, proMonthly: 7, proYearly: 5, enterpriseMonthly: 20, enterpriseYearly: 16 }
+    rates: { free: 0, proWeekly: 1.99, proMonthly: 7, proYearly: 5, enterpriseWeekly: 4.99, enterpriseMonthly: 20, enterpriseYearly: 16 }
   },
   {
     code: 'EUR',
     symbol: '€',
     label: 'EUR (€)',
-    rates: { free: 0, proMonthly: 6.5, proYearly: 4.5, enterpriseMonthly: 18.5, enterpriseYearly: 15 }
+    rates: { free: 0, proWeekly: 1.80, proMonthly: 6.5, proYearly: 4.5, enterpriseWeekly: 4.50, enterpriseMonthly: 18.5, enterpriseYearly: 15 }
   },
   {
     code: 'GBP',
     symbol: '£',
     label: 'GBP (£)',
-    rates: { free: 0, proMonthly: 5.5, proYearly: 4, enterpriseMonthly: 16, enterpriseYearly: 13 }
+    rates: { free: 0, proWeekly: 1.50, proMonthly: 5.5, proYearly: 4, enterpriseWeekly: 3.99, enterpriseMonthly: 16, enterpriseYearly: 13 }
   },
   {
     code: 'INR',
     symbol: '₹',
     label: 'INR (₹)',
-    rates: { free: 0, proMonthly: 599, proYearly: 449, enterpriseMonthly: 1699, enterpriseYearly: 1399 }
+    rates: { free: 0, proWeekly: 149, proMonthly: 599, proYearly: 449, enterpriseWeekly: 399, enterpriseMonthly: 1699, enterpriseYearly: 1399 }
   }
 ];
 
 export default function BillingPage() {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<'weekly' | 'monthly' | 'yearly'>('weekly');
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [activePlanId, setActivePlanId] = useState<string>('free');
   const [selectedPaywallPlan, setSelectedPaywallPlan] = useState<'pro' | 'enterprise'>('pro');
@@ -89,6 +91,7 @@ export default function BillingPage() {
     {
       id: 'free',
       name: 'Starter',
+      priceWeekly: activeCurrency.rates.free,
       priceMonthly: activeCurrency.rates.free,
       priceYearly: activeCurrency.rates.free,
       badge: 'Free Tier',
@@ -106,10 +109,11 @@ export default function BillingPage() {
     {
       id: 'pro',
       name: 'Pro Intelligence',
+      priceWeekly: activeCurrency.rates.proWeekly,
       priceMonthly: activeCurrency.rates.proMonthly,
       priceYearly: activeCurrency.rates.proYearly,
       popular: true,
-      badge: 'One-Time 50% OFF',
+      badge: 'Lowest Weekly Entry',
       description: 'Full multi-agent suite & 10-Agent AI Boardroom.',
       icon: Sparkles,
       color: 'border-primary ring-2 ring-primary/30 shadow-md',
@@ -125,9 +129,10 @@ export default function BillingPage() {
     {
       id: 'enterprise',
       name: 'Enterprise Max',
+      priceWeekly: activeCurrency.rates.enterpriseWeekly,
       priceMonthly: activeCurrency.rates.enterpriseMonthly,
       priceYearly: activeCurrency.rates.enterpriseYearly,
-      badge: 'Max Limit ($20 Cap)',
+      badge: 'Max Limit Cap',
       description: 'Unlimited AI capabilities for power users & large teams.',
       icon: Crown,
       color: 'border-purple-500/50 ring-2 ring-purple-500/20 shadow-md',
@@ -136,8 +141,8 @@ export default function BillingPage() {
         'Custom Fine-Tuned AI Models',
         'Unlimited Organization Workspaces',
         'Audit Log Retention (Permanent)',
-        'Dedicated 24/7 Success Manager',
-        'Cancel Anytime Guarantee'
+        'Dedicated 24/7 Priority Support',
+        '99.9% Uptime SLA Guarantee'
       ]
     }
   ];
@@ -156,8 +161,8 @@ export default function BillingPage() {
   };
 
   const getPlanDisplayName = () => {
-    if (activePlanId === 'enterprise') return 'Enterprise Max ($20/mo — 10,000 Credits)';
-    if (activePlanId === 'pro') return 'Pro Intelligence ($7/mo — 500 Credits)';
+    if (activePlanId === 'enterprise') return 'Enterprise Max ($4.99/wk or $20/mo — 10,000 Credits)';
+    if (activePlanId === 'pro') return 'Pro Intelligence ($1.99/wk or $7/mo — 500 Credits)';
     return 'Starter (Free Tier — 50 Credits)';
   };
 
@@ -211,8 +216,14 @@ export default function BillingPage() {
             </select>
           </div>
 
-          {/* Monthly / Yearly Toggle */}
+          {/* Weekly / Monthly / Yearly Toggle */}
           <div className="flex items-center gap-1 bg-base-200 p-1 rounded-2xl border border-base-300 text-xs font-bold">
+            <button
+              onClick={() => setBillingCycle('weekly')}
+              className={cn("px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1", billingCycle === 'weekly' ? "bg-primary text-primary-content shadow font-bold" : "text-base-content/60")}
+            >
+              Weekly <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[9px] font-extrabold">$1.99</span>
+            </button>
             <button
               onClick={() => setBillingCycle('monthly')}
               className={cn("px-3.5 py-1.5 rounded-xl transition-all", billingCycle === 'monthly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
@@ -243,7 +254,8 @@ export default function BillingPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {plans.map((plan) => {
           const Icon = plan.icon;
-          const price = billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
+          const price = billingCycle === 'weekly' ? plan.priceWeekly : billingCycle === 'yearly' ? plan.priceYearly : plan.priceMonthly;
+          const periodLabel = billingCycle === 'weekly' ? 'per week' : billingCycle === 'yearly' ? 'per month, billed annually' : 'per month';
           const isCurrent = activePlanId === plan.id;
 
           return (
@@ -285,10 +297,13 @@ export default function BillingPage() {
                 <div className="py-2 border-y border-base-200">
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-extrabold text-base-content">{activeCurrency.symbol}{price}</span>
-                    <span className="text-xs font-medium text-base-content/60">/ month ({activeCurrency.code})</span>
+                    <span className="text-xs font-medium text-base-content/60">{periodLabel} ({activeCurrency.code})</span>
                   </div>
                   {billingCycle === 'yearly' && price > 0 && (
                     <span className="text-[10px] text-success font-bold">Billed annually ({activeCurrency.symbol}{price * 12}/yr)</span>
+                  )}
+                  {billingCycle === 'weekly' && price > 0 && (
+                    <span className="text-[10px] text-emerald-500 font-bold">Billed weekly ({activeCurrency.symbol}{price}/week — cancel anytime)</span>
                   )}
                 </div>
 
