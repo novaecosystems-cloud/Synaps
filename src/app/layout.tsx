@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import MicrosoftClarity from "@/components/MicrosoftClarity";
+import AppUpdateNotifier from "@/components/AppUpdateNotifier";
 
 export const metadata: Metadata = {
   title: "Synaps AI — 3D Corporate Memory & 10-Agent AI Boardroom",
@@ -60,6 +61,7 @@ export default function RootLayout({
             <Toaster />
             <Analytics />
             <CookieConsentBanner />
+            <AppUpdateNotifier />
           </AuthProvider>
         </ThemeProvider>
       </body>
