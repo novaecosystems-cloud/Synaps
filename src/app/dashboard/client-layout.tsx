@@ -44,15 +44,19 @@ const AiCreditBadge = dynamic(() => import('@/components/AiCreditBadge'), { ssr:
 const AiCreditExhaustedModal = dynamic(() => import('@/components/AiCreditExhaustedModal'), { ssr: false });
 const DemoHeaderBadge = dynamic(() => import('@/components/DemoHeaderBadge'), { ssr: false });
 
+const PlanAccessGate = dynamic(() => import('@/components/PlanAccessGate'), { ssr: false });
+
 type SubMenuItem = {
   name: string;
   href: string;
+  badge?: 'PRO' | 'MAX';
 };
 
 type MenuItem = {
   name: string;
   icon: React.ElementType;
   href?: string;
+  badge?: 'PRO' | 'MAX';
   children?: SubMenuItem[];
 };
 
@@ -77,9 +81,9 @@ const sidebarSections: MenuSection[] = [
         children: [
           { name: 'Mission Control', href: '/dashboard/mission-control' },
           { name: 'Chief of Staff', href: '/dashboard/chief-of-staff' },
-          { name: 'AI Boardroom', href: '/dashboard/boardroom' },
-          { name: 'Digital Twin OS', href: '/dashboard/digital-twin' },
-          { name: 'Strategy Studio', href: '/dashboard/strategy' },
+          { name: 'AI Boardroom', href: '/dashboard/boardroom', badge: 'PRO' },
+          { name: 'Digital Twin OS', href: '/dashboard/digital-twin', badge: 'MAX' },
+          { name: 'Strategy Studio', href: '/dashboard/strategy', badge: 'PRO' },
           { name: 'Enterprise Assistant', href: '/dashboard/assistant' },
           { name: 'AI Workflows', href: '/dashboard/workspace' },
         ]
@@ -93,10 +97,10 @@ const sidebarSections: MenuSection[] = [
         name: 'Risk & Decisions',
         icon: ShieldAlert,
         children: [
-          { name: 'Risk Center', href: '/dashboard/risk-center' },
+          { name: 'Risk Center', href: '/dashboard/risk-center', badge: 'MAX' },
           { name: 'Decision Memory', href: '/dashboard/decisions' },
-          { name: 'Simulation Engine', href: '/dashboard/simulations' },
-          { name: 'Memory Graph', href: '/dashboard/graph' },
+          { name: 'Simulation Engine', href: '/dashboard/simulations', badge: 'MAX' },
+          { name: 'Memory Graph', href: '/dashboard/graph', badge: 'PRO' },
         ]
       }
     ]
@@ -122,7 +126,7 @@ const sidebarSections: MenuSection[] = [
           { name: 'Export History', href: '/dashboard/exports' },
         ]
       },
-      { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
+      { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, badge: 'PRO' },
     ]
   },
   {
@@ -161,11 +165,22 @@ function SidebarItem({ item, pathname, closeMobileMenu }: { item: MenuItem, path
           className={cn(
             `tour-${item.name.toLowerCase().replace(/\s+/g, '-')}`,
             item.href === '/dashboard/workspace' ? "tour-workspace" : "",
-            isDirectActive ? "active text-primary font-medium bg-primary/10" : "text-base-content/70 hover:text-base-content"
+            isDirectActive ? "active text-primary font-medium bg-primary/10" : "text-base-content/70 hover:text-base-content",
+            "flex items-center justify-between"
           )}
         >
-          <Icon className="h-4 w-4" />
-          {item.name}
+          <span className="flex items-center gap-2">
+            <Icon className="h-4 w-4" />
+            {item.name}
+          </span>
+          {item.badge && (
+            <span className={cn(
+              "px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider",
+              item.badge === 'PRO' ? "bg-amber-500/15 text-amber-500 border border-amber-500/30" : "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+            )}>
+              {item.badge}
+            </span>
+          )}
         </Link>
       </li>
     );
@@ -205,10 +220,19 @@ function SidebarItem({ item, pathname, closeMobileMenu }: { item: MenuItem, path
                     onClick={closeMobileMenu}
                     className={cn(
                       `tour-item-${child.name.toLowerCase().replace(/\s+/g, '-')}`,
-                      childActive ? "active text-primary font-medium bg-primary/10" : "text-base-content/70 hover:text-base-content"
+                      childActive ? "active text-primary font-medium bg-primary/10" : "text-base-content/70 hover:text-base-content",
+                      "flex items-center justify-between"
                     )}
                   >
-                    {child.name}
+                    <span>{child.name}</span>
+                    {child.badge && (
+                      <span className={cn(
+                        "px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider shrink-0",
+                        child.badge === 'PRO' ? "bg-amber-500/15 text-amber-500 border border-amber-500/30" : "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+                      )}>
+                        {child.badge}
+                      </span>
+                    )}
                   </Link>
                 </li>
               );
@@ -424,7 +448,7 @@ export default function ClientLayout({ children, user }: { children: React.React
 
         {/* Page Content (Scrollable for 9:16 Vertical Mobile Screens) */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 custom-scrollbar">
-          {children}
+          <PlanAccessGate>{children}</PlanAccessGate>
         </div>
       </main>
 
