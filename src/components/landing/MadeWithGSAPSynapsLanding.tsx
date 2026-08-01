@@ -551,10 +551,10 @@ export default function MadeWithGSAPSynapsLanding() {
               <span style={{ background: '#CAFF00', color: '#000', fontSize: 10, fontWeight: 800, padding: '3px 10px', borderRadius: 999 }}>LOWEST ENTRY</span>
             </div>
             <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 52, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8 }}>
-              {billingCycle === 'weekly' ? '$1.99' : billingCycle === 'annual' ? '$5' : '$7'}
+              {billingCycle === 'weekly' ? '$1.99' : billingCycle === 'annual' ? '$5' : '$7.99'}
             </div>
             <div style={{ fontSize: 13, color: '#CAFF00', fontWeight: 700, marginBottom: 32 }}>
-              {billingCycle === 'weekly' ? 'per week, cancel anytime' : billingCycle === 'annual' ? 'per month, billed annually' : 'per month'}
+              {billingCycle === 'weekly' ? 'per week ($7.99/mo), cancel anytime' : billingCycle === 'annual' ? 'per month, billed annually' : 'per month'}
             </div>
             <div className="sep" style={{ background: 'rgba(255,255,255,0.1)', marginBottom: 28 }} />
             {['500 AI Reasoning Credits / day', '10 Parallel AI Agents', 'Full 3D Corporate Memory Graph', 'Universal PDF & CSV Export', 'Multi-Tenant Org Isolation', 'Team Invites & Roles'].map((f, i) => (
@@ -562,19 +562,19 @@ export default function MadeWithGSAPSynapsLanding() {
                 <span style={{ color: '#CAFF00', fontWeight: 800, flexShrink: 0 }}>✓</span>{f}
               </div>
             ))}
-            <Link href="/login" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: '#CAFF00', color: '#000', borderRadius: 14, padding: '14px 0', fontWeight: 800, fontSize: 14, textDecoration: 'none', marginTop: 28, width: '100%', transition: 'all 0.2s' }}>
-              Get Pro — {billingCycle === 'weekly' ? '$1.99/wk' : billingCycle === 'annual' ? '$5/mo' : '$7/mo'} →
-            </Link>
+            <a href="https://novaverse33.gumroad.com/l/synaps" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: '#CAFF00', color: '#000', borderRadius: 14, padding: '14px 0', fontWeight: 800, fontSize: 14, textDecoration: 'none', marginTop: 28, width: '100%', transition: 'all 0.2s' }}>
+              Get Pro — {billingCycle === 'weekly' ? '$1.99/wk' : '$7.99/mo'} →
+            </a>
           </SpotlightTiltCard>
 
           {/* Enterprise */}
           <SpotlightTiltCard className="p-8">
             <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', fontFamily: "'JetBrains Mono', monospace", marginBottom: 28 }}>ENTERPRISE MAX</div>
             <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 52, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8 }}>
-              {billingCycle === 'weekly' ? '$4.99' : billingCycle === 'annual' ? '$16' : '$20'}
+              {billingCycle === 'weekly' ? '$2.75' : billingCycle === 'annual' ? '$8' : '$10.99'}
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 32 }}>
-              {billingCycle === 'weekly' ? 'per week, cancel anytime' : billingCycle === 'annual' ? 'per month, billed annually' : 'per month'}
+              {billingCycle === 'weekly' ? 'per week ($10.99/mo), cancel anytime' : billingCycle === 'annual' ? 'per month, billed annually' : 'per month'}
             </div>
             <div className="sep" style={{ marginBottom: 28 }} />
             {['Unlimited 10,000 AI Credits / day', '110 Enterprise Decision Models', '8 C-Suite Digital Twins', 'Boardroom Simulation Engine', 'AI Strategy Studio & Roadmap', 'Dedicated Account Manager & 99.9% SLA'].map((f, i) => (
@@ -582,9 +582,9 @@ export default function MadeWithGSAPSynapsLanding() {
                 <span style={{ color: '#CAFF00', fontWeight: 800, flexShrink: 0 }}>✓</span>{f}
               </div>
             ))}
-            <Link href="/login" className="btn-lime" style={{ width: '100%', justifyContent: 'center', marginTop: 28, borderRadius: 14 }}>
-              Unlock Enterprise →
-            </Link>
+            <a href="https://novaverse33.gumroad.com/l/synaps" target="_blank" rel="noopener noreferrer" className="btn-lime" style={{ width: '100%', justifyContent: 'center', marginTop: 28, borderRadius: 14, textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+              Unlock Enterprise — {billingCycle === 'weekly' ? '$2.75/wk' : '$10.99/mo'} →
+            </a>
           </SpotlightTiltCard>
 
         </div>

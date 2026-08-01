@@ -470,22 +470,22 @@ export default function MultiStepPaywallModal({
                   <div className="p-6 bg-gradient-to-br from-amber-500/10 via-primary/5 to-purple-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-extrabold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
-                        <ShoppingBag className="w-4 h-4" /> LemonSqueezy Merchant Checkout
+                        <ShoppingBag className="w-4 h-4" /> Gumroad Merchant Checkout
                       </span>
                       <span className="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-                        Automated Real Money Refunds
+                        30-Day Money-Back Guarantee
                       </span>
                     </div>
 
                     <p className="text-xs text-base-content/70">
-                      Pay securely with <strong>Credit Card, Apple Pay, or Google Pay</strong>. LemonSqueezy processes payments & automated 1-click real money refunds.
+                      Pay securely with <strong>Credit Card, Apple Pay, Google Pay, or PayPal</strong>. Gumroad processes real payments and automated refunds.
                     </p>
 
                     <button
                       onClick={handleOpenLemonSqueezy}
                       className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-purple-600 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
                     >
-                      <CreditCard className="w-5 h-5" /> Pay ${currentPrice} USD via LemonSqueezy
+                      <CreditCard className="w-5 h-5" /> Pay Now via Gumroad Checkout
                     </button>
 
                     <div className="space-y-2 pt-3 border-t border-base-200">

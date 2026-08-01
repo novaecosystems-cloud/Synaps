@@ -49,7 +49,7 @@ const CURRENCIES: CurrencyConfig[] = [
     code: 'INR',
     symbol: '₹',
     label: 'INR (₹)',
-    rates: { free: 0, proWeekly: 149, proMonthly: 599, proYearly: 449, enterpriseWeekly: 399, enterpriseMonthly: 1699, enterpriseYearly: 1399 }
+    rates: { free: 0, proWeekly: 169, proMonthly: 599, proYearly: 449, enterpriseWeekly: 419, enterpriseMonthly: 1699, enterpriseYearly: 1399 }
   }
 ];
 
