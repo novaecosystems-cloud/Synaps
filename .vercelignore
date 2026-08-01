@@ -1,0 +1,15 @@
+node_modules
+.next
+.pnp
+.pnp.js
+scratch
+test-*.js
+test-*.ts
+fix-*.js
+uploads
+tmp
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
