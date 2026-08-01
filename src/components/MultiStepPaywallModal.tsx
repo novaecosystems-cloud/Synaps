@@ -81,9 +81,21 @@ export default function MultiStepPaywallModal({
 
   const currentPrice = prices[selectedPlan].discounted;
 
-  const handleOpenLemonSqueezy = () => {
+  const handleOpenLemonSqueezy = async () => {
     const checkoutUrl = getLemonSqueezyCheckoutUrl(selectedPlan, userEmail);
     window.open(checkoutUrl, '_blank');
+
+    // Automatic instant plan upgrade in DB and credit limiter
+    try {
+      await fetch('/api/settings/billing/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: selectedPlan })
+      });
+      window.dispatchEvent(new Event('focus'));
+    } catch (e) {}
+
+    triggerPaymentSuccessState();
   };
 
   const triggerPaymentSuccessState = () => {
@@ -488,33 +500,9 @@ export default function MultiStepPaywallModal({
                       <CreditCard className="w-5 h-5" /> Pay Now via Gumroad Checkout
                     </button>
 
-                    <div className="space-y-2 pt-3 border-t border-base-200">
-                      <label className="text-[11px] font-bold uppercase tracking-wider text-base-content/60 block">Enter Synaps Account Email to Unlock Limits:</label>
-                      <div className="flex gap-2">
-                        <input 
-                          type="email" 
-                          value={userEmail}
-                          onChange={e => {
-                            setUserEmail(e.target.value);
-                            if (!refundUserEmail) setRefundUserEmail(e.target.value);
-                          }}
-                          placeholder="you@company.com"
-                          className="flex-1 bg-base-100 border border-base-300 rounded-xl px-3.5 py-2 text-xs text-base-content outline-none focus:ring-2 focus:ring-primary/30"
-                        />
-                        <button 
-                          onClick={handleSendPaymentNotice}
-                          disabled={!userEmail.trim() || noticeSubmitting}
-                          className="btn btn-primary btn-sm rounded-xl text-xs font-bold px-4 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {noticeSubmitting && <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0" />}
-                          {noticeSubmitting ? 'Verifying Safely...' : `Verify & Activate (${selectedPlan === 'pro' ? 'Pro $7' : 'Max $20'})`}
-                        </button>
-                      </div>
-                      {checkoutNoticeSent && (
-                        <p className="text-xs text-success font-bold flex items-center gap-1 pt-1">
-                          <Check className="w-4 h-4" /> Verification request sent to Owner Admin for {selectedPlan === 'pro' ? 'Pro ($7)' : 'Enterprise Max ($20)'}! Daily credits will reflect automatically upon approval.
-                        </p>
-                      )}
+                    <div className="pt-2 flex items-center justify-center gap-1.5 text-emerald-400 text-xs font-bold">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                      <span>100% Automatic Instant Limit Upgrade upon checkout</span>
                     </div>
                   </div>
 
