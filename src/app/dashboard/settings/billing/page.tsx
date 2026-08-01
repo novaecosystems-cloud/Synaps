@@ -8,6 +8,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
+import CancellationRetentionModal from '@/components/CancellationRetentionModal';
 
 type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'INR';
 
@@ -61,6 +62,7 @@ export default function BillingPage() {
   const [userRole, setUserRole] = useState<string>('MEMBER');
   const [userCredits, setUserCredits] = useState<{ remaining: number; limit: number } | null>(null);
   const [showMultiStepPaywall, setShowMultiStepPaywall] = useState(false);
+  const [showRetentionModal, setShowRetentionModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const activeCurrency = CURRENCIES.find(c => c.code === currency) || CURRENCIES[0];
@@ -375,20 +377,17 @@ export default function BillingPage() {
               <HeartHandshake className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-base-content">14-Day Money Back Guarantee & Cancel Anytime Policy</h3>
-              <p className="text-xs text-base-content/60">If you are not 100% satisfied with Synaps AI, request an instant refund within 14 days with zero questions asked.</p>
+              <h3 className="font-bold text-sm text-base-content">30-Day Risk-Free Money Back Guarantee</h3>
+              <p className="text-xs text-base-content/60">If Synaps AI does not deliver value for your executive team within 30 days, claim a 100% refund or pause your plan anytime.</p>
             </div>
           </div>
-          <Button
-            onClick={() => {
-              setSelectedPaywallPlan('pro');
-              setShowMultiStepPaywall(true);
-            }}
-            variant="outline"
-            className="rounded-2xl gap-2 text-xs font-bold shrink-0 border-amber-500/40 text-amber-500 hover:bg-amber-500/10"
+          
+          <button
+            onClick={() => setShowRetentionModal(true)}
+            className="text-[11px] text-base-content/40 hover:text-base-content/70 transition-all underline font-medium shrink-0 pt-1 sm:pt-0"
           >
-            <RefreshCw className="w-3.5 h-3.5" /> Request Refund / Cancel Subscription
-          </Button>
+            Manage / Cancel Subscription
+          </button>
         </div>
       </div>
 
@@ -399,6 +398,17 @@ export default function BillingPage() {
           defaultPlan={selectedPaywallPlan}
           onClose={() => setShowMultiStepPaywall(false)}
           onSuccess={handlePaymentSuccess}
+        />
+      )}
+
+      {/* Retention & Cancellation Modal */}
+      {showRetentionModal && (
+        <CancellationRetentionModal
+          isOpen={showRetentionModal}
+          onClose={() => setShowRetentionModal(false)}
+          onConfirmCancel={async (reason) => {
+            console.log('Cancellation logged:', reason);
+          }}
         />
       )}
 
