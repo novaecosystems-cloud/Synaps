@@ -60,11 +60,38 @@ export default function MultiStepPaywallModal({
   const [refundSubmitting, setRefundSubmitting] = useState(false);
   const [noticeSubmitting, setNoticeSubmitting] = useState(false);
   const [paymentSuccessState, setPaymentSuccessState] = useState(false);
-  const [checkoutNoticeSent, setCheckoutNoticeSent] = useState(false);
+  const [userRole, setUserRole] = useState<string>('MEMBER');
+  const [creditLimit, setCreditLimit] = useState<number>(50);
 
   useEffect(() => {
-    if (defaultPlan) setSelectedPlan(defaultPlan);
-  }, [defaultPlan]);
+    const checkActivePlan = async () => {
+      try {
+        const res = await fetch('/api/settings/ai/credits');
+        const data = await res.json();
+        if (data.success && data.credits) {
+          const role = (data.credits.role || 'MEMBER').toUpperCase();
+          const limit = data.credits.creditLimit || 50;
+          setUserRole(role);
+          setCreditLimit(limit);
+
+          // If user is already Pro, default selection to Enterprise
+          if (role === 'ADMIN' || limit === 500) {
+            setSelectedPlan('enterprise');
+          }
+        }
+      } catch (e) {}
+    };
+
+    if (isOpen) {
+      checkActivePlan();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (defaultPlan && userRole !== 'ADMIN' && creditLimit !== 500) {
+      setSelectedPlan(defaultPlan);
+    }
+  }, [defaultPlan, userRole, creditLimit]);
 
   if (!isOpen) return null;
 
@@ -358,69 +385,103 @@ export default function MultiStepPaywallModal({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div
-                      onClick={() => setSelectedPlan('pro')}
-                      className={cn(
-                        "p-5 rounded-3xl border cursor-pointer transition-all space-y-3 relative",
-                        selectedPlan === 'pro' 
-                          ? "bg-primary/5 border-primary ring-2 ring-primary/30 shadow-md" 
-                          : "bg-base-100 border-base-300 hover:border-base-400"
-                      )}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <span className="font-extrabold text-base text-base-content block">Pro Intelligence</span>
-                          <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular ($7/mo)</span>
-                        </div>
-                        {selectedPlan === 'pro' && <CheckCircle2 className="w-5 h-5 text-primary" />}
+                  {/* IF ALREADY ON ENTERPRISE MAX */}
+                  {userRole === 'OWNER' || creditLimit >= 10000 ? (
+                    <div className="p-6 bg-gradient-to-br from-purple-950 via-slate-900 to-amber-950 border border-purple-500/40 rounded-3xl text-center space-y-4 shadow-xl">
+                      <Award className="w-12 h-12 text-amber-400 mx-auto animate-pulse" />
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                          Highest Plan Active
+                        </span>
+                        <h3 className="text-xl font-extrabold text-white mt-2">You are on Enterprise Max!</h3>
+                        <p className="text-xs text-slate-300 mt-1">
+                          Your account has <strong>10,000 Daily AI Credits</strong>, 10-Agent C-Suite Boardroom, Monte Carlo Risk Engine, and Unlimited Workspaces fully unlocked.
+                        </p>
                       </div>
-
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-extrabold text-base-content">${prices.pro.discounted}</span>
-                        <span className="text-xs text-base-content/50 line-through">${prices.pro.original}</span>
-                        <span className="text-xs text-base-content/60">/ month</span>
-                      </div>
-
-                      <ul className="space-y-1.5 text-xs text-base-content/80 font-medium">
-                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 500 Daily AI Credits</li>
-                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 10-Agent C-Suite Boardroom</li>
-                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> AI Strategy Studio & SWOT</li>
-                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 3D Memory Graph</li>
-                      </ul>
+                      <button
+                        onClick={onClose}
+                        className="py-3 px-8 rounded-2xl bg-amber-400 text-black font-extrabold text-xs uppercase tracking-wider hover:bg-amber-300 transition-all shadow-md"
+                      >
+                        Return to Workspace
+                      </button>
                     </div>
-
-                    <div
-                      onClick={() => setSelectedPlan('enterprise')}
-                      className={cn(
-                        "p-5 rounded-3xl border cursor-pointer transition-all space-y-3 relative",
-                        selectedPlan === 'enterprise' 
-                          ? "bg-purple-500/5 border-purple-500 ring-2 ring-purple-500/30 shadow-md" 
-                          : "bg-base-100 border-base-300 hover:border-base-400"
-                      )}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <span className="font-extrabold text-base text-base-content block">Enterprise Max</span>
-                          <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Max Limit Cap ($20/mo)</span>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* PRO CARD */}
+                      <div
+                        onClick={() => {
+                          if (userRole !== 'ADMIN' && creditLimit !== 500) {
+                            setSelectedPlan('pro');
+                          }
+                        }}
+                        className={cn(
+                          "p-5 rounded-3xl border transition-all space-y-3 relative",
+                          userRole === 'ADMIN' || creditLimit === 500
+                            ? "bg-emerald-500/5 border-emerald-500/40 cursor-not-allowed opacity-90"
+                            : selectedPlan === 'pro' 
+                              ? "bg-primary/5 border-primary ring-2 ring-primary/30 shadow-md cursor-pointer" 
+                              : "bg-base-100 border-base-300 hover:border-base-400 cursor-pointer"
+                        )}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="font-extrabold text-base text-base-content block">Pro Intelligence</span>
+                            {userRole === 'ADMIN' || creditLimit === 500 ? (
+                              <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">✓ Current Active Plan</span>
+                            ) : (
+                              <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular ($7/mo)</span>
+                            )}
+                          </div>
+                          {selectedPlan === 'pro' && <CheckCircle2 className="w-5 h-5 text-primary" />}
                         </div>
-                        {selectedPlan === 'enterprise' && <CheckCircle2 className="w-5 h-5 text-purple-500" />}
+
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-3xl font-extrabold text-base-content">${prices.pro.discounted}</span>
+                          <span className="text-xs text-base-content/50 line-through">${prices.pro.original}</span>
+                          <span className="text-xs text-base-content/60">/ month</span>
+                        </div>
+
+                        <ul className="space-y-1.5 text-xs text-base-content/80 font-medium">
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 500 Daily AI Credits</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 10-Agent C-Suite Boardroom</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> AI Strategy Studio & SWOT</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-primary" /> 3D Memory Graph</li>
+                        </ul>
                       </div>
 
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-extrabold text-base-content">${prices.enterprise.discounted}</span>
-                        <span className="text-xs text-base-content/50 line-through">${prices.enterprise.original}</span>
-                        <span className="text-xs text-base-content/60">/ month</span>
-                      </div>
+                      {/* ENTERPRISE CARD */}
+                      <div
+                        onClick={() => setSelectedPlan('enterprise')}
+                        className={cn(
+                          "p-5 rounded-3xl border cursor-pointer transition-all space-y-3 relative",
+                          selectedPlan === 'enterprise' 
+                            ? "bg-purple-500/5 border-purple-500 ring-2 ring-purple-500/30 shadow-md" 
+                            : "bg-base-100 border-base-300 hover:border-base-400"
+                        )}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="font-extrabold text-base text-base-content block">Enterprise Max</span>
+                            <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Max Limit Cap ($20/mo)</span>
+                          </div>
+                          {selectedPlan === 'enterprise' && <CheckCircle2 className="w-5 h-5 text-purple-500" />}
+                        </div>
 
-                      <ul className="space-y-1.5 text-xs text-base-content/80 font-medium">
-                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> 10,000 Daily AI Credits</li>
-                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Digital Twin Risk Simulator</li>
-                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Unlimited Workspaces</li>
-                        <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Permanent Audit Logs</li>
-                      </ul>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-3xl font-extrabold text-base-content">${prices.enterprise.discounted}</span>
+                          <span className="text-xs text-base-content/50 line-through">${prices.enterprise.original}</span>
+                          <span className="text-xs text-base-content/60">/ month</span>
+                        </div>
+
+                        <ul className="space-y-1.5 text-xs text-base-content/80 font-medium">
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> 10,000 Daily AI Credits</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Digital Twin Risk Simulator</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Unlimited Workspaces</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Permanent Audit Logs</li>
+                        </ul>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-2 text-xs">
                     <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">

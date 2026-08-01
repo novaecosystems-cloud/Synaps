@@ -399,11 +399,16 @@ export default function ClientLayout({ children, user }: { children: React.React
             {/* Top Right Glowing Persistent Upgrade / Unlock Credits Button */}
             <button
               onClick={() => setIsPaywallModalOpen(true)}
-              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-600 hover:to-purple-700 text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1 transition-all shadow-md hover:scale-[1.03] aura-purple"
-              title="Unlock Pro ($7) or Enterprise Max ($20) Credits"
+              className={cn(
+                "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1 transition-all shadow-md hover:scale-[1.03]",
+                user.isPremium 
+                  ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20" 
+                  : "bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-600 hover:to-purple-700 text-white aura-purple"
+              )}
+              title="View Plan & AI Credit Limits"
             >
-              <Zap className="w-3.5 h-3.5 fill-white animate-pulse shrink-0" />
-              <span>Upgrade</span>
+              <Zap className={cn("w-3.5 h-3.5 shrink-0", !user.isPremium && "fill-white animate-pulse")} />
+              <span>{user.isPremium ? "Pro" : "Upgrade"}</span>
             </button>
 
             <DemoHeaderBadge />
