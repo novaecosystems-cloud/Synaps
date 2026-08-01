@@ -81,21 +81,9 @@ export default function MultiStepPaywallModal({
 
   const currentPrice = prices[selectedPlan].discounted;
 
-  const handleOpenLemonSqueezy = async () => {
+  const handleOpenLemonSqueezy = () => {
     const checkoutUrl = getLemonSqueezyCheckoutUrl(selectedPlan, userEmail);
     window.open(checkoutUrl, '_blank');
-
-    // Automatic instant plan upgrade in DB and credit limiter
-    try {
-      await fetch('/api/settings/billing/upgrade', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: selectedPlan })
-      });
-      window.dispatchEvent(new Event('focus'));
-    } catch (e) {}
-
-    triggerPaymentSuccessState();
   };
 
   const triggerPaymentSuccessState = () => {
