@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { memPalaceEngine } from '@/lib/mempalace-engine';
 
 function parseSafeJson(content: string) {
   try {
@@ -108,7 +109,8 @@ You MUST return valid JSON with:
   "dataEvidence": ["Evidence 1 referencing company context", "Evidence 2"]
 }`;
 
-    const prompt = `${contextText}\n\nSTRATEGIC BOARD QUESTION: ${query}`;
+    const memPalaceContext = memPalaceEngine.buildMemPalacePromptContext(organizationId, query);
+    const prompt = `${contextText}\n\n${memPalaceContext}\n\nSTRATEGIC BOARD QUESTION: ${query}`;
 
     try {
       const rawContent = await invokeLLMWithFallback([

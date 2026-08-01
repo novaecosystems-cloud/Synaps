@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { memPalaceEngine } from '@/lib/mempalace-engine';
 
 function parseSafeJson(content: string) {
   try {
@@ -152,7 +153,10 @@ export async function generateExecutiveBriefData(organizationId: string): Promis
     `• Connection: ${r.sourceEntity?.name || ''} (${r.sourceEntity?.type || ''}) ${r.relationType} ${r.targetEntity?.name || ''} (${r.targetEntity?.type || ''}) | ${r.description || ''}`
   ).join('\n');
 
+  const memPalaceContext = memPalaceEngine.buildMemPalacePromptContext(organizationId, "COO Operational Executive Briefing");
+
   const systemInstruction = `You are the Autonomous AI Chief Operating Officer (AI COO) for Synaps.
+${memPalaceContext}
 Your task is to analyze the organization's documents, projects, decisions, compliance gaps, and Memory Graph relationships to produce a living AI Executive Briefing.
 
 You MUST generate valid JSON with the following EXACT structure:
