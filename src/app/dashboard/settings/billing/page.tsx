@@ -337,16 +337,20 @@ export default function BillingPage() {
                 ) : plan.id === 'pro' ? (
                   <button
                     onClick={() => handleOpenPaywall('pro')}
-                    disabled={isCurrent}
+                    disabled={isCurrent || activePlanId === 'enterprise'}
                     className={cn(
                       "w-full rounded-2xl py-3.5 px-4 font-extrabold text-xs uppercase tracking-wider text-center transition-all flex items-center justify-center gap-2 shadow-md",
-                      isCurrent
-                        ? "border border-emerald-500 text-emerald-400 bg-emerald-500/10 cursor-default"
+                      isCurrent || activePlanId === 'enterprise'
+                        ? "border border-emerald-500/60 text-emerald-400 bg-emerald-500/10 cursor-not-allowed opacity-90"
                         : "bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-[1.02]"
                     )}
                   >
-                    {isCurrent ? '✓ Current Active Plan' : `Upgrade to Pro (${activeCurrency.symbol}${price})`}
-                    {!isCurrent && <ArrowRight className="w-4 h-4 shrink-0" />}
+                    {isCurrent 
+                      ? '✓ Current Active Plan (Pro)' 
+                      : activePlanId === 'enterprise' 
+                        ? '✓ Included in Enterprise Tier' 
+                        : `Upgrade to Pro (${activeCurrency.symbol}${price})`}
+                    {!isCurrent && activePlanId !== 'enterprise' && <ArrowRight className="w-4 h-4 shrink-0" />}
                   </button>
                 ) : (
                   <button
@@ -355,11 +359,11 @@ export default function BillingPage() {
                     className={cn(
                       "w-full rounded-2xl py-3.5 px-4 font-extrabold text-xs uppercase tracking-wider text-center transition-all flex items-center justify-center gap-2 shadow-lg",
                       isCurrent
-                        ? "border border-emerald-500 text-emerald-400 bg-emerald-500/10 cursor-default"
+                        ? "border border-emerald-500/60 text-emerald-400 bg-emerald-500/10 cursor-not-allowed opacity-90"
                         : "bg-gradient-to-r from-purple-600 via-primary to-amber-500 hover:from-purple-700 hover:to-amber-600 text-white hover:scale-[1.02]"
                     )}
                   >
-                    {isCurrent ? '✓ Current Active Plan' : `Upgrade to Enterprise (${activeCurrency.symbol}${price})`}
+                    {isCurrent ? '✓ Current Active Plan (Enterprise Max)' : `Upgrade to Enterprise (${activeCurrency.symbol}${price})`}
                     {!isCurrent && <ArrowRight className="w-4 h-4 shrink-0" />}
                   </button>
                 )}
