@@ -39,16 +39,34 @@ class MemoryRateLimiter {
 }
 
 let ratelimit: any;
+let signupRatelimit: any;
+let authRatelimit: any;
 
 if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  const redis = Redis.fromEnv();
   ratelimit = new Ratelimit({
-    redis: Redis.fromEnv(),
+    redis,
     limiter: Ratelimit.slidingWindow(20, '10 s'), // 20 requests per 10 seconds
     analytics: true,
+    prefix: 'ratelimit:api',
+  });
+  signupRatelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(5, '600 s'), // 5 sign-ups per 10 minutes (Bot Protection)
+    analytics: true,
+    prefix: 'ratelimit:signup',
+  });
+  authRatelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '60 s'), // 10 auth attempts per minute
+    analytics: true,
+    prefix: 'ratelimit:auth',
   });
 } else {
-  // Fallback to memory: 20 requests per 10 seconds
+  // Fallback to memory stores
   ratelimit = new MemoryRateLimiter(20, 10);
+  signupRatelimit = new MemoryRateLimiter(5, 600); // 5 per 10 mins
+  authRatelimit = new MemoryRateLimiter(10, 60);   // 10 per 1 min
 }
 
-export { ratelimit };
+export { ratelimit, signupRatelimit, authRatelimit };

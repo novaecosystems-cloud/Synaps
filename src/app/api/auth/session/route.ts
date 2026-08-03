@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySessionCookie, createSessionCookie } from '@/lib/auth-server';
+import { authRatelimit } from '@/lib/ratelimit';
 
 export async function GET(req: NextRequest) {
   const sessionCookie = req.cookies.get('synaps-session')?.value;
@@ -44,9 +45,31 @@ export async function GET(req: NextRequest) {
   });
 }
 
-// POST: Create or refresh session
+// POST: Create or refresh session with Rate Limiting (Bot Protection)
 export async function POST(req: NextRequest) {
   try {
+    // 1. IP & Rate Limit Protection against bot attacks & credential stuffing
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('x-real-ip') || '127.0.0.1';
+    const rateCheck = await authRatelimit.limit(`auth_${clientIp}`);
+
+    if (!rateCheck.success) {
+      const retryAfterSec = Math.ceil((rateCheck.reset - Date.now()) / 1000);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Too many sign-in attempts from this IP. Please try again in ${retryAfterSec} seconds.`,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': retryAfterSec.toString(),
+            'X-RateLimit-Limit': rateCheck.limit.toString(),
+            'X-RateLimit-Remaining': rateCheck.remaining.toString(),
+          },
+        }
+      );
+    }
+
     const body = await req.json();
     const idToken = body.idToken || 'TEST_TOKEN_authenticated_user_synaps';
 
