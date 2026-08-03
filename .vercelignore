@@ -9,7 +9,9 @@ fix-*.js
 uploads
 tmp
 *.log
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
