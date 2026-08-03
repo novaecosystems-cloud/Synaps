@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TextPlugin } from 'gsap/TextPlugin';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import * as THREE from 'three';
+import Lenis from 'lenis';
 import WaitlistModal from '../WaitlistModal';
 import SpotlightTiltCard from './SpotlightTiltCard';
 
@@ -12,7 +15,184 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, TextPlugin);
 }
 
-// ─── TEXT SCRAMBLE ────────────────────────────────────────────────────────────
+// ─── 3D WEBGL BACKGROUND & SCENE RIG (FOLIO-2026 R3F ENGINE) ──────────────────
+function MemoryGraphPoints({ scrollProgress }: { scrollProgress: number }) {
+  const pointsRef = useRef<THREE.Points>(null);
+  const linesRef = useRef<THREE.LineSegments>(null);
+
+  const { positions, colors, linePositions } = useMemo(() => {
+    const count = 1800;
+    const pos = new Float32Array(count * 3);
+    const col = new Float32Array(count * 3);
+    const color = new THREE.Color();
+
+    for (let i = 0; i < count; i++) {
+      const radius = 3.5 + Math.random() * 2.5;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(Math.random() * 2 - 1);
+
+      const x = radius * Math.sin(phi) * Math.cos(theta);
+      const y = radius * Math.sin(phi) * Math.sin(theta);
+      const z = radius * Math.cos(phi);
+
+      pos[i * 3] = x;
+      pos[i * 3 + 1] = y;
+      pos[i * 3 + 2] = z;
+
+      // Lime green & cyan enterprise memory palette
+      if (i % 3 === 0) {
+        color.set('#CAFF00');
+      } else if (i % 3 === 1) {
+        color.set('#38bdf8');
+      } else {
+        color.set('#a855f7');
+      }
+
+      col[i * 3] = color.r;
+      col[i * 3 + 1] = color.g;
+      col[i * 3 + 2] = color.b;
+    }
+
+    // Connect random pairs for 3D memory graph web
+    const lineIndices: number[] = [];
+    for (let i = 0; i < count; i += 12) {
+      for (let j = i + 1; j < i + 4; j++) {
+        if (j < count) {
+          lineIndices.push(
+            pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2],
+            pos[j * 3], pos[j * 3 + 1], pos[j * 3 + 2]
+          );
+        }
+      }
+    }
+
+    return {
+      positions: pos,
+      colors: col,
+      linePositions: new Float32Array(lineIndices),
+    };
+  }, []);
+
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (pointsRef.current) {
+      pointsRef.current.rotation.y = t * 0.08 + scrollProgress * Math.PI * 0.5;
+      pointsRef.current.rotation.x = Math.sin(t * 0.05) * 0.2 + scrollProgress * 0.3;
+    }
+    if (linesRef.current) {
+      linesRef.current.rotation.y = t * 0.08 + scrollProgress * Math.PI * 0.5;
+      linesRef.current.rotation.x = Math.sin(t * 0.05) * 0.2 + scrollProgress * 0.3;
+    }
+  });
+
+  return (
+    <group>
+      <points ref={pointsRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={positions.length / 3}
+            array={positions}
+            itemSize={3}
+          />
+          <bufferAttribute
+            attach="attributes-color"
+            count={colors.length / 3}
+            array={colors}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.045}
+          vertexColors
+          transparent
+          opacity={0.75}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+
+      <lineSegments ref={linesRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={linePositions.length / 3}
+            array={linePositions}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial
+          color="#CAFF00"
+          transparent
+          opacity={0.12}
+          blending={THREE.AdditiveBlending}
+        />
+      </lineSegments>
+    </group>
+  );
+}
+
+function OrbitingAgentNodes({ scrollProgress }: { scrollProgress: number }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const nodes = useMemo(() => [
+    { label: 'Research', color: '#CAFF00', r: 4.2, speed: 0.4 },
+    { label: 'Finance', color: '#38bdf8', r: 4.8, speed: -0.3 },
+    { label: 'Legal', color: '#a855f7', r: 5.2, speed: 0.5 },
+    { label: 'Infosec', color: '#f43f5e', r: 4.5, speed: -0.4 },
+    { label: 'CFO Twin', color: '#CAFF00', r: 5.8, speed: 0.2 },
+    { label: 'CEO Twin', color: '#e0e7ff', r: 6.2, speed: -0.25 },
+  ], []);
+
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (groupRef.current) {
+      groupRef.current.rotation.y = t * 0.1;
+      groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, -scrollProgress * 4, 0.05);
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      {nodes.map((node, i) => {
+        const angle = (i / nodes.length) * Math.PI * 2;
+        const x = Math.cos(angle) * node.r;
+        const y = Math.sin(angle * 1.5) * 1.2;
+        const z = Math.sin(angle) * node.r;
+        return (
+          <mesh key={i} position={[x, y, z]}>
+            <sphereGeometry args={[0.12, 16, 16]} />
+            <meshStandardMaterial
+              color={node.color}
+              emissive={node.color}
+              emissiveIntensity={1.5}
+              roughness={0.2}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+function WebGLScene({ scrollProgress }: { scrollProgress: number }) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    camera.position.z = 7 - scrollProgress * 2;
+    camera.position.y = -scrollProgress * 1.2;
+  }, [scrollProgress, camera]);
+
+  return (
+    <>
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[10, 10, 10]} intensity={1.2} color="#CAFF00" />
+      <pointLight position={[-10, -10, -10]} intensity={0.8} color="#38bdf8" />
+      <MemoryGraphPoints scrollProgress={scrollProgress} />
+      <OrbitingAgentNodes scrollProgress={scrollProgress} />
+    </>
+  );
+}
+
+// ─── TEXT SCRAMBLER ───────────────────────────────────────────────────────────
 class TextScrambler {
   private el: HTMLElement;
   private chars = '!<>-_\\/[]{}—=+*^?#ABCDEFGHIJKLMNOPQRSTUVWXYZ01234';
@@ -34,8 +214,8 @@ class TextScrambler {
     for (let i = 0; i < length; i++) {
       const from = oldText[i] || '';
       const to = newText[i] || '';
-      const start = Math.floor(Math.random() * 18);
-      const end = start + Math.floor(Math.random() * 18);
+      const start = Math.floor(Math.random() * 16);
+      const end = start + Math.floor(Math.random() * 16);
       this.queue.push({ from, to, start, end });
     }
     cancelAnimationFrame(this.frameReq);
@@ -56,7 +236,7 @@ class TextScrambler {
         if (!this.queue[i].char || Math.random() < 0.28) {
           this.queue[i].char = this.chars[Math.floor(Math.random() * this.chars.length)];
         }
-        output += `<span style="color:#CAFF00;opacity:0.5">${this.queue[i].char}</span>`;
+        output += `<span style="color:#CAFF00;opacity:0.6">${this.queue[i].char}</span>`;
       } else {
         output += from;
       }
@@ -71,9 +251,9 @@ class TextScrambler {
   }
 }
 
-// ─── HORIZONTAL MARQUEE ───────────────────────────────────────────────────────
+// ─── MARQUEE ──────────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = [
-  'ENTERPRISE INTELLIGENCE', 'DECISION MEMORY', 'AI AGENTS', 'CORPORATE GRAPH',
+  'ENTERPRISE INTELLIGENCE', 'DECISION MEMORY', '10 AI AGENTS', 'CORPORATE GRAPH',
   'BOARDROOM SIMULATION', 'KNOWLEDGE INGESTION', 'RISK ANALYSIS', 'STRATEGY STUDIO',
 ];
 
@@ -83,7 +263,7 @@ function Marquee({ reverse = false }: { reverse?: boolean }) {
     if (!ref.current) return;
     const w = ref.current.scrollWidth / 2;
     gsap.fromTo(ref.current, { x: reverse ? -w : 0 }, {
-      x: reverse ? 0 : -w, duration: 32, ease: 'none', repeat: -1,
+      x: reverse ? 0 : -w, duration: 30, ease: 'none', repeat: -1,
     });
   }, [reverse]);
   const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
@@ -92,12 +272,12 @@ function Marquee({ reverse = false }: { reverse?: boolean }) {
       <div ref={ref} style={{ display: 'flex', gap: 56, whiteSpace: 'nowrap', width: 'max-content' }}>
         {items.map((item, i) => (
           <span key={i} style={{
-            fontSize: 11, fontWeight: 500, letterSpacing: '4px',
-            color: i % 3 === 0 ? '#CAFF00' : 'rgba(255,255,255,0.18)',
-            fontFamily: "'Supply Mono', 'JetBrains Mono', monospace",
+            fontSize: 11, fontWeight: 600, letterSpacing: '4px',
+            color: i % 3 === 0 ? '#CAFF00' : 'rgba(255,255,255,0.22)',
+            fontFamily: "'JetBrains Mono', monospace",
             textTransform: 'uppercase'
           }}>
-            {item} <span style={{ color: 'rgba(255,255,255,0.1)', marginLeft: 8 }}>✦</span>
+            {item} <span style={{ color: 'rgba(255,255,255,0.12)', marginLeft: 8 }}>✦</span>
           </span>
         ))}
       </div>
@@ -107,19 +287,19 @@ function Marquee({ reverse = false }: { reverse?: boolean }) {
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const SUITES = [
-  { id: '01', tag: 'COMMAND CONSOLE', label: 'AI COO Command Console', sub: 'Briefing & Operational Intelligence', color: '#CAFF00', dark: '#0A0A0A',
+  { id: '01', tag: 'COMMAND CONSOLE', label: 'AI COO Command Console', sub: 'Briefing & Operational Intelligence', color: '#CAFF00',
     desc: 'Transforms all your documents, emails, CRMs, and contracts into a real-time operational briefing — grounded in your actual organizational memory, never hallucinated.',
     specs: ['Org Health Score & Coverage', 'Decision Confidence Meter', 'Zero-Retention Memory SLA', '24/7 Real-Time Anomaly Audit'],
     stat: '99.4%', statLabel: 'Synthesis Accuracy' },
-  { id: '02', tag: 'FLIGHT CONTROL', label: 'Multi-Agent Flight Control', sub: '10 Parallel AI Agent Orchestration', color: '#FFFFFF', dark: '#0A0A0A',
+  { id: '02', tag: 'FLIGHT CONTROL', label: 'Multi-Agent Flight Control', sub: '10 Parallel AI Agent Orchestration', color: '#FFFFFF',
     desc: 'Orchestrates 10 specialized AI agents (Research, Finance, Legal, Engineering, Infosec, HR) simultaneously — each grounded in your company knowledge graph.',
     specs: ['10 Specialized Agent Personas', 'Shared Memory Graph Pipeline', 'Parallel Task Execution', 'Full Audit Log & Provenance'],
     stat: '10×', statLabel: 'Parallel Throughput' },
-  { id: '03', tag: 'DIGITAL TWINS', label: 'Executive Boardroom Twins', sub: '8 C-Suite Personas, Zero Hallucination', color: '#CAFF00', dark: '#0A0A0A',
+  { id: '03', tag: 'DIGITAL TWINS', label: 'Executive Boardroom Twins', sub: '8 C-Suite Personas, Zero Hallucination', color: '#CAFF00',
     desc: 'Simulates how your CEO, CFO, CTO, Legal, HR would respond to any strategic scenario — grounded in historical company memory and risk tolerances.',
     specs: ['8 C-Suite Persona Twins', 'Stress-Testing Strategic Options', 'Consensus & Divergence Heatmaps', 'Debate Record Generation'],
     stat: '8', statLabel: 'C-Suite Personas' },
-  { id: '04', tag: 'STRATEGY STUDIO', label: 'AI Strategy Studio', sub: '11-Stage Enterprise Roadmap Generator', color: '#FFFFFF', dark: '#0A0A0A',
+  { id: '04', tag: 'STRATEGY STUDIO', label: 'AI Strategy Studio', sub: '11-Stage Enterprise Roadmap Generator', color: '#FFFFFF',
     desc: 'Formulates end-to-end enterprise strategy documents, competitive threat analysis, Red-Team AI challenges, and 11-stage execution roadmaps in minutes.',
     specs: ['11-Stage Transformation Roadmap', 'Competitive Threat Scanning', 'Resource & Budget Allocation', 'Risk Mitigation Playbook'],
     stat: '110', statLabel: 'Decision Models' },
@@ -134,81 +314,30 @@ const STATS = [
 
 const USP_ITEMS = [
   {
-    tag: '01 / MEMORY',
+    tag: '01 / MEMORY GRAPH',
     title: 'Permanent\nOrganizational\nMemory',
-    desc: 'Every document, email, contract, and decision your organization has ever made — indexed, linked, and retrievable in under 2 seconds.',
+    desc: 'Every document, email, contract, and decision your organization has ever made — indexed, linked into a 4D WebGL graph, and retrievable in under 2 seconds.',
     accent: '#CAFF00',
   },
   {
-    tag: '02 / AGENTS',
-    title: '10 Specialized\nAI Agents\nWorking in Parallel',
-    desc: 'Research, Finance, Legal, Engineering, Infosec, and HR agents run simultaneously — each grounded in your actual company knowledge graph.',
-    accent: '#a8ff78',
+    tag: '02 / AGENT FLIGHT CONTROL',
+    title: '10 Parallel AI Agents\nWorking in Sync',
+    desc: 'Research, Finance, Legal, Engineering, Infosec, and HR agents run simultaneously — each grounded in your actual company memory graph.',
+    accent: '#38bdf8',
   },
   {
-    tag: '03 / BOARDROOM',
-    title: '8 C-Suite\nDigital Twins\nat Your Command',
-    desc: 'Simulate how your CEO, CFO, and CTO would respond to any scenario before it reaches the real boardroom.',
+    tag: '03 / C-SUITE TWINS',
+    title: '8 Executive Digital Twins\nat Your Command',
+    desc: 'Simulate how your CEO, CFO, and CTO would respond to any high-stakes scenario before it reaches the real boardroom.',
     accent: '#CAFF00',
   },
   {
-    tag: '04 / STRATEGY',
-    title: 'Enterprise\nRoadmaps in\nMinutes Not Months',
+    tag: '04 / STRATEGY STUDIO',
+    title: 'Enterprise Roadmaps\nin Minutes Not Months',
     desc: '11-stage transformation roadmaps, competitive threat analysis, and Red-Team AI challenges generated at machine speed.',
-    accent: '#d4ff4d',
+    accent: '#a855f7',
   },
 ];
-
-// ─── FLUID BLOB BACKGROUND ────────────────────────────────────────────────────
-function FluidBlob({ color = '#CAFF00', size = 600, x = 0, y = 0, delay = 0 }: {
-  color?: string; size?: number; x?: number; y?: number; delay?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!ref.current) return;
-    gsap.to(ref.current, {
-      x: x + (Math.random() - 0.5) * 80,
-      y: y + (Math.random() - 0.5) * 80,
-      scale: 0.85 + Math.random() * 0.3,
-      duration: 6 + Math.random() * 4,
-      ease: 'sine.inOut',
-      repeat: -1,
-      yoyo: true,
-      delay,
-    });
-  }, []);
-  return (
-    <div ref={ref} style={{
-      position: 'absolute',
-      width: size,
-      height: size,
-      borderRadius: '50%',
-      background: color,
-      filter: 'blur(120px)',
-      opacity: 0.07,
-      pointerEvents: 'none',
-      left: `calc(50% + ${x}px - ${size / 2}px)`,
-      top: `calc(50% + ${y}px - ${size / 2}px)`,
-    }} />
-  );
-}
-
-// ─── ANIMATED WORD REVEAL ─────────────────────────────────────────────────────
-function WordReveal({ children, delay = 0, className = '' }: { children: string; delay?: number; className?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    if (!ref.current) return;
-    gsap.fromTo(ref.current,
-      { yPercent: 110, opacity: 0 },
-      { yPercent: 0, opacity: 1, duration: 1.2, ease: 'power4.out', delay }
-    );
-  }, [delay]);
-  return (
-    <span style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' }}>
-      <span ref={ref} className={className} style={{ display: 'inline-block', opacity: 0 }}>{children}</span>
-    </span>
-  );
-}
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function MadeWithGSAPSynapsLanding() {
@@ -217,77 +346,82 @@ export default function MadeWithGSAPSynapsLanding() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCard, setActiveCard] = useState(0);
   const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [cursorActive, setCursorActive] = useState(false);
   const heroWordRef = useRef<HTMLSpanElement>(null);
-  const heroRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
 
-  // Custom cursor
+  // Initialize Lenis Smooth Scroll (folio-2026 spec)
   useEffect(() => {
-    const move = (e: MouseEvent) => { setCursorPos({ x: e.clientX, y: e.clientY }); setCursorActive(true); };
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    lenis.on('scroll', (e: any) => {
+      ScrollTrigger.update();
+      if (document.documentElement.scrollHeight > window.innerHeight) {
+        setScrollProgress(e.scroll / (document.documentElement.scrollHeight - window.innerHeight));
+      }
+    });
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
+  // Custom Cursor (Folio 2026 style)
+  useEffect(() => {
+    const move = (e: MouseEvent) => {
+      setCursorPos({ x: e.clientX, y: e.clientY });
+      setCursorActive(true);
+    };
     const leave = () => setCursorActive(false);
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseleave', leave);
-    return () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseleave', leave); };
+    return () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseleave', leave);
+    };
   }, []);
 
-  // GSAP: Hero entrance
+  // GSAP Animations
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo('.hero-badge', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2 });
-      gsap.fromTo('.hero-sub', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 1.2 });
-      gsap.fromTo('.hero-cta', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 1.5 });
-      gsap.fromTo('.hero-stats', { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out', delay: 1.8 });
+      gsap.fromTo('.hero-badge', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2 });
+      gsap.fromTo('.hero-line-1', { yPercent: 120, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.1, ease: 'power4.out', delay: 0.4 });
+      gsap.fromTo('.hero-line-2', { yPercent: 120, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.1, ease: 'power4.out', delay: 0.6 });
+      gsap.fromTo('.hero-line-3', { yPercent: 120, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 1.1, ease: 'power4.out', delay: 0.8 });
+      gsap.fromTo('.hero-sub', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 1.1 });
+      gsap.fromTo('.hero-cta', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 1.3 });
+      gsap.fromTo('.hero-stats', { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out', delay: 1.6 });
+
+      // ScrollTrigger reveal sections
+      document.querySelectorAll('.reveal-section').forEach((el) => {
+        gsap.fromTo(
+          el.querySelectorAll('.reveal-child'),
+          { y: 40, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', stagger: 0.1,
+            scrollTrigger: { trigger: el, start: 'top 82%', toggleActions: 'play none none none' }
+          }
+        );
+      });
     });
     return () => ctx.revert();
   }, []);
 
-  // GSAP: ScrollTrigger reveals — clip-path style like incredibles.dev
+  // Text Scramble Loop
   useEffect(() => {
-    const sections = document.querySelectorAll('.reveal-section');
-    sections.forEach(el => {
-      gsap.fromTo(el.querySelectorAll('.reveal-child'),
-        { y: 50, opacity: 0 },
-        {
-          y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', stagger: 0.1,
-          scrollTrigger: { trigger: el, start: 'top 82%', toggleActions: 'play none none none' }
-        }
-      );
-    });
-
-    // Media clip-path reveal (incredibles.dev style)
-    document.querySelectorAll('.media-reveal').forEach(el => {
-      gsap.fromTo(el,
-        { clipPath: 'inset(6% 6% 6% 6% round 1.5rem)', scale: 1.08, opacity: 0 },
-        {
-          clipPath: 'inset(0% 0% 0% 0% round 1.5rem)', scale: 1, opacity: 1,
-          duration: 1.0, ease: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
-          scrollTrigger: { trigger: el, start: 'top 80%' }
-        }
-      );
-    });
-
-    // Stat counters
-    document.querySelectorAll('.stat-num').forEach(el => {
-      gsap.fromTo(el, { opacity: 0, y: 30 }, {
-        opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 85%' }
-      });
-    });
-
-    // Sticky USP section
-    ScrollTrigger.create({
-      trigger: '.usp-sticky-section',
-      start: 'top top',
-      end: 'bottom bottom',
-      pin: '.usp-sticky-header',
-      pinSpacing: false,
-    });
-  }, []);
-
-  // Scramble rotating word
-  useEffect(() => {
-    const words = ['INTELLIGENCE', 'MEMORY', 'DECISIONS', 'INSIGHT', 'STRATEGY'];
+    const words = ['DECISION MEMORY', '10 AI AGENTS', 'C-SUITE TWINS', 'STRATEGY OS', 'ORGANIZATIONAL GRAPH'];
     let idx = 0;
     const el = heroWordRef.current;
     if (!el) return;
@@ -296,11 +430,11 @@ export default function MadeWithGSAPSynapsLanding() {
       scrambler.setText(words[idx]).then(() => { setTimeout(cycle, 2400); });
       idx = (idx + 1) % words.length;
     };
-    const timer = setTimeout(cycle, 1800);
+    const timer = setTimeout(cycle, 1600);
     return () => clearTimeout(timer);
   }, []);
 
-  // Keyboard
+  // Keyboard shortcut (⌘K)
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); setSearchOpen(true); }
@@ -312,7 +446,7 @@ export default function MadeWithGSAPSynapsLanding() {
 
   // Auto rotate suite cards
   useEffect(() => {
-    const t = setInterval(() => setActiveCard(p => (p + 1) % SUITES.length), 3800);
+    const t = setInterval(() => setActiveCard(p => (p + 1) % SUITES.length), 4000);
     return () => clearInterval(t);
   }, []);
 
@@ -322,333 +456,148 @@ export default function MadeWithGSAPSynapsLanding() {
   ) : SUITES;
 
   return (
-    <div style={{ background: '#000', color: '#fff', fontFamily: "'Neue Montreal', 'Plus Jakarta Sans', sans-serif", minHeight: '100vh', overflowX: 'hidden' }} className="relative">
+    <div ref={mainRef} style={{ background: '#050505', color: '#fff', fontFamily: "'Space Grotesk', sans-serif", minHeight: '100vh', overflowX: 'hidden' }} className="relative">
 
-      {/* ── GLOBAL CSS ─────────────────────────────────────────────────────── */}
+      {/* ── GLOBAL STYLES ─────────────────────────────────────────────────── */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-        @font-face {
-          font-family: 'Neue Montreal';
-          font-style: normal;
-          font-weight: 300;
-          src: local('Plus Jakarta Sans');
-        }
-
         *{margin:0;padding:0;box-sizing:border-box;}
         html{scroll-behavior:smooth;}
-        body{background:#000;overflow-x:hidden;}
+        body{background:#050505;overflow-x:hidden;}
         ::selection{background:#CAFF00;color:#000;}
 
-        /* ── CUSTOM CURSOR ── */
+        /* Custom Cursor */
         .custom-cursor {
-          position: fixed; width: 8px; height: 8px; background: #CAFF00;
+          position: fixed; width: 10px; height: 10px; background: #CAFF00;
           border-radius: 50%; pointer-events: none; z-index: 9999;
           transition: transform 0.15s cubic-bezier(0.23,1,0.32,1);
           mix-blend-mode: difference;
         }
 
-        /* ── FONTS ── */
-        .font-display { font-family: 'Space Grotesk', sans-serif; }
-        .font-body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-        /* ── NAV ── */
-        .nav-pill {
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.09);
-          backdrop-filter: blur(16px);
-          border-radius: 999px;
-          padding: 6px 18px;
-          display: flex;
-          align-items: center;
-          gap: 2px;
-        }
-        .nav-link {
-          color: rgba(255,255,255,0.45);
-          text-decoration: none;
-          font-size: 12.5px;
-          font-weight: 500;
-          letter-spacing: 0.03em;
-          padding: 5px 12px;
-          border-radius: 999px;
-          transition: all 0.22s;
-          white-space: nowrap;
-        }
-        .nav-link:hover { color: #fff; background: rgba(255,255,255,0.07); }
-
-        /* ── BUTTONS ── */
+        /* Buttons */
         .btn-lime {
           display: inline-flex; align-items: center; gap: 8px;
           background: #CAFF00; color: #000;
           border: none; font-family: 'Space Grotesk', sans-serif;
-          font-size: 13.5px; font-weight: 700; letter-spacing: 0.01em;
+          font-size: 13.5px; font-weight: 800; letter-spacing: 0.01em;
           padding: 13px 26px; border-radius: 999px; cursor: pointer;
           text-decoration: none; transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
-          position: relative; overflow: hidden;
         }
-        .btn-lime::after {
-          content: ''; position: absolute; inset: 0;
-          background: rgba(0,0,0,0); transition: background 0.25s;
-        }
-        .btn-lime:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(202,255,0,0.3); }
+        .btn-lime:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(202,255,0,0.35); }
 
         .btn-outline {
           display: inline-flex; align-items: center; gap: 8px;
-          background: transparent; color: rgba(255,255,255,0.7);
-          border: 1px solid rgba(255,255,255,0.14);
+          background: transparent; color: rgba(255,255,255,0.75);
+          border: 1px solid rgba(255,255,255,0.15);
           font-family: 'Space Grotesk', sans-serif;
-          font-size: 13.5px; font-weight: 500; letter-spacing: 0.01em;
+          font-size: 13.5px; font-weight: 600; letter-spacing: 0.01em;
           padding: 13px 26px; border-radius: 999px; cursor: pointer;
           text-decoration: none; transition: all 0.25s;
         }
-        .btn-outline:hover { border-color: rgba(255,255,255,0.45); color: #fff; }
+        .btn-outline:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
 
-        /* ── DISPLAY TYPOGRAPHY ── */
+        /* Typography */
         .display-xl {
           font-family: 'Space Grotesk', sans-serif;
-          font-size: clamp(62px, 9.5vw, 144px);
-          font-weight: 900;
-          line-height: 0.9;
-          letter-spacing: -0.045em;
-          color: #fff;
-        }
-        .display-lg {
-          font-family: 'Space Grotesk', sans-serif;
-          font-size: clamp(44px, 6.5vw, 96px);
-          font-weight: 900;
-          line-height: 0.92;
-          letter-spacing: -0.04em;
-          color: #fff;
+          font-size: clamp(60px, 9vw, 140px);
+          font-weight: 900; line-height: 0.9;
+          letter-spacing: -0.045em; color: #fff;
         }
         .display-md {
           font-family: 'Space Grotesk', sans-serif;
           font-size: clamp(34px, 4.5vw, 68px);
-          font-weight: 900;
-          line-height: 0.96;
-          letter-spacing: -0.035em;
-          color: #fff;
+          font-weight: 900; line-height: 0.96;
+          letter-spacing: -0.035em; color: #fff;
         }
         .display-lime { color: #CAFF00; }
-        .display-dim { color: rgba(255,255,255,0.2); }
-        .display-muted { color: rgba(255,255,255,0.5); }
+        .display-dim { color: rgba(255,255,255,0.25); }
 
-        /* ── SECTION LABEL (supply mono style) ── */
         .label-mono {
           font-family: 'JetBrains Mono', monospace;
-          font-size: 10.5px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.3);
-          letter-spacing: 0.14em;
+          font-size: 10.5px; font-weight: 600;
+          color: rgba(255,255,255,0.32); letter-spacing: 0.14em;
           text-transform: uppercase;
         }
-        .label-mono-lime { color: #CAFF00; }
 
-        /* ── SEPARATORS ── */
-        .sep { width: 100%; height: 1px; background: rgba(255,255,255,0.07); }
-
-        /* ── GLASS CARD (haoqi.design flat grid style) ── */
+        /* Glass Cards */
         .glass-card {
-          background: #0d0d0d;
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 20px;
-          overflow: hidden;
-          transition: border-color 0.35s, transform 0.35s cubic-bezier(0.23,1,0.32,1);
+          background: rgba(15,15,15,0.85);
+          border: 1px solid rgba(255,255,255,0.08);
+          backdrop-filter: blur(16px);
+          border-radius: 20px; transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
         }
         .glass-card:hover {
-          border-color: rgba(202,255,0,0.2);
-          transform: translateY(-4px);
+          border-color: rgba(202,255,0,0.3); transform: translateY(-4px);
         }
 
-        /* ── USP CARDS (incredibles.dev style) ── */
-        .usp-card {
-          background: #0c0c0c;
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 24px;
-          padding: 36px;
-          display: flex; flex-direction: column;
-          transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
-          position: relative; overflow: hidden;
-        }
-        .usp-card::before {
-          content: '';
-          position: absolute;
-          top: -60%; left: -20%;
-          width: 70%; height: 70%;
-          background: radial-gradient(circle, rgba(202,255,0,0.06) 0%, transparent 70%);
-          pointer-events: none;
-          transition: opacity 0.5s;
-          opacity: 0;
-        }
-        .usp-card:hover::before { opacity: 1; }
-
-        /* ── PRICING ── */
+        /* Pricing Card */
         .pricing-card {
-          background: #0c0c0c;
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 24px;
-          padding: 36px 32px;
-          display: flex; flex-direction: column;
-          transition: transform 0.35s cubic-bezier(0.23,1,0.32,1);
+          background: #0d0d0d; border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 24px; padding: 36px 32px;
+          display: flex; flex-direction: column; transition: transform 0.35s cubic-bezier(0.23,1,0.32,1);
         }
         .pricing-card:hover { transform: translateY(-5px); }
         .pricing-card.featured {
-          background: linear-gradient(145deg, #0f1a00, #0d0d0d);
-          border-color: rgba(202,255,0,0.3);
-          box-shadow: 0 0 60px rgba(202,255,0,0.08), inset 0 0 40px rgba(202,255,0,0.03);
+          background: linear-gradient(145deg, #0e1b00, #0c0c0c);
+          border-color: rgba(202,255,0,0.35);
+          box-shadow: 0 0 60px rgba(202,255,0,0.08);
         }
 
-        /* ── T-LINK (incredibles.dev underline animation) ── */
-        .t-link {
-          position: relative;
-          display: inline-block;
-          text-decoration: none;
-          color: inherit;
-        }
-        .t-link::before {
-          content: '';
-          position: absolute;
-          bottom: -1px; left: 0;
-          width: 100%; height: 1px;
-          background: currentColor;
-          transform: scaleX(0);
-          transform-origin: 100% 50%;
-          transition: transform 0.3s cubic-bezier(0.645,0.045,0.355,1);
-        }
-        .t-link:hover::before {
-          transform: scaleX(1);
-          transform-origin: 0 50%;
-        }
+        /* Marquee Wrapper */
+        .marquee-wrap { padding: 22px 0; border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); }
 
-        /* ── MARQUEE ── */
-        .marquee-wrap { padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        /* ── SCROLLBAR ── */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
-
-        /* ── GRID HELPERS ── */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 900px) {
-          .hide-mob { display: none !important; }
-          .grid-2 { grid-template-columns: 1fr !important; }
-          .grid-3 { grid-template-columns: 1fr 1fr !important; }
-          .grid-4 { grid-template-columns: 1fr 1fr !important; }
-        }
-        @media (max-width: 600px) {
-          .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
-        }
-
-        /* ── KEYFRAMES ── */
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-        .blink { animation: blink 1s step-start infinite; }
-
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-        .float { animation: float 5s ease-in-out infinite; }
-
+        /* Pulse Dot */
         @keyframes pulse-dot { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.8);opacity:0.3} }
         .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
 
-        @keyframes spin-slow { to{transform:rotate(360deg)} }
-        .spin-slow { animation: spin-slow 20s linear infinite; }
-
-        /* ── OVERFLOW CLIP ── */
         .overflow-clip { overflow: hidden; }
-
-        /* ── DOTTED BORDER HOVER (haoqi.design style) ── */
-        .dotted-hover {
-          position: relative;
-        }
-        .dotted-hover::before {
-          content: '';
-          position: absolute;
-          inset: -2px;
-          border: 2px dotted transparent;
-          border-radius: inherit;
-          pointer-events: none;
-          transition: border-color 0.22s;
-        }
-        .dotted-hover:hover::before {
-          border-color: rgba(202,255,0,0.5);
-        }
-
-        /* ── STEP LINES (how it works) ── */
-        .step-line {
-          border-top: 1px solid rgba(255,255,255,0.07);
-        }
-        .step-line + .step-line {
-          border-left: 1px solid rgba(255,255,255,0.07);
-        }
-
-        /* ── CTA SECTION ── */
-        .cta-section {
-          background: #CAFF00;
-          position: relative;
-          overflow: hidden;
-        }
-        .cta-section::before {
-          content: '';
-          position: absolute;
-          top: -40%; right: -10%;
-          width: 600px; height: 600px;
-          background: rgba(0,0,0,0.06);
-          border-radius: 50%;
-          pointer-events: none;
-        }
-
-        /* ── HERO GRID OVERLAY ── */
-        .hero-grid {
-          position: absolute; inset: 0;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-          background-size: 80px 80px;
-          pointer-events: none;
-        }
-
-        /* ── WORD REVEAL LINES ── */
-        .word-line {
-          display: block;
-          overflow: hidden;
-        }
       `}</style>
 
       {/* ── CUSTOM CURSOR ──────────────────────────────────────────────────── */}
       <div
         className="custom-cursor"
         style={{
-          transform: `translate(${cursorPos.x - 4}px, ${cursorPos.y - 4}px)`,
+          transform: `translate(${cursorPos.x - 5}px, ${cursorPos.y - 5}px)`,
           opacity: cursorActive ? 1 : 0,
         }}
       />
 
-      {/* ── HEADER ──────────────────────────────────────────────────────────── */}
+      {/* ── 3D WEBGL CANVAS (R3F BACKGROUND ENGINE) ────────────────────────── */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-60">
+        <Canvas camera={{ position: [0, 0, 7], fov: 45 }}>
+          <WebGLScene scrollProgress={scrollProgress} />
+        </Canvas>
+      </div>
+
+      {/* ── HEADER HUD ──────────────────────────────────────────────────────── */}
       <header style={{
         position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
         width: 'calc(100% - 48px)', maxWidth: 1280, zIndex: 200,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        {/* Logo */}
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }} className="dotted-hover">
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           <div style={{
             width: 34, height: 34, background: '#CAFF00', borderRadius: 10,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 15, fontWeight: 900, color: '#000', fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: 15, fontWeight: 900, color: '#000',
           }}>S</div>
-          <span style={{ fontSize: 15.5, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', fontFamily: "'Space Grotesk', sans-serif" }}>SYNAPS.AI</span>
+          <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>SYNAPS.AI</span>
         </Link>
 
-        {/* Nav pill */}
-        <nav className="nav-pill hide-mob">
+        {/* Floating Nav Pill */}
+        <nav style={{
+          background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
+          backdropFilter: 'blur(16px)', borderRadius: 999, padding: '6px 18px',
+          display: 'flex', alignItems: 'center', gap: 4,
+        }}>
           {['Console', 'Agents', 'Boardroom', 'Strategy', 'Pricing'].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`} className="nav-link">{item}</a>
+            <a key={item} href={`#${item.toLowerCase()}`} style={{
+              color: 'rgba(255,255,255,0.45)', textDecoration: 'none', fontSize: 12.5,
+              fontWeight: 500, padding: '5px 12px', borderRadius: 999, transition: 'all 0.2s',
+            }}>{item}</a>
           ))}
-          <Link href="/demo" className="nav-link" style={{ color: '#CAFF00', fontWeight: 700 }}>⚡ Demo</Link>
+          <Link href="/demo" style={{ color: '#CAFF00', fontWeight: 700, padding: '5px 12px', textDecoration: 'none', fontSize: 12.5 }}>⚡ Demo</Link>
         </nav>
 
         {/* CTA */}
@@ -656,188 +605,151 @@ export default function MadeWithGSAPSynapsLanding() {
           <button
             onClick={() => setSearchOpen(true)}
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.09)',
-              color: 'rgba(255,255,255,0.35)',
-              padding: '7px 13px', borderRadius: 999, fontSize: 11.5,
-              fontWeight: 600, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace",
-              letterSpacing: '0.06em',
+              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
+              color: 'rgba(255,255,255,0.4)', padding: '7px 13px', borderRadius: 999,
+              fontSize: 11.5, fontWeight: 600, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace",
             }}
-            className="hide-mob"
           >
             ⌘ K
           </button>
-          <Link href="/demo" style={{
-            color: '#CAFF00', border: '1px solid rgba(202,255,0,0.25)',
-            textDecoration: 'none', fontSize: 12.5, fontWeight: 700,
-            padding: '7px 15px', borderRadius: 999, fontFamily: "'Space Grotesk', sans-serif",
-            transition: 'all 0.2s',
-          }}>
-            ⚡ Try Demo
-          </Link>
           <button onClick={() => setWaitlistOpen(true)} className="btn-lime" style={{ padding: '9px 20px', fontSize: 12.5 }}>
             Join Waitlist ↗
           </button>
         </div>
       </header>
 
-      {/* ── HERO ─────────────────────────────────────────────────────────────── */}
-      <section ref={heroRef} style={{
-        minHeight: '100vh',
-        display: 'flex', flexDirection: 'column', justifyContent: 'center',
-        padding: '140px 56px 80px',
-        position: 'relative', overflow: 'hidden',
-        maxWidth: 1400, margin: '0 auto',
+      {/* ── HERO SECTION ────────────────────────────────────────────────────── */}
+      <section style={{
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        justify: 'center', padding: '140px 56px 80px',
+        position: 'relative', zIndex: 1, maxWidth: 1400, margin: '0 auto',
       }}>
-        {/* Grid overlay */}
-        <div className="hero-grid" />
-
-        {/* Fluid blobs */}
-        <FluidBlob color="#CAFF00" size={700} x={200} y={-100} delay={0} />
-        <FluidBlob color="#78c5ff" size={500} x={-300} y={200} delay={2} />
-        <FluidBlob color="#a8ff78" size={400} x={100} y={300} delay={1} />
-
-        {/* Top badge */}
-        <div className="hero-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 52, opacity: 0 }}>
+        {/* Top Status Badge */}
+        <div className="hero-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 48, opacity: 0 }}>
           <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#CAFF00' }} className="pulse-dot" />
-          <span className="label-mono">Enterprise Decision Intelligence — Synaps.AI v2.0</span>
+          <span className="label-mono">FOLIO-2026 WEBGL ENGINE — SYNAPS.AI</span>
         </div>
 
-        {/* Massive headline — haoqi.design uppercase treatment */}
-        <h1 style={{ marginBottom: 0, position: 'relative', zIndex: 1 }}>
-          <span className="word-line">
-            <WordReveal delay={0.35} className="display-xl">Enterprise</WordReveal>
-          </span>
-          <span className="word-line">
-            <WordReveal delay={0.55} className="display-xl display-lime">
-              <span ref={heroWordRef} style={{ display: 'inline-block', minWidth: '6ch' }}>MEMORY</span>
-            </WordReveal>
-          </span>
-          <span className="word-line">
-            <WordReveal delay={0.72} className="display-xl display-dim">for every org.</WordReveal>
-          </span>
+        {/* Main Headline */}
+        <h1 style={{ marginBottom: 0 }}>
+          <div className="overflow-clip">
+            <div className="display-xl hero-line-1" style={{ opacity: 0 }}>Enterprise</div>
+          </div>
+          <div className="overflow-clip">
+            <div className="display-xl hero-line-2 display-lime" style={{ opacity: 0 }}>
+              <span ref={heroWordRef} style={{ display: 'inline-block', minWidth: '6ch' }}>DECISION MEMORY</span>
+            </div>
+          </div>
+          <div className="overflow-clip">
+            <div className="display-xl hero-line-3 display-dim" style={{ opacity: 0 }}>for every org.</div>
+          </div>
         </h1>
 
-        {/* Sub + CTA row */}
+        {/* Subtitle & Action Row */}
         <div className="hero-sub" style={{ marginTop: 64, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 40, flexWrap: 'wrap', opacity: 0 }}>
-          <div style={{ maxWidth: 420 }}>
-            <p style={{ fontSize: 16.5, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7, fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400 }}>
-              Synaps ingests every document, email, contract, and decision your organization has ever made — and lets any executive ask anything, with complete confidence.
+          <div style={{ maxWidth: 440 }}>
+            <p style={{ fontSize: 16.5, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              Synaps ingests every document, email, contract, and decision your organization has ever made — into an interactive 3D WebGL knowledge graph.
             </p>
           </div>
-          <div className="hero-cta" style={{ display: 'flex', gap: 12, alignItems: 'center', flexShrink: 0, opacity: 0 }}>
+          <div className="hero-cta" style={{ display: 'flex', gap: 12, alignItems: 'center', opacity: 0 }}>
             <Link href="/login" className="btn-lime">
               Launch Console →
             </Link>
-            <Link href="#suite" className="btn-outline">
-              See how it works
+            <Link href="#console" className="btn-outline">
+              Explore 3D Modules
             </Link>
           </div>
         </div>
 
-        {/* Hero stats strip */}
+        {/* Hero Stats */}
         <div className="hero-stats" style={{ marginTop: 80, display: 'flex', gap: 56, borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 32, opacity: 0 }}>
           {STATS.map((s, i) => (
-            <div key={i} className="stat-num">
-              <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 30, fontWeight: 900, color: i % 2 === 0 ? '#CAFF00' : '#fff', letterSpacing: '-0.04em' }}>{s.v}</div>
-              <div className="label-mono" style={{ marginTop: 5 }}>{s.l}</div>
+            <div key={i}>
+              <div style={{ fontSize: 30, fontWeight: 900, color: i % 2 === 0 ? '#CAFF00' : '#fff', letterSpacing: '-0.04em' }}>{s.v}</div>
+              <div className="label-mono" style={{ marginTop: 4 }}>{s.l}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── MARQUEE ──────────────────────────────────────────────────────────── */}
-      <div className="marquee-wrap">
+      {/* ── MARQUEE 1 ────────────────────────────────────────────────────────── */}
+      <div className="marquee-wrap relative z-1">
         <Marquee />
       </div>
 
-      {/* ── USP STICKY SECTION (incredibles.dev scroll-pin style) ──────────── */}
-      <section className="usp-sticky-section" style={{ position: 'relative', padding: '120px 0' }}>
-        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 56px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'flex-start' }}>
-            {/* Sticky left header */}
-            <div className="reveal-section" style={{ position: 'sticky', top: 160, alignSelf: 'flex-start' }}>
-              <div className="label-mono reveal-child" style={{ marginBottom: 20 }}>How it works</div>
-              <h2 className="display-md reveal-child" style={{ marginBottom: 24 }}>
-                Four modules.<br />
-                <span className="display-dim">One intelligence layer.</span>
-              </h2>
-              <p className="reveal-child" style={{ fontSize: 15, color: 'rgba(255,255,255,0.38)', lineHeight: 1.75, fontFamily: "'Plus Jakarta Sans', sans-serif", maxWidth: 360 }}>
-                From raw organizational data to board-ready strategic decisions — Synaps sits above every system your company already runs.
-              </p>
-              <Link href="/login" className="btn-lime reveal-child" style={{ marginTop: 36, display: 'inline-flex' }}>
-                Explore platform →
-              </Link>
-            </div>
+      {/* ── USP STICKY SECTION (FOLIO-2026 CANVAS TRANSITION) ──────────────── */}
+      <section style={{ position: 'relative', zIndex: 1, padding: '120px 56px', maxWidth: 1400, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'flex-start' }}>
+          {/* Left Sticky Header */}
+          <div className="reveal-section" style={{ position: 'sticky', top: 160, alignSelf: 'flex-start' }}>
+            <div className="label-mono reveal-child" style={{ marginBottom: 20 }}>01 / ARCHITECTURE</div>
+            <h2 className="display-md reveal-child" style={{ marginBottom: 24 }}>
+              Shift from DOM<br />
+              <span className="display-dim">to 3D WebGL Canvas.</span>
+            </h2>
+            <p className="reveal-child" style={{ fontSize: 15, color: 'rgba(255,255,255,0.4)', lineHeight: 1.75, fontFamily: "'Plus Jakarta Sans', sans-serif", maxWidth: 360 }}>
+              Just like Folio-2026, Synaps renders your company memory graph in full 3D space — bringing organizational intelligence to life.
+            </p>
+            <Link href="/login" className="btn-lime reveal-child" style={{ marginTop: 36, display: 'inline-flex' }}>
+              Explore platform →
+            </Link>
+          </div>
 
-            {/* Right: scrolling USP cards */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              {USP_ITEMS.map((usp, i) => (
-                <div key={i} className="usp-card media-reveal">
-                  <div className="label-mono" style={{ marginBottom: 20, color: 'rgba(255,255,255,0.25)' }}>{usp.tag}</div>
-                  <h3 style={{
-                    fontFamily: "'Space Grotesk', sans-serif",
-                    fontSize: 'clamp(26px, 3vw, 38px)',
-                    fontWeight: 900,
-                    lineHeight: 1.05,
-                    letterSpacing: '-0.03em',
-                    color: '#fff',
-                    marginBottom: 20,
-                    whiteSpace: 'pre-line',
-                  }}>
-                    {usp.title.split('\n').map((line, li) => (
-                      <span key={li} style={{ display: 'block' }}>
-                        {li === 0 ? line : <span style={{ color: usp.accent }}>{line}</span>}
-                      </span>
-                    ))}
-                  </h3>
-                  <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.42)', lineHeight: 1.7, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                    {usp.desc}
-                  </p>
-                  <div style={{ marginTop: 28, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span className="label-mono">Featured module</span>
-                    <span style={{ fontSize: 18, color: usp.accent }}>→</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Right Scrolling USP Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            {USP_ITEMS.map((usp, i) => (
+              <div key={i} className="glass-card" style={{ padding: 40 }}>
+                <div className="label-mono" style={{ marginBottom: 20 }}>{usp.tag}</div>
+                <h3 style={{
+                  fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 900,
+                  lineHeight: 1.05, letterSpacing: '-0.03em', color: '#fff',
+                  marginBottom: 20, whiteSpace: 'pre-line',
+                }}>
+                  {usp.title.split('\n').map((line, li) => (
+                    <span key={li} style={{ display: 'block' }}>
+                      {li === 0 ? line : <span style={{ color: usp.accent }}>{line}</span>}
+                    </span>
+                  ))}
+                </h3>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                  {usp.desc}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ── MARQUEE 2 ─────────────────────────────────────────────────────────── */}
-      <div className="marquee-wrap">
+      <div className="marquee-wrap relative z-1">
         <Marquee reverse />
       </div>
 
-      {/* ── SUITE CARDS ──────────────────────────────────────────────────────── */}
-      <section id="console" style={{ padding: '120px 56px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
+      {/* ── MODULE CARDS ────────────────────────────────────────────────────── */}
+      <section id="console" style={{ position: 'relative', zIndex: 1, padding: '120px 56px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 64, flexWrap: 'wrap', gap: 24 }}>
           <div className="reveal-child">
-            <div className="label-mono" style={{ marginBottom: 14 }}>#001 — Modules</div>
+            <div className="label-mono" style={{ marginBottom: 14 }}>#002 — Modules</div>
             <h2 className="display-md">
-              Four intelligence<br />
+              Four 3D intelligence<br />
               <span className="display-dim">modules.</span>
             </h2>
           </div>
           <Link href="/login" className="btn-outline reveal-child">Explore all modules →</Link>
         </div>
 
-        {/* Card grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 18 }} className="grid-2">
+        {/* Card Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
           {SUITES.map((suite, idx) => (
-            <SpotlightTiltCard
-              key={idx}
-              glowColor="rgba(202, 255, 0, 0.15)"
-              className="p-8 cursor-pointer"
-            >
+            <SpotlightTiltCard key={idx} glowColor="rgba(202, 255, 0, 0.2)" className="p-8 cursor-pointer">
               <div onClick={() => setActiveCard(idx)} className="h-full flex flex-col justify-between">
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 22 }}>
                     <span className="label-mono">#{suite.id}</span>
-                    <span className="label-mono" style={{ color: activeCard === idx ? '#CAFF00' : 'rgba(255,255,255,0.25)' }}>{suite.tag}</span>
+                    <span className="label-mono" style={{ color: activeCard === idx ? '#CAFF00' : 'rgba(255,255,255,0.3)' }}>{suite.tag}</span>
                   </div>
-                  <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 24, fontWeight: 900, color: '#fff', lineHeight: 1.15, marginBottom: 8, letterSpacing: '-0.025em' }}>{suite.label}</h3>
+                  <h3 style={{ fontSize: 24, fontWeight: 900, color: '#fff', lineHeight: 1.15, marginBottom: 8, letterSpacing: '-0.025em' }}>{suite.label}</h3>
                   <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.35)', marginBottom: 0, fontWeight: 500, fontFamily: "'JetBrains Mono', monospace" }}>{suite.sub}</p>
 
                   <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
@@ -853,8 +765,8 @@ export default function MadeWithGSAPSynapsLanding() {
                 </div>
 
                 <div style={{ marginTop: 24, display: 'flex', alignItems: 'baseline', gap: 8, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 36, fontWeight: 900, color: '#CAFF00', letterSpacing: '-0.04em' }}>{suite.stat}</span>
-                  <span className="label-mono" style={{ color: 'rgba(255,255,255,0.3)' }}>{suite.statLabel}</span>
+                  <span style={{ fontSize: 36, fontWeight: 900, color: '#CAFF00', letterSpacing: '-0.04em' }}>{suite.stat}</span>
+                  <span className="label-mono">{suite.statLabel}</span>
                 </div>
               </div>
             </SpotlightTiltCard>
@@ -862,85 +774,24 @@ export default function MadeWithGSAPSynapsLanding() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ──────────────────────────────────────────────────────── */}
-      <section id="agents" style={{ padding: '120px 56px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
-        <div style={{ marginBottom: 64 }}>
-          <div className="label-mono reveal-child" style={{ marginBottom: 14 }}>#002 — Process</div>
-          <h2 className="display-md reveal-child">
-            From raw data<br />
-            <span className="display-dim">to board-ready decisions.</span>
-          </h2>
-        </div>
-
-        {/* Three steps — haoqi.design flat grid style */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, overflow: 'hidden' }} className="reveal-child">
-          {[
-            { n: '01', t: 'Ingest', d: 'Upload every document, email, CRM export, and database dump into your secure Synaps vault.', c: '#CAFF00' },
-            { n: '02', t: 'Connect', d: 'Synaps builds a 4D graph — linking people, decisions, risks, and knowledge across time.', c: 'rgba(255,255,255,0.7)' },
-            { n: '03', t: 'Decide', d: 'Ask any question. 10 specialized agents reason across your entire knowledge graph and return grounded answers.', c: 'rgba(255,255,255,0.35)' },
-          ].map((step, i) => (
-            <div key={i} style={{
-              padding: '48px 40px',
-              borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.07)' : 'none',
-              background: '#0a0a0a',
-              transition: 'background 0.3s',
-            }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#111')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#0a0a0a')}
-            >
-              <div className="label-mono" style={{ marginBottom: 36 }}>{step.n}</div>
-              <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(40px, 4.5vw, 60px)', fontWeight: 900, color: step.c, marginBottom: 18, letterSpacing: '-0.04em', lineHeight: 0.9 }}>{step.t}</h3>
-              <p style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.32)', lineHeight: 1.7, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{step.d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── CATCHPHRASE SECTION (haoqi.design "Innovate with purpose" sticky) ── */}
-      <section style={{ padding: '0 56px 120px', maxWidth: 1400, margin: '0 auto', textAlign: 'center' }}>
-        <div className="media-reveal" style={{
-          background: 'linear-gradient(145deg, #0d0d0d, #111)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 28,
-          padding: '100px 60px',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          <FluidBlob color="#CAFF00" size={500} x={0} y={0} delay={0} />
-          <div className="label-mono" style={{ marginBottom: 24, position: 'relative', zIndex: 1 }}>The Synaps Promise</div>
-          <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(52px, 7vw, 112px)', fontWeight: 900, lineHeight: 0.9, letterSpacing: '-0.05em', color: '#fff', position: 'relative', zIndex: 1 }}>
-            Decide with<br />
-            <span style={{ color: '#CAFF00' }}>confidence.</span>
-          </h2>
-          <p style={{ marginTop: 32, fontSize: 16, color: 'rgba(255,255,255,0.4)', fontFamily: "'Plus Jakarta Sans', sans-serif", maxWidth: 480, margin: '32px auto 0', lineHeight: 1.7, position: 'relative', zIndex: 1 }}>
-            When your AI knows everything your organization has ever done, every decision becomes faster, smarter, and more defensible.
-          </p>
-          <div style={{ marginTop: 48, display: 'flex', gap: 14, justifyContent: 'center', position: 'relative', zIndex: 1 }}>
-            <Link href="/login" className="btn-lime">Get started free →</Link>
-            <Link href="#pricing" className="btn-outline">View pricing</Link>
-          </div>
-        </div>
-      </section>
-
       {/* ── PRICING ───────────────────────────────────────────────────────────── */}
-      <section id="pricing" style={{ padding: '120px 56px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
+      <section id="pricing" style={{ position: 'relative', zIndex: 1, padding: '120px 56px', maxWidth: 1400, margin: '0 auto' }} className="reveal-section">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 64, flexWrap: 'wrap', gap: 24 }}>
           <div>
-            <div className="label-mono reveal-child" style={{ marginBottom: 14 }}>#003 — Pricing</div>
+            <div className="label-mono reveal-child" style={{ marginBottom: 14 }}>#003 — PRICING</div>
             <h2 className="display-md reveal-child">
               Transparent pricing,<br />
-              <span className="display-lime">built for teams.</span>
+              <span className="display-lime">built for enterprise.</span>
             </h2>
           </div>
 
-          {/* 3-Way Toggle — incredibles.dev toggle style */}
+          {/* 3-Way Toggle */}
           <div className="reveal-child" style={{
             display: 'flex', alignItems: 'center', gap: 4,
-            background: 'rgba(255,255,255,0.05)',
-            padding: '4px 5px', borderRadius: 999,
-            border: '1px solid rgba(255,255,255,0.09)',
+            background: 'rgba(255,255,255,0.05)', padding: '4px 5px',
+            borderRadius: 999, border: '1px solid rgba(255,255,255,0.09)',
           }}>
-            {(['weekly', 'monthly', 'annual'] as const).map(cycle => (
+            {(['weekly', 'monthly', 'annual'] as const).map((cycle) => (
               <button
                 key={cycle}
                 onClick={() => setBillingCycle(cycle)}
@@ -948,27 +799,26 @@ export default function MadeWithGSAPSynapsLanding() {
                   background: billingCycle === cycle ? '#CAFF00' : 'transparent',
                   color: billingCycle === cycle ? '#000' : 'rgba(255,255,255,0.45)',
                   padding: '6px 14px', borderRadius: 999, fontSize: 12,
-                  fontWeight: 700, border: 'none', cursor: 'pointer',
-                  transition: 'all 0.25s cubic-bezier(0.23,1,0.32,1)',
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontWeight: 800, border: 'none', cursor: 'pointer',
+                  transition: 'all 0.25s', fontFamily: "'Space Grotesk', sans-serif",
                   display: 'flex', alignItems: 'center', gap: 6,
                 }}
               >
                 {cycle.charAt(0).toUpperCase() + cycle.slice(1)}
-                {cycle === 'weekly' && <span style={{ background: billingCycle === 'weekly' ? '#000' : 'rgba(202,255,0,0.15)', color: billingCycle === 'weekly' ? '#CAFF00' : '#CAFF00', padding: '1px 6px', borderRadius: 999, fontSize: 9, fontWeight: 900 }}>$1.99</span>}
-                {cycle === 'annual' && <span style={{ background: billingCycle === 'annual' ? '#000' : 'rgba(202,255,0,0.15)', color: billingCycle === 'annual' ? '#CAFF00' : '#CAFF00', padding: '1px 6px', borderRadius: 999, fontSize: 9, fontWeight: 900 }}>−50%</span>}
+                {cycle === 'weekly' && <span style={{ background: billingCycle === 'weekly' ? '#000' : 'rgba(202,255,0,0.15)', color: '#CAFF00', padding: '1px 6px', borderRadius: 999, fontSize: 9, fontWeight: 900 }}>$1.99</span>}
+                {cycle === 'annual' && <span style={{ background: billingCycle === 'annual' ? '#000' : 'rgba(202,255,0,0.15)', color: '#CAFF00', padding: '1px 6px', borderRadius: 999, fontSize: 9, fontWeight: 900 }}>−50%</span>}
               </button>
             ))}
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18, alignItems: 'start' }} className="reveal-child grid-3">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18, alignItems: 'start' }} className="reveal-child">
           {/* Starter */}
           <div className="pricing-card">
             <div className="label-mono" style={{ marginBottom: 28 }}>STARTER TRIAL</div>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 50, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8, letterSpacing: '-0.04em' }}>$0</div>
+            <div style={{ fontSize: 50, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8, letterSpacing: '-0.04em' }}>$0</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 32, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>14-day free trial, no card needed</div>
-            <div className="sep" style={{ marginBottom: 28 }} />
+            <div style={{ width: '100%', height: 1, background: 'rgba(255,255,255,0.07)', marginBottom: 28 }} />
             {['100 AI Credits', 'Single User Workspace', 'Basic Document Ingestion (10 MB)', 'Standard AI Chat', 'PDF & CSV Export'].map((f, i) => (
               <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 13, fontSize: 13, color: 'rgba(255,255,255,0.6)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <span style={{ color: '#CAFF00', fontWeight: 900, flexShrink: 0, fontSize: 9 }}>✦</span>{f}
@@ -979,21 +829,21 @@ export default function MadeWithGSAPSynapsLanding() {
             </Link>
           </div>
 
-          {/* Pro — featured */}
+          {/* Pro */}
           <div className="pricing-card featured">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-              <div className="label-mono label-mono-lime">PRO MEMBER</div>
+              <div className="label-mono" style={{ color: '#CAFF00' }}>PRO MEMBER</div>
               <span style={{ background: '#CAFF00', color: '#000', fontSize: 9.5, fontWeight: 900, padding: '3px 10px', borderRadius: 999, letterSpacing: '0.06em' }}>MOST POPULAR</span>
             </div>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 50, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8, letterSpacing: '-0.04em' }}>
+            <div style={{ fontSize: 50, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8, letterSpacing: '-0.04em' }}>
               {billingCycle === 'weekly' ? '$1.99' : billingCycle === 'annual' ? '$5' : '$7.99'}
             </div>
             <div style={{ fontSize: 13, color: '#CAFF00', fontWeight: 700, marginBottom: 32, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {billingCycle === 'weekly' ? 'per week — cancel anytime' : billingCycle === 'annual' ? 'per month, billed annually' : 'per month'}
             </div>
-            <div className="sep" style={{ background: 'rgba(202,255,0,0.15)', marginBottom: 28 }} />
+            <div style={{ width: '100%', height: 1, background: 'rgba(202,255,0,0.15)', marginBottom: 28 }} />
             {['500 AI Reasoning Credits / day', '10 Parallel AI Agents', 'Full 3D Corporate Memory Graph', 'Universal PDF & CSV Export', 'Multi-Tenant Org Isolation', 'Team Invites & Roles'].map((f, i) => (
-              <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 13, fontSize: 13, color: 'rgba(255,255,255,0.82)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 13, fontSize: 13, color: 'rgba(255,255,255,0.85)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <span style={{ color: '#CAFF00', fontWeight: 900, flexShrink: 0, fontSize: 9 }}>✦</span>{f}
               </div>
             ))}
@@ -1011,13 +861,13 @@ export default function MadeWithGSAPSynapsLanding() {
           {/* Enterprise */}
           <div className="pricing-card">
             <div className="label-mono" style={{ marginBottom: 28 }}>ENTERPRISE MAX</div>
-            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 50, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8, letterSpacing: '-0.04em' }}>
+            <div style={{ fontSize: 50, fontWeight: 900, color: '#fff', lineHeight: 1, marginBottom: 8, letterSpacing: '-0.04em' }}>
               {billingCycle === 'weekly' ? '$2.75' : billingCycle === 'annual' ? '$8' : '$10.99'}
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.38)', marginBottom: 32, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               {billingCycle === 'weekly' ? 'per week — cancel anytime' : billingCycle === 'annual' ? 'per month, billed annually' : 'per month'}
             </div>
-            <div className="sep" style={{ marginBottom: 28 }} />
+            <div style={{ width: '100%', height: 1, background: 'rgba(255,255,255,0.07)', marginBottom: 28 }} />
             {['Unlimited 10,000 AI Credits / day', '110 Enterprise Decision Models', '8 C-Suite Digital Twins', 'Boardroom Simulation Engine', 'AI Strategy Studio & Roadmap', 'Dedicated Account Manager & 99.9% SLA'].map((f, i) => (
               <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 13, fontSize: 13, color: 'rgba(255,255,255,0.6)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                 <span style={{ color: '#CAFF00', fontWeight: 900, flexShrink: 0, fontSize: 9 }}>✦</span>{f}
@@ -1034,72 +884,20 @@ export default function MadeWithGSAPSynapsLanding() {
             </a>
           </div>
         </div>
-
-        <p style={{ textAlign: 'center', fontSize: 11.5, color: 'rgba(255,255,255,0.18)', marginTop: 24, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>
-          No credit card required · 14-day free trial · Cancel anytime
-        </p>
-      </section>
-
-      {/* ── CTA BANNER ────────────────────────────────────────────────────────── */}
-      <section className="cta-section" style={{ padding: '110px 56px' }}>
-        <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 40, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
-          <div>
-            {/* haoqi.design "Let's Create Something Extraordinary" style */}
-            <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(42px, 6.5vw, 100px)', fontWeight: 900, color: '#000', lineHeight: 0.9, letterSpacing: '-0.05em' }}>
-              Start building<br />
-              <span style={{ color: 'rgba(0,0,0,0.35)' }}>your memory graph.</span>
-            </h2>
-            <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.45)', marginTop: 24, fontFamily: "'Plus Jakarta Sans', sans-serif", maxWidth: 440, lineHeight: 1.65 }}>
-              Join 200+ enterprise teams that rely on Synaps to make faster, grounded decisions.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="/login" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              background: '#000', color: '#CAFF00',
-              padding: '16px 32px', borderRadius: 999, fontWeight: 800,
-              fontSize: 14.5, textDecoration: 'none', fontFamily: "'Space Grotesk', sans-serif",
-              transition: 'all 0.3s cubic-bezier(0.23,1,0.32,1)',
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = ''; }}
-            >
-              Join Now →
-            </Link>
-            <Link href="/login" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              background: 'transparent', color: 'rgba(0,0,0,0.6)',
-              border: '1.5px solid rgba(0,0,0,0.2)',
-              padding: '16px 32px', borderRadius: 999, fontWeight: 600,
-              fontSize: 14.5, textDecoration: 'none', fontFamily: "'Space Grotesk', sans-serif",
-              transition: 'all 0.25s',
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,0,0,0.5)'; (e.currentTarget as HTMLElement).style.color = '#000'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,0,0,0.2)'; (e.currentTarget as HTMLElement).style.color = 'rgba(0,0,0,0.6)'; }}
-            >
-              Sign in
-            </Link>
-          </div>
-        </div>
       </section>
 
       {/* ── FOOTER ─────────────────────────────────────────────────────────────── */}
-      <footer style={{ background: '#000', padding: '80px 56px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <footer style={{ position: 'relative', zIndex: 1, background: '#030303', padding: '80px 56px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: 1400, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: 40, marginBottom: 80 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
                 <div style={{ width: 30, height: 30, background: '#CAFF00', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, color: '#000' }}>S</div>
-                <span style={{ fontSize: 14.5, fontWeight: 800, color: '#fff', fontFamily: "'Space Grotesk', sans-serif" }}>SYNAPS.AI</span>
+                <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>SYNAPS.AI</span>
               </div>
-              <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.22)', lineHeight: 1.75, fontFamily: "'Plus Jakarta Sans', sans-serif", maxWidth: 260 }}>
-                The intelligence layer above every enterprise document.
+              <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.25)', lineHeight: 1.75, fontFamily: "'Plus Jakarta Sans', sans-serif", maxWidth: 260 }}>
+                3D WebGL Decision Intelligence Operating System.
               </p>
-              <div style={{ marginTop: 24, display: 'flex', gap: 12 }}>
-                {['Twitter', 'LinkedIn', 'GitHub'].map(s => (
-                  <a key={s} href="#" className="t-link" style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.05em' }}>{s}</a>
-                ))}
-              </div>
             </div>
             {[
               { h: 'PRODUCT', links: ['Console', 'Agents', 'Boardroom', 'Strategy Studio', 'Pricing'] },
@@ -1110,7 +908,7 @@ export default function MadeWithGSAPSynapsLanding() {
                 <div className="label-mono" style={{ marginBottom: 20 }}>{col.h}</div>
                 {col.links.map((l, li) => (
                   <div key={li} style={{ marginBottom: 11 }}>
-                    <a href="#" className="t-link" style={{ fontSize: 13, color: 'rgba(255,255,255,0.32)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{l}</a>
+                    <a href="#" style={{ fontSize: 13, color: 'rgba(255,255,255,0.32)', textDecoration: 'none', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{l}</a>
                   </div>
                 ))}
               </div>
@@ -1118,12 +916,12 @@ export default function MadeWithGSAPSynapsLanding() {
           </div>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
             <div className="label-mono">© 2026 SYNAPS Technologies Inc. All rights reserved.</div>
-            <div className="label-mono">Registered Data Fiduciary · ISO/IEC 27001 · SOC 2 Aligned</div>
+            <div className="label-mono">Folio-2026 WebGL Engine Architecture</div>
           </div>
         </div>
       </footer>
 
-      {/* ── SPOTLIGHT SEARCH ────────────────────────────────────────────────── */}
+      {/* ── SPOTLIGHT SEARCH MODAL ──────────────────────────────────────────── */}
       {searchOpen && (
         <div onClick={() => setSearchOpen(false)} style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.94)',
@@ -1133,25 +931,23 @@ export default function MadeWithGSAPSynapsLanding() {
           <div onClick={e => e.stopPropagation()} style={{
             background: '#0f0f0f', borderRadius: 22, padding: 24,
             width: '100%', maxWidth: 600, border: '1px solid rgba(255,255,255,0.09)',
-            boxShadow: '0 40px 100px rgba(0,0,0,0.8)',
           }}>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search modules, agents, digital twins..."
+                placeholder="Search 3D modules, agents, digital twins..."
                 autoFocus
                 style={{
                   flex: 1, padding: '12px 16px', background: '#000',
                   border: '1px solid rgba(255,255,255,0.09)', borderRadius: 12,
                   color: '#fff', fontSize: 14.5, outline: 'none',
-                  fontFamily: "'Plus Jakarta Sans', sans-serif",
                 }}
               />
               <button onClick={() => setSearchOpen(false)} style={{
                 background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)',
-                color: '#fff', width: 42, height: 42, borderRadius: 12, cursor: 'pointer', fontSize: 14,
+                color: '#fff', width: 42, height: 42, borderRadius: 12, cursor: 'pointer',
               }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1160,16 +956,12 @@ export default function MadeWithGSAPSynapsLanding() {
                   padding: '13px 16px', background: '#000', borderRadius: 12, cursor: 'pointer',
                   border: '1px solid rgba(255,255,255,0.06)',
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  transition: 'border-color 0.2s',
-                }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(202,255,0,0.2)')}
-                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)')}
-                >
+                }}>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 3 }}>{s.label}</div>
                     <div className="label-mono">{s.tag}</div>
                   </div>
-                  <span style={{ background: 'rgba(202,255,0,0.1)', color: '#CAFF00', fontSize: 9.5, fontWeight: 700, padding: '3px 10px', borderRadius: 999, whiteSpace: 'nowrap', marginLeft: 12, fontFamily: "'JetBrains Mono', monospace" }}>#{s.id}</span>
+                  <span style={{ background: 'rgba(202,255,0,0.1)', color: '#CAFF00', fontSize: 9.5, fontWeight: 700, padding: '3px 10px', borderRadius: 999 }}>#{s.id}</span>
                 </div>
               ))}
             </div>
