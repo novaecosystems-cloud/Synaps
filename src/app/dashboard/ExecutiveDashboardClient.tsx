@@ -362,32 +362,35 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {data.executiveAnswers.map((item) => (
-            <div 
-              key={item.id} 
-              onClick={() => setActiveAnswer(item)}
-              className="bg-base-100 border border-base-300 hover:border-primary/40 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-bold text-base text-base-content group-hover:text-primary transition-colors leading-snug">
-                    {item.question}
-                  </h3>
-                  {getStatusBadge(item.status)}
+          {(data?.executiveAnswers || []).map((item) => {
+            const citations = item?.citations || [];
+            return (
+              <div 
+                key={item.id} 
+                onClick={() => setActiveAnswer(item)}
+                className="bg-base-100 border border-base-300 hover:border-primary/40 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-bold text-base text-base-content group-hover:text-primary transition-colors leading-snug">
+                      {item.question}
+                    </h3>
+                    {getStatusBadge(item.status)}
+                  </div>
+                  <p className="text-xs text-base-content/70 line-clamp-3 leading-relaxed mb-4">
+                    {item.answer}
+                  </p>
                 </div>
-                <p className="text-xs text-base-content/70 line-clamp-3 leading-relaxed mb-4">
-                  {item.answer}
-                </p>
-              </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-base-200 text-xs text-base-content/50">
-                <span className="flex items-center gap-1.5 font-medium text-primary text-[11px]">
-                  <FileText className="w-3.5 h-3.5" /> {item.citations.length} Document Citations
-                </span>
-                <span className="group-hover:translate-x-1 transition-transform text-primary font-bold">Inspect →</span>
+                <div className="flex items-center justify-between pt-3 border-t border-base-200 text-xs text-base-content/50">
+                  <span className="flex items-center gap-1.5 font-medium text-primary text-[11px]">
+                    <FileText className="w-3.5 h-3.5" /> {citations.length} Document Citations
+                  </span>
+                  <span className="group-hover:translate-x-1 transition-transform text-primary font-bold">Inspect →</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -404,26 +407,29 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
           </div>
 
           <div className="space-y-4">
-            {data.departmentHealth.map((dept, i) => (
-              <div key={i} className="bg-base-200/50 border border-base-300 rounded-2xl p-4 space-y-2">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-base-content">{dept.department}</span>
-                    <span className="text-xs font-medium text-base-content/50">Score: {dept.healthScore}</span>
+            {(data?.departmentHealth || []).map((dept, i) => {
+              const deptCitations = dept?.citations || [];
+              return (
+                <div key={i} className="bg-base-200/50 border border-base-300 rounded-2xl p-4 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm text-base-content">{dept.department}</span>
+                      <span className="text-xs font-medium text-base-content/50">Score: {dept.healthScore}</span>
+                    </div>
+                    {getRiskBadge(dept.riskLevel)}
                   </div>
-                  {getRiskBadge(dept.riskLevel)}
+                  <p className="text-xs text-base-content/70">{dept.summary}</p>
+                  {deptCitations.length > 0 && (
+                    <button 
+                      onClick={() => setActiveCitation(deptCitations[0])}
+                      className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1"
+                    >
+                      <FileText className="w-3 h-3" /> Citation: {deptCitations[0].documentName}
+                    </button>
+                  )}
                 </div>
-                <p className="text-xs text-base-content/70">{dept.summary}</p>
-                {dept.citations.length > 0 && (
-                  <button 
-                    onClick={() => setActiveCitation(dept.citations[0])}
-                    className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1"
-                  >
-                    <FileText className="w-3 h-3" /> Citation: {dept.citations[0].documentName}
-                  </button>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -437,30 +443,33 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
           </div>
 
           <div className="space-y-4">
-            {data.aiRecommendations.map((rec) => (
-              <div key={rec.id} className="bg-base-200/50 border border-base-300 rounded-2xl p-4 space-y-2">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-bold text-sm text-base-content">{rec.title}</h4>
-                  <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase", 
-                    rec.priority === 'CRITICAL' ? 'bg-red-500/10 text-red-500 border border-red-500/30' :
-                    rec.priority === 'HIGH' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30' :
-                    'bg-blue-500/10 text-blue-500 border border-blue-500/30'
-                  )}>
-                    {rec.priority}
-                  </span>
+            {(data?.aiRecommendations || []).map((rec) => {
+              const recCitations = rec?.citations || [];
+              return (
+                <div key={rec.id} className="bg-base-200/50 border border-base-300 rounded-2xl p-4 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-bold text-sm text-base-content">{rec.title}</h4>
+                    <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold uppercase", 
+                      rec.priority === 'CRITICAL' ? 'bg-red-500/10 text-red-500 border border-red-500/30' :
+                      rec.priority === 'HIGH' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30' :
+                      'bg-blue-500/10 text-blue-500 border border-blue-500/30'
+                    )}>
+                      {rec.priority}
+                    </span>
+                  </div>
+                  <p className="text-xs text-base-content/80 font-medium">{rec.recommendation}</p>
+                  <p className="text-[11px] text-base-content/60">Rationale: {rec.rationale}</p>
+                  {recCitations.length > 0 && (
+                    <button 
+                      onClick={() => setActiveCitation(recCitations[0])}
+                      className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1"
+                    >
+                      <FileText className="w-3 h-3" /> Cited Document: {recCitations[0].documentName}
+                    </button>
+                  )}
                 </div>
-                <p className="text-xs text-base-content/80 font-medium">{rec.recommendation}</p>
-                <p className="text-[11px] text-base-content/60">Rationale: {rec.rationale}</p>
-                {rec.citations.length > 0 && (
-                  <button 
-                    onClick={() => setActiveCitation(rec.citations[0])}
-                    className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1"
-                  >
-                    <FileText className="w-3 h-3" /> Cited Document: {rec.citations[0].documentName}
-                  </button>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -496,10 +505,10 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             <div className="text-base-content/90 leading-relaxed">
               {customResponse.answer}
             </div>
-            {customResponse.citations && customResponse.citations.length > 0 && (
+            {customResponse.citations && (customResponse.citations || []).length > 0 && (
               <div className="pt-2 border-t border-base-300 text-xs space-y-1">
                 <span className="font-bold text-base-content/60">Citations:</span>
-                {customResponse.citations.map((c: any, i: number) => (
+                {(customResponse.citations || []).map((c: any, i: number) => (
                   <div key={i} className="text-primary font-medium flex items-center gap-1">
                     <FileText className="w-3 h-3" /> {c.documentName}: "{c.snippet}"
                   </div>
@@ -527,10 +536,10 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
               {activeAnswer.answer}
             </div>
 
-            {activeAnswer.citations.length > 0 && (
+            {(activeAnswer.citations || []).length > 0 && (
               <div className="space-y-2">
                 <h4 className="font-bold text-xs uppercase text-base-content/50 tracking-wider">Document Citations & Evidence</h4>
-                {activeAnswer.citations.map((c, i) => (
+                {(activeAnswer.citations || []).map((c, i) => (
                   <div key={i} className="p-3 bg-primary/5 border border-primary/20 rounded-xl text-xs space-y-1">
                     <div className="font-bold text-primary flex items-center gap-1.5">
                       <FileText className="w-3.5 h-3.5" /> {c.documentName}

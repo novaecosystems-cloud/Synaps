@@ -310,15 +310,41 @@ Generate the complete JSON executive briefing based on the above data context.`;
 
     const data = parseSafeJson(rawResult);
 
+    const safeExecutiveAnswers = (Array.isArray(data.executiveAnswers) && data.executiveAnswers.length > 0 ? data.executiveAnswers : getFallbackAnswers()).map((ans: any, idx: number) => ({
+      id: ans.id || `q${idx + 1}`,
+      question: ans.question || 'Executive Query',
+      answer: ans.answer || 'Analysis complete.',
+      status: ans.status || 'HEALTHY',
+      citations: Array.isArray(ans.citations) ? ans.citations : []
+    }));
+
+    const safeDepartmentHealth = (Array.isArray(data.departmentHealth) && data.departmentHealth.length > 0 ? data.departmentHealth : getFallbackDepartments()).map((dept: any) => ({
+      department: dept.department || 'General Operations',
+      healthScore: typeof dept.healthScore === 'number' ? dept.healthScore : 90,
+      riskLevel: dept.riskLevel || 'LOW',
+      summary: dept.summary || 'Operational baseline normal.',
+      activeIssuesCount: typeof dept.activeIssuesCount === 'number' ? dept.activeIssuesCount : 0,
+      citations: Array.isArray(dept.citations) ? dept.citations : []
+    }));
+
+    const safeRecommendations = (Array.isArray(data.aiRecommendations) && data.aiRecommendations.length > 0 ? data.aiRecommendations : getFallbackRecommendations()).map((rec: any, idx: number) => ({
+      id: rec.id || `rec${idx + 1}`,
+      priority: rec.priority || 'MEDIUM',
+      title: rec.title || 'Executive Action Item',
+      recommendation: rec.recommendation || 'Proceed with standard operating guidelines.',
+      rationale: rec.rationale || 'Supported by enterprise document indexes.',
+      citations: Array.isArray(rec.citations) ? rec.citations : []
+    }));
+
     return {
       executiveBrief: data.executiveBrief || "Synaps Executive Intelligence Engine is active. Organizational metrics and document indexes are synced and healthy.",
       healthScore: typeof data.healthScore === 'number' ? data.healthScore : 88,
       knowledgeCoverage: typeof data.knowledgeCoverage === 'number' ? data.knowledgeCoverage : 94,
       riskLevel: data.riskLevel || 'MODERATE',
       decisionConfidence: typeof data.decisionConfidence === 'number' ? data.decisionConfidence : 91,
-      executiveAnswers: Array.isArray(data.executiveAnswers) && data.executiveAnswers.length > 0 ? data.executiveAnswers : getFallbackAnswers(),
-      departmentHealth: Array.isArray(data.departmentHealth) && data.departmentHealth.length > 0 ? data.departmentHealth : getFallbackDepartments(),
-      aiRecommendations: Array.isArray(data.aiRecommendations) && data.aiRecommendations.length > 0 ? data.aiRecommendations : getFallbackRecommendations(),
+      executiveAnswers: safeExecutiveAnswers,
+      departmentHealth: safeDepartmentHealth,
+      aiRecommendations: safeRecommendations,
       recentEvents: Array.isArray(data.recentEvents) ? data.recentEvents : [],
       timelineHighlights: Array.isArray(data.timelineHighlights) ? data.timelineHighlights : []
     };
