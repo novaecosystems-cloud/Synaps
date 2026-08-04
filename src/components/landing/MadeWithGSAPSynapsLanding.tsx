@@ -8,7 +8,7 @@ import { TextPlugin } from 'gsap/TextPlugin';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import Lenis from 'lenis';
-import WaitlistModal from '../WaitlistModal';
+import CommandMenuModal from '../CommandMenuModal';
 import SpotlightTiltCard from './SpotlightTiltCard';
 
 if (typeof window !== 'undefined') {
@@ -612,9 +612,12 @@ export default function MadeWithGSAPSynapsLanding() {
           >
             ⌘ K
           </button>
-          <button onClick={() => setWaitlistOpen(true)} className="btn-lime" style={{ padding: '9px 20px', fontSize: 12.5 }}>
-            Join Waitlist ↗
-          </button>
+          <Link href="/demo" className="btn-lime" style={{ padding: '9px 20px', fontSize: 12.5, textDecoration: 'none' }}>
+            ⚡ Try Instant Demo
+          </Link>
+          <Link href="/login" className="btn-outline" style={{ padding: '9px 18px', fontSize: 12.5, textDecoration: 'none' }}>
+            Launch App ↗
+          </Link>
         </div>
       </header>
 
@@ -653,11 +656,11 @@ export default function MadeWithGSAPSynapsLanding() {
             </p>
           </div>
           <div className="hero-cta" style={{ display: 'flex', gap: 12, alignItems: 'center', opacity: 0 }}>
-            <Link href="/login" className="btn-lime">
-              Launch Console →
+            <Link href="/demo" className="btn-lime" style={{ textDecoration: 'none' }}>
+              ⚡ Try Instant Demo
             </Link>
-            <Link href="#console" className="btn-outline">
-              Explore 3D Modules
+            <Link href="/login" className="btn-outline" style={{ textDecoration: 'none' }}>
+              Launch Console →
             </Link>
           </div>
         </div>
@@ -969,8 +972,6 @@ export default function MadeWithGSAPSynapsLanding() {
         </div>
       )}
 
-      {/* WAITLIST MODAL */}
-      <WaitlistModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
     </div>
   );
 }

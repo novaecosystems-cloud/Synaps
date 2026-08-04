@@ -64,10 +64,10 @@ export async function GET(req: NextRequest) {
     const demoDocsFormatted = NOVA_DEMO_DOCUMENTS.map((d, i) => ({
       id: `demo_${i}`,
       name: d.name,
-      mimeType: 'application/pdf',
-      sizeBytes: 1024 * 1024,
+      mimeType: d.name.endsWith('.xlsx') ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/pdf',
+      sizeBytes: 1024 * 1024 * (3 + (i % 4)),
       createdAt: new Date().toISOString(),
-      group: i === 0 ? 'Alibaba CoCreate Pitch' : i === 1 ? 'Legal & MSA' : 'Financial Audits',
+      group: d.category,
       source: 'DEMO'
     }));
 
