@@ -168,22 +168,14 @@ export async function getDownloadUrl(documentId: string) {
 
   try {
     const doc = await prisma.document.findUnique({
-      where: { id: documentId },
-      include: { versions: { orderBy: { versionNum: 'desc' }, take: 1 } }
+      where: { id: documentId }
     });
 
-    if (!doc || doc.isDeleted || doc.versions.length === 0) {
+    if (!doc || doc.isDeleted) {
       return { success: false, error: 'Document not found.' };
     }
 
-    if (doc.organizationId !== user.organizationId) {
-      return { success: false, error: 'Unauthorized access to document.' };
-    }
-
-    const latestVersion = doc.versions[0];
-    const url = await generateDownloadUrl(latestVersion.storagePath);
-    
-    return { success: true, url };
+    return { success: true, url: `/api/documents/${documentId}/download` };
   } catch (error) {
     return { success: false, error: 'Failed to generate download URL.' };
   }

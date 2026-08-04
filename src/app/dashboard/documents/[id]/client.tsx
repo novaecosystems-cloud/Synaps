@@ -1178,13 +1178,130 @@ export default function DocumentReaderClient({
                 {compareLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitCompare className="w-4 h-4" />}
                 {compareLoading ? 'Comparing...' : 'Run Comparison'}
               </button>
-              {comparisonResult && (
-                <div className="bg-white/3 rounded-xl border border-white/5 p-4 text-sm text-white/70 max-h-64 overflow-y-auto">
-                  <pre className="text-xs leading-relaxed whitespace-pre-wrap">
-                    {typeof comparisonResult === 'string' ? comparisonResult : JSON.stringify(comparisonResult, null, 2)}
-                  </pre>
-                </div>
-              )}
+              {comparisonResult && (() => {
+                const res = typeof comparisonResult === 'string' ? JSON.parse(comparisonResult) : comparisonResult;
+                const score = typeof res.similarityScore === 'number' ? res.similarityScore : 50;
+                const additions: string[] = Array.isArray(res.clauseAdditions) ? res.clauseAdditions : [];
+                const removals: string[] = Array.isArray(res.clauseRemovals) ? res.clauseRemovals : [];
+                const departments: string[] = Array.isArray(res.affectedDepartments) ? res.affectedDepartments : [];
+
+                return (
+                  <div className="bg-[#181824] rounded-xl border border-white/10 p-4 space-y-3 max-h-96 overflow-y-auto">
+                    {/* Header & Similarity Bar */}
+                    <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-white/3 border border-white/5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold text-sm">
+                          {score}%
+                        </div>
+                        <div>
+                          <div className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Similarity Score</div>
+                          <div className="text-xs font-semibold text-white">
+                            {score > 80 ? 'High Similarity' : score > 40 ? 'Moderate Variations' : 'Vast Differences'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="w-28 bg-white/5 rounded-full h-2 overflow-hidden">
+                        <div
+                          className={cn("h-full rounded-full transition-all", score > 70 ? "bg-green-500" : score > 40 ? "bg-amber-500" : "bg-indigo-500")}
+                          style={{ width: `${score}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Summary */}
+                    {res.summary && (
+                      <div className="p-3 rounded-lg bg-white/3 border border-white/5 space-y-1">
+                        <div className="text-[11px] font-semibold text-indigo-400 flex items-center gap-1.5 uppercase tracking-wider">
+                          <Sparkles className="w-3 h-3" />
+                          Executive Comparison Overview
+                        </div>
+                        <p className="text-xs text-white/75 leading-relaxed">{res.summary}</p>
+                      </div>
+                    )}
+
+                    {/* Grid of Deltas: Financial, Risk, Timeline */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      {res.financialDelta && (
+                        <div className="p-2.5 rounded-lg bg-white/3 border border-white/5 space-y-0.5">
+                          <div className="text-[10px] font-semibold text-amber-400 flex items-center gap-1">
+                            <DollarSign className="w-3 h-3" /> Financial Impact
+                          </div>
+                          <p className="text-[11px] text-white/70 leading-normal">{res.financialDelta}</p>
+                        </div>
+                      )}
+                      {res.riskDelta && (
+                        <div className="p-2.5 rounded-lg bg-white/3 border border-white/5 space-y-0.5">
+                          <div className="text-[10px] font-semibold text-red-400 flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" /> Risk Delta
+                          </div>
+                          <p className="text-[11px] text-white/70 leading-normal">{res.riskDelta}</p>
+                        </div>
+                      )}
+                      {res.timelineChanges && (
+                        <div className="p-2.5 rounded-lg bg-white/3 border border-white/5 space-y-0.5">
+                          <div className="text-[10px] font-semibold text-cyan-400 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" /> Timeline Updates
+                          </div>
+                          <p className="text-[11px] text-white/70 leading-normal">{res.timelineChanges}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Clause Additions & Removals */}
+                    {(additions.length > 0 || removals.length > 0) && (
+                      <div className="space-y-2 pt-1">
+                        {additions.length > 0 && (
+                          <div className="space-y-1">
+                            <div className="text-[11px] font-semibold text-green-400 flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                              Added Clauses ({additions.length})
+                            </div>
+                            <ul className="space-y-1">
+                              {additions.map((item, idx) => (
+                                <li key={idx} className="text-[11px] text-white/70 bg-green-500/10 border border-green-500/20 rounded-lg px-2.5 py-1.5 flex items-start gap-1.5">
+                                  <span className="text-green-400 font-bold shrink-0">+</span>
+                                  <span>{typeof item === 'string' ? item : JSON.stringify(item)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {removals.length > 0 && (
+                          <div className="space-y-1">
+                            <div className="text-[11px] font-semibold text-red-400 flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                              Removed Clauses ({removals.length})
+                            </div>
+                            <ul className="space-y-1">
+                              {removals.map((item, idx) => (
+                                <li key={idx} className="text-[11px] text-white/70 bg-red-500/10 border border-red-500/20 rounded-lg px-2.5 py-1.5 flex items-start gap-1.5">
+                                  <span className="text-red-400 font-bold shrink-0">-</span>
+                                  <span>{typeof item === 'string' ? item : JSON.stringify(item)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Affected Departments */}
+                    {departments.length > 0 && (
+                      <div className="flex items-center gap-2 pt-1.5 border-t border-white/5">
+                        <span className="text-[10px] text-white/40 font-semibold uppercase">Impacted Teams:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {departments.map((dept, i) => (
+                            <span key={i} className="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-semibold text-indigo-300">
+                              {dept}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
