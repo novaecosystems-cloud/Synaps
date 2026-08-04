@@ -13,6 +13,19 @@ import { generateChunks } from '@/lib/chunking';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { rawPrisma as prisma } from '@/lib/prisma';
 import { extractGraphFromDocument } from '@/lib/memory-graph';
+import pdfParse from 'pdf-parse';
+
+const renderPdfPage = async (pageData: any) => {
+  const renderOptions = { normalizeWhitespace: false, disableCombineTextItems: false };
+  const textContent = await pageData.getTextContent(renderOptions);
+  let lastY, text = '';
+  for (const item of textContent.items) {
+    if (lastY == item.transform[5] || !lastY) text += item.str;
+    else text += '\n' + item.str;
+    lastY = item.transform[5];
+  }
+  return `\n\n[[PAGE_${pageData.pageIndex + 1}]]\n\n${text}`;
+};
 
 export async function GET(request: NextRequest) {
   // 1. Authenticate Request — allow CRON_SECRET or user session
@@ -135,21 +148,34 @@ export async function GET(request: NextRequest) {
       if (mimeType === 'application/pdf') {
         detectedType = 'PDF';
         
-        const tmpPath = path.join(os.tmpdir(), `pdf-${job.id}-${Date.now()}.pdf`);
-        fs.writeFileSync(tmpPath, buffer);
         try {
-          const workerPath = path.join(process.cwd(), 'src', 'lib', 'pdfWorker.js');
-          const output = execSync(`node "${workerPath}" "${tmpPath}"`, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
-          const pdfData = JSON.parse(output);
-          
-          extractedText = pdfData.text;
-          pageCount = pdfData.numpages;
+          // Attempt 1: Try child process worker (preferred in local dev)
+          const tmpPath = path.join(os.tmpdir(), `pdf-${job.id}-${Date.now()}.pdf`);
+          fs.writeFileSync(tmpPath, buffer);
+          try {
+            const workerPath = path.join(process.cwd(), 'src', 'lib', 'pdfWorker.js');
+            const output = execSync(`node "${workerPath}" "${tmpPath}"`, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
+            const pdfData = JSON.parse(output);
+            
+            extractedText = pdfData.text;
+            pageCount = pdfData.numpages;
+            metadata = {
+              info: JSON.stringify(pdfData.info || {}),
+              metadata: JSON.stringify(pdfData.metadata || {})
+            };
+          } finally {
+            if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+          }
+        } catch (workerErr) {
+          console.warn('[PDF Processor] Worker child process failed (e.g. serverless environment), using in-memory pdf-parse fallback:', workerErr);
+          // Fallback: Direct in-memory pdf-parse (reliable in Vercel serverless functions)
+          const parsed = await pdfParse(buffer, { pagerender: renderPdfPage });
+          extractedText = parsed.text || '';
+          pageCount = parsed.numpages || 1;
           metadata = {
-            info: JSON.stringify(pdfData.info || {}),
-            metadata: JSON.stringify(pdfData.metadata || {})
+            info: JSON.stringify(parsed.info || {}),
+            metadata: JSON.stringify(parsed.metadata || {})
           };
-        } finally {
-          if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
         }
       } else if (
         mimeType.includes('wordprocessingml') || 
