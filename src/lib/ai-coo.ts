@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { memPalaceEngine } from '@/lib/mempalace-engine';
+import { NOVA_DEMO_DOCUMENTS } from '@/lib/demo-data';
 
 function parseSafeJson(content: string) {
   try {

@@ -50,6 +50,28 @@ export async function POST(req: NextRequest) {
 
     const query = latestMessage.content;
 
+    // Check if query triggers Phase 2 Agentic Document Reasoning
+    const isAgenticQuery = /page\s+\d+|find\s+every|compare|biggest\s+risk|risk|clause|all\t*document|mentioning|extract\s+table/i.test(query);
+
+    if (isAgenticQuery) {
+      try {
+        const { runDocumentAgent } = await import('@/lib/agents/document-agent');
+        const agentRes = await runDocumentAgent(query, organizationId);
+        return NextResponse.json({
+          success: true,
+          answer: agentRes.answer,
+          confidenceScore: 0.95,
+          sources: agentRes.citations.map(c => c.documentName),
+          evidence: agentRes.toolSteps.map(s => ({ text: `[${s.action || 'Thought'}] ${JSON.stringify(s.observation || s.thought)}` })),
+          toolSteps: agentRes.toolSteps,
+          risks: agentRes.risks,
+          timeline: agentRes.timeline
+        });
+      } catch (agentErr) {
+        console.warn('[CHAT] Agentic query execution fallback:', agentErr);
+      }
+    }
+
     // 1. Generate embedding for the query
     let embedding: number[] = [];
     try {
