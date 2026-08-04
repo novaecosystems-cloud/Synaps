@@ -50,6 +50,32 @@ export async function POST(req: NextRequest) {
 
     const query = latestMessage.content;
 
+    // Check if query triggers Phase 3 Hybrid Web + Doc Research Reasoning
+    const isPhase3Research = /research|case|court|judg\w+|affect\s+this\s+contract|similar\s+cases|concern\s+management|company\s+background|publicly\s+available|benchmark/i.test(query);
+
+    if (isPhase3Research) {
+      try {
+        const { runReasoningAgent } = await import('@/lib/agents/reasoning-agent');
+        const researchRes = await runReasoningAgent(query, organizationId);
+        return NextResponse.json({
+          success: true,
+          answer: researchRes.synthesisAnswer,
+          confidenceScore: 0.98,
+          sources: [
+            ...researchRes.internalCitations.map(c => `${c.documentName} (p.${c.pageNumber})`),
+            ...researchRes.externalCitations.map(s => `${s.title} (${s.url})`)
+          ],
+          evidence: researchRes.executionSteps.map(s => ({ text: `[${s.agent}] Completed with ${s.citationsCount || s.sourcesCount || 0} sources` })),
+          internalCitations: researchRes.internalCitations,
+          externalCitations: researchRes.externalCitations,
+          caseTimeline: researchRes.caseTimeline,
+          risksIdentified: researchRes.risksIdentified
+        });
+      } catch (researchErr) {
+        console.warn('[CHAT] Phase 3 Reasoning Agent notice:', researchErr);
+      }
+    }
+
     // Check if query triggers Phase 2 Agentic Document Reasoning
     const isAgenticQuery = /page\s+\d+|find\s+every|compare|biggest\s+risk|risk|clause|all\t*document|mentioning|extract\s+table/i.test(query);
 

@@ -8,7 +8,7 @@
 
 ## 📌 Executive Summary
 
-**SYNAPS** is an autonomous enterprise AI Chief Operating Officer (AI COO) and 3D Decision Intelligence Platform designed to ingest massive enterprise document vaults, model organizational digital twins, run real-time risk simulations, and execute autonomous board-level decision-making.
+**SYNAPS** is an autonomous enterprise AI Chief Operating Officer (AI COO) and 3D Decision Intelligence Platform designed to ingest massive enterprise document vaults, model organizational digital twins, run real-time risk simulations, execute autonomous board-level decision-making, and perform hybrid web + document autonomous research.
 
 ---
 
@@ -23,15 +23,15 @@
          ┌────────────────────────────────────────────┼────────────────────────────────────────────┐
          ▼                                            ▼                                            ▼
 ┌──────────────────┐                        ┌──────────────────┐                        ┌──────────────────┐
-│  Phase 1 Engine  │                        │  Phase 2 Engine  │                        │ 10-Agent Board   │
-│ Read Once+Remember│                        │ Agentic Doc Intel│                        │ Autonomous COO   │
+│  Phase 1 Engine  │                        │  Phase 2 Engine  │                        │  Phase 3 Engine  │
+│ Read Once+Remember│                        │ Agentic Doc Intel│                        │ Web+Doc Research │
 └────────┬─────────┘                        └────────┬─────────┘                        └────────┬─────────┘
          │                                            │                                            │
  ┌───────┴───────┐                            ┌───────┴───────┐                            ┌───────┴───────┐
- │ • OCR/Parse   │                            │ • ReAct Loop  │                            │ • Chief of Stf│
- │ • Page Chunks │                            │ • 11 Tools    │                            │ • Risk Director│
- │ • Mini-Map    │                            │ • Risk Detector│                           │ • CFO/Legal AI│
- │ • Highlights  │                            │ • Auto-Citation│                           │ • Public APIs │
+ │ • OCR/Parse   │                            │ • ReAct Loop  │                            │ • Web Agent   │
+ │ • Page Chunks │                            │ • 11 Tools    │                            │ • Doc Agent   │
+ │ • Mini-Map    │                            │ • Risk Detector│                           │ • Reasoning AI│
+ │ • Highlights  │                            │ • Auto-Citation│                           │ • Dual-Citation│
  └───────────────┘                            └───────────────┘                            └───────────────┘
 ```
 
@@ -56,7 +56,7 @@ Phase 1 provides complete deep document parsing and instant page-level text sear
 
 ## 🤖 Phase 2 — Agentic Document Intelligence (ReAct Tool Router)
 
-Phase 2 equips SYNAPS with a autonomous **Document Agent** built on a ReAct (Reasoning + Acting) loop. Rather than blindly dumping massive documents into an LLM, the agent dynamically decides which granular retrieval tool to invoke.
+Phase 2 equips SYNAPS with an autonomous **Document Agent** built on a ReAct (Reasoning + Acting) loop. Rather than blindly dumping massive documents into an LLM, the agent dynamically decides which granular retrieval tool to invoke.
 
 ### Document Agent Tool Set (`src/lib/agents/document-agent.ts`):
 
@@ -74,11 +74,50 @@ Phase 2 equips SYNAPS with a autonomous **Document Agent** built on a ReAct (Rea
 | `compare_documents(doc1Id, doc2Id)` | Performs side-by-side contract analysis comparing risks, clauses, and differences. |
 | `cite_source(docId, pageN, snippet)` | Generates standardized evidence citations `[Document Name, p.63]`. |
 
-### Advanced Reasoning Capabilities:
-1. **Contract Risk Detection**: Identifies indemnification traps, uncapped liabilities, missing SLAs, auto-renewal traps, and jurisdiction hazards with severity levels (`HIGH`, `MEDIUM`, `LOW`).
-2. **Timeline & Milestone Extraction**: Extracts dates, effective dates, cure periods, and deadlines into chronological timelines.
-3. **Evidence-Backed Answers**: Every answer generated includes automatic citations `[Doc Name, p.63]` that deep-link to the exact page.
-4. **Cross-Document Reasoning**: Evaluates relationships and contract differences across legacy vs new versions.
+---
+
+## 🌐 Phase 3 — Web + Document + Autonomous Research
+
+Phase 3 enables SYNAPS to leave internal document boundaries, research the outside world via the **Web Research Agent**, and combine internal vault contracts with external web findings via the **Cross-Domain Reasoning Agent**.
+
+```
+                 SYNAPS
+                    │
+           ┌────────┴────────┐
+           ↓                 ↓
+    DOCUMENT AGENT      WEB RESEARCH AGENT
+   (Internal Vault)     (External Web/Cases)
+           │                 │
+           └────────┬────────┘
+                    ↓
+              REASONING AGENT
+             (Synthesis Engine)
+                    ↓
+   Dual-Citations [Doc, p.N] + [Web Source](URL)
+```
+
+### Key Capabilities & Tools (`src/lib/agents/web-research-agent.ts` & `src/lib/agents/reasoning-agent.ts`):
+
+1. **Web Research Agent Tools**:
+   - `web_search(query)`: Live external web search for court judgments, company filings, news, and public benchmarks.
+   - `fetch_web_article(url)`: HTML parsing and text extraction from external URLs.
+   - `search_legal_precedents(caseName)`: Specialized legal precedent and case law lookup (e.g., "ABC v XYZ").
+   - `research_company(companyName)`: Researches corporate background, litigation history, management risks, and SEC filings.
+   - `find_clause_benchmarks(clauseType)`: Retrieves industry benchmark examples (standard, aggressive, defensive variants).
+
+2. **Cross-Domain Reasoning Agent** (`runReasoningAgent`):
+   - Synthesizes findings from **DocumentAgent** + **WebResearchAgent**.
+   - Answers complex questions like:
+     - *"Research ABC v XYZ and tell me what happened."* -> Builds case timeline, ruling, judgment, and authoritative web links.
+     - *"Does that case affect this contract?"* -> Synthesizes uploaded contract text + court ruling, providing dual citations to both `[Uploaded Contract, p.14]` and `[Web Precedent: ABC v XYZ, URL]`.
+     - *"Find similar cases / recent cases involving this issue."*
+     - *"Compare our agreement against publicly available examples."*
+     - *"Research this company and tell me whether anything should concern management."*
+
+3. **API Endpoint & UI Routing**:
+   - `POST /api/agent/research`: Dedicated multi-agent research endpoint.
+   - `/api/chat`: Auto-detects research prompts and triggers `runReasoningAgent`.
+   - Document Reader Sidebar (`/dashboard/documents/[id]`): Displays internal page citations + clickable external web source badges.
 
 ---
 
@@ -120,24 +159,27 @@ D:\Synaps\
 ├── src/
 │   ├── app/
 │   │   ├── api/
+│   │   │   ├── agent/research/route.ts   <-- Phase 3 Web + Doc Research Endpoint
 │   │   │   ├── agent/document/route.ts   <-- Phase 2 Document Agent Endpoint
 │   │   │   ├── documents/[id]/
 │   │   │   │   ├── search/route.ts        <-- Phase 1 Per-doc Search
 │   │   │   │   ├── pages/route.ts         <-- Phase 1 Page Content Fetcher
 │   │   │   │   └── entities/route.ts      <-- Phase 1 Entity Extractor
 │   │   │   ├── documents/search-across/   <-- Phase 1 Cross-doc Search
-│   │   │   ├── chat/route.ts              <-- Agentic Chat Assistant
+│   │   │   ├── chat/route.ts              <-- Hybrid Multi-Agent Chat Assistant
 │   │   │   └── public-apis/route.ts       <-- Public APIs Integration
 │   │   └── dashboard/
 │   │       ├── documents/
 │   │       │   ├── page.tsx & client.tsx  <-- Document Vault with Cross-Search
 │   │       │   └── [id]/
-│   │       │       ├── page.tsx & client.tsx <-- Phase 1 Reader + Phase 2 AI Agent Drawer
+│   │       │       ├── page.tsx & client.tsx <-- Reader + Multi-Agent AI Drawer
 │   │       └── integrations/              <-- Public APIs Hub
 │   └── lib/
 │       ├── agents/
 │       │   ├── react-engine.ts            <-- ReAct Multi-Agent Engine
-│       │   └── document-agent.ts          <-- Phase 2 Document Agent & 11 Tools
+│       │   ├── document-agent.ts          <-- Phase 2 Document Agent & 11 Tools
+│       │   ├── web-research-agent.ts      <-- Phase 3 Web Research Agent & Tools
+│       │   └── reasoning-agent.ts         <-- Phase 3 Cross-Domain Reasoning Agent
 │       ├── chunking.ts                    <-- Page-aware Text Chunker
 │       ├── pdfWorker.js                   <-- Page-marker PDF Extractor
 │       ├── llm-router.ts                  <-- Multi-LLM Provider Failover (Gemini 2.0/2.5)
@@ -149,4 +191,4 @@ D:\Synaps\
 
 ---
 
-*Documentation generated for Synaps Enterprise Platform.*
+*Documentation updated for Phase 3 — SYNAPS Enterprise Platform.*

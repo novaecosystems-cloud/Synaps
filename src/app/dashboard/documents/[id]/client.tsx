@@ -108,16 +108,24 @@ export default function DocumentReaderClient({
     setAgentRunning(true);
     setAgentResult(null);
     try {
-      const res = await fetch('/api/agent/document', {
+      const isResearchQuery = /research|case|court|judg\w+|affect\s+this\s+contract|similar\s+cases|concern\s+management|company\s+background|publicly\s+available|benchmark/i.test(prompt);
+      const endpoint = isResearchQuery ? '/api/agent/research' : '/api/agent/document';
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ goal: prompt, documentId })
+        body: JSON.stringify({ goal: prompt, query: prompt, documentId })
       });
       const json = await res.json();
       if (json.success) {
-        setAgentResult(json);
+        setAgentResult({
+          ...json,
+          answer: json.answer || json.synthesisAnswer,
+          citations: json.citations || json.internalCitations,
+          webSources: json.externalCitations
+        });
         // Check if agent mentioned a page to navigate to
-        const pageMatch = json.answer.match(/\[[^\]]+,\s*p\.(\d+)\]/);
+        const pageMatch = (json.answer || json.synthesisAnswer || '').match(/\[[^\]]+,\s*p\.(\d+)\]/);
         if (pageMatch) {
           const pg = parseInt(pageMatch[1], 10);
           if (!isNaN(pg)) {
@@ -607,10 +615,10 @@ export default function DocumentReaderClient({
               {/* Quick suggestion chips */}
               <div className="flex flex-wrap gap-1">
                 {[
+                  'Research ABC v XYZ & impact on this contract',
                   'Find termination clause & page',
-                  'What are the biggest risks?',
-                  'Extract financial numbers & dates',
-                  'Find all mentions of company'
+                  'Find similar cases & public examples',
+                  'Research company background & risks'
                 ].map((chip, idx) => (
                   <button
                     key={idx}
@@ -628,7 +636,7 @@ export default function DocumentReaderClient({
                 className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-xs font-semibold flex items-center justify-center gap-2 transition-colors text-white"
               >
                 {agentRunning ? <Loader2 className="w-3.5 h-3.5 animate-spin text-white" /> : <Sparkles className="w-3.5 h-3.5 text-white" />}
-                {agentRunning ? 'Agent Reasoning...' : 'Run Agent Query'}
+                {agentRunning ? 'Agent Reasoning...' : 'Run Agent Research'}
               </button>
             </div>
 
@@ -637,7 +645,7 @@ export default function DocumentReaderClient({
               {agentRunning && (
                 <div className="flex flex-col items-center justify-center py-8 gap-2 text-white/40">
                   <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
-                  <p className="text-xs">ReAct Agent is reasoning & running tools...</p>
+                  <p className="text-xs">Reasoning Agent is searching Web + Vault Documents...</p>
                 </div>
               )}
 
@@ -670,10 +678,10 @@ export default function DocumentReaderClient({
                     </div>
                   </div>
 
-                  {/* Page Citations */}
+                  {/* Internal Page Citations */}
                   {agentResult.citations?.length > 0 && (
                     <div className="bg-white/3 border border-white/5 rounded-lg p-2.5 space-y-1">
-                      <div className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">Page Citations</div>
+                      <div className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">Document Citations</div>
                       <div className="flex flex-wrap gap-1">
                         {agentResult.citations.map((c: any, i: number) => (
                           <button
@@ -683,6 +691,29 @@ export default function DocumentReaderClient({
                           >
                             [{c.documentName}, p.{c.pageNumber}]
                           </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* External Web Citations */}
+                  {agentResult.webSources?.length > 0 && (
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2.5 space-y-1">
+                      <div className="text-[10px] text-blue-300 font-semibold uppercase tracking-wider flex items-center gap-1">
+                        <Globe className="w-3 h-3 text-blue-400" /> Web Sources ({agentResult.webSources.length})
+                      </div>
+                      <div className="space-y-1">
+                        {agentResult.webSources.map((s: any, i: number) => (
+                          <a
+                            key={i}
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-300 hover:underline flex items-center gap-1 truncate"
+                          >
+                            <ExternalLink className="w-3 h-3 shrink-0" />
+                            {s.title || s.url}
+                          </a>
                         ))}
                       </div>
                     </div>
