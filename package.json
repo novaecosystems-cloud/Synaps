@@ -20,6 +20,9 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.31",
+    "@ai-sdk/groq": "^4.0.19",
+    "@ai-sdk/openai": "^4.0.27",
     "@google-cloud/storage": "^7.11.0",
     "@google/generative-ai": "^0.21.0",
     "@gsap/react": "^2.1.2",
@@ -45,6 +48,7 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
     "@vercel/analytics": "^2.0.1",
+    "ai": "^7.0.48",
     "chalk": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "cli-table3": "^0.6.5",

@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { generateEmbedding } from '@/lib/embeddings';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { ReActAgent, AgentTool } from '@/lib/agents/react-engine';
@@ -48,13 +49,14 @@ export function buildDocumentAgentTools(organizationId: string, currentDocumentI
       },
       execute: async ({ query, documentId }) => {
         const docId = documentId || currentDocumentId;
+        const docFilter = docId ? Prisma.sql`AND c."documentId" = ${docId}` : Prisma.empty;
         const chunks: any[] = await prisma.$queryRaw`
           SELECT c.id, c."documentId", d.name as "docName", COALESCE(c."pageNumber", 1) as "pageNumber", COALESCE(c.section, 'General') as section, c.text
           FROM "DocumentChunk" c
           JOIN "Document" d ON c."documentId" = d.id
           WHERE d."organizationId" = ${organizationId}
             AND d."isDeleted" = false
-            ${docId ? prisma.$queryRaw`AND c."documentId" = ${docId}` : prisma.$queryRaw``}
+            ${docFilter}
             AND c.text ILIKE ${'%' + query + '%'}
           ORDER BY c."pageNumber" ASC
           LIMIT 10
@@ -84,13 +86,14 @@ export function buildDocumentAgentTools(organizationId: string, currentDocumentI
       },
       execute: async ({ query, documentId }) => {
         const docId = documentId || currentDocumentId;
+        const docFilter = docId ? Prisma.sql`AND c."documentId" = ${docId}` : Prisma.empty;
         const chunks: any[] = (await prisma.$queryRaw`
           SELECT c.id, c."documentId", d.name as "docName", COALESCE(c."pageNumber", 1) as "pageNumber", COALESCE(c.section, 'General') as section, c.text, similarity(c.text, ${query}) as score
           FROM "DocumentChunk" c
           JOIN "Document" d ON c."documentId" = d.id
           WHERE d."organizationId" = ${organizationId}
             AND d."isDeleted" = false
-            ${docId ? prisma.$queryRaw`AND c."documentId" = ${docId}` : prisma.$queryRaw``}
+            ${docFilter}
             AND (c.text ILIKE ${'%' + query + '%'} OR similarity(c.text, ${query}) > 0.1)
           ORDER BY score DESC
           LIMIT 10
@@ -122,6 +125,7 @@ export function buildDocumentAgentTools(organizationId: string, currentDocumentI
       },
       execute: async ({ query, documentId }) => {
         const docId = documentId || currentDocumentId;
+        const docFilter = docId ? Prisma.sql`AND c."documentId" = ${docId}` : Prisma.empty;
         try {
           const vector = await generateEmbedding(query);
           const vectorString = `[${vector.join(',')}]`;
@@ -131,7 +135,7 @@ export function buildDocumentAgentTools(organizationId: string, currentDocumentI
             JOIN "Document" d ON c."documentId" = d.id
             WHERE d."organizationId" = ${organizationId}
               AND d."isDeleted" = false
-              ${docId ? prisma.$queryRaw`AND c."documentId" = ${docId}` : prisma.$queryRaw``}
+              ${docFilter}
               AND c.embedding IS NOT NULL
             ORDER BY c.embedding <=> ${vectorString}::vector
             LIMIT 8
@@ -234,13 +238,14 @@ export function buildDocumentAgentTools(organizationId: string, currentDocumentI
       },
       execute: async ({ query, documentId }) => {
         const docId = documentId || currentDocumentId;
+        const docFilter = docId ? Prisma.sql`AND c."documentId" = ${docId}` : Prisma.empty;
         const chunks: any[] = await prisma.$queryRaw`
           SELECT c.id, c."documentId", d.name as "docName", COALESCE(c."pageNumber", 1) as "pageNumber", c.text
           FROM "DocumentChunk" c
           JOIN "Document" d ON c."documentId" = d.id
           WHERE d."organizationId" = ${organizationId}
             AND d."isDeleted" = false
-            ${docId ? prisma.$queryRaw`AND c."documentId" = ${docId}` : prisma.$queryRaw``}
+            ${docFilter}
             AND c.text ILIKE ${'%' + query + '%'}
           LIMIT 10
         `;
@@ -325,12 +330,13 @@ export function buildDocumentAgentTools(organizationId: string, currentDocumentI
       },
       execute: async ({ clauseType, documentId }) => {
         const docId = documentId || currentDocumentId;
+        const docFilter = docId ? Prisma.sql`AND c."documentId" = ${docId}` : Prisma.empty;
         const chunks: any[] = await prisma.$queryRaw`
           SELECT c.id, c."documentId", d.name as "docName", COALESCE(c."pageNumber", 1) as "pageNumber", c.section, c.text
           FROM "DocumentChunk" c
           JOIN "Document" d ON c."documentId" = d.id
           WHERE d."organizationId" = ${organizationId}
-            ${docId ? prisma.$queryRaw`AND c."documentId" = ${docId}` : prisma.$queryRaw``}
+            ${docFilter}
             AND (
               c.text ILIKE ${'%' + clauseType + '%'}
               OR c.section ILIKE ${'%' + clauseType + '%'}

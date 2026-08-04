@@ -92,6 +92,10 @@ export default function DocumentReaderClient({
   const [intelligence, setIntelligence] = useState<any | null>(null);
   const [intelligenceLoading, setIntelligenceLoading] = useState(true);
 
+  // Document processing
+  const [processing, setProcessing] = useState(false);
+  const [processError, setProcessError] = useState<string | null>(null);
+
   // Compare
   const [compareModalOpen, setCompareModalOpen] = useState(false);
   const [compareDocId, setCompareDocId] = useState('');
@@ -101,6 +105,33 @@ export default function DocumentReaderClient({
   const [agentGoal, setAgentGoal] = useState('');
   const [agentRunning, setAgentRunning] = useState(false);
   const [agentResult, setAgentResult] = useState<any | null>(null);
+
+  // ── Process document ────────────────────────────────────────────────────
+  const handleProcessDocument = async () => {
+    setProcessing(true);
+    setProcessError(null);
+    try {
+      const res = await fetch(`/api/jobs/process?documentId=${documentId}`);
+      const json = await res.json();
+      if (json.success) {
+        // Reload page data after processing
+        await fetchPage(currentPage);
+        await fetchEntities();
+        // Reload intelligence
+        setIntelligenceLoading(true);
+        const intRes = await fetch(`/api/documents/${documentId}/intelligence`);
+        const intJson = await intRes.json();
+        if (intJson.success) setIntelligence(intJson.data);
+        setIntelligenceLoading(false);
+      } else {
+        setProcessError(json.error || 'Processing failed');
+      }
+    } catch (e: any) {
+      setProcessError(e.message || 'Network error');
+    } finally {
+      setProcessing(false);
+    }
+  };
 
   const handleRunAgentGoal = async (goalStr?: string) => {
     const prompt = goalStr || agentGoal;
@@ -950,17 +981,30 @@ export default function DocumentReaderClient({
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-                <div className="w-16 h-16 rounded-full bg-white/3 flex items-center justify-center">
-                  <BookOpen className="w-7 h-7 text-white/15" />
+              <div className="flex flex-col items-center justify-center h-full gap-6 text-center px-6">
+                <div className="w-16 h-16 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                  <BookOpen className="w-7 h-7 text-indigo-400" />
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-white/50">No content extracted yet</p>
-                  <p className="text-xs text-white/25 mt-1">
-                    This document hasn't been processed.<br />
-                    Go to Documents → click "Process" to extract text.
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold text-white/70">Document not yet processed</p>
+                  <p className="text-xs text-white/30 leading-relaxed">
+                    Click the button below to extract text, enable search, and run AI analysis.
                   </p>
                 </div>
+                {processError && (
+                  <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{processError}</p>
+                )}
+                <button
+                  onClick={handleProcessDocument}
+                  disabled={processing}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/20"
+                >
+                  {processing ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
+                  ) : (
+                    <><Zap className="w-4 h-4" /> Process Document</>  
+                  )}
+                </button>
               </div>
             )}
           </div>
@@ -978,90 +1022,112 @@ export default function DocumentReaderClient({
               <div className="flex items-center justify-center p-8">
                 <Loader2 className="w-5 h-5 text-indigo-400 animate-spin" />
               </div>
-            ) : intelligence ? (
-              <div className="p-4 space-y-4">
-                {/* Risk Score */}
-                {intelligence.riskScore !== undefined && (
-                  <div className="p-3 rounded-xl bg-white/3 border border-white/5">
-                    <div className="text-xs text-white/40 mb-2 flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-                      Risk Score
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl font-bold text-white">
-                        {intelligence.riskScore}
-                        <span className="text-sm text-white/30">/100</span>
+            ) : intelligence ? (() => {
+              // Normalise the EnterpriseDocumentIntelligence shape
+              const risks: any[] = intelligence.risks || [];
+              const criticalCount = risks.filter((r: any) => r.severity === 'CRITICAL').length;
+              const highCount    = risks.filter((r: any) => r.severity === 'HIGH').length;
+              const computedScore = Math.min(100, criticalCount * 25 + highCount * 10 + (risks.length - criticalCount - highCount) * 3);
+              const execSummary = intelligence.summaries?.executiveSummary || intelligence.summary || null;
+              const decisionRecs: any[] = intelligence.decisionRecommendations || [];
+              return (
+                <div className="p-4 space-y-4">
+                  {/* Risk Score */}
+                  {risks.length > 0 && (
+                    <div className="p-3 rounded-xl bg-white/3 border border-white/5">
+                      <div className="text-xs text-white/40 mb-2 flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                        Risk Score
                       </div>
-                      <div className="flex-1 bg-white/5 rounded-full h-2">
-                        <div
-                          className={cn("h-full rounded-full", intelligence.riskScore > 70 ? "bg-red-500" : intelligence.riskScore > 40 ? "bg-amber-500" : "bg-green-500")}
-                          style={{ width: `${intelligence.riskScore}%` }}
-                        />
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl font-bold text-white">
+                          {computedScore}
+                          <span className="text-sm text-white/30">/100</span>
+                        </div>
+                        <div className="flex-1 bg-white/5 rounded-full h-2">
+                          <div
+                            className={cn("h-full rounded-full transition-all", computedScore > 70 ? "bg-red-500" : computedScore > 40 ? "bg-amber-500" : "bg-green-500")}
+                            style={{ width: `${computedScore}%` }}
+                          />
+                        </div>
                       </div>
+                      <p className="text-xs text-white/25 mt-1">{criticalCount} critical · {highCount} high · {risks.length} total risks</p>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Summary */}
-                {intelligence.summary && (
-                  <div className="p-3 rounded-xl bg-white/3 border border-white/5">
-                    <div className="text-xs text-white/40 mb-2 flex items-center gap-1.5">
-                      <AlignLeft className="w-3.5 h-3.5 text-indigo-400" />
-                      Executive Summary
+                  {/* Executive Summary */}
+                  {execSummary && (
+                    <div className="p-3 rounded-xl bg-white/3 border border-white/5">
+                      <div className="text-xs text-white/40 mb-2 flex items-center gap-1.5">
+                        <AlignLeft className="w-3.5 h-3.5 text-indigo-400" />
+                        Executive Summary
+                      </div>
+                      <p className="text-xs text-white/65 leading-relaxed line-clamp-6">
+                        {execSummary}
+                      </p>
                     </div>
-                    <p className="text-xs text-white/65 leading-relaxed line-clamp-6">
-                      {intelligence.summary}
-                    </p>
-                    <Link href={`/dashboard/documents/${documentId}`}>
-                      <button className="mt-2 text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
-                        Full analysis <ArrowRight className="w-3 h-3" />
-                      </button>
-                    </Link>
-                  </div>
-                )}
+                  )}
 
-                {/* Key risks */}
-                {intelligence.risks?.length > 0 && (
-                  <div className="p-3 rounded-xl bg-white/3 border border-white/5">
-                    <div className="text-xs text-white/40 mb-2 flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-                      Top Risks
+                  {/* Top Risks */}
+                  {risks.length > 0 && (
+                    <div className="p-3 rounded-xl bg-white/3 border border-white/5">
+                      <div className="text-xs text-white/40 mb-2 flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                        Top Risks
+                      </div>
+                      <ul className="space-y-2">
+                        {risks.slice(0, 4).map((risk: any, i: number) => (
+                          <li key={i} className="text-xs">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className={cn(
+                                "px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide",
+                                risk.severity === 'CRITICAL' ? 'bg-red-500/20 text-red-400' :
+                                risk.severity === 'HIGH' ? 'bg-orange-500/20 text-orange-400' :
+                                risk.severity === 'MEDIUM' ? 'bg-amber-500/20 text-amber-400' :
+                                'bg-green-500/20 text-green-400'
+                              )}>{risk.severity || 'RISK'}</span>
+                              <span className="text-white/50 text-[10px]">{risk.category}</span>
+                            </div>
+                            <p className="text-white/60 leading-relaxed">{risk.explanation || risk.description || risk.title || JSON.stringify(risk)}</p>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="space-y-1.5">
-                      {intelligence.risks.slice(0, 4).map((risk: any, i: number) => (
-                        <li key={i} className="flex items-start gap-1.5 text-xs text-white/55">
-                          <span className="text-red-400 shrink-0 mt-0.5">•</span>
-                          {typeof risk === 'string' ? risk : risk.description || risk.title || JSON.stringify(risk)}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  )}
 
-                {/* Key clauses */}
-                {intelligence.keyClauses?.length > 0 && (
-                  <div className="p-3 rounded-xl bg-white/3 border border-white/5">
-                    <div className="text-xs text-white/40 mb-2 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
-                      Key Clauses
+                  {/* Decision Recommendations */}
+                  {decisionRecs.length > 0 && (
+                    <div className="p-3 rounded-xl bg-white/3 border border-white/5">
+                      <div className="text-xs text-white/40 mb-2 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
+                        Recommendations
+                      </div>
+                      <ul className="space-y-2">
+                        {decisionRecs.slice(0, 3).map((rec: any, i: number) => (
+                          <li key={i} className="text-xs">
+                            <span className="font-semibold text-indigo-300">{rec.action}</span>
+                            <p className="text-white/55 mt-0.5 leading-relaxed">{rec.why}</p>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="space-y-1.5">
-                      {intelligence.keyClauses.slice(0, 4).map((clause: any, i: number) => (
-                        <li key={i} className="text-xs text-white/55 flex items-start gap-1.5">
-                          <span className="text-green-400 shrink-0 mt-0.5">✓</span>
-                          {typeof clause === 'string' ? clause : clause.title || clause.description || JSON.stringify(clause)}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-2 p-6 text-center">
+                  )}
+                </div>
+              );
+            })() : (
+              <div className="flex flex-col items-center justify-center gap-3 p-6 text-center">
                 <Sparkles className="w-8 h-8 text-white/10" />
                 <p className="text-xs text-white/25">
                   AI analysis unavailable.<br />Process the document first.
                 </p>
+                <button
+                  onClick={handleProcessDocument}
+                  disabled={processing}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/80 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-all"
+                >
+                  {processing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />}
+                  Process now
+                </button>
               </div>
             )}
           </aside>

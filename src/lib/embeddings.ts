@@ -37,6 +37,9 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   }
 }
 
+import { z } from 'zod';
+import { generateObjectWithAISDK } from './ai-sdk-router';
+
 export async function generateChatResponse(messages: any[], chunks: any[]) {
   const evidenceText = chunks.length > 0 
     ? chunks.map(c => `[Doc: ${c.name || c.documentId || 'Document'} | Page: ${c.pageNumber || 'N/A'}] ${c.text}`).join('\n\n')
@@ -49,14 +52,32 @@ Guidelines:
 1. Provide a direct, clear, professional answer formatted with bold text, bullet points, and sections.
 2. If specific documents are mentioned or cited in the evidence, explicitly reference them.
 3. Be helpful, concise, and executive-ready.
-4. Output MUST be valid JSON containing:
-   - "answer" (string: detailed Markdown response)
-   - "confidenceScore" (number 0-100, e.g. 95)
-   - "sources" (array of strings: filenames cited)
 
 AVAILABLE ENTERPRISE EVIDENCE & KNOWLEDGE BASE:
 ${evidenceText}`;
 
+  // Try Vercel AI SDK generateObject with Zod Schema first
+  try {
+    const ChatResponseSchema = z.object({
+      answer: z.string(),
+      confidenceScore: z.number().min(0).max(100),
+      sources: z.array(z.string())
+    });
+
+    const sdkResult = await generateObjectWithAISDK({
+      schema: ChatResponseSchema,
+      system: systemInstruction,
+      messages: messages.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content }))
+    });
+
+    if (sdkResult.object && sdkResult.object.answer) {
+      return sdkResult.object;
+    }
+  } catch (sdkErr: any) {
+    console.warn('[CHAT] Vercel AI SDK failover to fallback router:', sdkErr.message || sdkErr);
+  }
+
+  // Fallback to custom LLM router
   const llmMessages: any[] = [{ role: 'system', content: systemInstruction }];
   for (const m of messages) {
     llmMessages.push({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content });
