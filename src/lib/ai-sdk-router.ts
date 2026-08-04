@@ -8,11 +8,12 @@ import { z } from 'zod';
 function getAvailableLanguageModels(): { name: string; model: LanguageModel }[] {
   const models: { name: string; model: LanguageModel }[] = [];
 
-  // 1. Google Gemini Models
+  // 1. Google Gemini Models (Updated to Gemini 2.0 & 2.5)
   const geminiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY_2;
   if (geminiKey) {
     const google = createGoogleGenerativeAI({ apiKey: geminiKey });
-    models.push({ name: 'Google Gemini 1.5 Flash', model: google('gemini-1.5-flash') });
+    models.push({ name: 'Google Gemini 2.0 Flash', model: google('gemini-2.0-flash') });
+    models.push({ name: 'Google Gemini 2.5 Flash', model: google('gemini-2.5-flash') });
   }
 
   // 2. Groq Models

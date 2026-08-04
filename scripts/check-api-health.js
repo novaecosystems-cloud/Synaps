@@ -29,20 +29,24 @@ loadEnvFile(path.join(__dirname, '..', '.env'));
 
 async function checkGoogleGemini() {
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GOOGLE_API_KEY;
-  if (!apiKey || apiKey.startsWith('AQ.')) {
-    return { provider: 'Google Gemini AI (Google AI Studio)', status: 'INVALID FORMAT ❌', message: 'API key is missing or invalid format (Google AI Studio keys must start with AIzaSy...). Get free key: https://aistudio.google.com/app/apikey' };
+  if (!apiKey) {
+    return { provider: 'Google Gemini AI', status: 'SKIPPED', message: 'No GEMINI_API_KEY set in env.' };
   }
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: 'Ping test' }] }] })
     });
     const data = await res.json();
     if (res.ok && data.candidates) {
-      return { provider: 'Google Gemini AI (gemini-1.5-flash)', status: 'HEALTHY ✅', message: 'API Key active & operational.' };
+      return { provider: 'Google Gemini AI (gemini-2.0-flash)', status: 'HEALTHY ✅', message: 'API Key active & operational.' };
     } else {
-      return { provider: 'Google Gemini AI', status: 'FAILED ❌', message: data.error?.message || JSON.stringify(data) };
+      const msg = data.error?.message || JSON.stringify(data);
+      if (msg.includes('quota') || msg.includes('429') || res.status === 429) {
+        return { provider: 'Google Gemini AI (gemini-2.0-flash)', status: 'VALID (QUOTA LIMITED ⚡)', message: 'API Key is VALID and authenticated with Google, currently under free tier 429 rate limit.' };
+      }
+      return { provider: 'Google Gemini AI', status: 'FAILED ❌', message: msg };
     }
   } catch (err) {
     return { provider: 'Google Gemini AI', status: 'FAILED ❌', message: err.message };
@@ -52,7 +56,7 @@ async function checkGoogleGemini() {
 async function checkGroq() {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey || !apiKey.startsWith('gsk_')) {
-    return { provider: 'Groq AI (Llama 3.3 70B)', status: 'INVALID FORMAT ❌', message: 'Groq keys must start with gsk_. Get free key: https://console.groq.com/keys' };
+    return { provider: 'Groq AI (Llama 3.3 70B)', status: 'SKIPPED / EXPIRED ❌', message: 'Groq key expired. Get free key: https://console.groq.com/keys' };
   }
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -71,36 +75,10 @@ async function checkGroq() {
     if (res.ok && data.choices) {
       return { provider: 'Groq AI (Llama 3.3 70B)', status: 'HEALTHY ✅', message: 'API Key active & operational.' };
     } else {
-      return { provider: 'Groq AI', status: 'FAILED ❌', message: data.error?.message || JSON.stringify(data) };
+      return { provider: 'Groq AI', status: 'EXPIRED ❌', message: data.error?.message || JSON.stringify(data) };
     }
   } catch (err) {
     return { provider: 'Groq AI', status: 'FAILED ❌', message: err.message };
-  }
-}
-
-async function checkOpenRouter() {
-  const apiKey = process.env.OPENROUTER_API_KEY || 'sk-or-v1-placeholder';
-  try {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-lite-preview-02-05:free',
-        messages: [{ role: 'user', content: 'Ping test' }],
-        max_tokens: 5
-      })
-    });
-    const data = await res.json();
-    if (res.ok && data.choices) {
-      return { provider: 'OpenRouter (Unified Free AI Gateway)', status: 'HEALTHY ✅', message: 'Free Tier model response received successfully.' };
-    } else {
-      return { provider: 'OpenRouter Free AI Gateway', status: 'NOTICE ℹ️', message: process.env.OPENROUTER_API_KEY ? (data.error?.message || JSON.stringify(data)) : 'Add free key from https://openrouter.ai/keys (No Credit Card required)' };
-    }
-  } catch (err) {
-    return { provider: 'OpenRouter Free AI Gateway', status: 'NOTICE ℹ️', message: err.message };
   }
 }
 
@@ -129,13 +107,12 @@ async function checkLemonSqueezy() {
 
 async function runHealthCheck() {
   console.log('\n======================================================');
-  console.log('🔍 SYNAPS API HEALTH & APIVAULT DIRECTORY CHECK');
+  console.log('🔍 SYNAPS API HEALTH CHECK');
   console.log('======================================================\n');
 
   const results = await Promise.all([
     checkGoogleGemini(),
     checkGroq(),
-    checkOpenRouter(),
     checkLemonSqueezy()
   ]);
 

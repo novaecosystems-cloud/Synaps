@@ -44,12 +44,12 @@ const geminiKeys = geminiKeyEnvVars
 if (geminiKeys.length > 0) {
   geminiKeys.forEach((key, index) => {
     providers.push({
-      name: `Google Gemini (Key ${index + 1} - 1.5 Flash)`,
+      name: `Google Gemini (Key ${index + 1} - 2.0 Flash)`,
       invoke: async (messages, options) => {
         // Convert chat messages to Gemini prompt format
         const promptText = messages.map((m: any) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
         
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
