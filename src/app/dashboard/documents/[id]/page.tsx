@@ -5,9 +5,15 @@ import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import DocumentIntelligenceClient from './client';
+import DocumentReaderClient from './client';
 
-export default async function DocumentIntelligencePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DocumentReaderPage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
+}) {
   const cookieStore = await cookies();
   const session = cookieStore.get('synaps-session')?.value;
   if (!session) redirect('/login');
@@ -16,6 +22,7 @@ export default async function DocumentIntelligencePage({ params }: { params: Pro
   if (!decoded || !decoded.uid) redirect('/login');
 
   const { id } = await params;
+  const sp = await searchParams;
 
   let dbUser: any = null;
   try {
@@ -41,12 +48,14 @@ export default async function DocumentIntelligencePage({ params }: { params: Pro
   if (!document) return notFound();
 
   return (
-    <DocumentIntelligenceClient
+    <DocumentReaderClient
       documentId={document.id}
       documentName={document.name}
-      detectedType={document.processedDoc?.detectedType || 'Contract'}
+      detectedType={document.processedDoc?.detectedType || 'Document'}
       pageCount={document.processedDoc?.pageCount || 1}
       allDocs={allDocs}
+      initialPage={sp.page ? parseInt(sp.page, 10) : 1}
+      initialQuery={sp.q || ''}
     />
   );
 }
