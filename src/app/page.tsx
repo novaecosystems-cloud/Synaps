@@ -2,11 +2,11 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import MadeWithGSAPSynapsLanding from '@/components/landing/MadeWithGSAPSynapsLanding';
+import SynapsScrollCinemaLanding from '@/components/landing/SynapsScrollCinemaLanding';
 
 export const metadata = {
-  title: 'Made With SYNAPS — Enterprise Decision Intelligence Operating System Showcase',
-  description: 'Explore the high-resolution showcase of SYNAPS: Executive Operational Briefings, Multi-Agent Flight Control, Executive Digital Twins, AI Strategy Studio, and Decision Memory.',
+  title: 'SYNAPS — Enterprise Intelligence Workspace & Evidence Engine',
+  description: 'Turns documents, knowledge, evidence and business information into something people can actually understand, search, review and act on.',
 };
 
 export default async function RootPage() {
@@ -20,6 +20,5 @@ export default async function RootPage() {
     }
   }
 
-  // Render MadeWithGSAP Replica Landing Page with Automatic High-Res Application Slideshow & Cookie Consent
-  return <MadeWithGSAPSynapsLanding />;
+  return <SynapsScrollCinemaLanding />;
 }
