@@ -409,21 +409,27 @@ export default function MultiStepPaywallModal({
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                                  {/* PROMO CODE BANNER */}
+                    <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-primary/20 to-purple-600/20 border border-amber-500/30 flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2 font-bold text-base-content">
+                        <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
+                        <span>30% Launch Offer Active: Use code <span className="font-mono bg-amber-500 text-black px-2 py-0.5 rounded font-extrabold text-xs">LAUNCH100</span></span>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
+                        PRE-APPLIED
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* PRO CARD */}
                       <div
-                        onClick={() => {
-                          if (userRole !== 'ADMIN' && creditLimit !== 500) {
-                            setSelectedPlan('pro');
-                          }
-                        }}
+                        onClick={() => setSelectedPlan('pro')}
                         className={cn(
-                          "p-5 rounded-3xl border transition-all space-y-3 relative",
-                          userRole === 'ADMIN' || creditLimit === 500
-                            ? "bg-emerald-500/5 border-emerald-500/40 cursor-not-allowed opacity-90"
-                            : selectedPlan === 'pro' 
-                              ? "bg-primary/5 border-primary ring-2 ring-primary/30 shadow-md cursor-pointer" 
-                              : "bg-base-100 border-base-300 hover:border-base-400 cursor-pointer"
+                          "p-5 rounded-3xl border cursor-pointer transition-all space-y-3 relative",
+                          selectedPlan === 'pro' 
+                            ? "bg-primary/5 border-primary ring-2 ring-primary/30 shadow-md" 
+                            : "bg-base-100 border-base-300 hover:border-base-400"
                         )}
                       >
                         <div className="flex justify-between items-start">
@@ -432,15 +438,16 @@ export default function MultiStepPaywallModal({
                             {userRole === 'ADMIN' || creditLimit === 500 ? (
                               <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">✓ Current Active Plan</span>
                             ) : (
-                              <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular ($7/mo)</span>
+                              <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular ($4.90/mo)</span>
                             )}
                           </div>
                           {selectedPlan === 'pro' && <CheckCircle2 className="w-5 h-5 text-primary" />}
                         </div>
 
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-extrabold text-base-content">${prices.pro.discounted}</span>
-                          <span className="text-xs text-base-content/50 line-through">${prices.pro.original}</span>
+                          <span className="text-3xl font-extrabold text-amber-500">$4.90</span>
+                          <span className="text-xs text-base-content/50 line-through">$14</span>
+                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">30% OFF</span>
                           <span className="text-xs text-base-content/60">/ month</span>
                         </div>
 
@@ -465,14 +472,15 @@ export default function MultiStepPaywallModal({
                         <div className="flex justify-between items-start">
                           <div>
                             <span className="font-extrabold text-base text-base-content block">Enterprise Max</span>
-                            <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Max Limit Cap ($20/mo)</span>
+                            <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Max Limit Cap ($14/mo)</span>
                           </div>
                           {selectedPlan === 'enterprise' && <CheckCircle2 className="w-5 h-5 text-purple-500" />}
                         </div>
 
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-extrabold text-base-content">${prices.enterprise.discounted}</span>
-                          <span className="text-xs text-base-content/50 line-through">${prices.enterprise.original}</span>
+                          <span className="text-3xl font-extrabold text-purple-400">$14.00</span>
+                          <span className="text-xs text-base-content/50 line-through">$40</span>
+                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">30% OFF</span>
                           <span className="text-xs text-base-content/60">/ month</span>
                         </div>
 
@@ -483,7 +491,7 @@ export default function MultiStepPaywallModal({
                           <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Permanent Audit Logs</li>
                         </ul>
                       </div>
-                    </div>
+                    </div>      </div>
                   )}
 
                   <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-2 text-xs">
