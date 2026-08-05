@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const decoded = await verifySessionCookie(sessionCookie);
     if (!decoded || !decoded.uid) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    let userRole = 'MEMBER';
+    let userRole = 'OWNER';
     try {
       const dbUser = await prisma.user.findUnique({
         where: { id: decoded.uid },
