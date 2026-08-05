@@ -124,6 +124,7 @@ const sidebarSections: MenuSection[] = [
         icon: Files,
         children: [
           { name: 'Library', href: '/dashboard/documents' },
+          { name: 'Guideflow Tour Builder', href: '/dashboard/guideflow', badge: 'PRO' },
           { name: 'Export History', href: '/dashboard/exports' },
         ]
       },
