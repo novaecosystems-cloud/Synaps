@@ -139,7 +139,7 @@ export function runMathMonteCarloSimulation(input: MonteCarloInput): MonteCarloR
   // Build Histogram Distribution (15 Bins)
   const numBins = 15;
   const binWidth = (maxRevenue - minRevenue) / numBins;
-  const distributionHistogram = [];
+  const distributionHistogram: any[] = [];
 
   for (let b = 0; b < numBins; b++) {
     const binStart = minRevenue + b * binWidth;

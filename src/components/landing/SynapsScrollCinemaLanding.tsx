@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 import {
   FileText, Search, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle,
   GitCompare, Sparkles, Layers, Eye, Check, ExternalLink, ChevronRight,
@@ -9,12 +12,14 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+gsap.registerPlugin(ScrollTrigger);
+
 /**
  * ─────────────────────────────────────────────────────────────────────────────
  * SYNAPS SCROLL-CINEMA LANDING PAGE
  * ─────────────────────────────────────────────────────────────────────────────
- * 6-Act Scroll-Scrubbed Canvas Product Film & Editorial Investigation
- * Metaphor: CHAOS → UNDERSTANDING → EVIDENCE → CONTEXT → DECISION → SYNAPS
+ * An interactive scroll-scrubbed cinematic product launch film using financials.mp4
+ * Theme: premium product launch, documentary forensic investigation, absolute credibility.
  */
 
 interface DocumentCardData {
@@ -79,7 +84,7 @@ const INTERACTIVE_QUESTIONS = [
     section: "Section 8.4 — Price Adjustments",
     clauseText: "In the event Customer does not issue written notice of non-renewal at least forty-five (45) days prior to the Renewal Date, rates shall automatically adjust upward by fourteen percent (14%).",
     riskLevel: "HIGH",
-    recommendation: "Serve written non-renewal notice before Oct 15, 2026 to renegotiate capped escalation at 4%."
+    recommendation: "Serve written non-renewal notice before Oct 15, 2026 to renegotiate capped escalation at 4."
   },
   {
     id: 'q2',
@@ -118,477 +123,143 @@ const INTERACTIVE_QUESTIONS = [
 
 export default function SynapsScrollCinemaLanding() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Scroll Progress (0.0 to 1.0)
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [currentActIndex, setCurrentActIndex] = useState(0);
+  const [activeScene, setActiveScene] = useState(1);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const [decodingFrames, setDecodingFrames] = useState(true);
 
   // Interactive Question Explorer State
   const [selectedQuestion, setSelectedQuestion] = useState(INTERACTIVE_QUESTIONS[0]);
 
-  // Source Viewer State
-  const [activeTab, setActiveTab] = useState<'understand' | 'find' | 'connect' | 'verify' | 'decide'>('understand');
+  // Capabilities tab
+  const [activeTab, setActiveTab] = useState<'read' | 'find' | 'connect' | 'verify' | 'decide'>('read');
 
-  // Smooth scroll lerp setup
-  const targetScrollRef = useRef(0);
-  const currentScrollRef = useRef(0);
+  // GSAP ScrollTrigger timeline setup
+  useGSAP(() => {
+    const video = videoRef.current;
+    if (!video) return;
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const totalScrollable = containerRef.current.clientHeight - window.innerHeight;
-      if (totalScrollable <= 0) return;
+    const setupScrollScrub = () => {
+      setVideoLoaded(true);
+      setDecodingFrames(false);
+      const duration = video.duration || 10; // Fallback to 10s if not loaded yet
 
-      const progress = Math.min(Math.max(-rect.top / totalScrollable, 0), 1);
-      targetScrollRef.current = progress;
+      // Scroll timeline matching video scrub
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.1, // Smooth scrub
+        onUpdate: (self) => {
+          const progress = self.progress;
+          setScrollProgress(progress);
+
+          // Update active scene based on progress
+          const currentProgress = progress * 100;
+          if (currentProgress < 10) setActiveScene(1);
+          else if (currentProgress < 20) setActiveScene(2);
+          else if (currentProgress < 35) setActiveScene(3);
+          else if (currentProgress < 48) setActiveScene(4);
+          else if (currentProgress < 60) setActiveScene(5);
+          else if (currentProgress < 70) setActiveScene(6);
+          else if (currentProgress < 80) setActiveScene(7);
+          else if (currentProgress < 90) setActiveScene(8);
+          else if (currentProgress < 95) setActiveScene(9);
+          else setActiveScene(10);
+
+          // Scrub video
+          const targetTime = progress * duration;
+          if (video && !isNaN(targetTime)) {
+            video.currentTime = targetTime;
+          }
+        }
+      });
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
+    if (video.readyState >= 1) {
+      setupScrollScrub();
+    } else {
+      video.addEventListener('loadedmetadata', setupScrollScrub);
+      video.addEventListener('error', () => {
+        setVideoError(true);
+        setDecodingFrames(false);
+      });
+    }
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    // Secondary animations for overlay cards
+    gsap.fromTo('.cinematic-card', 
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.2 }
+    );
+  }, { scope: containerRef });
 
-  // requestAnimationFrame Canvas Render Loop (60 FPS)
+  // Paint video to canvas for custom filters & vignette
   useEffect(() => {
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    if (!canvas || !video) return;
+
     let animationFrameId: number;
 
-    const render = () => {
-      // Lerp smoothing
-      currentScrollRef.current += (targetScrollRef.current - currentScrollRef.current) * 0.08;
-      const p = currentScrollRef.current;
-      setScrollProgress(p);
+    const paintFrame = () => {
+      const ctx = canvas.getContext('2d');
+      if (ctx && video.readyState >= 2) {
+        const cw = (canvas.width = window.innerWidth);
+        const ch = (canvas.height = window.innerHeight);
 
-      // Determine current Act (0 to 5)
-      const actIdx = Math.min(Math.floor(p * 6), 5);
-      setCurrentActIndex(actIdx);
+        // Draw video frame styled with object-fit: cover logic
+        const videoRatio = video.videoWidth / video.videoHeight;
+        const canvasRatio = cw / ch;
+        let sx = 0, sy = 0, sw = video.videoWidth, sh = video.videoHeight;
 
-      // Render Canvas Document Motion Stage
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          const width = (canvas.width = window.innerWidth);
-          const height = (canvas.height = window.innerHeight);
-
-          // Clear Stage (Graphite dark background)
-          ctx.fillStyle = '#070708';
-          ctx.fillRect(0, 0, width, height);
-
-          // Draw subtle edge vignette
-          const gradient = ctx.createRadialGradient(width / 2, height / 2, width * 0.2, width / 2, height / 2, width * 0.7);
-          gradient.addColorStop(0, 'rgba(18, 18, 24, 0.4)');
-          gradient.addColorStop(1, 'rgba(7, 7, 8, 0.95)');
-          ctx.fillStyle = gradient;
-          ctx.fillRect(0, 0, width, height);
-
-          // Draw subtle accent floor glow
-          const floorGlow = ctx.createRadialGradient(width / 2, height * 0.6, 10, width / 2, height * 0.6, width * 0.4);
-          floorGlow.addColorStop(0, 'rgba(198, 255, 46, 0.06)');
-          floorGlow.addColorStop(1, 'rgba(7, 7, 8, 0)');
-          ctx.fillStyle = floorGlow;
-          ctx.fillRect(0, 0, width, height);
-
-          // Draw Physical Animated Document Stack / Pages based on Scroll Progress (p)
-          drawDocumentStage(ctx, width, height, p);
+        if (canvasRatio > videoRatio) {
+          sh = video.videoWidth / canvasRatio;
+          sy = (video.videoHeight - sh) / 2;
+        } else {
+          sw = video.videoHeight * canvasRatio;
+          sx = (video.videoWidth - sw) / 2;
         }
+
+        ctx.drawImage(video, sx, sy, sw, sh, 0, 0, cw, ch);
+
+        // 1. Grade boost: boost brightness & contrast
+        ctx.save();
+        ctx.fillStyle = 'rgba(7, 7, 8, 0.15)'; // Deepen base
+        ctx.fillRect(0, 0, cw, ch);
+
+        // 2. High-end Vignette
+        const radGrad = ctx.createRadialGradient(cw / 2, ch / 2, cw * 0.15, cw / 2, ch / 2, cw * 0.65);
+        radGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        radGrad.addColorStop(0.5, 'rgba(7, 7, 8, 0.2)');
+        radGrad.addColorStop(1, 'rgba(7, 7, 8, 0.95)');
+        ctx.fillStyle = radGrad;
+        ctx.fillRect(0, 0, cw, ch);
+
+        // 3. Volt glow radial center-out
+        const voltGlow = ctx.createRadialGradient(cw / 2, ch * 0.65, 10, cw / 2, ch * 0.65, cw * 0.45);
+        voltGlow.addColorStop(0, 'rgba(198, 255, 46, 0.05)');
+        voltGlow.addColorStop(1, 'rgba(7, 7, 8, 0)');
+        ctx.fillStyle = voltGlow;
+        ctx.fillRect(0, 0, cw, ch);
+
+        ctx.restore();
       }
 
-      animationFrameId = requestAnimationFrame(render);
+      animationFrameId = requestAnimationFrame(paintFrame);
     };
 
-    render();
+    paintFrame();
     return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
-  // ── CANVAS DOCUMENT STAGE ENGINE ───────────────────────────────────────────
-  const drawDocumentStage = (ctx: CanvasRenderingContext2D, w: number, h: number, p: number) => {
-    const centerX = w / 2;
-    const centerY = h / 2;
-
-    // Document styling parameters
-    const cardWidth = Math.min(w * 0.38, 420);
-    const cardHeight = cardWidth * 1.35;
-
-    // ACT 01: Information Overload (0.00 - 0.16)
-    if (p <= 0.16) {
-      const actP = p / 0.16; // 0 to 1
-      const stackCount = Math.floor(actP * 5) + 1;
-
-      for (let i = 0; i < stackCount; i++) {
-        const offsetY = (i - 2) * 14 + (1 - actP) * 40;
-        const offsetX = (i - 2) * 8;
-        const rotation = (i - 2) * 0.04;
-
-        drawDocumentCard(ctx, centerX + offsetX, centerY + offsetY, cardWidth, cardHeight, rotation, {
-          title: DEMO_DOCUMENTS[i % DEMO_DOCUMENTS.length].title,
-          category: DEMO_DOCUMENTS[i % DEMO_DOCUMENTS.length].category,
-          opacity: Math.min(actP * 2, 1),
-          isActive: i === 0
-        });
-      }
-    }
-    // ACT 02: Search & Discovery (0.16 - 0.33)
-    else if (p <= 0.33) {
-      const actP = (p - 0.16) / 0.17; // 0 to 1
-
-      DEMO_DOCUMENTS.slice(0, 4).forEach((doc, i) => {
-        const spreadX = (i - 1.5) * (cardWidth * 0.65) * actP;
-        const spreadY = Math.sin(i + actP * 2) * 20;
-        const rotation = (i - 1.5) * 0.08 * (1 - actP);
-
-        drawDocumentCard(ctx, centerX + spreadX, centerY + spreadY, cardWidth * 0.85, cardHeight * 0.85, rotation, {
-          title: doc.title,
-          category: doc.category,
-          opacity: 1,
-          isSearchHighlighted: i === 0 && actP > 0.5,
-          searchQuery: actP > 0.4 ? "renewal deadline" : undefined
-        });
-      });
-    }
-    // ACT 03: Evidence Layer (0.33 - 0.50)
-    else if (p <= 0.50) {
-      const actP = (p - 0.33) / 0.17; // 0 to 1
-
-      // Background document stack moves backward
-      drawDocumentCard(ctx, centerX - 120, centerY - 20, cardWidth * 0.8, cardHeight * 0.8, -0.05, {
-        title: "Master_Services_Agreement_2026.pdf",
-        category: "Source Document",
-        opacity: 0.4
-      });
-
-      // Front Evidence Card emerges center
-      const evidenceScale = 0.9 + actP * 0.1;
-      drawEvidenceCard(ctx, centerX, centerY + (1 - actP) * 30, cardWidth * 1.1 * evidenceScale, cardHeight * 0.9 * evidenceScale, {
-        question: "What risks are hidden in this contract?",
-        answer: "Section 8.4 contains an automatic 14% annual cost escalation clause triggering on Nov 1 unless notice is served 45 days prior (Oct 15).",
-        source: "Master_Services_Agreement_2026.pdf · Page 8, Section 8.4",
-        opacity: Math.min(actP * 1.5, 1)
-      });
-    }
-    // ACT 04: Context & Comparison (0.50 - 0.67)
-    else if (p <= 0.67) {
-      const actP = (p - 0.50) / 0.17; // 0 to 1
-
-      // Side by Side Comparison Cards
-      const leftX = centerX - (cardWidth * 0.55);
-      const rightX = centerX + (cardWidth * 0.55);
-
-      drawComparisonCard(ctx, leftX, centerY, cardWidth * 0.9, cardHeight * 0.9, {
-        title: "2025 Master Agreement (Previous)",
-        clauses: [
-          { text: "Notice Window: 15 Days", type: "removed" },
-          { text: "Price Increase: Capped at 3%", type: "removed" }
-        ],
-        opacity: Math.min(actP * 2, 1)
-      });
-
-      drawComparisonCard(ctx, rightX, centerY, cardWidth * 0.9, cardHeight * 0.9, {
-        title: "2026 Master Agreement (Current)",
-        clauses: [
-          { text: "Notice Window: 45 Days (Oct 15)", type: "added" },
-          { text: "Price Increase: 14% Uncapped", type: "added" },
-          { text: "Section 14.1 Zero-Trust DPA Clause", type: "added" }
-        ],
-        opacity: Math.min(actP * 2, 1)
-      });
-    }
-    // ACT 05: Decision Brief (0.67 - 0.84)
-    else if (p <= 0.84) {
-      const actP = (p - 0.67) / 0.17; // 0 to 1
-
-      drawDecisionBriefCard(ctx, centerX, centerY, cardWidth * 1.2, cardHeight * 0.95, {
-        title: "CONTRACT REVIEW & RECOMMENDATION BRIEF",
-        riskLevel: "HIGH RISK",
-        renewalWindow: "30 DAYS REMAINING",
-        liability: "EXPANDED",
-        recommendedAction: "Renegotiate Clause 7 & Serve Non-Renewal Notice before Oct 15.",
-        opacity: Math.min(actP * 2, 1)
-      });
-    }
-    // ACT 06: SYNAPS Resolution (0.84 - 1.00)
-    else {
-      const actP = (p - 0.84) / 0.16; // 0 to 1
-
-      // Documents resolve cleanly into an organized enterprise layout
-      DEMO_DOCUMENTS.forEach((doc, idx) => {
-        const angle = (idx / DEMO_DOCUMENTS.length) * Math.PI * 2 + actP;
-        const radius = (1 - actP) * 180 + 120;
-        const x = centerX + Math.cos(angle) * radius;
-        const y = centerY + Math.sin(angle) * radius * 0.4;
-        const scale = 0.5 + (1 - actP) * 0.3;
-
-        drawDocumentCard(ctx, x, y, cardWidth * scale, cardHeight * scale, 0, {
-          title: doc.title,
-          category: doc.category,
-          opacity: 0.3 + (1 - actP) * 0.4
-        });
-      });
-
-      // Center SYNAPS Emblem
-      ctx.save();
-      ctx.globalAlpha = Math.min(actP * 1.5, 1);
-      ctx.strokeStyle = '#C6FF2E';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, 48 * actP, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.fillStyle = '#C6FF2E';
-      ctx.font = 'bold 18px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('SYNAPS', centerX, centerY);
-      ctx.restore();
-    }
-  };
-
-  // Helper Canvas Drawing Procedures
-  const drawDocumentCard = (
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    rotation: number,
-    options: {
-      title: string;
-      category: string;
-      opacity: number;
-      isActive?: boolean;
-      isSearchHighlighted?: boolean;
-      searchQuery?: string;
-    }
-  ) => {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(rotation);
-    ctx.globalAlpha = options.opacity;
-
-    // Card shadow
-    ctx.shadowColor = 'rgba(0,0,0,0.6)';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetY = 10;
-
-    // Card background (Realistic paper material)
-    ctx.fillStyle = '#12121a';
-    ctx.strokeStyle = options.isSearchHighlighted ? '#C6FF2E' : 'rgba(255,255,255,0.12)';
-    ctx.lineWidth = options.isSearchHighlighted ? 2 : 1;
-
-    ctx.beginPath();
-    ctx.roundRect(-w / 2, -h / 2, w, h, 12);
-    ctx.fill();
-    ctx.stroke();
-
-    // Document header bar
-    ctx.fillStyle = 'rgba(255,255,255,0.04)';
-    ctx.beginPath();
-    ctx.roundRect(-w / 2, -h / 2, w, 36, [12, 12, 0, 0]);
-    ctx.fill();
-
-    // Document Title & Category
-    ctx.fillStyle = '#C6FF2E';
-    ctx.font = 'bold 9px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(options.category.toUpperCase(), -w / 2 + 14, -h / 2 + 22);
-
-    ctx.fillStyle = '#F3F3F5';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.fillText(options.title.substring(0, 28), -w / 2 + 14, -h / 2 + 54);
-
-    // Realistic text lines
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-    for (let l = 0; l < 6; l++) {
-      const lineWidth = (w - 28) * (0.6 + (l % 3) * 0.15);
-      ctx.fillRect(-w / 2 + 14, -h / 2 + 76 + l * 14, lineWidth, 4);
-    }
-
-    // Search Query Highlight Overlay
-    if (options.isSearchHighlighted && options.searchQuery) {
-      ctx.fillStyle = 'rgba(198, 255, 46, 0.2)';
-      ctx.strokeStyle = '#C6FF2E';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(-w / 2 + 14, -h / 2 + 120, w - 28, 30, 4);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = '#C6FF2E';
-      ctx.font = 'bold 10px sans-serif';
-      ctx.fillText(`MATCH: "${options.searchQuery}" [p.8]`, -w / 2 + 20, -h / 2 + 138);
-    }
-
-    ctx.restore();
-  };
-
-  const drawEvidenceCard = (
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    options: { question: string; answer: string; source: string; opacity: number }
-  ) => {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.globalAlpha = options.opacity;
-
-    ctx.fillStyle = '#161622';
-    ctx.strokeStyle = '#C6FF2E';
-    ctx.lineWidth = 1.5;
-
-    ctx.beginPath();
-    ctx.roundRect(-w / 2, -h / 2, w, h, 16);
-    ctx.fill();
-    ctx.stroke();
-
-    // Question header
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText("BUSINESS QUESTION", -w / 2 + 20, -h / 2 + 28);
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 14px sans-serif';
-    ctx.fillText(options.question, -w / 2 + 20, -h / 2 + 50);
-
-    // Answer box
-    ctx.fillStyle = 'rgba(198, 255, 46, 0.08)';
-    ctx.beginPath();
-    ctx.roundRect(-w / 2 + 20, -h / 2 + 70, w - 40, 80, 8);
-    ctx.fill();
-
-    ctx.fillStyle = '#C6FF2E';
-    ctx.font = 'bold 10px sans-serif';
-    ctx.fillText("SYNAPS EVIDENCED ANSWER", -w / 2 + 30, -h / 2 + 88);
-
-    ctx.fillStyle = '#F3F3F5';
-    ctx.font = '12px sans-serif';
-    // Wrap answer text
-    ctx.fillText(options.answer.substring(0, 65) + "...", -w / 2 + 30, -h / 2 + 110);
-    ctx.fillText(options.answer.substring(65, 130), -w / 2 + 30, -h / 2 + 130);
-
-    // Source Citation
-    ctx.fillStyle = '#C6FF2E';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText(`SOURCE CITATION: ${options.source}`, -w / 2 + 20, -h / 2 + 175);
-
-    ctx.restore();
-  };
-
-  const drawComparisonCard = (
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    options: { title: string; clauses: { text: string; type: 'added' | 'removed' }[]; opacity: number }
-  ) => {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.globalAlpha = options.opacity;
-
-    ctx.fillStyle = '#14141f';
-    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-    ctx.lineWidth = 1;
-
-    ctx.beginPath();
-    ctx.roundRect(-w / 2, -h / 2, w, h, 14);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 12px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(options.title, -w / 2 + 16, -h / 2 + 30);
-
-    options.clauses.forEach((c, idx) => {
-      const isAdded = c.type === 'added';
-      ctx.fillStyle = isAdded ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
-      ctx.strokeStyle = isAdded ? '#22c55e' : '#ef4444';
-
-      ctx.beginPath();
-      ctx.roundRect(-w / 2 + 16, -h / 2 + 50 + idx * 45, w - 32, 36, 6);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = isAdded ? '#4ade80' : '#f87171';
-      ctx.font = 'bold 10px sans-serif';
-      ctx.fillText(`${isAdded ? '+' : '-'} ${c.text}`, -w / 2 + 24, -h / 2 + 72 + idx * 45);
-    });
-
-    ctx.restore();
-  };
-
-  const drawDecisionBriefCard = (
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    options: { title: string; riskLevel: string; renewalWindow: string; liability: string; recommendedAction: string; opacity: number }
-  ) => {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.globalAlpha = options.opacity;
-
-    ctx.fillStyle = '#12121a';
-    ctx.strokeStyle = '#ef4444';
-    ctx.lineWidth = 1.5;
-
-    ctx.beginPath();
-    ctx.roundRect(-w / 2, -h / 2, w, h, 16);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#ef4444';
-    ctx.font = 'bold 10px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(options.riskLevel, -w / 2 + 20, -h / 2 + 28);
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 14px sans-serif';
-    ctx.fillText(options.title, -w / 2 + 20, -h / 2 + 50);
-
-    // Metrics grid
-    ctx.fillStyle = 'rgba(255,255,255,0.04)';
-    ctx.fillRect(-w / 2 + 20, -h / 2 + 65, w / 2 - 25, 45);
-    ctx.fillRect(5, -h / 2 + 65, w / 2 - 25, 45);
-
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '9px sans-serif';
-    ctx.fillText("RENEWAL DEADLINE", -w / 2 + 28, -h / 2 + 80);
-    ctx.fillText("LIABILITY STATUS", 13, -h / 2 + 80);
-
-    ctx.fillStyle = '#C6FF2E';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.fillText(options.renewalWindow, -w / 2 + 28, -h / 2 + 98);
-    ctx.fillText(options.liability, 13, -h / 2 + 98);
-
-    // Recommended action box
-    ctx.fillStyle = 'rgba(198, 255, 46, 0.1)';
-    ctx.strokeStyle = '#C6FF2E';
-    ctx.beginPath();
-    ctx.roundRect(-w / 2 + 20, -h / 2 + 125, w - 40, 50, 8);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#C6FF2E';
-    ctx.font = 'bold 10px sans-serif';
-    ctx.fillText("RECOMMENDED EXECUTIVE ACTION", -w / 2 + 30, -h / 2 + 142);
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '11px sans-serif';
-    ctx.fillText(options.recommendedAction, -w / 2 + 30, -h / 2 + 160);
-
-    ctx.restore();
-  };
-
   return (
-    <div className="min-h-screen bg-[#070708] text-[#F3F3F5] font-sans selection:bg-[#C6FF2E] selection:text-black">
-      {/* ── TOP EDITORIAL NAVIGATION ── */}
+    <div className="min-h-screen bg-[#070708] text-[#F3F3F5] font-sans selection:bg-[#C6FF2E] selection:text-black antialiased overflow-x-hidden">
+      
+      {/* ── MINIMAL FLOATING NAVIGATION ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#070708]/80 backdrop-blur-md border-b border-white/5 transition-all">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
@@ -601,9 +272,9 @@ export default function SynapsScrollCinemaLanding() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8 text-xs font-semibold text-white/50">
-            <a href="#hero-story" className="hover:text-white transition-colors">Product Film</a>
+            <a href="#hero-story" className="hover:text-white transition-colors">Product Launch</a>
             <a href="#ask-the-work" className="hover:text-white transition-colors">Ask the Work</a>
-            <a href="#source-is-answer" className="hover:text-white transition-colors">Source Evidence</a>
+            <a href="#source-is-answer" className="hover:text-white transition-colors">Evidence Grounding</a>
             <a href="#capabilities" className="hover:text-white transition-colors">Capabilities</a>
           </div>
 
@@ -616,142 +287,313 @@ export default function SynapsScrollCinemaLanding() {
             </Link>
             <Link
               href="/demo"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#C6FF2E] hover:bg-[#b5f020] text-black text-xs font-bold transition-all shadow-lg shadow-[#C6FF2E]/10"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#C6FF2E] hover:bg-[#b5f020] text-black text-xs font-bold transition-all shadow-lg shadow-[#C6FF2E]/10 font-mono"
             >
-              Enter SYNAPS
+              LAUNCH DEMO
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* ── 6-ACT SCROLL-CINEMA HERO CONTAINER ── */}
-      <div ref={containerRef} id="hero-story" className="relative h-[600vh]">
-        {/* Sticky Background Canvas Stage */}
-        <div className="sticky top-0 left-0 w-full h-screen overflow-hidden z-10">
-          <canvas ref={canvasRef} className="w-full h-full block" />
+      {/* ── SCROLL-CONTROLLED CINEMATIC SCENE STAGE ── */}
+      <div ref={containerRef} id="hero-story" className="relative h-[900vh]">
+        
+        {/* Sticky Fixed Backdrop Viewport */}
+        <div className="sticky top-0 left-0 w-full h-screen overflow-hidden z-10 bg-[#070708]">
+          
+          {/* Canvas for Smooth Scrubbed Video & Vignettes */}
+          <canvas ref={canvasRef} className="w-full h-full block object-cover" />
+          
+          {/* Video Stream Decoder */}
+          <video
+            ref={videoRef}
+            src="/financials.mp4"
+            preload="auto"
+            playsInline
+            muted
+            className="hidden"
+          />
 
-          {/* Overlaid Editorial Text Sequence per Act */}
-          <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-8 md:p-16 max-w-7xl mx-auto">
-            {/* Top Act Indicator Badge */}
-            <div className="flex items-center gap-3 pt-12">
-              <span className="w-2 h-2 rounded-full bg-[#C6FF2E] animate-pulse" />
-              <span className="text-[11px] font-mono tracking-widest text-[#C6FF2E] uppercase font-bold">
-                {currentActIndex === 0 && "SCENE 01 — THE INFORMATION PROBLEM"}
-                {currentActIndex === 1 && "SCENE 02 — SEARCH & DISCOVERY"}
-                {currentActIndex === 2 && "SCENE 03 — EVIDENCE TRACING"}
-                {currentActIndex === 3 && "SCENE 04 — CONTEXT & COMPARISON"}
-                {currentActIndex === 4 && "SCENE 05 — DECISION BRIEF"}
-                {currentActIndex === 5 && "SCENE 06 — SYNAPS REVEAL"}
+          {/* Loader Overlay */}
+          {decodingFrames && (
+            <div className="absolute inset-0 bg-[#070708] z-30 flex flex-col items-center justify-center gap-4">
+              <RefreshCw className="w-6 h-6 text-[#C6FF2E] animate-spin" />
+              <span className="text-[10px] font-mono tracking-widest text-white/40 uppercase">Decoding product launch film...</span>
+            </div>
+          )}
+
+          {/* Fallback Static Canvas Visual in case of Video Error */}
+          {videoError && (
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0c0c11] to-[#070708] -z-10" />
+          )}
+
+          {/* ── CINEMATIC ACT OVERLAYS ── */}
+          <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-6 md:p-12 max-w-7xl mx-auto">
+            
+            {/* Top Act indicator */}
+            <div className="flex items-center gap-3 pt-16">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF2E] animate-ping" />
+              <span className="text-[10px] font-mono tracking-widest text-[#C6FF2E]/80 uppercase font-bold">
+                SCENE {String(activeScene).padStart(2, '0')} · {
+                  activeScene === 1 ? "THE CHAOS" :
+                  activeScene === 2 ? "THE GATEWAY" :
+                  activeScene === 3 ? "FIND" :
+                  activeScene === 4 ? "UNDERSTAND" :
+                  activeScene === 5 ? "COMPARE" :
+                  activeScene === 6 ? "CONNECT" :
+                  activeScene === 7 ? "VERIFY" :
+                  activeScene === 8 ? "DECIDE" :
+                  activeScene === 9 ? "INTELLIGENCE NETWORK" :
+                  "SYNAPS REVEAL"
+                }
               </span>
             </div>
 
-            {/* Act Copy Center Overlay */}
-            <div className="my-auto max-w-xl space-y-4">
-              {currentActIndex === 0 && (
-                <div className="space-y-3 animate-fade-in">
-                  <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                    Your company already knows the answer.
+            {/* Main Interactive Narrative Panels */}
+            <div className="my-auto max-w-xl space-y-6">
+              {activeScene === 1 && (
+                <div className="space-y-4 animate-fade-in text-left">
+                  <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-tight font-sans">
+                    Everything your company knows.
                   </h1>
-                  <p className="text-base text-white/50 font-medium">
-                    It's just buried everywhere inside contracts, SOPs, financial audits, and reports.
-                  </p>
-                </div>
-              )}
-
-              {currentActIndex === 1 && (
-                <div className="space-y-3 animate-fade-in">
-                  <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                    Finding something should not be this hard.
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-[#C6FF2E] tracking-tight">
+                    Somewhere.
                   </h2>
-                  <p className="text-base text-white/50 font-medium">
-                    SYNAPS doesn't just read documents. It understands where information lives down to exact line coordinates.
+                  <p className="text-sm text-white/40 font-medium max-w-md leading-relaxed">
+                    Buried across thousands of contracts, SOPs, financial audits, and strategic reports. Messy, layered, and fragmented.
                   </p>
                 </div>
               )}
 
-              {currentActIndex === 2 && (
-                <div className="space-y-3 animate-fade-in">
-                  <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                    Don't trust the answer.<br />
-                    <span className="text-[#C6FF2E]">Trace it.</span>
+              {activeScene === 2 && (
+                <div className="space-y-4 animate-fade-in">
+                  <span className="text-xs font-mono text-[#C6FF2E] font-bold tracking-widest uppercase">01 / THE CONTEXT</span>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                    Entering the product.
                   </h2>
-                  <p className="text-base text-white/50 font-medium">
-                    Every important answer has an audit trail back to verifiable source evidence.
-                  </p>
+                  <div className="p-4 rounded-xl bg-[#111118]/90 border border-white/10 backdrop-blur-md space-y-2 pointer-events-auto shadow-2xl">
+                    <div className="flex items-center justify-between text-[10px] text-white/40 font-mono">
+                      <span className="flex items-center gap-1.5 text-white/90">
+                        <FileText className="w-3.5 h-3.5 text-[#C6FF2E]" />
+                        Master_Services_Agreement_2026.pdf
+                      </span>
+                      <span>Page 1 of 42</span>
+                    </div>
+                    <div className="h-0.5 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full w-1/3 bg-[#C6FF2E] rounded-full" />
+                    </div>
+                    <p className="text-xs text-[#C6FF2E] font-semibold font-mono tracking-wider animate-pulse pt-1">
+                      COMMAND QUERY: "Find every mention of termination."
+                    </p>
+                  </div>
                 </div>
               )}
 
-              {currentActIndex === 3 && (
-                <div className="space-y-3 animate-fade-in">
-                  <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              {activeScene === 3 && (
+                <div className="space-y-4 animate-fade-in">
+                  <span className="text-xs font-mono text-[#C6FF2E] font-bold tracking-widest uppercase">02 / FIND</span>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                    Find the clause.
+                  </h2>
+                  <div className="bg-[#111118]/90 border border-white/10 backdrop-blur-md rounded-2xl p-5 space-y-4 pointer-events-auto shadow-2xl">
+                    <div className="flex items-center justify-between text-xs border-b border-white/5 pb-3">
+                      <span className="text-white/60 font-medium">QUERY RESULTS</span>
+                      <span className="text-[#C6FF2E] font-bold">5 References Located</span>
+                    </div>
+                    <div className="space-y-2 max-h-[160px] overflow-y-auto">
+                      <div className="p-2.5 rounded bg-[#C6FF2E]/10 border border-[#C6FF2E]/20 text-xs flex justify-between items-center text-[#C6FF2E] font-semibold">
+                        <span>Page 8 · Section 8.4 (Notice Period)</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
+                      <div className="p-2.5 rounded bg-white/3 border border-white/5 text-xs text-white/50 flex justify-between items-center">
+                        <span>Page 14 · Section 12.1 (Termination)</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
+                      <div className="p-2.5 rounded bg-white/3 border border-white/5 text-xs text-white/50 flex justify-between items-center">
+                        <span>Page 27 · Section 19.3 (Breach Terms)</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeScene === 4 && (
+                <div className="space-y-4 animate-fade-in">
+                  <span className="text-xs font-mono text-[#C6FF2E] font-bold tracking-widest uppercase">03 / UNDERSTAND</span>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                    Structure the unstructured.
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3 pointer-events-auto">
+                    {[
+                      { label: "RISKS", count: 4, status: "High Risk" },
+                      { label: "OBLIGATIONS", count: 12, status: "Active" },
+                      { label: "DEADLINES", count: 3, status: "Action Required" },
+                      { label: "EXPOSURES", count: 1, status: "Monitored" }
+                    ].map(card => (
+                      <div key={card.label} className="p-4 rounded-xl bg-[#111118]/90 border border-white/10 backdrop-blur-md text-left space-y-1">
+                        <span className="text-[10px] font-mono text-white/40">{card.label}</span>
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xl font-bold text-white">{card.count}</span>
+                          <span className="text-[9px] text-[#C6FF2E] font-bold uppercase">{card.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {activeScene === 5 && (
+                <div className="space-y-4 animate-fade-in">
+                  <span className="text-xs font-mono text-[#C6FF2E] font-bold tracking-widest uppercase">04 / COMPARE</span>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
                     Context changes the answer.
                   </h2>
-                  <p className="text-base text-white/50 font-medium">
-                    Compare agreements side-by-side. Spot modified clauses, removed protections, and hidden price escalations.
-                  </p>
+                  <div className="p-4 rounded-xl bg-[#111118]/90 border border-white/10 backdrop-blur-md pointer-events-auto space-y-3 shadow-2xl">
+                    <div className="text-xs text-white/60 font-semibold border-b border-white/5 pb-2">
+                      Agreement Term Comparison (12 vs 24 Months)
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+                        <span className="block text-[10px] text-red-400/60 font-mono font-bold">2025 AGREEMENT</span>
+                        12 Months term notice
+                      </div>
+                      <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400">
+                        <span className="block text-[10px] text-green-400/60 font-mono font-bold">2026 AGREEMENT</span>
+                        24 Months term notice
+                      </div>
+                    </div>
+                    <span className="block text-[9px] font-mono text-amber-400 uppercase tracking-widest font-bold">
+                      ▲ DELTA: 12-Month Extension Added without ceiling caps.
+                    </span>
+                  </div>
                 </div>
               )}
 
-              {currentActIndex === 4 && (
-                <div className="space-y-3 animate-fade-in">
-                  <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                    Information becomes a decision.
+              {activeScene === 6 && (
+                <div className="space-y-4 animate-fade-in">
+                  <span className="text-xs font-mono text-[#C6FF2E] font-bold tracking-widest uppercase">05 / CONNECT</span>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                    Connect across records.
                   </h2>
-                  <p className="text-base text-white/50 font-medium">
-                    Turn scattered facts into clear executive recommendations with concrete risk ratings and deadlines.
+                  <p className="text-sm text-white/40 leading-relaxed max-w-md">
+                    SYNAPS traces relationships between operational SOPs, master supply contracts, and financial ledgers, mapping direct connections without abstract floating neural network slop.
                   </p>
                 </div>
               )}
 
-              {currentActIndex === 5 && (
-                <div className="space-y-4 pointer-events-auto animate-fade-in">
+              {activeScene === 7 && (
+                <div className="space-y-4 animate-fade-in">
+                  <span className="text-xs font-mono text-[#C6FF2E] font-bold tracking-widest uppercase">06 / VERIFY</span>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                    Don't just get the answer. <span className="text-[#C6FF2E]">See the source.</span>
+                  </h2>
+                  <div className="p-4 rounded-xl bg-[#111118]/90 border border-white/10 backdrop-blur-md pointer-events-auto space-y-2 shadow-2xl text-left">
+                    <span className="text-[10px] font-mono text-[#C6FF2E] font-bold uppercase tracking-wider">Trace Pathway Verified</span>
+                    <p className="text-xs text-white/80 leading-relaxed font-mono bg-black/40 p-3 rounded border border-white/5">
+                      "In the event Customer does not issue written notice... rates automatically adjust upward by 14%."
+                    </p>
+                    <div className="text-[10px] font-mono text-white/40 flex items-center justify-between">
+                      <span>Source: MSA_2026.pdf</span>
+                      <span>Page 8 · Section 8.4</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeScene === 8 && (
+                <div className="space-y-4 animate-fade-in">
+                  <span className="text-xs font-mono text-[#C6FF2E] font-bold tracking-widest uppercase">07 / DECIDE</span>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                    Turn facts into decisions.
+                  </h2>
+                  <div className="p-5 rounded-2xl bg-[#12121a]/95 border-l-4 border-red-500 pointer-events-auto shadow-2xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-red-500 uppercase tracking-widest">Decision Briefing</span>
+                      <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-400 text-[9px] font-bold">HIGH RISK</span>
+                    </div>
+                    <p className="text-xs text-white/70 leading-relaxed font-semibold">
+                      Recommendation: Do not sign the 2026 renewal until the uncapped 14% rate escalation is renegotiated.
+                    </p>
+                    <div className="border-t border-white/5 pt-2 flex items-center gap-4 text-[10px] text-white/40">
+                      <span>3 Evidence Sources</span>
+                      <span>•</span>
+                      <span>Deadline: Oct 15</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeScene === 9 && (
+                <div className="space-y-4 animate-fade-in">
+                  <span className="text-xs font-mono text-[#C6FF2E] font-bold tracking-widest uppercase">08 / UNIFIED NETWORK</span>
+                  <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                    One source of truth.
+                  </h2>
+                  <p className="text-sm text-white/40 leading-relaxed">
+                    Scattered files, contracts, decisions, and operations align cleanly into a structured, easily queryable operational memory database.
+                  </p>
+                </div>
+              )}
+
+              {activeScene === 10 && (
+                <div className="space-y-6 pointer-events-auto animate-fade-in">
                   <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-none">
-                    Make your information usable.
+                    SYNAPS
                   </h2>
-                  <p className="text-base text-white/60 font-medium leading-relaxed">
-                    SYNAPS connects the documents, evidence and decisions your organization already has — so people can find what matters, understand why it matters, and act on it.
+                  <p className="text-base text-[#C6FF2E] font-mono tracking-wide font-bold">
+                    Turn scattered information into decisions you can defend.
+                  </p>
+                  <p className="text-sm text-white/50 max-w-md leading-relaxed">
+                    Zero chatbot slop. Direct, grounded knowledge integration for operations, legal, risk, and finance teams.
                   </p>
                   <div className="flex items-center gap-4 pt-4">
                     <Link
                       href="/demo"
-                      className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#C6FF2E] hover:bg-[#b5f020] text-black text-sm font-bold transition-all shadow-xl shadow-[#C6FF2E]/20"
+                      className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#C6FF2E] hover:bg-[#b5f020] text-black text-xs font-bold transition-all shadow-xl shadow-[#C6FF2E]/20"
                     >
-                      Enter SYNAPS
+                      ENTER SYNAPS
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                     <a
                       href="#ask-the-work"
-                      className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold transition-all"
+                      className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold transition-all"
                     >
-                      See how it works
+                      SEE HOW IT WORKS
                     </a>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Bottom Scroll Cue */}
-            <div className="flex items-center justify-between border-t border-white/10 pt-4 text-xs font-mono text-white/40">
-              <span>PROGRESS: {Math.round(scrollProgress * 100)}%</span>
-              <span className="animate-bounce">SCROLL TO INVESTIGATE ↓</span>
+            {/* Bottom Progress Bar */}
+            <div className="flex items-center justify-between border-t border-white/10 pt-4 text-[10px] font-mono text-white/30">
+              <span className="uppercase">CINEMATIC SCENE PROGRESS</span>
+              <div className="flex-1 max-w-[200px] mx-6 h-0.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-[#C6FF2E] transition-all duration-100" style={{ width: `${scrollProgress * 100}%` }} />
+              </div>
+              <span>{Math.round(scrollProgress * 100)}%</span>
             </div>
+
           </div>
+
         </div>
+
       </div>
 
-      {/* ── SECTION 12: "ASK THE WORK" INTERACTIVE EXPLORER ── */}
+      {/* ── SECTION 11: "ASK THE WORK" INTERACTIVE EXPLORER ── */}
       <section id="ask-the-work" className="py-24 border-t border-white/5 bg-[#0a0a0f] relative z-30">
         <div className="max-w-7xl mx-auto px-6 space-y-12">
           <div className="space-y-3">
             <div className="text-xs font-mono text-[#C6FF2E] tracking-widest uppercase font-bold">
-              01 / INTERACTIVE REASONING
+              01 / ASK THE WORK
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">
-              Ask the work.
+              Query your operational memory.
             </h2>
-            <p className="text-sm text-white/50 max-w-xl">
-              Select a real-world business question below to see how SYNAPS traces evidence across company records and formats executive answers.
+            <p className="text-sm text-white/50 max-w-xl leading-relaxed">
+              Select an executive question below to see how SYNAPS parses unstructured company data and presents verifiable recommendations based on exact source citations.
             </p>
           </div>
 
@@ -771,7 +613,7 @@ export default function SynapsScrollCinemaLanding() {
                 >
                   <div className="flex items-center gap-3">
                     <HelpCircle className={cn("w-4 h-4 shrink-0", selectedQuestion.id === q.id ? "text-[#C6FF2E]" : "text-white/30")} />
-                    <span className="text-sm font-semibold">{q.question}</span>
+                    <span className="text-xs font-bold font-mono tracking-wide uppercase">{q.question}</span>
                   </div>
                   <ChevronRight className={cn("w-4 h-4 shrink-0 transition-transform", selectedQuestion.id === q.id ? "text-[#C6FF2E] translate-x-1" : "text-white/20")} />
                 </button>
@@ -797,7 +639,7 @@ export default function SynapsScrollCinemaLanding() {
               </div>
 
               {/* Direct Answer */}
-              <p className="text-sm text-white/90 font-medium leading-relaxed">
+              <p className="text-xs md:text-sm text-white/90 font-medium leading-relaxed">
                 {selectedQuestion.answer}
               </p>
 
@@ -835,13 +677,13 @@ export default function SynapsScrollCinemaLanding() {
         <div className="max-w-7xl mx-auto px-6 space-y-12">
           <div className="space-y-3">
             <div className="text-xs font-mono text-[#C6FF2E] tracking-widest uppercase font-bold">
-              02 / VERIFIABLE EVIDENCE
+              02 / EVIDENTIARY TRACEABILITY
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">
               The source is the answer.
             </h2>
-            <p className="text-sm text-white/50 max-w-xl">
-              Never accept an unverified summary. SYNAPS grounds every claim directly into the original document page, section, and line coordinates.
+            <p className="text-sm text-white/50 max-w-xl leading-relaxed">
+              Ground every operational summary. SYNAPS references matching clauses, cells, and guidelines with exact coordinate mapping and verified source badges.
             </p>
           </div>
 
@@ -856,7 +698,7 @@ export default function SynapsScrollCinemaLanding() {
                 <span>Page 8 of 42</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-bold uppercase">Source Verified</span>
+                <span className="px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-[10px] font-bold uppercase">Source Grounded</span>
                 <Link href="/demo" className="flex items-center gap-1 text-[#C6FF2E] hover:underline font-semibold ml-4">
                   Open Source <ExternalLink className="w-3 h-3" />
                 </Link>
@@ -901,21 +743,21 @@ export default function SynapsScrollCinemaLanding() {
         <div className="max-w-7xl mx-auto px-6 space-y-12">
           <div className="space-y-3">
             <div className="text-xs font-mono text-[#C6FF2E] tracking-widest uppercase font-bold">
-              03 / CORE CAPABILITIES
+              03 / CAPABILITIES
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white">
-              Built for serious work.
+              Enterprise Operations Capabilities
             </h2>
           </div>
 
           {/* 5 Core Capabilities Tabs */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
             {[
-              { id: 'understand', label: 'UNDERSTAND', icon: Layers, desc: 'Read and structure complex information across PDFs, DOCX, and spreadsheets.' },
-              { id: 'find', label: 'FIND', icon: Search, desc: 'Locate exact words, clauses, and facts across large document collections.' },
-              { id: 'connect', label: 'CONNECT', icon: GitCompare, desc: 'Compare agreements side-by-side and highlight delta changes.' },
-              { id: 'verify', label: 'VERIFY', icon: ShieldCheck, desc: 'Trace every answer back to verifiable source page & line coordinates.' },
-              { id: 'decide', label: 'DECIDE', icon: CheckCircle2, desc: 'Turn evidence into executive recommendations and actionable decisions.' }
+              { id: 'read', label: 'READ', icon: Layers, desc: 'Read and structure complex operational records, contracts, and spreadsheets.' },
+              { id: 'find', label: 'FIND', icon: Search, desc: 'Locate exact words, obligations, and terms across millions of pages.' },
+              { id: 'connect', label: 'CONNECT', icon: GitCompare, desc: 'Compare documents side-by-side and highlight structural deltas.' },
+              { id: 'verify', label: 'VERIFY', icon: ShieldCheck, desc: 'Trace answers back to verifiable source documents & line coordinates.' },
+              { id: 'decide', label: 'DECIDE', icon: CheckCircle2, desc: 'Turn raw unstructured files into actionable, formatted decision briefs.' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -935,6 +777,65 @@ export default function SynapsScrollCinemaLanding() {
               </button>
             ))}
           </div>
+
+          {/* Active capability detail visual */}
+          <div className="p-8 rounded-2xl bg-[#111118] border border-white/10 flex flex-col md:flex-row items-center gap-8 shadow-2xl">
+            <div className="flex-1 space-y-4">
+              <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                {activeTab === 'read' && "Understand complex documentation"}
+                {activeTab === 'find' && "Instant keyword & fuzzy search"}
+                {activeTab === 'connect' && "Cross-document comparison matrix"}
+                {activeTab === 'verify' && "Strict page-level citations"}
+                {activeTab === 'decide' && "Formatted decision briefs"}
+              </h3>
+              <p className="text-xs text-white/50 leading-relaxed">
+                {activeTab === 'read' && "Ingest and process PDFs, DOCX, and XLSX sheets automatically. Extract tabular structures, signatures, metadata, and legal definitions."}
+                {activeTab === 'find' && "Perform exact, fuzzy, and semantic vector query matches. Discover hidden notices and liabilities in seconds."}
+                {activeTab === 'connect' && "Identify differences in terms, fees, caps, and warranties between current and previous contract versions."}
+                {activeTab === 'verify' && "Eliminate hallucinations entirely. Every summary is accompanied by a direct link to the original page in the document."}
+                {activeTab === 'decide' && "Go from unstructured documents to structured action points. Get recommendations and risk assessments formatted for executives."}
+              </p>
+            </div>
+            <div className="w-full md:w-[320px] p-4 rounded-xl bg-black/40 border border-white/5 text-xs font-mono space-y-2">
+              <div className="text-[10px] text-white/30 border-b border-white/5 pb-2">SYNAPS PREVIEW</div>
+              {activeTab === 'read' && (
+                <div className="space-y-1.5 text-white/60">
+                  <p className="text-white">• Document processed: SOP_104.pdf</p>
+                  <p>• Status: Completed in 2.1s</p>
+                  <p>• Scanned pages: 28 pages</p>
+                </div>
+              )}
+              {activeTab === 'find' && (
+                <div className="space-y-1.5 text-white/60">
+                  <p className="text-white">• Search query: "renewal notice"</p>
+                  <p>• Results: 2 exact, 1 fuzzy</p>
+                  <p className="text-[#C6FF2E]">• Best match: Page 8 (notice window)</p>
+                </div>
+              )}
+              {activeTab === 'connect' && (
+                <div className="space-y-1.5 text-white/60">
+                  <p className="text-white">• Target: MSA_2026 vs MSA_2025</p>
+                  <p className="text-green-400">• Added: 14% Price escalation</p>
+                  <p className="text-red-400">• Removed: 15-day notice window</p>
+                </div>
+              )}
+              {activeTab === 'verify' && (
+                <div className="space-y-1.5 text-white/60">
+                  <p className="text-white">• Citation grounded: Page 8 Sec 8.4</p>
+                  <p>• Content Hash: SHA-256 verified</p>
+                  <p>• Hallucination rate: 0.00%</p>
+                </div>
+              )}
+              {activeTab === 'decide' && (
+                <div className="space-y-1.5 text-white/60">
+                  <p className="text-[#C6FF2E] font-bold">• RECOMMENDATION: RENEGOTIATE</p>
+                  <p>• Risk score: 85/100 (HIGH)</p>
+                  <p>• Action: Send non-renewal notice</p>
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -944,8 +845,8 @@ export default function SynapsScrollCinemaLanding() {
           <div className="w-12 h-12 rounded-2xl bg-[#C6FF2E]/10 border border-[#C6FF2E]/30 flex items-center justify-center text-[#C6FF2E] font-bold text-xl mx-auto">
             S
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
-            Make your information usable.
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            Turn scattered information into decisions you can defend.
           </h2>
           <p className="text-sm md:text-base text-white/50 max-w-xl mx-auto leading-relaxed">
             SYNAPS connects the documents, evidence and decisions your organization already has — so people can find what matters, understand why it matters, and act on it.
@@ -955,7 +856,7 @@ export default function SynapsScrollCinemaLanding() {
               href="/demo"
               className="flex items-center gap-2 px-8 py-4 rounded-xl bg-[#C6FF2E] hover:bg-[#b5f020] text-black text-sm font-bold transition-all shadow-xl shadow-[#C6FF2E]/20"
             >
-              Enter SYNAPS
+              LAUNCH DEMO
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

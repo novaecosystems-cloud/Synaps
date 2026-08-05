@@ -163,21 +163,23 @@ export default function TourGuide() {
 
   return (
     <Joyride
-      steps={steps}
-      run={run}
-      stepIndex={stepIndex}
-      continuous={true}
-      scrollToFirstStep={true}
-      showSkipButton={true}
-      callback={handleJoyrideCallback}
-      tooltipComponent={CustomTooltip}
-      disableOverlayClose={true}
-      styles={{
-        options: {
-          overlayColor: "rgba(0, 0, 0, 0.75)",
-          zIndex: 1000,
+      {...({
+        steps,
+        run,
+        stepIndex,
+        continuous: true,
+        scrollToFirstStep: true,
+        showSkipButton: true,
+        callback: handleJoyrideCallback,
+        tooltipComponent: CustomTooltip,
+        disableOverlayClose: true,
+        styles: {
+          options: {
+            overlayColor: "rgba(0, 0, 0, 0.75)",
+            zIndex: 1000,
+          }
         }
-      } as any}
+      } as any)}
     />
   );
 }

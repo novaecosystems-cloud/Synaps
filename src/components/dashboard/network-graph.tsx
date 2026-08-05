@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { 
   X, ExternalLink, Send, FileText, FolderKanban, ShieldCheck,
   Command, Network, BrainCircuit, Calendar, Tag, Layers, CheckCircle2,
-  HelpCircle, ArrowRight, Cpu, Zap, Users, Clock, History, AlertTriangle, Link2, Sparkles, FileCode
+  HelpCircle, ArrowRight, Cpu, Zap, Users, Clock, History, AlertTriangle, Link2, Sparkles, FileCode, RefreshCw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

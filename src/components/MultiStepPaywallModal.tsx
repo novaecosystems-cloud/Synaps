@@ -59,6 +59,7 @@ export default function MultiStepPaywallModal({
   const [refundRequested, setRefundRequested] = useState(false);
   const [refundSubmitting, setRefundSubmitting] = useState(false);
   const [noticeSubmitting, setNoticeSubmitting] = useState(false);
+  const [checkoutNoticeSent, setCheckoutNoticeSent] = useState(false);
   const [paymentSuccessState, setPaymentSuccessState] = useState(false);
   const [userRole, setUserRole] = useState<string>('MEMBER');
   const [creditLimit, setCreditLimit] = useState<number>(50);

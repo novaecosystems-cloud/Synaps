@@ -84,7 +84,7 @@ export async function generateTextWithAISDK(options: {
         system: options.system,
         prompt: options.prompt,
         messages: options.messages,
-      });
+      } as any);
 
       return {
         text: result.text,
@@ -124,7 +124,7 @@ export async function generateObjectWithAISDK<T>(options: {
         system: options.system,
         prompt: options.prompt,
         messages: options.messages,
-      });
+      } as any);
 
       return {
         object: result.object as T,
@@ -159,5 +159,5 @@ export async function streamTextWithAISDK(options: {
     system: options.system,
     prompt: options.prompt,
     messages: options.messages,
-  });
+  } as any);
 }

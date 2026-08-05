@@ -247,7 +247,7 @@ function SidebarItem({ item, pathname, closeMobileMenu }: { item: MenuItem, path
 
 const ADMIN_EMAIL = 'novaecosystems@gmail.com';
 
-export default function ClientLayout({ children, user }: { children: React.ReactNode, user: { id: string, organizationId: string, email: string } }) {
+export default function ClientLayout({ children, user }: { children: React.ReactNode, user: { id: string, organizationId: string, email: string, isPremium?: boolean } }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
