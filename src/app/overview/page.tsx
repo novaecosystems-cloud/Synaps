@@ -1,4 +1,4 @@
-import GoogleStyleSynapsLanding from '@/components/landing/GoogleStyleSynapsLanding';
+import AnthropicStyleSynapsLanding from '@/components/landing/AnthropicStyleSynapsLanding';
 
 export const metadata = {
   title: 'SYNAPS — Enterprise Decision Intelligence OS',
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function OverviewPage() {
-  return <GoogleStyleSynapsLanding />;
+  return <AnthropicStyleSynapsLanding />;
 }

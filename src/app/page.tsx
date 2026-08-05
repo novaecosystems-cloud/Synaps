@@ -2,7 +2,7 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import GoogleStyleSynapsLanding from '@/components/landing/GoogleStyleSynapsLanding';
+import AnthropicStyleSynapsLanding from '@/components/landing/AnthropicStyleSynapsLanding';
 
 export const metadata = {
   title: 'SYNAPS — Enterprise Intelligence Workspace & Evidence Engine',
@@ -20,5 +20,5 @@ export default async function RootPage() {
     }
   }
 
-  return <GoogleStyleSynapsLanding />;
+  return <AnthropicStyleSynapsLanding />;
 }
