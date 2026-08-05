@@ -28,6 +28,7 @@ import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
+import LaunchPromoModal from '@/components/LaunchPromoModal';
 import SynapsWrappedModal from '@/components/SynapsWrappedModal';
 import { BackgroundTaskProvider } from '@/context/BackgroundTaskContext';
 
@@ -455,6 +456,7 @@ export default function ClientLayout({ children, user }: { children: React.React
 
       {/* Global Modals & Hints */}
       <GlobalSearch />
+      <LaunchPromoModal userPlan={user?.isPremium ? 'max' : 'free'} />
       <MultiStepPaywallModal 
         isOpen={isPaywallModalOpen} 
         onClose={() => setIsPaywallModalOpen(false)} 

@@ -24,6 +24,26 @@ interface ProactiveActionRecommendation {
   confidenceScore: number;
 }
 
+const renderSafeString = (val: any): string => {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+  if (typeof val === 'object') {
+    if (val.why) return String(val.why);
+    if (val.title) return String(val.title);
+    if (val.description) return String(val.description);
+    if (val.text) return String(val.text);
+    if (val.recommendedAction) return String(val.recommendedAction);
+    return JSON.stringify(val);
+  }
+  return String(val);
+};
+
+interface ChiefOfStaffClientProps {
+  initialBriefing?: any;
+  initialMonitoring?: any;
+}
+
 export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring }: ChiefOfStaffClientProps) {
   const [briefing, setBriefing] = useState<any>(initialBriefing);
   const [monitoring, setMonitoring] = useState<any>(initialMonitoring);
@@ -119,7 +139,7 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
             <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">LIVE SYNTHESIS</span>
           </div>
           <p className="text-xs text-base-content/80 leading-relaxed p-4 bg-base-200 border border-base-300 rounded-2xl font-medium">
-            {briefing?.weeklySummary}
+            {renderSafeString(briefing?.weeklySummary)}
           </p>
           <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-base-content/50">
             <span>Channels Monitored: {monitoring?.totalMonitoredChannels || 8}/8</span>
@@ -140,12 +160,12 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
             {briefing?.todayPriorities?.map((priority: any) => (
               <div key={priority.id} className="p-4 bg-base-200 border border-base-300 rounded-2xl space-y-2 text-xs">
                 <div className="flex justify-between items-center gap-2">
-                  <span className="font-bold text-sm text-base-content">{priority.title}</span>
+                  <span className="font-bold text-sm text-base-content">{renderSafeString(priority.title)}</span>
                   {getUrgencyBadge(priority.urgency)}
                 </div>
-                <p className="text-base-content/70">{priority.description}</p>
+                <p className="text-base-content/70">{renderSafeString(priority.description)}</p>
                 <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-indigo-300 flex items-center justify-between gap-2 font-mono text-[11px]">
-                  <span>💡 <strong>Recommended Action:</strong> {priority.recommendedAction}</span>
+                  <span>💡 <strong>Recommended Action:</strong> {renderSafeString(priority.recommendedAction)}</span>
                   <ChevronRight className="w-4 h-4 shrink-0 text-indigo-400" />
                 </div>
               </div>
@@ -181,9 +201,9 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
                 <div className="flex justify-between items-start gap-2">
                   <div>
                     <span className="text-[10px] font-mono uppercase tracking-wider text-indigo-400 font-bold block mb-1">
-                      {rec.category} ISSUE
+                      {renderSafeString(rec.category)} ISSUE
                     </span>
-                    <h3 className="font-bold text-sm text-base-content leading-snug">{rec.issue}</h3>
+                    <h3 className="font-bold text-sm text-base-content leading-snug">{renderSafeString(rec.issue)}</h3>
                   </div>
                   {getUrgencyBadge(rec.urgency)}
                 </div>
@@ -191,24 +211,28 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
                 {/* Recommended Action Box */}
                 <div className="p-4 bg-indigo-600/10 border border-indigo-500/30 rounded-2xl text-xs text-indigo-300 space-y-1">
                   <strong className="text-indigo-400 block font-bold">⚡ Recommended Action:</strong>
-                  <p className="font-medium text-white">{rec.recommendedAction}</p>
+                  <p className="font-medium text-white">{renderSafeString(rec.recommendedAction)}</p>
                 </div>
 
                 {/* Why & Supporting Evidence */}
                 <div className="space-y-2 text-xs">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/50 block">Why (Root Cause Reasoning):</span>
-                    <p className="text-base-content/80 font-medium mt-0.5">{rec.why}</p>
+                    <p className="text-base-content/80 font-medium mt-0.5">{renderSafeString(rec.why)}</p>
                   </div>
 
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/50 block mb-1">Supporting Evidence:</span>
                     <div className="flex flex-wrap gap-1.5">
-                      {rec.supportingEvidence?.map((ev, i) => (
+                      {Array.isArray(rec.supportingEvidence) ? rec.supportingEvidence.map((ev, i) => (
                         <span key={i} className="px-2.5 py-0.5 rounded-lg bg-base-300 border border-base-300 text-base-content/70 text-[10px] font-mono">
-                          ✓ {ev}
+                          ✓ {renderSafeString(ev)}
                         </span>
-                      ))}
+                      )) : (
+                        <span className="px-2.5 py-0.5 rounded-lg bg-base-300 text-base-content/70 text-[10px] font-mono">
+                          ✓ {renderSafeString(rec.supportingEvidence)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -217,7 +241,7 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
                 <div className="pt-3 border-t border-base-300 flex items-center justify-between text-xs">
                   <div>
                     <span className="text-[10px] font-mono text-emerald-400 block font-bold">ESTIMATED IMPACT</span>
-                    <span className="text-base-content font-bold">{rec.estimatedImpact}</span>
+                    <span className="text-base-content font-bold">{renderSafeString(rec.estimatedImpact)}</span>
                   </div>
 
                   <div className="flex items-center gap-3">
