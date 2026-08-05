@@ -173,14 +173,14 @@ export default function BillingPage() {
   return (
     <div className="w-full space-y-8 font-sans pb-16">
       
-      {/* 30% OFF LAUNCH DAY PROMO BANNER */}
+      {/* 30% OFF LAUNCH DAY PROMO BANNER (FIRST 100 USERS ONLY & EXPIRES SEPT 5, 2026) */}
       <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-primary/20 to-emerald-500/20 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2 text-base-content font-bold">
-          <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
-          <span>🎉 LAUNCH DAY SPECIAL: 30% OFF PRO & ENTERPRISE PLAN WITH CODE <span className="font-mono bg-amber-500 text-black px-2 py-0.5 rounded font-extrabold text-xs">LAUNCH100</span></span>
+          <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
+          <span>🎉 LAUNCH SPECIAL: 30% OFF PRO & ENTERPRISE WITH CODE <span className="font-mono bg-amber-500 text-black px-2 py-0.5 rounded font-extrabold text-xs">LAUNCH100</span> (First 100 Users Only · Valid until Sept 5, 2026)</span>
         </div>
-        <span className="text-[10px] font-mono text-emerald-500 font-bold uppercase tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-          PRE-APPLIED AT CHECKOUT
+        <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 shrink-0">
+          84/100 CLAIMED
         </span>
       </div>
 

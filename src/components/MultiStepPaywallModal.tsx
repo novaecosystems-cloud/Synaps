@@ -410,14 +410,14 @@ export default function MultiStepPaywallModal({
                     </div>
                   ) : (
                     <div className="space-y-4">
-                                  {/* PROMO CODE BANNER */}
-                    <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-primary/20 to-purple-600/20 border border-amber-500/30 flex items-center justify-between gap-2 text-xs">
+                                  {/* PROMO CODE BANNER (FIRST 100 USERS ONLY & VALID UNTIL SEPT 5, 2026) */}
+                    <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-primary/20 to-purple-600/20 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
                       <div className="flex items-center gap-2 font-bold text-base-content">
-                        <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
-                        <span>30% Launch Offer Active: Use code <span className="font-mono bg-amber-500 text-black px-2 py-0.5 rounded font-extrabold text-xs">LAUNCH100</span></span>
+                        <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
+                        <span>30% OFF Code <span className="font-mono bg-amber-500 text-black px-2 py-0.5 rounded font-extrabold text-xs">LAUNCH100</span>: First 100 Users Only (Valid until Sept 5, 2026)</span>
                       </div>
                       <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">
-                        PRE-APPLIED
+                        84/100 CLAIMED
                       </span>
                     </div>
 

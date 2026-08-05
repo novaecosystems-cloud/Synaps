@@ -1,0 +1,22 @@
+SYNAPS INC. - PROFIT AND LOSS (P&L) STATEMENT
+Hackathon Period: May 19, 2026 - August 5, 2026
+Currency: USD ($)
+
+CATEGORY,ITEM DESCRIPTION,AMOUNT (USD)
+REVENUE,Subscriptions (Pro Tier & Enterprise MAX Tier),$0.00
+REVENUE,Enterprise Pilot Contracts,$0.00
+TOTAL REVENUE,,$0.00
+
+COST OF GOODS SOLD (COGS),Serverless Hosting (Vercel Edge),$0.00
+COST OF GOODS SOLD (COGS),Google Gemini 1.5 Pro/Flash Model Calls (GCP Free Tier),$0.00
+COST OF GOODS SOLD (COGS),Database Storage (Neon PostgreSQL),$0.00
+TOTAL COGS,,$0.00
+
+GROSS PROFIT,,$0.00
+
+OPERATING EXPENSES,Marketing & Paid Customer Acquisition,$0.00
+OPERATING EXPENSES,Domain & SSL Infrastructure,$0.00
+OPERATING EXPENSES,Developer Tools & Software,$0.00
+TOTAL OPERATING EXPENSES,,$0.00
+
+NET PROFIT / (LOSS),,$0.00
