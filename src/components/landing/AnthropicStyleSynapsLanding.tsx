@@ -460,6 +460,8 @@ export default function AnthropicStyleSynapsLanding() {
             </button>
           </div>
         </div>
+      )}
+
       {/* ── SIGN IN MODAL WITH UIVERSE.IO STYLING & INSTANT DEMO ── */}
       <SignInModal
         isOpen={showSignInModal}
