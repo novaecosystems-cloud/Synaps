@@ -139,75 +139,88 @@ export default function SynapsScrollCinemaLanding() {
   const [activeTab, setActiveTab] = useState<'read' | 'find' | 'connect' | 'verify' | 'decide'>('read');
 
   // GSAP ScrollTrigger timeline setup
-  useGSAP(() => {
-    const video = videoRef.current;
-    if (!video) return;
+  useEffect(() => {
+    let active = true;
+    let scrollTriggerInstance: any = null;
 
-    const setupScrollScrub = () => {
-      setVideoLoaded(true);
-      setDecodingFrames(false);
-      const duration = video.duration || 10; // Fallback to 10s if not loaded yet
+    const initScrubTrigger = () => {
+      const video = videoRef.current;
+      if (!video) {
+        if (active) requestAnimationFrame(initScrubTrigger);
+        return;
+      }
 
-      // Scroll timeline matching video scrub
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.1, // Smooth scrub
-        onUpdate: (self) => {
-          const progress = self.progress;
-          setScrollProgress(progress);
+      const setupScrollScrub = () => {
+        setVideoLoaded(true);
+        setDecodingFrames(false);
+        const duration = video.duration || 10;
 
-          // Update active scene based on progress
-          const currentProgress = progress * 100;
-          if (currentProgress < 10) setActiveScene(1);
-          else if (currentProgress < 20) setActiveScene(2);
-          else if (currentProgress < 35) setActiveScene(3);
-          else if (currentProgress < 48) setActiveScene(4);
-          else if (currentProgress < 60) setActiveScene(5);
-          else if (currentProgress < 70) setActiveScene(6);
-          else if (currentProgress < 80) setActiveScene(7);
-          else if (currentProgress < 90) setActiveScene(8);
-          else if (currentProgress < 95) setActiveScene(9);
-          else setActiveScene(10);
+        if (scrollTriggerInstance) return;
 
-          // Scrub video
-          const targetTime = progress * duration;
-          if (video && !isNaN(targetTime)) {
-            video.currentTime = targetTime;
+        scrollTriggerInstance = ScrollTrigger.create({
+          trigger: containerRef.current,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.1, // Smooth scrub
+          onUpdate: (self) => {
+            const progress = self.progress;
+            setScrollProgress(progress);
+
+            // Update active scene based on progress
+            const currentProgress = progress * 100;
+            if (currentProgress < 10) setActiveScene(1);
+            else if (currentProgress < 20) setActiveScene(2);
+            else if (currentProgress < 35) setActiveScene(3);
+            else if (currentProgress < 48) setActiveScene(4);
+            else if (currentProgress < 60) setActiveScene(5);
+            else if (currentProgress < 70) setActiveScene(6);
+            else if (currentProgress < 80) setActiveScene(7);
+            else if (currentProgress < 90) setActiveScene(8);
+            else if (currentProgress < 95) setActiveScene(9);
+            else setActiveScene(10);
+
+            // Scrub video currentTime smoothly
+            const targetTime = progress * duration;
+            if (!isNaN(targetTime)) {
+              video.currentTime = targetTime;
+            }
           }
-        }
-      });
+        });
+      };
+
+      if (video.readyState >= 1) {
+        setupScrollScrub();
+      } else {
+        video.addEventListener('loadedmetadata', setupScrollScrub);
+        video.addEventListener('error', () => {
+          setVideoError(true);
+          setDecodingFrames(false);
+          setupScrollScrub();
+        });
+      }
     };
 
-    // Fail-safe loader removal after 1.2s to prevent getting stuck
-    const failSafeTimer = setTimeout(() => {
-      setupScrollScrub();
-    }, 1200);
+    initScrubTrigger();
 
-    if (video.readyState >= 1) {
-      clearTimeout(failSafeTimer);
-      setupScrollScrub();
-    } else {
-      const onMetadataLoad = () => {
-        clearTimeout(failSafeTimer);
-        setupScrollScrub();
-      };
-      video.addEventListener('loadedmetadata', onMetadataLoad);
-      video.addEventListener('error', () => {
-        clearTimeout(failSafeTimer);
-        setVideoError(true);
-        setDecodingFrames(false);
-        setupScrollScrub();
-      });
-    }
+    // Fail-safe loader removal after 1.5s to prevent getting stuck
+    const failSafeTimer = setTimeout(() => {
+      setDecodingFrames(false);
+    }, 1500);
 
     // Secondary animations for overlay cards
     gsap.fromTo('.cinematic-card', 
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.2 }
     );
-  }, { scope: containerRef });
+
+    return () => {
+      active = false;
+      clearTimeout(failSafeTimer);
+      if (scrollTriggerInstance) {
+        scrollTriggerInstance.kill();
+      }
+    };
+  }, []);
 
   // Paint video to canvas for custom filters & vignette
   useEffect(() => {
@@ -353,7 +366,15 @@ export default function SynapsScrollCinemaLanding() {
             preload="auto"
             playsInline
             muted
-            className="hidden"
+            loop
+            style={{
+              position: 'absolute',
+              width: '1px',
+              height: '1px',
+              opacity: 0,
+              pointerEvents: 'none',
+              zIndex: -1,
+            }}
           />
 
           {/* Loader Overlay */}
