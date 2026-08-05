@@ -431,43 +431,6 @@ export default function AnthropicStyleSynapsLanding() {
         </div>
       </footer>
 
-      {/* ── ANTHROPIC-STYLE FLOATING COOKIE CONSENT BANNER ── */}
-      {showCookieBanner && (
-        <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:max-w-md z-50 bg-[#1E1D1A] text-[#ECE9E3] border border-[#383631] rounded-xl p-5 shadow-2xl space-y-4 animate-fade-in text-left">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs font-mono-anthropic text-[#D96B27] uppercase font-bold">
-              <Cookie className="w-4 h-4" />
-              Cookie Preferences
-            </div>
-            <button
-              onClick={() => setShowCookieBanner(false)}
-              className="text-[#7A766D] hover:text-white transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          <p className="text-xs font-sans-anthropic text-[#A5A095] leading-relaxed">
-            We use essential cookies to maintain session security, verify Zero-Trust authorization tokens, and analyze system performance. Read our Privacy Policy for more details.
-          </p>
-
-          <div className="flex items-center gap-3 pt-1">
-            <button
-              onClick={() => handleCookieAction('accept')}
-              className="flex-1 py-2 px-4 rounded-lg bg-[#D96B27] hover:bg-[#C25918] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors font-medium text-center"
-            >
-              Accept All
-            </button>
-            <button
-              onClick={() => handleCookieAction('decline')}
-              className="flex-1 py-2 px-4 rounded-lg border border-[#383631] hover:border-white text-[#A5A095] hover:text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors text-center"
-            >
-              Decline Optional
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* ── SIGN IN MODAL WITH UIVERSE.IO STYLING & INSTANT DEMO ── */}
       <SignInModal
         isOpen={showSignInModal}

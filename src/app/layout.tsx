@@ -6,7 +6,6 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
-import CookieConsentBanner from "@/components/CookieConsentBanner";
 import MicrosoftClarity from "@/components/MicrosoftClarity";
 import AppUpdateNotifier from "@/components/AppUpdateNotifier";
 import { getSoftwareApplicationJsonLd } from "@/lib/openseo";
@@ -64,14 +63,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased selection:bg-black selection:text-white min-h-screen overflow-x-hidden" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+      <body className="antialiased selection:bg-black selection:text-[#D96B27] min-h-screen overflow-x-hidden" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <AuthProvider>
             <MicrosoftClarity />
             {children}
             <Toaster />
             <Analytics />
-            <CookieConsentBanner />
             <AppUpdateNotifier />
           </AuthProvider>
         </ThemeProvider>
