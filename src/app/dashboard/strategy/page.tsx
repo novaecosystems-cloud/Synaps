@@ -280,7 +280,7 @@ export default function StrategyPage() {
   const [budget, setBudget] = useState('1000');
   const [speed, setSpeed] = useState('48h');
   const [audience, setAudience] = useState('none');
-  const [contentSkill, setContentSkill] = useState['limited'];
+  const [contentSkill, setContentSkill] = useState('limited');
   const [complexity, setComplexity] = useState('simple');
   const [language, setLanguage] = useState('english');
   const [distribution, setDistribution] = useState('zero');
