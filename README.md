@@ -1,111 +1,96 @@
-# Synaps AI — Grounded 3D Corporate Memory & 10-Agent C-Suite Platform
+# SYNAPS — Enterprise Decision Intelligence OS & Evidence Engine
 
-[![Production Live](https://img.shields.io/badge/Production-Live_v1.0-blue.svg)](https://synaps-one.vercel.app)
+[![Production Live](https://img.shields.io/badge/Production-Live_v2.4-blue.svg)](https://synaps-one.vercel.app)
 [![Zero-Login Demo](https://img.shields.io/badge/Demo-Zero_Login_Mode-success.svg)](https://synaps-one.vercel.app/demo)
-[![Next.js 14](https://img.shields.io/badge/Framework-Next.js_14-black.svg)](https://nextjs.org/)
+[![Next.js 15](https://img.shields.io/badge/Framework-Next.js_ App_Router-black.svg)](https://nextjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
 
-Synaps AI is an enterprise-grade Grounded Corporate Memory and 10-Agent C-Suite Platform designed to transform complex document libraries into interactive 3D Knowledge Graphs and real-time executive consensus.
+**SYNAPS** is an enterprise-grade Decision Intelligence Operating System that transforms scattered contracts, financial ledgers, operational SOPs, and compliance records into clear, verifiable decisions backed by 100% line-level source citations.
 
 ---
 
-## Live Links
-- **Production Web Application**: [https://synaps-one.vercel.app](https://synaps-one.vercel.app)
-- **Zero-Login Interactive Demo**: [https://synaps-one.vercel.app/demo](https://synaps-one.vercel.app/demo)
-- **Billing & Merchant Settings**: [https://synaps-one.vercel.app/dashboard/settings/billing](https://synaps-one.vercel.app/dashboard/settings/billing)
+## 🌐 Live Production Links
+
+* **Production Application**: [https://synaps-one.vercel.app](https://synaps-one.vercel.app)
+* **Anthropic-Style Overview**: [https://synaps-one.vercel.app/overview](https://synaps-one.vercel.app/overview)
+* **Zero-Login Interactive Demo**: [https://synaps-one.vercel.app/demo](https://synaps-one.vercel.app/demo)
+* **Billing & Pre-Applied 30% Offer**: [https://synaps-one.vercel.app/dashboard/settings/billing](https://synaps-one.vercel.app/dashboard/settings/billing) *(Code: `LAUNCH100`)*
 
 ---
 
-## Inspiration & Problem Statement
-Synaps AI was inspired by the real-world operational challenges of managing a three-hotel hospitality business in India. Managing hospitality operations in emerging markets involves processing thousands of daily vendor invoices, local compliance filings, inventory logs, and guest reports. Manual document analysis consumes critical executive time.
+## ✨ Key Platform Capabilities
 
-Synaps evolved through three key phases:
-1. **Data Connector Prototype**: Centralizing fragmented business records.
-2. **Machine Learning Intelligence**: Integrating predictive occupancy and inventory forecasting models.
-3. **Generative AI & Autonomous Agents**: Coupling an interactive 3D Knowledge Graph with a 10-Agent AI C-Suite Boardroom.
+### 1. Evidentiary Grounding Engine (Zero-Hallucination)
+Every AI summary, decision recommendation, and contract delta report is mathematically anchored to exact line-level source citations (`[Page X, Line Y]`) in original uploaded files. If an answer cannot be proven by your documents, SYNAPS explicitly flags it.
 
----
+### 2. Anthropic Research Lab Aesthetic
+Redesigned with Anthropic's editorial typography (`Instrument Serif` paired with `Plus Jakarta Sans`), warm ivory paper tones (`#FBF9F5`), zero "vibecoded" fluff, crisp hairline borders, and an authentic Cookie Consent preferences banner.
 
-## Key Features
+### 3. 10-Agent AI Boardroom
+Simulates executive C-Suite consensus with specialized AI agents:
+* **CEO Agent**: Strategic vision & business alignment
+* **CFO Agent**: Cost overruns, cash flow, & price escalation risk auditing
+* **CTO Agent**: Technical scaling & infrastructure feasibility
+* **Legal Counsel Agent**: Regulatory compliance & contract liability
+* **Risk Director Agent**: Operational risk mitigation & Monte Carlo forecasting
 
-### 1. 3D Corporate Memory Graph
-Visualizes complex document libraries (PDFs, DOCX, CSVs) into an interactive 3D Knowledge Graph powered by Three.js/WebGL, revealing hidden dependencies and entity connections.
+### 4. 3D Corporate Memory Graph
+Visualizes complex document libraries (PDFs, DOCX, CSVs, XLSX) into an interactive 3D Knowledge Graph powered by WebGL/Three.js, revealing hidden dependencies and entity connections.
 
-### 2. 10-Agent AI C-Suite Boardroom
-Simulates executive board consensus with specialized AI agents:
-- CEO Agent: Strategic vision & business alignment
-- CFO Agent: Cost overruns, cash flow, & financial risk analysis
-- CTO Agent: Infrastructure scaling & technical feasibility
-- Legal Counsel Agent: Regulatory compliance & contract liability
-- HR Director Agent: Personnel impact & organizational change
-
-### 3. Grounded Zero-Hallucination Engine
-Every AI recommendation and summary is mathematically anchored to exact line-level source citations (`[Page X, Line Y]`) in original uploaded files.
-
-### 4. Digital Twin Risk Simulator
-Stress-tests operational bottlenecks, supplier delays, and financial risks before major decisions are finalized.
-
-### 5. Production Monetization Infrastructure
-Built-in LemonSqueezy Merchant of Record integration featuring HMAC SHA256 webhook signature verification for automated tier upgrades and 1-click real-money refunds.
+### 5. Production Billing & Launch Offer (`LAUNCH100`)
+Integrated Merchant of Record checkout with pre-applied **30% OFF Launch Discount** (`LAUNCH100`), automated webhook verification, and 1-click refund management.
 
 ---
 
-## Tech Stack
-- **Frontend**: Next.js 14 App Router, TypeScript, TailwindCSS, Three.js / WebGL
-- **Database & ORM**: Neon PostgreSQL, Prisma ORM
-- **Storage**: Supabase Dual Storage Abstraction Layer
-- **Authentication**: Firebase Authentication with server-side cookie verification
-- **AI Reasoning**: Google Gemini API & Groq Llama3
-- **Monetization**: LemonSqueezy Merchant API with automated Webhook engine
+## 🛠️ Tech Stack
+
+* **Core Framework**: Next.js (App Router, Server Components, SSR)
+* **Styling & Motion**: TailwindCSS, GSAP (ScrollTrigger & useGSAP), Framer Motion
+* **Typography**: Google Fonts (`Instrument Serif`, `Plus Jakarta Sans`, `JetBrains Mono`)
+* **3D Visualizations**: Three.js / WebGL
+* **Database & ORM**: Neon PostgreSQL, Prisma ORM
+* **Storage**: Supabase Dual Storage Layer
+* **Authentication**: Firebase Authentication with server-side cookie verification
+* **AI Intelligence**: Google Gemini API & Groq Llama3
+* **Monetization**: Gumroad MoR & LemonSqueezy Webhook Engine
 
 ---
 
-## Local Development Setup
+## ⚡ Local Development Setup
 
-### Prerequisites
-- Node.js 18+ or 20+
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/novaecosystems-cloud/Synaps.git
 cd Synaps
 ```
 
-2. Install dependencies:
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-3. Set up environment variables (`.env`):
+### 3. Environment Configuration (`.env`)
+Create a `.env` file in the root directory:
 ```env
 DATABASE_URL="your-postgresql-database-url"
 DIRECT_URL="your-direct-postgresql-url"
 GEMINI_API_KEY="your-gemini-api-key"
 GROQ_API_KEY="your-groq-api-key"
-LEMONSQUEEZY_API_KEY="your-lemonsqueezy-api-key"
-LEMONSQUEEZY_STORE_ID="438754"
 ```
 
-4. Run database migrations:
+### 4. Run Database Migrations
 ```bash
 npx prisma db push
 ```
 
-5. Start local development server:
+### 5. Launch Development Server
 ```bash
 npm run dev
 ```
+
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## Project Timeline
-- **Development Duration**: 12 Days (from initial architectural prototype to full production deployment & merchant monetization).
-
----
-
-## License
-[MIT License](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE). Built for the Hackathon.
+## 📜 License & Ownership
+Copyright © 2026 SYNAPS INC. Distributed under the MIT License.
