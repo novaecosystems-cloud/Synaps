@@ -19,25 +19,32 @@ gsap.registerPlugin(ScrollTrigger);
 export default function AnthropicStyleSynapsLanding() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Cookie Consent & Sign In Modal State
-  const [showCookieBanner, setShowCookieBanner] = useState(false);
+  // Sign In Modal State & PWA Install Prompt
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'grounding' | 'boardroom' | 'security'>('grounding');
   const [promptText, setPromptText] = useState("What price escalation risks exist in our 2026 Master Services Agreement?");
   const [selectedModel, setSelectedModel] = useState("Gemini 1.5 Pro");
 
   useEffect(() => {
-    // Check if user already acknowledged cookie consent
-    const consent = localStorage.getItem('synaps_cookie_consent');
-    if (!consent) {
-      const timer = setTimeout(() => setShowCookieBanner(true), 800);
-      return () => clearTimeout(timer);
-    }
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
   }, []);
 
-  const handleCookieAction = (choice: 'accept' | 'decline') => {
-    localStorage.setItem('synaps_cookie_consent', choice);
-    setShowCookieBanner(false);
+  const handleInstallPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    } else {
+      alert('To install Synaps AI on Windows/Android:\n1. Click the "Install App" icon in your browser address bar.\n2. Or open Menu (...) -> "Apps" -> "Install Synaps AI".');
+    }
   };
 
   // GSAP Editorial Staggered Reveals
@@ -171,17 +178,12 @@ export default function AnthropicStyleSynapsLanding() {
               ⚡ Enter Guest Workspace Demo
               <ArrowRight className="w-4 h-4" />
             </button>
-            <div className="flex flex-col items-center">
-              <a
-                href="/api/downloads/windows"
-                className="px-6 py-3.5 rounded-xl border border-[#D96B27]/40 bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 font-medium shadow-md"
-              >
-                💻 Download Windows Setup (.exe)
-              </a>
-              <span className="text-[10px] font-mono-anthropic text-[#D96B27] tracking-widest uppercase mt-1.5 font-bold">
-                (BETA v2.5)
-              </span>
-            </div>
+            <button
+              onClick={handleInstallPWA}
+              className="px-6 py-3.5 rounded-xl border border-[#D96B27]/50 bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 font-medium shadow-md"
+            >
+              📱 Install Desktop & Mobile App (PWA)
+            </button>
             <a
               href="#evidence"
               className="px-6 py-3.5 rounded-xl border border-[#3A3834] bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2"

@@ -55,6 +55,20 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* PWA Service Worker Registration */}
+        <Script
+          id="pwa-sw-register"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').catch(function(err) {});
+                });
+              }
+            `,
+          }}
+        />
         {/* OpenSEO Schema.org JSON-LD Structured Data */}
         <script
           type="application/ld+json"
