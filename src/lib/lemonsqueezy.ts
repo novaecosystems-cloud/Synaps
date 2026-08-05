@@ -12,11 +12,16 @@ export const LEMONSQUEEZY_CHECKOUT_URLS = {
 };
 
 export function getLemonSqueezyCheckoutUrl(planId: 'pro' | 'enterprise', userEmail?: string, discountCode: string = 'LAUNCH100'): string {
-  const baseUrl = 'https://novaverse33.gumroad.com/l/synaps';
-  const params: string[] = [`wanted=true`];
-  if (discountCode) {
-    params.push(`discount_code=${encodeURIComponent(discountCode)}`);
-  }
+  const baseUrl = discountCode 
+    ? `https://novaverse33.gumroad.com/l/synaps/${encodeURIComponent(discountCode)}`
+    : 'https://novaverse33.gumroad.com/l/synaps';
+    
+  const params: string[] = [
+    `wanted=true`,
+    `code=${encodeURIComponent(discountCode)}`,
+    `discount_code=${encodeURIComponent(discountCode)}`
+  ];
+
   if (userEmail) {
     params.push(`email=${encodeURIComponent(userEmail)}`);
   }
