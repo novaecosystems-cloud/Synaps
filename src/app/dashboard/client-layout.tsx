@@ -98,7 +98,6 @@ const sidebarSections: MenuSection[] = [
         icon: ShieldAlert,
         children: [
           { name: 'Risk Center', href: '/dashboard/risk-center', badge: 'MAX' },
-          { name: 'Strix Pentest Agent', href: '/dashboard/security/strix', badge: 'PRO' },
           { name: 'Decision Memory', href: '/dashboard/decisions' },
           { name: 'Simulation Engine', href: '/dashboard/simulations', badge: 'MAX' },
           { name: 'Memory Graph', href: '/dashboard/graph', badge: 'PRO' },
@@ -124,7 +123,6 @@ const sidebarSections: MenuSection[] = [
         icon: Files,
         children: [
           { name: 'Library', href: '/dashboard/documents' },
-          { name: 'Guideflow Tour Builder', href: '/dashboard/guideflow', badge: 'PRO' },
           { name: 'Export History', href: '/dashboard/exports' },
         ]
       },
