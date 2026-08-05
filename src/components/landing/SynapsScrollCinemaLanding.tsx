@@ -180,13 +180,25 @@ export default function SynapsScrollCinemaLanding() {
       });
     };
 
+    // Fail-safe loader removal after 1.2s to prevent getting stuck
+    const failSafeTimer = setTimeout(() => {
+      setupScrollScrub();
+    }, 1200);
+
     if (video.readyState >= 1) {
+      clearTimeout(failSafeTimer);
       setupScrollScrub();
     } else {
-      video.addEventListener('loadedmetadata', setupScrollScrub);
+      const onMetadataLoad = () => {
+        clearTimeout(failSafeTimer);
+        setupScrollScrub();
+      };
+      video.addEventListener('loadedmetadata', onMetadataLoad);
       video.addEventListener('error', () => {
+        clearTimeout(failSafeTimer);
         setVideoError(true);
         setDecodingFrames(false);
+        setupScrollScrub();
       });
     }
 
@@ -207,24 +219,53 @@ export default function SynapsScrollCinemaLanding() {
 
     const paintFrame = () => {
       const ctx = canvas.getContext('2d');
-      if (ctx && video.readyState >= 2) {
+      if (ctx) {
         const cw = (canvas.width = window.innerWidth);
         const ch = (canvas.height = window.innerHeight);
 
-        // Draw video frame styled with object-fit: cover logic
-        const videoRatio = video.videoWidth / video.videoHeight;
-        const canvasRatio = cw / ch;
-        let sx = 0, sy = 0, sw = video.videoWidth, sh = video.videoHeight;
+        if (video.readyState >= 2) {
+          // Draw video frame styled with object-fit: cover logic
+          const videoRatio = video.videoWidth / video.videoHeight;
+          const canvasRatio = cw / ch;
+          let sx = 0, sy = 0, sw = video.videoWidth, sh = video.videoHeight;
 
-        if (canvasRatio > videoRatio) {
-          sh = video.videoWidth / canvasRatio;
-          sy = (video.videoHeight - sh) / 2;
+          if (canvasRatio > videoRatio) {
+            sh = video.videoWidth / canvasRatio;
+            sy = (video.videoHeight - sh) / 2;
+          } else {
+            sw = video.videoHeight * canvasRatio;
+            sx = (video.videoWidth - sw) / 2;
+          }
+
+          ctx.drawImage(video, sx, sy, sw, sh, 0, 0, cw, ch);
         } else {
-          sw = video.videoHeight * canvasRatio;
-          sx = (video.videoWidth - sw) / 2;
-        }
+          // Technical engineering document layout grid (forensic wireframe style)
+          ctx.fillStyle = '#070708';
+          ctx.fillRect(0, 0, cw, ch);
 
-        ctx.drawImage(video, sx, sy, sw, sh, 0, 0, cw, ch);
+          ctx.strokeStyle = 'rgba(255,255,255,0.015)';
+          ctx.lineWidth = 1;
+          const gridSize = 80;
+          for (let x = 0; x < cw; x += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, ch);
+            ctx.stroke();
+          }
+          for (let y = 0; y < ch; y += gridSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(cw, y);
+            ctx.stroke();
+          }
+
+          // Render soft layout indicator guidelines representing document stacking
+          ctx.strokeStyle = 'rgba(198, 255, 46, 0.08)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(cw / 2 - 180, ch / 2 - 240, 360, 480, 12);
+          ctx.stroke();
+        }
 
         // 1. Grade boost: boost brightness & contrast
         ctx.save();
