@@ -8,7 +8,8 @@ import { useGSAP } from '@gsap/react';
 import {
   ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle,
   FileText, Sparkles, Eye, Check, ExternalLink, ChevronRight,
-  Lock, FileSpreadsheet, Building2, Search, X, Cookie
+  Lock, FileSpreadsheet, Building2, Search, X, Cookie,
+  PenTool, GraduationCap, Code2, FolderOpen, Calendar, AudioWaveform, ChevronDown, Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,8 @@ export default function AnthropicStyleSynapsLanding() {
   // Cookie Consent Banner State
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const [activeTab, setActiveTab] = useState<'grounding' | 'boardroom' | 'security'>('grounding');
+  const [promptText, setPromptText] = useState("What price escalation risks exist in our 2026 Master Services Agreement?");
+  const [selectedModel, setSelectedModel] = useState("Gemini 1.5 Pro");
 
   useEffect(() => {
     // Check if user already acknowledged cookie consent
@@ -86,7 +89,7 @@ export default function AnthropicStyleSynapsLanding() {
   }, { scope: containerRef });
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#FBF9F5] text-[#191919] font-sans antialiased selection:bg-[#CC5A00] selection:text-white">
+    <div ref={containerRef} className="min-h-screen bg-[#181715] text-[#ECE9E3] font-sans antialiased selection:bg-[#D96B27] selection:text-white">
       
       {/* ── GOOGLE FONTS INJECTION FOR ANTHROPIC TYPOGRAPHY ── */}
       <style jsx global>{`
@@ -104,34 +107,35 @@ export default function AnthropicStyleSynapsLanding() {
       `}</style>
 
       {/* ── ANTHROPIC MINIMALIST HEADER ── */}
-      <header className="sticky top-0 z-40 bg-[#FBF9F5]/90 backdrop-blur-md border-b border-[#E8E5DE] transition-all">
+      <header className="sticky top-0 z-40 bg-[#161513]/90 backdrop-blur-md border-b border-[#2B2925] transition-all">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <span className="font-serif-anthropic text-2xl font-bold tracking-tight text-[#191919]">
+            <span className="text-[#D96B27] text-2xl font-serif-anthropic font-bold">✦</span>
+            <span className="font-serif-anthropic text-2xl font-bold tracking-tight text-[#ECE9E3]">
               SYNAPS
             </span>
-            <span className="text-[10px] font-mono-anthropic px-2 py-0.5 rounded bg-[#EDE9E0] text-[#66635B] uppercase tracking-wider">
-              OS v2.4
+            <span className="text-[10px] font-mono-anthropic px-2 py-0.5 rounded bg-[#262522] text-[#A39F95] border border-[#33312C] uppercase tracking-wider">
+              OS v2.5
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-xs font-mono-anthropic text-[#66635B] uppercase tracking-wider">
-            <a href="#intelligence" className="hover:text-[#191919] transition-colors">Intelligence</a>
-            <a href="#evidence" className="hover:text-[#191919] transition-colors">Evidence Grounding</a>
-            <a href="#architecture" className="hover:text-[#191919] transition-colors">Architecture</a>
-            <a href="#security" className="hover:text-[#191919] transition-colors">Zero-Trust</a>
+          <nav className="hidden md:flex items-center gap-8 text-xs font-mono-anthropic text-[#A39F95] uppercase tracking-wider">
+            <a href="#intelligence" className="hover:text-[#ECE9E3] transition-colors">Intelligence</a>
+            <a href="#evidence" className="hover:text-[#ECE9E3] transition-colors">Evidence Grounding</a>
+            <a href="#architecture" className="hover:text-[#ECE9E3] transition-colors">Architecture</a>
+            <a href="#security" className="hover:text-[#ECE9E3] transition-colors">Zero-Trust</a>
           </nav>
 
           <div className="flex items-center gap-4">
             <Link
               href="/login"
-              className="text-xs font-mono-anthropic text-[#66635B] hover:text-[#191919] transition-colors"
+              className="text-xs font-mono-anthropic text-[#A39F95] hover:text-[#ECE9E3] transition-colors"
             >
               Sign In
             </Link>
             <Link
               href="/demo"
-              className="flex items-center gap-2 px-4 py-2 rounded bg-[#191919] hover:bg-[#CC5A00] text-[#FBF9F5] text-xs font-mono-anthropic uppercase tracking-wider transition-colors shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#D96B27] hover:bg-[#C25918] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors shadow-lg shadow-[#D96B27]/10"
             >
               Try SYNAPS
               <ArrowRight className="w-3.5 h-3.5" />
@@ -140,84 +144,148 @@ export default function AnthropicStyleSynapsLanding() {
         </div>
       </header>
 
-      {/* ── HERO SECTION ── */}
-      <section className="pt-20 pb-16 px-6 max-w-5xl mx-auto text-left space-y-8">
-        <div className="space-y-4 max-w-4xl">
-          <span className="text-xs font-mono-anthropic text-[#CC5A00] uppercase tracking-widest block font-medium">
+      {/* ── HERO SECTION WITH ANTHROPIC CLAUDE CHAT INTERFACE ── */}
+      <section className="pt-16 pb-16 px-6 max-w-5xl mx-auto text-center space-y-8">
+        
+        {/* Title Banner */}
+        <div className="space-y-4 max-w-3xl mx-auto">
+          <span className="text-xs font-mono-anthropic text-[#D96B27] uppercase tracking-widest block font-medium">
             ENTERPRISE DECISION INTELLIGENCE WORKSPACE
           </span>
 
-          <h1 className="anthropic-hero-title font-serif-anthropic text-5xl md:text-7xl font-normal leading-[1.05] tracking-tight text-[#191919]">
-            AI system for high-stakes decision intelligence.
+          <h1 className="anthropic-hero-title font-serif-anthropic text-5xl md:text-7xl font-normal leading-[1.05] tracking-tight text-[#ECE9E3]">
+            <span className="text-[#D96B27] font-serif-anthropic">✦</span> How can SYNAPS help your enterprise today?
           </h1>
 
-          <p className="anthropic-hero-sub text-base md:text-lg text-[#55524A] font-sans-anthropic max-w-2xl leading-relaxed font-normal pt-2">
-            SYNAPS is an enterprise operating system built to read, connect, and ground complex contracts, financial ledgers, and operational records with 100% source traceability.
+          <p className="anthropic-hero-sub text-base md:text-lg text-[#A5A095] font-sans-anthropic max-w-2xl mx-auto leading-relaxed font-normal pt-1">
+            Read, connect, and ground complex contracts, financial ledgers, and operational records with 100% line-level source citations.
           </p>
 
-          <div className="anthropic-hero-cta flex flex-wrap items-center gap-4 pt-4">
+          <div className="anthropic-hero-cta flex flex-wrap items-center justify-center gap-4 pt-2">
             <Link
               href="/demo"
-              className="px-6 py-3.5 rounded bg-[#191919] hover:bg-[#CC5A00] text-[#FBF9F5] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm"
+              className="px-6 py-3.5 rounded-xl bg-[#D96B27] hover:bg-[#C25918] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-[#D96B27]/20 font-bold"
             >
-              Enter Workspace
+              ⚡ Enter Guest Workspace Demo
               <ArrowRight className="w-4 h-4" />
             </Link>
             <a
               href="#evidence"
-              className="px-6 py-3.5 rounded border border-[#DCD8CE] hover:border-[#191919] text-[#191919] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2"
+              className="px-6 py-3.5 rounded-xl border border-[#3A3834] bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2"
             >
               Read Technical Brief
             </a>
           </div>
         </div>
 
-        {/* Anthropic Editorial Interactive Stage */}
-        <div className="anthropic-stage mt-12 bg-[#F3EFE6] border border-[#E3E0D8] rounded-xl overflow-hidden shadow-sm">
-          {/* Top Bar */}
-          <div className="bg-[#EAE6DD] px-6 py-3 border-b border-[#DCD8CE] flex items-center justify-between text-xs font-mono-anthropic text-[#66635B]">
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-[#CC5A00]" />
-              <span className="text-[#191919] font-medium">EVIDENTIARY TRACEABILITY ENGINE</span>
-            </div>
-            <span>CONFIDENCE: 99.8%</span>
-          </div>
-
-          <div className="p-8 md:p-10 space-y-6 text-left">
-            <div className="space-y-2 border-b border-[#DCD8CE] pb-6">
-              <span className="text-[10px] font-mono-anthropic text-[#88847C] uppercase tracking-wider">QUERY INPUT</span>
-              <p className="font-serif-anthropic text-2xl text-[#191919]">
-                "What price escalation risks exist in our 2026 Master Services Agreement?"
-              </p>
+        {/* ── ANTHROPIC CLAUDE INTERFACE BOX (MATCHING SCREENSHOT EXPLICITLY) ── */}
+        <div className="anthropic-stage mt-10 max-w-3xl mx-auto space-y-6">
+          
+          {/* Main Floating Input Box */}
+          <div className="bg-[#242320] border border-[#383631] rounded-2xl p-5 shadow-2xl space-y-4 text-left transition-all hover:border-[#4A4741]">
+            <div className="flex items-start gap-3">
+              <span className="text-[#A5A095] text-sm pt-0.5 font-serif-anthropic">How can I help you today?</span>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-2">
-              <div className="lg:col-span-7 space-y-4">
-                <span className="text-[10px] font-mono-anthropic text-[#CC5A00] uppercase tracking-wider font-bold">SYNAPS EVIDENCED SYNTHESIS</span>
-                <p className="text-sm font-sans-anthropic text-[#2C2A26] leading-relaxed">
-                  Section 8.4 contains an automatic 14% annual cost escalation clause triggering on Nov 1 unless written non-renewal notice is served by Oct 15.
-                </p>
+            <textarea
+              rows={2}
+              value={promptText}
+              onChange={(e) => setPromptText(e.target.value)}
+              className="w-full bg-transparent text-[#ECE9E3] font-serif-anthropic text-xl focus:outline-none resize-none border-none p-0"
+              placeholder="Ask SYNAPS to analyze contracts, ledgers, or SOPs..."
+            />
 
-                <div className="p-4 rounded bg-[#FBF9F5] border border-[#E3E0D8] space-y-2 text-xs font-mono-anthropic">
-                  <span className="text-[#CC5A00] font-bold">VERIFIED SOURCE CITATION</span>
-                  <p className="text-[#383632] italic">
-                    "In the event Customer does not issue written notice of non-renewal at least forty-five (45) days prior to the Renewal Date, rates shall automatically adjust upward by fourteen percent (14%)."
-                  </p>
-                  <div className="text-[10px] text-[#77736A] flex items-center justify-between pt-1 border-t border-[#EAE6DD]">
-                    <span>Document: MSA_2026.pdf</span>
-                    <span>Page 8 · Section 8.4</span>
-                  </div>
-                </div>
+            <div className="flex items-center justify-between pt-2 border-t border-[#2F2D29] text-xs font-mono-anthropic text-[#8E8A80]">
+              <div className="flex items-center gap-2">
+                <button type="button" className="p-1.5 rounded-lg hover:bg-[#2F2E2B] text-[#A5A095] hover:text-[#ECE9E3] transition-colors">
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
 
-              <div className="lg:col-span-5 p-5 rounded bg-[#EAE6DD] border border-[#DCD8CE] space-y-3">
-                <span className="text-[10px] font-mono-anthropic text-[#191919] uppercase tracking-wider font-bold">RECOMMENDED REMEDIATION</span>
-                <p className="text-xs font-sans-anthropic text-[#383632] leading-relaxed">
-                  Serve non-renewal notice prior to Oct 15 to request capped annual rate adjustments at 4% CPI.
+              <div className="flex items-center gap-3">
+                <button type="button" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1D1C19] border border-[#36342F] text-[#ECE9E3] hover:border-[#D96B27] transition-all text-xs font-mono-anthropic">
+                  <span>{selectedModel}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#A5A095]" />
+                </button>
+                <button type="button" className="p-1.5 rounded-lg hover:bg-[#2F2E2B] text-[#A5A095] hover:text-[#D96B27] transition-colors">
+                  <AudioWaveform className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Action Chips (Matching Screenshot exact pills) */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+            <button
+              type="button"
+              onClick={() => setPromptText("Draft a non-renewal notice for Section 8.4 rate escalation clause.")}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#242320] border border-[#36342F] hover:border-[#D96B27] text-[#C4C0B5] hover:text-[#ECE9E3] text-sm font-serif-anthropic transition-all shadow-sm"
+            >
+              <PenTool className="w-3.5 h-3.5 text-[#D96B27]" />
+              <span>Write</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPromptText("Explain how the 10-Agent Boardroom reaches risk consensus.")}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#242320] border border-[#36342F] hover:border-[#D96B27] text-[#C4C0B5] hover:text-[#ECE9E3] text-sm font-serif-anthropic transition-all shadow-sm"
+            >
+              <GraduationCap className="w-3.5 h-3.5 text-[#D96B27]" />
+              <span>Learn</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPromptText("Show Monte Carlo 10,000 risk simulation Python script.")}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#242320] border border-[#36342F] hover:border-[#D96B27] text-[#C4C0B5] hover:text-[#ECE9E3] text-sm font-serif-anthropic transition-all shadow-sm"
+            >
+              <Code2 className="w-3.5 h-3.5 text-[#D96B27]" />
+              <span>Code</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPromptText("Connect MSA_2026.pdf and Financial_Audit_2026.xlsx from Google Drive.")}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#242320] border border-[#36342F] hover:border-[#D96B27] text-[#C4C0B5] hover:text-[#ECE9E3] text-sm font-serif-anthropic transition-all shadow-sm"
+            >
+              <FolderOpen className="w-3.5 h-3.5 text-[#D96B27]" />
+              <span>From Drive</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPromptText("Check key contract renewal deadlines for Q3 2026.")}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#242320] border border-[#36342F] hover:border-[#D96B27] text-[#C4C0B5] hover:text-[#ECE9E3] text-sm font-serif-anthropic transition-all shadow-sm"
+            >
+              <Calendar className="w-3.5 h-3.5 text-[#D96B27]" />
+              <span>From Calendar</span>
+            </button>
+          </div>
+
+          {/* Interactive Evidence Result Preview */}
+          <div className="p-6 rounded-2xl bg-[#201F1C] border border-[#33312B] text-left space-y-4 shadow-xl mt-6">
+            <div className="flex items-center justify-between border-b border-[#2C2A26] pb-3 text-xs font-mono-anthropic">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#D96B27]" />
+                <span className="text-[#ECE9E3] font-medium uppercase tracking-wider">EVIDENTIARY TRACEABILITY OUTPUT</span>
+              </div>
+              <span className="text-[#A5A095]">CONFIDENCE: 99.8%</span>
+            </div>
+
+            <div className="space-y-3">
+              <span className="text-[10px] font-mono-anthropic text-[#D96B27] uppercase tracking-wider font-bold">SYNAPS GROUNDED SYNTHESIS</span>
+              <p className="text-sm font-sans-anthropic text-[#D6D2C8] leading-relaxed">
+                Section 8.4 contains an automatic 14% annual cost escalation clause triggering on Nov 1 unless written non-renewal notice is served by Oct 15.
+              </p>
+
+              <div className="p-4 rounded-xl bg-[#171614] border border-[#2B2925] space-y-2 text-xs font-mono-anthropic">
+                <span className="text-[#D96B27] font-bold">VERIFIED SOURCE CITATION</span>
+                <p className="text-[#B5B0A4] italic">
+                  "In the event Customer does not issue written notice of non-renewal at least forty-five (45) days prior to the Renewal Date, rates shall automatically adjust upward by fourteen percent (14%)."
                 </p>
-                <div className="pt-2 border-t border-[#D3CFB0] flex items-center justify-between text-[10px] font-mono-anthropic text-[#66635B]">
-                  <span>Status: Action Required</span>
-                  <span className="text-[#CC5A00] font-bold">High Exposure</span>
+                <div className="text-[10px] text-[#7A766D] flex items-center justify-between pt-1 border-t border-[#252421]">
+                  <span>Document: MSA_2026.pdf</span>
+                  <span>Page 8 · Section 8.4</span>
                 </div>
               </div>
             </div>
@@ -226,14 +294,14 @@ export default function AnthropicStyleSynapsLanding() {
       </section>
 
       {/* ── EDITORIAL THREE-COLUMN PILLARS (ANTHROPIC RESEARCH STYLE) ── */}
-      <section id="intelligence" className="py-20 bg-[#F3EFE6] border-y border-[#E3E0D8]">
+      <section id="intelligence" className="py-20 bg-[#141311] border-y border-[#2B2925]">
         <div className="max-w-7xl mx-auto px-6 space-y-12">
           <div className="max-w-2xl text-left space-y-3">
-            <span className="text-xs font-mono-anthropic text-[#CC5A00] uppercase tracking-widest">SYSTEM CAPABILITIES</span>
-            <h2 className="font-serif-anthropic text-4xl text-[#191919]">
+            <span className="text-xs font-mono-anthropic text-[#D96B27] uppercase tracking-widest">SYSTEM CAPABILITIES</span>
+            <h2 className="font-serif-anthropic text-4xl text-[#ECE9E3]">
               Engineered for absolute credibility.
             </h2>
-            <p className="text-sm font-sans-anthropic text-[#55524A] leading-relaxed">
+            <p className="text-sm font-sans-anthropic text-[#A5A095] leading-relaxed">
               SYNAPS is designed to eliminate AI guesswork. Every inference is grounded in primary evidence.
             </p>
           </div>
@@ -256,10 +324,10 @@ export default function AnthropicStyleSynapsLanding() {
                 desc: "Multi-tenant database isolation ensures your sensitive organizational records remain strictly private and are never used to train public LLM models."
               }
             ].map((pillar) => (
-              <div key={pillar.num} className="anthropic-reveal p-8 rounded bg-[#FBF9F5] border border-[#E3E0D8] space-y-4">
-                <span className="text-xs font-mono-anthropic text-[#CC5A00] font-bold">{pillar.num}</span>
-                <h3 className="font-serif-anthropic text-2xl text-[#191919]">{pillar.title}</h3>
-                <p className="text-xs md:text-sm font-sans-anthropic text-[#55524A] leading-relaxed">{pillar.desc}</p>
+              <div key={pillar.num} className="anthropic-reveal p-8 rounded-2xl bg-[#1E1D1A] border border-[#2B2925] space-y-4 hover:border-[#D96B27]/50 transition-all">
+                <span className="text-xs font-mono-anthropic text-[#D96B27] font-bold">{pillar.num}</span>
+                <h3 className="font-serif-anthropic text-2xl text-[#ECE9E3]">{pillar.title}</h3>
+                <p className="text-xs md:text-sm font-sans-anthropic text-[#A5A095] leading-relaxed">{pillar.desc}</p>
               </div>
             ))}
           </div>
@@ -269,53 +337,53 @@ export default function AnthropicStyleSynapsLanding() {
       {/* ── ARCHITECTURE & TECHNICAL SPECIFICATIONS ── */}
       <section id="architecture" className="py-20 max-w-7xl mx-auto px-6 space-y-12 text-left">
         <div className="max-w-2xl space-y-3">
-          <span className="text-xs font-mono-anthropic text-[#CC5A00] uppercase tracking-widest">TECHNICAL SPECIFICATIONS</span>
-          <h2 className="font-serif-anthropic text-4xl text-[#191919]">
+          <span className="text-xs font-mono-anthropic text-[#D96B27] uppercase tracking-widest">TECHNICAL SPECIFICATIONS</span>
+          <h2 className="font-serif-anthropic text-4xl text-[#ECE9E3]">
             Enterprise intelligence stack
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="p-8 rounded bg-[#F3EFE6] border border-[#E3E0D8] space-y-6">
-            <h3 className="font-serif-anthropic text-2xl text-[#191919]">Data Processing Pipeline</h3>
-            <div className="space-y-4 text-xs font-mono-anthropic text-[#44423C]">
-              <div className="flex justify-between border-b border-[#E3E0D8] pb-2">
+          <div className="p-8 rounded-2xl bg-[#1E1D1A] border border-[#2B2925] space-y-6">
+            <h3 className="font-serif-anthropic text-2xl text-[#ECE9E3]">Data Processing Pipeline</h3>
+            <div className="space-y-4 text-xs font-mono-anthropic text-[#A5A095]">
+              <div className="flex justify-between border-b border-[#2B2925] pb-2">
                 <span>Ingestion Formats</span>
-                <span className="text-[#191919] font-medium">PDF, DOCX, XLSX, CSV, SQL</span>
+                <span className="text-[#ECE9E3] font-medium">PDF, DOCX, XLSX, CSV, SQL</span>
               </div>
-              <div className="flex justify-between border-b border-[#E3E0D8] pb-2">
+              <div className="flex justify-between border-b border-[#2B2925] pb-2">
                 <span>OCR & Table Extraction</span>
-                <span className="text-[#191919] font-medium">Layout-Aware Neural OCR</span>
+                <span className="text-[#ECE9E3] font-medium">Layout-Aware Neural OCR</span>
               </div>
-              <div className="flex justify-between border-b border-[#E3E0D8] pb-2">
+              <div className="flex justify-between border-b border-[#2B2925] pb-2">
                 <span>Indexing Speed</span>
-                <span className="text-[#191919] font-medium">~50 Pages / Second</span>
+                <span className="text-[#ECE9E3] font-medium">~50 Pages / Second</span>
               </div>
               <div className="flex justify-between pb-2">
                 <span>Hallucination Guardrail</span>
-                <span className="text-[#CC5A00] font-bold">100% Citation Enforcement</span>
+                <span className="text-[#D96B27] font-bold">100% Citation Enforcement</span>
               </div>
             </div>
           </div>
 
-          <div className="p-8 rounded bg-[#F3EFE6] border border-[#E3E0D8] space-y-6">
-            <h3 className="font-serif-anthropic text-2xl text-[#191919]">Security & Compliance</h3>
-            <div className="space-y-4 text-xs font-mono-anthropic text-[#44423C]">
-              <div className="flex justify-between border-b border-[#E3E0D8] pb-2">
+          <div className="p-8 rounded-2xl bg-[#1E1D1A] border border-[#2B2925] space-y-6">
+            <h3 className="font-serif-anthropic text-2xl text-[#ECE9E3]">Security & Compliance</h3>
+            <div className="space-y-4 text-xs font-mono-anthropic text-[#A5A095]">
+              <div className="flex justify-between border-b border-[#2B2925] pb-2">
                 <span>Encryption at Rest</span>
-                <span className="text-[#191919] font-medium">AES-256 GCM</span>
+                <span className="text-[#ECE9E3] font-medium">AES-256 GCM</span>
               </div>
-              <div className="flex justify-between border-b border-[#E3E0D8] pb-2">
+              <div className="flex justify-between border-b border-[#2B2925] pb-2">
                 <span>Encryption in Transit</span>
-                <span className="text-[#191919] font-medium">TLS 1.3 Strict</span>
+                <span className="text-[#ECE9E3] font-medium">TLS 1.3 Strict</span>
               </div>
-              <div className="flex justify-between border-b border-[#E3E0D8] pb-2">
+              <div className="flex justify-between border-b border-[#2B2925] pb-2">
                 <span>Audit Trail</span>
-                <span className="text-[#191919] font-medium">Immutable Audit Logs</span>
+                <span className="text-[#ECE9E3] font-medium">Immutable Audit Logs</span>
               </div>
               <div className="flex justify-between pb-2">
                 <span>Compliance Standard</span>
-                <span className="text-[#191919] font-bold">SOC 2 Type II & ISO 27001</span>
+                <span className="text-[#ECE9E3] font-bold">SOC 2 Type II & ISO 27001</span>
               </div>
             </div>
           </div>
@@ -323,14 +391,14 @@ export default function AnthropicStyleSynapsLanding() {
       </section>
 
       {/* ── FOOTER CTA ── */}
-      <footer className="py-20 bg-[#191919] text-[#FBF9F5] text-left">
+      <footer className="py-20 bg-[#12110F] text-[#ECE9E3] text-left border-t border-[#252421]">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
           <div className="md:col-span-8 space-y-4">
-            <span className="text-xs font-mono-anthropic text-[#CC5A00] uppercase tracking-widest">GET STARTED WITH SYNAPS</span>
-            <h2 className="font-serif-anthropic text-4xl md:text-5xl text-[#FBF9F5] leading-tight">
+            <span className="text-xs font-mono-anthropic text-[#D96B27] uppercase tracking-widest">GET STARTED WITH SYNAPS</span>
+            <h2 className="font-serif-anthropic text-4xl md:text-5xl text-[#ECE9E3] leading-tight">
               Turn scattered information into decisions you can defend.
             </h2>
-            <p className="text-sm font-sans-anthropic text-[#A5A29A] max-w-xl">
+            <p className="text-sm font-sans-anthropic text-[#A5A095] max-w-xl">
               Deploys seamlessly across your existing document repositories and operational storage.
             </p>
           </div>
@@ -338,14 +406,14 @@ export default function AnthropicStyleSynapsLanding() {
           <div className="md:col-span-4 flex flex-col items-start md:items-end gap-4">
             <Link
               href="/demo"
-              className="px-8 py-4 rounded bg-[#CC5A00] hover:bg-[#b85100] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors shadow-sm"
+              className="px-8 py-4 rounded-xl bg-[#D96B27] hover:bg-[#C25918] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors shadow-lg shadow-[#D96B27]/20 font-bold"
             >
               Launch Workspace Demo →
             </Link>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 pt-16 border-t border-[#33312C] mt-16 flex flex-col md:flex-row justify-between text-xs font-mono-anthropic text-[#77746D]">
+        <div className="max-w-7xl mx-auto px-6 pt-16 border-t border-[#252421] mt-16 flex flex-col md:flex-row justify-between text-xs font-mono-anthropic text-[#7A766D]">
           <span>© 2026 SYNAPS INC. ANTHROPIC-INSPIRED ENTERPRISE OS.</span>
           <div className="flex gap-6 mt-4 md:mt-0">
             <a href="#security" className="hover:text-white transition-colors">Privacy</a>
@@ -357,34 +425,34 @@ export default function AnthropicStyleSynapsLanding() {
 
       {/* ── ANTHROPIC-STYLE FLOATING COOKIE CONSENT BANNER ── */}
       {showCookieBanner && (
-        <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:max-w-md z-50 bg-[#191919] text-[#FBF9F5] border border-[#33312C] rounded-lg p-5 shadow-2xl space-y-4 animate-fade-in text-left">
+        <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:max-w-md z-50 bg-[#1E1D1A] text-[#ECE9E3] border border-[#383631] rounded-xl p-5 shadow-2xl space-y-4 animate-fade-in text-left">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs font-mono-anthropic text-[#CC5A00] uppercase font-bold">
+            <div className="flex items-center gap-2 text-xs font-mono-anthropic text-[#D96B27] uppercase font-bold">
               <Cookie className="w-4 h-4" />
               Cookie Preferences
             </div>
             <button
               onClick={() => setShowCookieBanner(false)}
-              className="text-[#77746D] hover:text-white transition-colors"
+              className="text-[#7A766D] hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <p className="text-xs font-sans-anthropic text-[#B5B2AA] leading-relaxed">
+          <p className="text-xs font-sans-anthropic text-[#A5A095] leading-relaxed">
             We use essential cookies to maintain session security, verify Zero-Trust authorization tokens, and analyze system performance. Read our Privacy Policy for more details.
           </p>
 
           <div className="flex items-center gap-3 pt-1">
             <button
               onClick={() => handleCookieAction('accept')}
-              className="flex-1 py-2 px-4 rounded bg-[#CC5A00] hover:bg-[#b85100] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors font-medium text-center"
+              className="flex-1 py-2 px-4 rounded-lg bg-[#D96B27] hover:bg-[#C25918] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors font-medium text-center"
             >
               Accept All
             </button>
             <button
               onClick={() => handleCookieAction('decline')}
-              className="flex-1 py-2 px-4 rounded border border-[#44423C] hover:border-white text-[#B5B2AA] hover:text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors text-center"
+              className="flex-1 py-2 px-4 rounded-lg border border-[#383631] hover:border-white text-[#A5A095] hover:text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors text-center"
             >
               Decline Optional
             </button>
