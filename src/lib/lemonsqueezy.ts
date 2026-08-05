@@ -11,10 +11,16 @@ export const LEMONSQUEEZY_CHECKOUT_URLS = {
   enterprise: 'https://novaverse33.gumroad.com/l/synaps'
 };
 
-export function getLemonSqueezyCheckoutUrl(planId: 'pro' | 'enterprise', userEmail?: string): string {
+export function getLemonSqueezyCheckoutUrl(planId: 'pro' | 'enterprise', userEmail?: string, discountCode: string = 'LAUNCH100'): string {
   const baseUrl = 'https://novaverse33.gumroad.com/l/synaps';
-  const emailParam = userEmail ? `?email=${encodeURIComponent(userEmail)}` : '';
-  return `${baseUrl}${emailParam}`;
+  const params: string[] = [`wanted=true`];
+  if (discountCode) {
+    params.push(`discount_code=${encodeURIComponent(discountCode)}`);
+  }
+  if (userEmail) {
+    params.push(`email=${encodeURIComponent(userEmail)}`);
+  }
+  return `${baseUrl}?${params.join('&')}`;
 }
 
 export async function triggerLemonSqueezyApiRefund(orderIdOrEmail: string, userEmail: string): Promise<{ success: boolean; message: string }> {

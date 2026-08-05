@@ -5,11 +5,14 @@
 
 export const GUMROAD_PRODUCT_URL = 'https://novaverse33.gumroad.com/l/synaps';
 
-export function getGumroadCheckoutUrl(planId?: 'pro' | 'enterprise', userEmail?: string): string {
+export function getGumroadCheckoutUrl(planId?: 'pro' | 'enterprise', userEmail?: string, discountCode: string = 'LAUNCH100'): string {
   const baseUrl = GUMROAD_PRODUCT_URL;
-  const params: string[] = [];
+  const params: string[] = [`wanted=true`];
+  if (discountCode) {
+    params.push(`discount_code=${encodeURIComponent(discountCode)}`);
+  }
   if (userEmail) {
     params.push(`email=${encodeURIComponent(userEmail)}`);
   }
-  return params.length > 0 ? `${baseUrl}?${params.join('&')}` : baseUrl;
+  return `${baseUrl}?${params.join('&')}`;
 }
