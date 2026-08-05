@@ -8,6 +8,7 @@ import {
 import { cn } from '@/lib/utils';
 import { getLemonSqueezyCheckoutUrl, triggerLemonSqueezyApiRefund } from '@/lib/lemonsqueezy';
 import { generateIdempotencyKey } from '@/lib/idempotency';
+import UpiPaymentModal from '@/components/UpiPaymentModal';
 
 interface MultiStepPaywallProps {
   isOpen: boolean;
@@ -63,6 +64,7 @@ export default function MultiStepPaywallModal({
   const [paymentSuccessState, setPaymentSuccessState] = useState(false);
   const [userRole, setUserRole] = useState<string>('MEMBER');
   const [creditLimit, setCreditLimit] = useState<number>(50);
+  const [showUpiModal, setShowUpiModal] = useState(false);
 
   useEffect(() => {
     const checkActivePlan = async () => {
@@ -635,8 +637,13 @@ export default function MultiStepPaywallModal({
           </span>
           <span>Cancel Anytime • 14-Day Real Money Refund Guarantee</span>
         </div>
-
       </div>
+
+      <UpiPaymentModal 
+        isOpen={showUpiModal}
+        onClose={() => setShowUpiModal(false)}
+        planId={selectedPlan}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
 import CancellationRetentionModal from '@/components/CancellationRetentionModal';
+import UpiPaymentModal from '@/components/UpiPaymentModal';
 
 type CurrencyCode = 'USD' | 'EUR' | 'GBP' | 'INR';
 
@@ -63,6 +64,7 @@ export default function BillingPage() {
   const [userCredits, setUserCredits] = useState<{ remaining: number; limit: number } | null>(null);
   const [showMultiStepPaywall, setShowMultiStepPaywall] = useState(false);
   const [showRetentionModal, setShowRetentionModal] = useState(false);
+  const [showUpiModal, setShowUpiModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const activeCurrency = CURRENCIES.find(c => c.code === currency) || CURRENCIES[0];
@@ -426,6 +428,13 @@ export default function BillingPage() {
           }}
         />
       )}
+
+      {/* Instant UPI QR Code Scanner Modal */}
+      <UpiPaymentModal
+        isOpen={showUpiModal}
+        onClose={() => setShowUpiModal(false)}
+        planId={selectedPaywallPlan}
+      />
 
     </div>
   );
