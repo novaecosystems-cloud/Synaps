@@ -171,12 +171,17 @@ export default function AnthropicStyleSynapsLanding() {
               ⚡ Enter Guest Workspace Demo
               <ArrowRight className="w-4 h-4" />
             </button>
-            <a
-              href="/api/downloads/windows"
-              className="px-6 py-3.5 rounded-xl border border-[#D96B27]/40 bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 font-medium shadow-md"
-            >
-              💻 Download Windows App Icon (.exe)
-            </a>
+            <div className="flex flex-col items-center">
+              <a
+                href="/api/downloads/windows"
+                className="px-6 py-3.5 rounded-xl border border-[#D96B27]/40 bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 font-medium shadow-md"
+              >
+                💻 Download Windows Setup (.exe)
+              </a>
+              <span className="text-[10px] font-mono-anthropic text-[#D96B27] tracking-widest uppercase mt-1.5 font-bold">
+                (BETA v2.5)
+              </span>
+            </div>
             <a
               href="#evidence"
               className="px-6 py-3.5 rounded-xl border border-[#3A3834] bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2"
