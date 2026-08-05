@@ -155,7 +155,7 @@ export default function AnthropicStyleSynapsLanding() {
             ENTERPRISE DECISION INTELLIGENCE WORKSPACE
           </span>
 
-          <h1 className="anthropic-hero-title font-serif-anthropic text-5xl md:text-7xl font-normal leading-[1.05] tracking-tight text-[#ECE9E3]">
+          <h1 className="anthropic-hero-title font-serif-anthropic text-3xl sm:text-5xl md:text-7xl font-normal leading-[1.1] sm:leading-[1.05] tracking-tight text-[#ECE9E3]">
             <span className="text-[#D96B27] font-serif-anthropic">✦</span> How can SYNAPS help your enterprise today?
           </h1>
 

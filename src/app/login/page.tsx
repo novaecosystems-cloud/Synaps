@@ -47,7 +47,6 @@ export default function LoginPage() {
   }, []);
 
   const createRealSession = async (idToken: string) => {
-    // Set fallback client cookie immediately to guarantee instant redirection
     try {
       document.cookie = `synaps-session=${idToken}; path=/; max-age=2592000; SameSite=Lax`;
     } catch (e) {}
@@ -150,9 +149,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[#181715] p-4 text-[#ECE9E3] font-sans antialiased">
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#181715] p-3 sm:p-4 text-[#ECE9E3] font-sans antialiased">
       
-      {/* ── UIVERSE.IO STYLED CUSTOM CONTAINER ── */}
+      {/* ── UIVERSE.IO STYLED CUSTOM CONTAINER (RESPONSIVE 9:16 AND 16:9) ── */}
       <style jsx global>{`
         .uiverse-form {
           --background: #242320;
@@ -161,25 +160,27 @@ export default function LoginPage() {
           --font-color-sub: #A5A095;
           --bg-color: #1D1C19;
           --main-color: #D96B27;
-          padding: 30px;
+          padding: 26px 20px;
           background: var(--background);
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 16px;
+          gap: 14px;
           border-radius: 20px;
           border: 2px solid var(--main-color);
           box-shadow: 6px 6px 0px var(--main-color);
-          width: 100%;
+          width: 94vw;
           max-width: 420px;
+          max-height: 92vh;
+          overflow-y: auto;
         }
 
         .uiverse-form > p {
           color: var(--font-color);
           font-weight: 700;
-          font-size: 24px;
-          margin-bottom: 8px;
+          font-size: 22px;
+          margin-bottom: 6px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -189,7 +190,7 @@ export default function LoginPage() {
         .uiverse-form > p > span {
           color: var(--font-color-sub);
           font-weight: 500;
-          font-size: 14px;
+          font-size: 13px;
           margin-top: 2px;
         }
 
@@ -199,7 +200,7 @@ export default function LoginPage() {
           align-items: center;
           justify-content: center;
           gap: 10px;
-          margin: 6px 0;
+          margin: 4px 0;
         }
 
         .uiverse-separator > div {
@@ -221,14 +222,14 @@ export default function LoginPage() {
           justify-content: center;
           align-items: center;
           gap: 10px;
-          padding: 0 16px;
+          padding: 0 14px;
           width: 100%;
-          height: 46px;
+          min-height: 44px;
           border-radius: 12px;
           border: 2px solid #383631;
           background-color: var(--bg-color);
           box-shadow: 4px 4px 0px #383631;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 600;
           color: var(--font-color);
           cursor: pointer;
@@ -297,9 +298,25 @@ export default function LoginPage() {
           height: 1.25rem;
           shrink: 0;
         }
+
+        @media (max-width: 480px) {
+          .uiverse-form {
+            padding: 20px 14px;
+            gap: 11px;
+            border-radius: 16px;
+            box-shadow: 4px 4px 0px var(--main-color);
+          }
+          .uiverse-form > p {
+            font-size: 19px;
+          }
+          .uiverse-oauthButton {
+            min-height: 42px;
+            font-size: 12px;
+          }
+        }
       `}</style>
 
-      <form className="uiverse-form" onSubmit={handleEmailLogin}>
+      <form className="uiverse-form custom-scrollbar" onSubmit={handleEmailLogin}>
         <p className="font-serif-anthropic">
           Welcome,<span>sign in to continue</span>
         </p>

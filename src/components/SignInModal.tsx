@@ -27,7 +27,6 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   if (!isOpen) return null;
 
   const createRealSession = async (idToken: string) => {
-    // Set fallback client cookie immediately to guarantee instant redirection
     try {
       document.cookie = `synaps-session=${idToken}; path=/; max-age=2592000; SameSite=Lax`;
     } catch (e) {}
@@ -122,9 +121,9 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in">
       
-      {/* ── UIVERSE.IO STYLED CUSTOM FORM CONTAINER (EXACT CODE PROVIDED BY USER) ── */}
+      {/* ── UIVERSE.IO STYLED CUSTOM FORM CONTAINER (RESPONSIVE 9:16 AND 16:9) ── */}
       <style jsx global>{`
         .uiverse-popup-form {
           --background: #242320;
@@ -133,18 +132,20 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           --font-color-sub: #A5A095;
           --bg-color: #1D1C19;
           --main-color: #D96B27;
-          padding: 28px;
+          padding: 24px 20px;
           background: var(--background);
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 16px;
+          gap: 14px;
           border-radius: 20px;
           border: 2px solid var(--main-color);
           box-shadow: 6px 6px 0px var(--main-color);
-          width: 100%;
+          width: 94vw;
           max-width: 420px;
+          max-height: 92vh;
+          overflow-y: auto;
           position: relative;
         }
 
@@ -152,7 +153,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           color: var(--font-color);
           font-weight: 700;
           font-size: 22px;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -162,7 +163,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
         .uiverse-popup-form > p > span {
           color: var(--font-color-sub);
           font-weight: 500;
-          font-size: 14px;
+          font-size: 13px;
           margin-top: 2px;
         }
 
@@ -194,14 +195,14 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           justify-content: center;
           align-items: center;
           gap: 10px;
-          padding: 0 16px;
+          padding: 0 14px;
           width: 100%;
-          height: 44px;
+          min-height: 44px;
           border-radius: 12px;
           border: 2px solid #383631;
           background-color: var(--bg-color);
           box-shadow: 4px 4px 0px #383631;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 600;
           color: var(--font-color);
           cursor: pointer;
@@ -270,14 +271,30 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           height: 1.25rem;
           shrink: 0;
         }
+
+        @media (max-width: 480px) {
+          .uiverse-popup-form {
+            padding: 20px 14px;
+            gap: 11px;
+            border-radius: 16px;
+            box-shadow: 4px 4px 0px var(--main-color);
+          }
+          .uiverse-popup-form > p {
+            font-size: 19px;
+          }
+          .uiverse-popup-oauthButton {
+            min-height: 42px;
+            font-size: 12px;
+          }
+        }
       `}</style>
 
-      <form className="uiverse-popup-form" onSubmit={handleEmailLogin}>
+      <form className="uiverse-popup-form custom-scrollbar" onSubmit={handleEmailLogin}>
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-full bg-[#1D1C19] border border-[#383631] text-[#A5A095] hover:text-white hover:border-[#D96B27] transition-all"
+          className="absolute top-3.5 right-3.5 p-1.5 rounded-full bg-[#1D1C19] border border-[#383631] text-[#A5A095] hover:text-white hover:border-[#D96B27] transition-all"
         >
           <X className="w-4 h-4" />
         </button>
