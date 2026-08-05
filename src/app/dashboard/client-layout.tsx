@@ -261,6 +261,35 @@ export default function ClientLayout({ children, user }: { children: React.React
     router.push('/login');
   };
 
+  // PRO & MAX Feature 2-Use Trial Limiter for Demo/Guest Sign Ins
+  useEffect(() => {
+    const PRO_MAX_ROUTES = [
+      '/dashboard/boardroom',
+      '/dashboard/digital-twin',
+      '/dashboard/simulations',
+      '/dashboard/strategy',
+      '/dashboard/graph',
+      '/dashboard/risk-center'
+    ];
+
+    const isGuest = user?.email?.includes('guest') || user?.email?.includes('demo') || user?.email?.includes('apex');
+    const isProMaxRoute = PRO_MAX_ROUTES.some(r => pathname.startsWith(r));
+
+    if (isGuest && isProMaxRoute) {
+      const countStr = localStorage.getItem('synaps_demo_usage_count') || '0';
+      const count = parseInt(countStr, 10);
+
+      if (count >= 2) {
+        // Exceeded 2 free trial uses of Pro/MAX features
+        setIsPaywallModalOpen(true);
+      } else {
+        // Track usage count
+        const newCount = count + 1;
+        localStorage.setItem('synaps_demo_usage_count', newCount.toString());
+      }
+    }
+  }, [pathname, user?.email]);
+
   return (
     <BackgroundTaskProvider>
       <div className="flex h-screen w-full bg-background overflow-hidden relative tour-dashboard">

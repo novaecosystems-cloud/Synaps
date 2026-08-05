@@ -12,14 +12,16 @@ import {
   PenTool, GraduationCap, Code2, FolderOpen, Calendar, AudioWaveform, ChevronDown, Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import SignInModal from '@/components/SignInModal';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function AnthropicStyleSynapsLanding() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Cookie Consent Banner State
+  // Cookie Consent & Sign In Modal State
   const [showCookieBanner, setShowCookieBanner] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'grounding' | 'boardroom' | 'security'>('grounding');
   const [promptText, setPromptText] = useState("What price escalation risks exist in our 2026 Master Services Agreement?");
   const [selectedModel, setSelectedModel] = useState("Gemini 1.5 Pro");
@@ -127,19 +129,19 @@ export default function AnthropicStyleSynapsLanding() {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Link
-              href="/login"
+            <button
+              onClick={() => setShowSignInModal(true)}
               className="text-xs font-mono-anthropic text-[#A39F95] hover:text-[#ECE9E3] transition-colors"
             >
               Sign In
-            </Link>
-            <Link
-              href="/demo"
+            </button>
+            <button
+              onClick={() => setShowSignInModal(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#D96B27] hover:bg-[#C25918] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors shadow-lg shadow-[#D96B27]/10"
             >
               Try SYNAPS
               <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -162,13 +164,13 @@ export default function AnthropicStyleSynapsLanding() {
           </p>
 
           <div className="anthropic-hero-cta flex flex-wrap items-center justify-center gap-4 pt-2">
-            <Link
-              href="/demo"
+            <button
+              onClick={() => setShowSignInModal(true)}
               className="px-6 py-3.5 rounded-xl bg-[#D96B27] hover:bg-[#C25918] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-[#D96B27]/20 font-bold"
             >
               ⚡ Enter Guest Workspace Demo
               <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
             <a
               href="#evidence"
               className="px-6 py-3.5 rounded-xl border border-[#3A3834] bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2"
@@ -458,7 +460,11 @@ export default function AnthropicStyleSynapsLanding() {
             </button>
           </div>
         </div>
-      )}
+      {/* ── SIGN IN MODAL WITH UIVERSE.IO STYLING & INSTANT DEMO ── */}
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+      />
 
     </div>
   );
