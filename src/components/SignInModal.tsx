@@ -159,12 +159,12 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
       {/* ── UIVERSE.IO STYLED CUSTOM FORM CONTAINER (RESPONSIVE 9:16 AND 16:9) ── */}
       <style jsx global>{`
         .uiverse-popup-form {
-          --background: #242320;
-          --input-focus: #D96B27;
-          --font-color: #ECE9E3;
-          --font-color-sub: #A5A095;
-          --bg-color: #1D1C19;
-          --main-color: #D96B27;
+          --background: #120E21;
+          --input-focus: #9333EA;
+          --font-color: #ffffff;
+          --font-color-sub: #A855F7;
+          --bg-color: #19142E;
+          --main-color: #7C3AED;
           padding: 24px 20px;
           background: var(--background);
           display: flex;
@@ -213,7 +213,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           flex: 1;
           height: 2px;
           border-radius: 5px;
-          background-color: #383631;
+          background-color: #2D274A;
         }
 
         .uiverse-popup-separator > span {
@@ -232,9 +232,9 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           width: 100%;
           min-height: 44px;
           border-radius: 12px;
-          border: 2px solid #383631;
+          border: 2px solid #2D274A;
           background-color: var(--bg-color);
-          box-shadow: 4px 4px 0px #383631;
+          box-shadow: 4px 4px 0px #2D274A;
           font-size: 13px;
           font-weight: 600;
           color: var(--font-color);
@@ -252,15 +252,15 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           left: 0;
           height: 100%;
           width: 0;
-          background-color: #D96B27;
+          background-color: #7C3AED;
           z-index: -1;
           transition: all 250ms ease;
         }
 
         .uiverse-popup-oauthButton:hover {
           color: #ffffff;
-          border-color: #D96B27;
-          box-shadow: 4px 4px 0px #D96B27;
+          border-color: #9333EA;
+          box-shadow: 4px 4px 0px #9333EA;
         }
 
         .uiverse-popup-oauthButton:hover::before {
@@ -268,15 +268,15 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
         }
 
         .uiverse-popup-demoButton {
-          background-color: #D96B27;
+          background: linear-gradient(180deg, #7C3AED 0%, #5B21B6 100%);
           color: #ffffff;
-          border: 2px solid #D96B27;
-          box-shadow: 4px 4px 0px #ffffff;
+          border: 2px solid #9333EA;
+          box-shadow: 4px 4px 0px #9333EA;
           font-weight: 700;
         }
 
         .uiverse-popup-demoButton::before {
-          background-color: #C25918;
+          background: linear-gradient(180deg, #9333EA 0%, #6B21A8 100%);
         }
 
         .uiverse-popup-input {
@@ -284,7 +284,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           min-height: 44px;
           background-color: var(--bg-color);
           border-radius: 12px;
-          border: 2px solid #383631;
+          border: 2px solid #2D274A;
           padding: 0 14px;
           outline: none;
           color: var(--font-color);
@@ -309,7 +309,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-[#A5A095] hover:text-white p-1.5 rounded-lg hover:bg-[#2D2C28] transition-colors"
+          className="absolute top-4 right-4 text-purple-300 hover:text-white p-1.5 rounded-lg hover:bg-purple-900/40 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -317,7 +317,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
         {showOtpStep ? (
           /* ── STEP 2: 2FA OTP VERIFICATION ── */
           <form onSubmit={handleVerify2FA} className="w-full flex flex-col items-center gap-4 py-2">
-            <div className="w-12 h-12 rounded-full bg-[#D96B27]/20 border border-[#D96B27] flex items-center justify-center text-[#D96B27] mb-1">
+            <div className="w-12 h-12 rounded-full bg-purple-600/20 border border-purple-500 flex items-center justify-center text-purple-400 mb-1">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <p>
@@ -326,7 +326,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             </p>
 
             {otpHint && (
-              <div className="w-full text-center px-3 py-1.5 rounded-lg bg-[#D96B27]/10 border border-[#D96B27]/30 text-[11px] font-mono text-[#D96B27]">
+              <div className="w-full text-center px-3 py-1.5 rounded-lg bg-purple-600/20 border border-purple-500/40 text-[11px] font-mono text-purple-300">
                 2FA OTP Code: <strong className="tracking-widest text-white">{otpHint}</strong>
               </div>
             )}

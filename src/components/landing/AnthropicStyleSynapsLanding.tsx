@@ -93,6 +93,27 @@ export default function AnthropicStyleSynapsLanding() {
     });
   }, { scope: containerRef });
 
+  // Dynamically Load Navattic Embed Script & Re-initialize on View Change
+  useEffect(() => {
+    const navatticScriptUrl = 'https://js.navattic.com/embeds.js';
+    const initNavattic = () => {
+      if ((window as any).NavatticEmbed) {
+        (window as any).NavatticEmbed.loadEmbeds();
+      }
+    };
+
+    let script = document.querySelector(`script[src="${navatticScriptUrl}"]`) as HTMLScriptElement;
+    if (!script) {
+      script = document.createElement('script');
+      script.src = navatticScriptUrl;
+      script.async = true;
+      script.onload = initNavattic;
+      document.body.appendChild(script);
+    } else {
+      initNavattic();
+    }
+  }, [demoView]);
+
   return (
     <div ref={containerRef} className="min-h-screen bg-[#0B0A12] text-[#EDEBF5] font-sans antialiased selection:bg-[#7C3AED] selection:text-white bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(124,58,237,0.25),rgba(255,255,255,0))]">
       
@@ -311,8 +332,7 @@ export default function AnthropicStyleSynapsLanding() {
                 data-navattic-placeholder-src="https://app.navattic.com/api/poster/cmshd2htw000g04jp4r211hjd"
                 data-navattic-demo-id="cmshd2htw000g04jp4r211hjd"
                 className="w-full h-[520px] sm:h-[600px] border-none"
-                allow="fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture"
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads"
+                allow="fullscreen"
                 title="Synaps AI Navattic Interactive Demo"
               />
 
