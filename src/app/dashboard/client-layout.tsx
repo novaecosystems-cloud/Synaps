@@ -80,6 +80,7 @@ const sidebarSections: MenuSection[] = [
         name: 'AI Intelligence', 
         icon: Sparkles,
         children: [
+          { name: 'AI Chat & Web Search', href: '/dashboard/chat' },
           { name: 'Mission Control', href: '/dashboard/mission-control' },
           { name: 'Chief of Staff', href: '/dashboard/chief-of-staff' },
           { name: 'AI Boardroom', href: '/dashboard/boardroom', badge: 'PRO' },
