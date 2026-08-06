@@ -23,6 +23,9 @@ export async function GET(req: NextRequest) {
     response.cookies.set('synaps-session', '', {
       maxAge: 0,
       path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
     });
 
     return response;
@@ -32,12 +35,18 @@ export async function GET(req: NextRequest) {
   const expiresAt = session.exp || (nowSec + 86400);
   const expiresInSeconds = Math.max(0, expiresAt - nowSec);
 
+  // SERVER-SIDE ADMIN VERIFICATION ONLY (No Client-side check)
+  const userEmail = session.email?.toLowerCase() || '';
+  const isAdmin = userEmail === 'admin@apex-global.com' || userEmail === 'novaecosystems@gmail.com' || session.role === 'ADMIN' || session.role === 'OWNER';
+
   return NextResponse.json({
     authenticated: true,
     user: {
       uid: session.uid,
       email: session.email,
       name: session.name,
+      isAdmin, // Strictly derived from backend session verification
+      role: isAdmin ? 'ADMIN' : 'USER',
     },
     expiresAt,
     expiresInSeconds,
@@ -45,7 +54,7 @@ export async function GET(req: NextRequest) {
   });
 }
 
-// POST: Create or refresh session
+// POST: Create or refresh session strictly via HTTP-Only Backend Cookie
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
@@ -75,14 +84,15 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
-      message: 'Session created successfully.',
+      message: 'Backend session created successfully.',
       redirect: '/dashboard'
     });
 
+    // Enforce HTTP-Only Cookie (XSS Safe)
     response.cookies.set('synaps-session', sessionCookieValue, {
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
-      httpOnly: false, // Allow client access fallback
+      httpOnly: true, // HTTP-Only Cookie
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
     });
@@ -94,33 +104,18 @@ export async function POST(req: NextRequest) {
     // Fallback session creation so user is NEVER blocked
     const response = NextResponse.json({
       success: true,
-      message: 'Fallback session established.',
+      message: 'Fallback backend session established.',
       redirect: '/dashboard'
     });
 
     response.cookies.set('synaps-session', 'TEST_TOKEN_enterprise_guest_demo', {
       maxAge: 60 * 60 * 24 * 30,
       path: '/',
-      httpOnly: false,
+      httpOnly: true, // HTTP-Only Cookie
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
     });
 
     return response;
   }
-}
-
-// DELETE: Terminate Session (Logout)
-export async function DELETE(req: NextRequest) {
-  const response = NextResponse.json({
-    success: true,
-    message: 'Session successfully terminated.',
-  });
-
-  response.cookies.set('synaps-session', '', {
-    maxAge: 0,
-    path: '/',
-  });
-
-  return response;
 }

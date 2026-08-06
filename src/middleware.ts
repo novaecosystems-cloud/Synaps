@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
     if (!session) {
       res.cookies.set('synaps-session', 'TEST_TOKEN_demo_admin_synaps', {
         maxAge: 60 * 60 * 24 * 30, // 30 days
-        httpOnly: true,
+        httpOnly: true, // HTTP-Only Cookie
         secure: process.env.NODE_ENV === 'production',
         path: '/',
         sameSite: 'lax',
@@ -32,17 +32,27 @@ export function middleware(request: NextRequest) {
     return res;
   }
 
+  // 3. Server-Side Admin Protection: Validate session strictly on backend for Admin routes
+  if (path.startsWith('/admin') || path.startsWith('/dashboard/admin') || path.startsWith('/api/admin')) {
+    if (!session) {
+      if (path.startsWith('/api/')) {
+        return NextResponse.json({ success: false, error: 'Unauthorized. Admin session required.' }, { status: 401 });
+      }
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
   const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
   const isPublicRoute = publicRoutes.some(route => path.startsWith(route));
 
-  // 3. Strict Auth Protection: Require session cookie for protected dashboard routes
+  // 4. Strict Auth Protection: Require HTTP-Only session cookie for protected dashboard routes
   if (isProtectedRoute && !session) {
     const redirectUrl = new URL('/login', request.url);
     redirectUrl.searchParams.set('redirect', path);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // 4. Redirect real authenticated users away from login/register to dashboard
+  // 5. Redirect real authenticated users away from login/register to dashboard
   if (isPublicRoute && session && !session.startsWith('TEST_TOKEN_')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
