@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
-  Send, Globe, FileText, Plus, Trash2,
-  ChevronRight, Loader2, BookOpen, ExternalLink,
-  AlignLeft, Search, Paperclip, X, Clock,
-  Sparkles, Lightbulb
+  Send, Globe, Plus, Trash2, Clock,
+  Loader2, BookOpen, ExternalLink,
+  AlignLeft, Paperclip, Sparkles,
+  Lightbulb, ArrowRight, ChevronRight,
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -51,6 +53,88 @@ const SUGGESTED = [
   "Compare the financial terms across all active agreements",
 ];
 
+// ─── Markdown Renderer ────────────────────────────────────────────────────────
+function MarkdownContent({ content }: { content: string }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        h1: ({ children }) => (
+          <h1 className="text-xl font-semibold text-white mt-5 mb-2 leading-snug">{children}</h1>
+        ),
+        h2: ({ children }) => (
+          <h2 className="text-lg font-semibold text-white mt-4 mb-2 leading-snug">{children}</h2>
+        ),
+        h3: ({ children }) => (
+          <h3 className="text-base font-semibold text-white/90 mt-3 mb-1.5">{children}</h3>
+        ),
+        p: ({ children }) => (
+          <p className="text-[15px] text-white/85 leading-[1.8] mb-3 font-normal">{children}</p>
+        ),
+        strong: ({ children }) => (
+          <strong className="font-semibold text-white">{children}</strong>
+        ),
+        em: ({ children }) => (
+          <em className="italic text-white/80">{children}</em>
+        ),
+        ul: ({ children }) => (
+          <ul className="list-none space-y-1.5 mb-3 ml-0">{children}</ul>
+        ),
+        ol: ({ children }) => (
+          <ol className="list-decimal list-inside space-y-1.5 mb-3 ml-1">{children}</ol>
+        ),
+        li: ({ children }) => (
+          <li className="flex gap-2 text-[15px] text-white/85 leading-relaxed">
+            <span className="text-purple-400 mt-1 shrink-0">•</span>
+            <span>{children}</span>
+          </li>
+        ),
+        blockquote: ({ children }) => (
+          <blockquote className="border-l-2 border-purple-500/50 pl-4 my-3 text-white/60 italic text-[14px]">
+            {children}
+          </blockquote>
+        ),
+        code: ({ inline, children, ...props }: any) =>
+          inline ? (
+            <code className="bg-white/10 text-purple-200 px-1.5 py-0.5 rounded text-[13px] font-mono">
+              {children}
+            </code>
+          ) : (
+            <pre className="bg-[#0D0B1A] border border-purple-500/20 rounded-xl p-4 overflow-x-auto my-3">
+              <code className="text-[13px] text-purple-100 font-mono leading-relaxed">{children}</code>
+            </pre>
+          ),
+        a: ({ href, children }) => (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-400 underline underline-offset-2 hover:text-purple-300 transition-colors"
+          >
+            {children}
+          </a>
+        ),
+        hr: () => <hr className="border-purple-500/20 my-4" />,
+        table: ({ children }) => (
+          <div className="overflow-x-auto my-4">
+            <table className="w-full text-[13px] border-collapse">{children}</table>
+          </div>
+        ),
+        th: ({ children }) => (
+          <th className="text-left px-3 py-2 bg-purple-900/30 text-purple-200 font-semibold border border-purple-500/20">
+            {children}
+          </th>
+        ),
+        td: ({ children }) => (
+          <td className="px-3 py-2 text-white/75 border border-purple-500/10">{children}</td>
+        ),
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  );
+}
+
 // ─── Source Card ─────────────────────────────────────────────────────────────
 function SourceCard({ source, idx }: { source: WebSource; idx: number }) {
   return (
@@ -58,8 +142,10 @@ function SourceCard({ source, idx }: { source: WebSource; idx: number }) {
       href={source.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col gap-1.5 p-3 rounded-xl bg-[#1A1630] border border-purple-500/20
-                 hover:border-purple-400/50 hover:bg-[#1E1A3A] transition-all min-w-[200px] max-w-[240px] shrink-0"
+      className="group flex flex-col gap-1.5 p-3 rounded-xl
+                 bg-white/5 hover:bg-white/10
+                 border border-white/10 hover:border-purple-400/40
+                 transition-all min-w-[200px] max-w-[220px] shrink-0"
     >
       <div className="flex items-center gap-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -69,158 +155,64 @@ function SourceCard({ source, idx }: { source: WebSource; idx: number }) {
           className="w-4 h-4 rounded-sm"
           onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
         />
-        <span className="text-[11px] text-purple-400 font-medium truncate">{source.domain}</span>
-        <ExternalLink className="w-3 h-3 text-purple-500/50 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <span className="text-[11px] text-white/50 font-medium truncate">{source.domain}</span>
+        <ExternalLink className="w-3 h-3 text-white/30 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
       <p className="text-[12px] text-white/90 font-medium leading-snug line-clamp-2">{source.title}</p>
       {source.snippet && (
-        <p className="text-[11px] text-purple-300/50 leading-relaxed line-clamp-2">{source.snippet}</p>
+        <p className="text-[11px] text-white/45 leading-relaxed line-clamp-2">{source.snippet}</p>
       )}
-      <span className="text-[10px] text-purple-500/40 mt-0.5">Source {idx + 1}</span>
     </a>
   );
 }
 
-// ─── Message Bubble ───────────────────────────────────────────────────────────
-function MessageBubble({ msg }: { msg: Message }) {
-  if (msg.role === "user") {
-    return (
-      <div className="flex justify-end">
-        <div className="max-w-[75%] bg-[#7C3AED] text-white px-5 py-3 rounded-2xl rounded-tr-sm text-[15px] leading-relaxed">
-          {msg.content}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-4 max-w-3xl">
-      {/* Web Search Label */}
-      {msg.isWebSearch && (
-        <div className="flex items-center gap-2 text-xs text-purple-400">
-          <Globe className="w-3.5 h-3.5" />
-          <span className="font-medium uppercase tracking-wider">Web Search</span>
-        </div>
-      )}
-
-      {/* Thinking Steps */}
-      {msg.thinking && msg.thinking.length > 0 && (
-        <div className="flex flex-col gap-1">
-          {msg.thinking.map((step, i) => (
-            <div key={i} className="flex items-center gap-2 text-[12px] text-purple-400/70">
-              <ChevronRight className="w-3 h-3 shrink-0" />
-              <span>{step}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Web Sources Carousel */}
-      {msg.webSources && msg.webSources.length > 0 && (
-        <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
-          {msg.webSources.map((src, i) => (
-            <SourceCard key={i} source={src} idx={i} />
-          ))}
-        </div>
-      )}
-
-      {/* Answer */}
-      <div className="text-[15px] leading-[1.75] text-white/90 whitespace-pre-wrap">
-        {msg.isStreaming ? (
-          <>
-            {msg.content}
-            <span className="inline-block w-0.5 h-4 bg-purple-400 animate-pulse ml-0.5 align-middle" />
-          </>
-        ) : (
-          msg.content
-        )}
-      </div>
-
-      {/* Document Citations */}
-      {msg.citations && msg.citations.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-1">
-          {msg.citations.map((cit, i) => (
-            <button
-              key={i}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-950/50
-                         border border-purple-500/30 text-[11px] text-purple-300
-                         hover:bg-purple-900/50 transition-colors"
-            >
-              <BookOpen className="w-3 h-3" />
-              <span>{cit.document_id ? `Doc · Pg ${cit.page}` : cit.snippet?.slice(0, 30)}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Thinking Animation ───────────────────────────────────────────────────────
+// ─── Thinking Indicator ───────────────────────────────────────────────────────
 function ThinkingIndicator({ webSearch }: { webSearch: boolean }) {
+  const [dot, setDot] = useState(0);
+  const steps = webSearch
+    ? ["Searching the web", "Reading sources", "Synthesising answer"]
+    : ["Reading documents", "Analysing evidence", "Generating response"];
   const [step, setStep] = useState(0);
-  const webSteps = ["Searching the web…", "Reading sources…", "Synthesising answer…"];
-  const docSteps = ["Reading documents…", "Cross-referencing evidence…", "Generating response…"];
-  const steps = webSearch ? webSteps : docSteps;
 
   useEffect(() => {
-    const t = setInterval(() => setStep(s => (s + 1) % steps.length), 1400);
-    return () => clearInterval(t);
+    const d = setInterval(() => setDot(v => (v + 1) % 3), 400);
+    const s = setInterval(() => setStep(v => (v + 1) % steps.length), 1600);
+    return () => { clearInterval(d); clearInterval(s); };
   }, [steps.length]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2 text-[12px] text-purple-400">
-        {webSearch ? (
-          <Globe className="w-3.5 h-3.5 animate-pulse" />
-        ) : (
-          <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-        )}
-        <span className="font-medium uppercase tracking-wider">
-          {webSearch ? "Web Search" : "Document AI"}
-        </span>
-      </div>
-      <div className="flex items-center gap-3 text-sm text-purple-300/70">
-        <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
-        <span className="transition-all">{steps[step]}</span>
-      </div>
+    <div className="flex items-center gap-3 text-white/50 text-[14px] py-1">
+      <span className="w-5 h-5 rounded-full border-2 border-purple-500/40 border-t-purple-400 animate-spin shrink-0" />
+      <span>{steps[step]}{"...".slice(0, dot + 1)}</span>
     </div>
   );
 }
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
-function EmptyState({
-  webSearch, onSuggest
-}: { webSearch: boolean; onSuggest: (q: string) => void }) {
+function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-10 text-center px-4">
+    <div className="flex flex-col items-center justify-center h-full gap-8 text-center px-6 pb-20">
       <div>
-        <div className="w-16 h-16 rounded-2xl bg-[#7C3AED]/20 border border-purple-500/30
+        <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/20
                         flex items-center justify-center mx-auto mb-5">
-          {webSearch
-            ? <Globe className="w-8 h-8 text-purple-400" />
-            : <Sparkles className="w-8 h-8 text-purple-400" />}
+          <Sparkles className="w-7 h-7 text-purple-400" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">
-          {webSearch ? "Web + Document AI" : "Document AI"}
-        </h2>
-        <p className="text-purple-300/60 text-sm max-w-sm mx-auto">
-          {webSearch
-            ? "Ask anything. Synaps searches the web and your documents simultaneously."
-            : "Ask about your uploaded documents. Every answer cites the exact page and line."}
+        <h2 className="text-[22px] font-semibold text-white mb-2">How can I help?</h2>
+        <p className="text-white/45 text-[14px] max-w-xs mx-auto leading-relaxed">
+          Ask about your documents or search the web for live information.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-lg">
         {SUGGESTED.map((q) => (
           <button
             key={q}
             onClick={() => onSuggest(q)}
-            className="text-left p-4 rounded-xl bg-[#1A1630] border border-purple-500/20
-                       hover:border-purple-400/40 hover:bg-[#1E1A3A] transition-all group"
+            className="text-left px-4 py-3.5 rounded-2xl bg-white/5 hover:bg-white/10
+                       border border-white/10 hover:border-white/20 transition-all group"
           >
-            <Lightbulb className="w-4 h-4 text-purple-400 mb-2 group-hover:text-purple-300 transition-colors" />
-            <p className="text-[13px] text-purple-200/80 leading-snug">{q}</p>
+            <p className="text-[13px] text-white/70 group-hover:text-white/90 leading-snug transition-colors">{q}</p>
+            <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-purple-400 mt-2 transition-colors" />
           </button>
         ))}
       </div>
@@ -241,97 +233,78 @@ export default function ChatPage() {
 
   const activeChat = chats.find(c => c.id === activeChatId) ?? null;
 
-  // Auto scroll to bottom
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeChat?.messages]);
 
-  // Auto resize textarea
   const resizeTextarea = useCallback(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 200) + "px";
+    el.style.height = Math.min(el.scrollHeight, 180) + "px";
   }, []);
 
   useEffect(() => { resizeTextarea(); }, [input, resizeTextarea]);
 
-  // ── New chat ────────────────────────────────────────────────────────────────
-  const newChat = () => {
+  const ensureChat = useCallback(() => {
+    if (activeChatId) return activeChatId;
     const chat: Chat = { id: uid(), title: "New conversation", messages: [], createdAt: new Date() };
     setChats(prev => [chat, ...prev]);
     setActiveChatId(chat.id);
-  };
+    return chat.id;
+  }, [activeChatId]);
 
-  // ── Send message ────────────────────────────────────────────────────────────
   const send = useCallback(async (overrideInput?: string) => {
     const q = (overrideInput ?? input).trim();
     if (!q || isLoading) return;
 
-    // Ensure a chat exists
-    let chatId = activeChatId;
-    if (!chatId) {
-      const chat: Chat = { id: uid(), title: q.slice(0, 50), messages: [], createdAt: new Date() };
+    const chatId = activeChatId ?? (() => {
+      const id = uid();
+      const chat: Chat = { id, title: q.slice(0, 50), messages: [], createdAt: new Date() };
       setChats(prev => [chat, ...prev]);
-      setActiveChatId(chat.id);
-      chatId = chat.id;
-    }
+      setActiveChatId(id);
+      return id;
+    })();
 
     const userMsg: Message = { id: uid(), role: "user", content: q };
-    const assistantMsgId = uid();
+    const aId = uid();
+    const isWebQuery = webSearch || /search the web|google|latest|recent news|current|today|2024|2025|2026/i.test(q);
 
-    // Detect web search: explicit keyword or toggle enabled
-    const isWebQuery = webSearch ||
-      /search the web|google|latest news|recent|current|today|2024|2025|2026/i.test(q);
-
-    setChats(prev => prev.map(c => c.id === chatId
-      ? {
-        ...c,
-        title: c.messages.length === 0 ? q.slice(0, 50) : c.title,
-        messages: [...c.messages, userMsg, {
-          id: assistantMsgId,
-          role: "assistant",
-          content: "",
-          isStreaming: true,
-          isWebSearch: isWebQuery,
-        }]
-      }
-      : c
+    setChats(prev => prev.map(c =>
+      c.id === chatId
+        ? {
+            ...c,
+            title: c.messages.length === 0 ? q.slice(0, 50) : c.title,
+            messages: [...c.messages, userMsg, {
+              id: aId, role: "assistant", content: "",
+              isStreaming: true, isWebSearch: isWebQuery,
+            }],
+          }
+        : c
     ));
-
     setInput("");
     setIsLoading(true);
 
     try {
       if (isWebQuery) {
-        // ── Web Search path ──────────────────────────────────────────────────
         const res = await fetch("/api/web-search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ query: q }),
         });
         const data = await res.json();
-
-        setChats(prev => prev.map(c => c.id === chatId
-          ? {
-            ...c,
-            messages: c.messages.map(m => m.id === assistantMsgId
-              ? {
-                ...m,
-                content: data.answer || "No answer returned.",
-                webSources: data.sources || [],
-                isStreaming: false,
-                thinking: ["Searched Google", `Found ${(data.sources || []).length} sources`, "Synthesised answer"],
-              }
-              : m
-            )
-          }
-          : c
+        setChats(prev => prev.map(c =>
+          c.id === chatId
+            ? { ...c, messages: c.messages.map(m =>
+                m.id === aId
+                  ? { ...m, content: data.answer || "No answer returned.", webSources: data.sources || [], isStreaming: false }
+                  : m
+              )}
+            : c
         ));
-
       } else {
-        // ── Document AI path ─────────────────────────────────────────────────
-        const messages = (activeChat?.messages ?? [])
+        const currentChat = chats.find(c => c.id === chatId);
+        const messages = (currentChat?.messages ?? [])
           .filter(m => !m.isStreaming)
           .map(m => ({ role: m.role, content: m.content }))
           .concat({ role: "user", content: q });
@@ -342,168 +315,201 @@ export default function ChatPage() {
           body: JSON.stringify({ messages }),
         });
         const data = await res.json();
-
-        setChats(prev => prev.map(c => c.id === chatId
-          ? {
-            ...c,
-            messages: c.messages.map(m => m.id === assistantMsgId
-              ? {
-                ...m,
-                content: data.answer || data.error || "No response.",
-                citations: data.evidence?.slice(0, 5).map((e: any) => ({
-                  document_id: e.name || e.documentId,
-                  page: e.pageNumber,
-                  snippet: e.text?.slice(0, 60),
-                })) || [],
-                isStreaming: false,
-                thinking: ["Searched documents", "Cross-referenced evidence", "Generated grounded answer"],
-              }
-              : m
-            )
-          }
-          : c
+        setChats(prev => prev.map(c =>
+          c.id === chatId
+            ? { ...c, messages: c.messages.map(m =>
+                m.id === aId
+                  ? {
+                      ...m,
+                      content: data.answer || data.error || "No response.",
+                      citations: data.evidence?.slice(0, 5).map((e: any) => ({
+                        document_id: e.name || e.documentId,
+                        page: e.pageNumber,
+                        snippet: e.text?.slice(0, 60),
+                      })) || [],
+                      isStreaming: false,
+                    }
+                  : m
+              )}
+            : c
         ));
       }
-    } catch (err: any) {
-      setChats(prev => prev.map(c => c.id === chatId
-        ? {
-          ...c,
-          messages: c.messages.map(m => m.id === assistantMsgId
-            ? { ...m, content: "Something went wrong. Please try again.", isStreaming: false }
-            : m
-          )
-        }
-        : c
+    } catch {
+      setChats(prev => prev.map(c =>
+        c.id === chatId
+          ? { ...c, messages: c.messages.map(m =>
+              m.id === aId
+                ? { ...m, content: "Something went wrong. Please try again.", isStreaming: false }
+                : m
+            )}
+          : c
       ));
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, activeChatId, activeChat, webSearch]);
+  }, [input, isLoading, activeChatId, chats, webSearch]);
 
-  // ── Delete chat ─────────────────────────────────────────────────────────────
   const deleteChat = (id: string) => {
     setChats(prev => prev.filter(c => c.id !== id));
     if (activeChatId === id) setActiveChatId(null);
   };
 
   return (
-    <div className="flex h-screen bg-[#0B0A12] text-white overflow-hidden">
+    <div className="flex h-screen bg-[#111118] text-white overflow-hidden"
+         style={{ fontFamily: "'Inter', 'Google Sans', system-ui, -apple-system, sans-serif" }}>
 
       {/* ── SIDEBAR ─────────────────────────────────────────────────────────── */}
-      <aside className={`
-        flex flex-col shrink-0 bg-[#100E1E] border-r border-purple-500/10
-        transition-all duration-300 overflow-hidden
-        ${sidebarOpen ? "w-64" : "w-0"}
-      `}>
-        {/* New chat */}
-        <div className="p-3 border-b border-purple-500/10">
+      <aside className={`flex flex-col shrink-0 bg-[#18181f] border-r border-white/5
+                         transition-all duration-200 overflow-hidden
+                         ${sidebarOpen ? "w-60" : "w-0"}`}>
+        <div className="p-3">
           <button
-            onClick={newChat}
-            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl
-                       bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-purple-200
-                       text-sm font-medium transition-colors"
+            onClick={() => { const id = uid(); const chat = { id, title: "New conversation", messages: [] as Message[], createdAt: new Date() }; setChats(prev => [chat, ...prev]); setActiveChatId(id); }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl
+                       bg-white/5 hover:bg-white/10 text-white/70 hover:text-white
+                       text-sm font-medium transition-all"
           >
             <Plus className="w-4 h-4" />
-            New conversation
+            New chat
           </button>
         </div>
 
-        {/* History */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-1">
-          {chats.length === 0 ? (
-            <p className="text-center text-purple-500/40 text-xs py-8">No conversations yet</p>
-          ) : (
-            chats.map(chat => (
-              <div key={chat.id} className="group relative">
-                <button
-                  onClick={() => setActiveChatId(chat.id)}
-                  className={`w-full text-left px-3 py-2.5 rounded-xl text-sm truncate transition-colors
-                    ${activeChatId === chat.id
-                      ? "bg-[#7C3AED]/25 text-white"
-                      : "text-purple-300/70 hover:bg-purple-900/20 hover:text-white"
-                    }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-3.5 h-3.5 shrink-0 opacity-50" />
-                    <span className="truncate">{chat.title}</span>
-                  </div>
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); deleteChat(chat.id); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md
-                             opacity-0 group-hover:opacity-100 hover:bg-red-900/40 text-red-400 transition-all"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ))
+        <div className="flex-1 overflow-y-auto px-2 pb-3 space-y-0.5">
+          {chats.length === 0 && (
+            <p className="text-center text-white/20 text-xs py-8">No conversations yet</p>
           )}
+          {chats.map(chat => (
+            <div key={chat.id} className="group relative">
+              <button
+                onClick={() => setActiveChatId(chat.id)}
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] truncate transition-all
+                  ${activeChatId === chat.id
+                    ? "bg-white/10 text-white"
+                    : "text-white/50 hover:bg-white/5 hover:text-white/80"
+                  }`}
+              >
+                {chat.title}
+              </button>
+              <button
+                onClick={() => deleteChat(chat.id)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg
+                           opacity-0 group-hover:opacity-100 hover:bg-red-900/30 text-red-400/60
+                           hover:text-red-400 transition-all"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
         </div>
       </aside>
 
       {/* ── MAIN AREA ───────────────────────────────────────────────────────── */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 relative">
 
         {/* Header */}
-        <header className="shrink-0 h-14 flex items-center justify-between px-4
-                           border-b border-purple-500/10 bg-[#0D0B1A]">
+        <header className="shrink-0 h-14 flex items-center justify-between px-4 border-b border-white/5">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(v => !v)}
-              className="p-2 rounded-lg hover:bg-purple-900/30 text-purple-400 transition-colors"
+              className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-white/70 transition-colors"
             >
-              <AlignLeft className="w-5 h-5" />
+              <AlignLeft className="w-4 h-4" />
             </button>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-white">Synaps</span>
-              <span className="text-purple-400/60 text-sm">AI</span>
-            </div>
+            <span className="text-[15px] font-semibold text-white/80">Synaps AI</span>
           </div>
 
-          {/* Web search toggle */}
+          {/* Web Search Toggle */}
           <button
             onClick={() => setWebSearch(v => !v)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[13px] font-medium
                         border transition-all
                         ${webSearch
-                          ? "bg-[#7C3AED]/30 border-purple-400 text-purple-200"
-                          : "bg-transparent border-purple-500/20 text-purple-400/60 hover:border-purple-500/50 hover:text-purple-300"
+                          ? "bg-purple-600/25 border-purple-500/60 text-purple-300"
+                          : "bg-transparent border-white/10 text-white/40 hover:border-white/20 hover:text-white/60"
                         }`}
           >
-            <Globe className={`w-4 h-4 ${webSearch ? "animate-pulse" : ""}`} />
-            <span>Web Search {webSearch ? "ON" : "OFF"}</span>
+            <Globe className={`w-3.5 h-3.5 ${webSearch ? "animate-pulse" : ""}`} />
+            Web
           </button>
         </header>
 
-        {/* Messages or Empty State */}
+        {/* Messages */}
         <div className="flex-1 overflow-y-auto">
           {!activeChat || activeChat.messages.length === 0 ? (
-            <EmptyState webSearch={webSearch} onSuggest={(q) => send(q)} />
+            <EmptyState onSuggest={(q) => send(q)} />
           ) : (
-            <div className="max-w-3xl mx-auto py-8 px-4 space-y-8">
+            <div className="max-w-2xl mx-auto py-8 px-4 space-y-6">
               {activeChat.messages.map((msg) => (
                 <div key={msg.id}>
                   {msg.role === "user" ? (
+                    /* ── User bubble ── */
                     <div className="flex justify-end">
-                      <div className="max-w-[75%] bg-[#7C3AED] text-white px-5 py-3
-                                      rounded-2xl rounded-tr-sm text-[15px] leading-relaxed">
+                      <div className="max-w-[80%] bg-[#2a2a35] text-white/90 px-5 py-3.5
+                                      rounded-2xl rounded-tr-md text-[15px] leading-relaxed font-normal">
                         {msg.content}
                       </div>
                     </div>
                   ) : (
+                    /* ── Assistant message ── */
                     <div className="flex gap-3">
                       {/* Avatar */}
-                      <div className="w-8 h-8 shrink-0 rounded-xl bg-[#7C3AED]/30 border border-purple-500/30
+                      <div className="w-8 h-8 shrink-0 rounded-full bg-purple-600/20 border border-purple-500/20
                                       flex items-center justify-center mt-0.5">
                         {msg.isWebSearch
-                          ? <Globe className="w-4 h-4 text-purple-400" />
-                          : <Sparkles className="w-4 h-4 text-purple-400" />}
+                          ? <Globe className="w-3.5 h-3.5 text-purple-400" />
+                          : <Sparkles className="w-3.5 h-3.5 text-purple-400" />}
                       </div>
-                      <div className="flex-1 min-w-0">
+
+                      <div className="flex-1 min-w-0 space-y-4 pt-0.5">
+                        {/* Thinking / Loading */}
                         {msg.isStreaming && msg.content === "" ? (
                           <ThinkingIndicator webSearch={!!msg.isWebSearch} />
                         ) : (
-                          <MessageBubble msg={msg} />
+                          <>
+                            {/* Web Search label */}
+                            {msg.isWebSearch && (
+                              <div className="flex items-center gap-1.5 text-[11px] text-purple-400/70 font-medium uppercase tracking-wider">
+                                <Globe className="w-3 h-3" />
+                                Web Search
+                              </div>
+                            )}
+
+                            {/* Sources */}
+                            {msg.webSources && msg.webSources.length > 0 && (
+                              <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-1 px-1">
+                                {msg.webSources.map((src, i) => (
+                                  <SourceCard key={i} source={src} idx={i} />
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Answer — rendered markdown */}
+                            <div className="text-[15px] leading-[1.8] font-normal">
+                              {msg.isStreaming ? (
+                                <span className="text-white/85">{msg.content}
+                                  <span className="inline-block w-0.5 h-4 bg-purple-400 animate-pulse ml-0.5 align-middle" />
+                                </span>
+                              ) : (
+                                <MarkdownContent content={msg.content} />
+                              )}
+                            </div>
+
+                            {/* Document Citations */}
+                            {msg.citations && msg.citations.length > 0 && (
+                              <div className="flex flex-wrap gap-2 pt-1">
+                                {msg.citations.map((cit, i) => (
+                                  <span key={i}
+                                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                                               bg-white/5 border border-white/10
+                                               text-[11px] text-white/50"
+                                  >
+                                    <BookOpen className="w-3 h-3 text-purple-400/60" />
+                                    {cit.document_id ? `${cit.document_id} · p.${cit.page}` : cit.snippet}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -515,27 +521,26 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* Input Area */}
-        <div className="shrink-0 p-4 bg-[#0D0B1A] border-t border-purple-500/10">
-          <div className="max-w-3xl mx-auto">
-            {/* Web search active indicator */}
+        {/* ── Input Bar ───────────────────────────────────────────────────────── */}
+        <div className="shrink-0 px-4 pb-5 pt-3">
+          <div className="max-w-2xl mx-auto">
+            {/* Web active pill */}
             {webSearch && (
-              <div className="flex items-center gap-2 mb-2 text-xs text-purple-400">
+              <div className="flex items-center gap-2 mb-2 px-1 text-[12px] text-purple-400/70">
                 <Globe className="w-3.5 h-3.5 animate-pulse" />
-                <span>Web Search active — Synaps will search Google and your documents</span>
+                Web search on — I&apos;ll search live results
               </div>
             )}
 
-            <div className={`relative flex items-end gap-2 rounded-2xl p-2 border
-                            transition-all
+            <div className={`flex items-end gap-2 rounded-2xl px-3 py-2.5 border transition-all
                             ${webSearch
-                              ? "bg-[#1A1630] border-purple-500/40"
-                              : "bg-[#1A1630] border-purple-500/20 focus-within:border-purple-500/50"
+                              ? "bg-[#1c1c2a] border-purple-500/40"
+                              : "bg-[#1c1c2a] border-white/10 focus-within:border-white/20"
                             }`}>
-              {/* File attach */}
-              <button className="p-2 shrink-0 text-purple-500 hover:text-purple-300
-                                 hover:bg-purple-900/30 rounded-xl transition-colors">
-                <Paperclip className="w-5 h-5" />
+              {/* Attach */}
+              <button className="p-2 shrink-0 text-white/30 hover:text-white/60
+                                 hover:bg-white/5 rounded-xl transition-colors mb-0.5">
+                <Paperclip className="w-4 h-4" />
               </button>
 
               {/* Textarea */}
@@ -546,27 +551,35 @@ export default function ChatPage() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-                    if (!activeChatId) newChat();
                     send();
                   }
                 }}
-                placeholder={webSearch
-                  ? "Ask anything — I'll search the web and your documents…"
-                  : "Ask about your documents…"}
-                className="flex-1 bg-transparent resize-none py-2.5 px-2 outline-none
-                           text-[15px] text-white placeholder-purple-400/40 min-h-[44px] max-h-[200px]"
+                placeholder={webSearch ? "Search the web or ask about documents…" : "Ask about your documents…"}
+                className="flex-1 bg-transparent resize-none py-2 px-1 outline-none
+                           text-[15px] text-white/90 placeholder-white/25
+                           min-h-[38px] max-h-[180px] leading-relaxed"
                 rows={1}
               />
 
+              {/* Web toggle (compact) */}
+              <button
+                onClick={() => setWebSearch(v => !v)}
+                className={`p-2 shrink-0 rounded-xl transition-all mb-0.5
+                            ${webSearch
+                              ? "text-purple-400 bg-purple-600/20"
+                              : "text-white/25 hover:text-white/50 hover:bg-white/5"
+                            }`}
+                title="Toggle web search"
+              >
+                <Globe className="w-4 h-4" />
+              </button>
+
               {/* Send */}
               <button
-                onClick={() => {
-                  if (!activeChatId) newChat();
-                  send();
-                }}
+                onClick={() => send()}
                 disabled={!input.trim() || isLoading}
-                className="p-2.5 shrink-0 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9]
-                           disabled:opacity-30 disabled:cursor-not-allowed
+                className="p-2.5 shrink-0 rounded-xl bg-purple-600 hover:bg-purple-500
+                           disabled:opacity-25 disabled:cursor-not-allowed
                            text-white transition-all mb-0.5"
               >
                 {isLoading
@@ -575,8 +588,8 @@ export default function ChatPage() {
               </button>
             </div>
 
-            <p className="text-center mt-2 text-[11px] text-purple-500/40">
-              Every document answer cites its exact source. Web answers are grounded in live results.
+            <p className="text-center mt-2.5 text-[11px] text-white/20">
+              Synaps AI can make mistakes. Verify important information.
             </p>
           </div>
         </div>
