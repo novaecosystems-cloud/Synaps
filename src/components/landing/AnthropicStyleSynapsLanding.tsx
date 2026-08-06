@@ -367,41 +367,35 @@ export default function AnthropicStyleSynapsLanding() {
             </p>
           </div>
 
-          {/* Three cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-[3vw]">
+          {/* Three steps — open typography, no boxes */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-[6vw] gap-y-[8vw] text-left">
             {[
               {
                 num: '01',
                 title: 'Upload',
                 body: 'Drag in PDFs, Excel files, Word docs, or CSV data. SYNAPS parses, chunks, and indexes everything automatically.',
-                color: 'bg-[#5B21B6]',
                 accent: '#FFD750'
               },
               {
                 num: '02',
                 title: 'Ask',
                 body: 'Ask any complex question in plain English. The 10-Agent Boardroom cross-examines every document simultaneously.',
-                color: 'bg-[#0D0A1A]',
-                accent: '#7C3AED'
+                accent: '#ffffff'
               },
               {
                 num: '03',
                 title: 'Verify',
                 body: 'Every answer comes with exact page and section references. Click any citation to jump straight to the source.',
-                color: 'bg-[#FFD750]',
-                accent: '#4C0016'
+                accent: '#FFD750'
               }
             ].map((step) => (
-              <div
-                key={step.num}
-                data-pop-card
-                className={cn('spring-card rounded-[2vw] p-[4vw] md:p-[2.5vw] text-left border-4 border-black/20', step.color)}
-              >
-                <p className="font-modak text-[8vw] md:text-[4vw] leading-none mb-3" style={{ color: step.accent }}>
+              <div key={step.num} data-pop-card className="spring-card space-y-3">
+                <p className="font-modak text-[10vw] md:text-[4vw] leading-none opacity-20 select-none" style={{ color: step.accent }}>
                   {step.num}
                 </p>
-                <h3 className="font-modak text-[6vw] md:text-[2.5vw] text-white leading-none mb-3">{step.title}</h3>
-                <p className="font-mouse text-[3.5vw] md:text-[1.1vw] text-white/80 leading-relaxed">{step.body}</p>
+                <h3 className="font-modak text-[6vw] md:text-[2.5vw] text-white leading-none -mt-[2.5vw] md:-mt-[1.2vw]">{step.title}</h3>
+                <div className="w-10 h-0.5" style={{ backgroundColor: step.accent, opacity: 0.5 }} />
+                <p className="font-mouse text-[3.5vw] md:text-[1.1vw] text-white/70 leading-relaxed">{step.body}</p>
               </div>
             ))}
           </div>
@@ -448,33 +442,31 @@ export default function AnthropicStyleSynapsLanding() {
           </h2>
         </div>
 
-        {/* Three pillar cards — CRAV photo-tilt grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-[3vw] mb-[8vw]">
+        {/* Three pillars — open typography, no boxes (CRAV style) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-[6vw] gap-y-[8vw] mb-[8vw]">
           {PILLARS.map((p, i) => (
             <div
               key={p.id}
               data-pop-card
               className={cn(
-                'spring-card rounded-[3vw] overflow-hidden border-4 border-purple-500/30 bg-gradient-to-b from-[#16122B] to-[#0D0A1A] p-[4vw] md:p-[2.5vw] space-y-4',
+                'spring-card space-y-4 text-left',
                 i === 1 ? 'md:-translate-y-[2vw]' : ''
               )}
             >
-              <div className="text-[7vw] md:text-[4vw] leading-none">{p.icon}</div>
-              <h3 className="font-modak text-[6vw] md:text-[2.2vw] text-white leading-none">{p.title}</h3>
-              <p className="font-mouse text-[3.5vw] md:text-[1.1vw] text-purple-200/80 leading-relaxed">{p.body}</p>
+              <p className="font-modak text-[12vw] md:text-[5vw] leading-none text-[#7C3AED] opacity-30 select-none">{String(i + 1).padStart(2, '0')}</p>
+              <h3 className="font-modak text-[6vw] md:text-[2.4vw] text-white leading-[0.9] -mt-[3vw] md:-mt-[1.5vw]">{p.title}</h3>
+              <div className="w-12 h-0.5 bg-purple-500/50" />
+              <p className="font-mouse text-[3.5vw] md:text-[1.1vw] text-purple-200/70 leading-relaxed">{p.body}</p>
             </div>
           ))}
         </div>
 
-        {/* Feature list row */}
-        <div data-reveal className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-[2vw]">
+        {/* Feature list — open pill tags, no box containers */}
+        <div data-reveal className="flex flex-wrap items-center justify-center gap-x-[4vw] gap-y-[2vw]">
           {FEATURES.map((f, i) => (
-            <div
-              key={i}
-              className="spring-card flex items-center gap-3 bg-[#131022] border border-purple-500/20 rounded-2xl p-4 md:p-[1.2vw]"
-            >
+            <div key={i} className="spring-card flex items-center gap-2">
               <span className="text-[#7C3AED] shrink-0">{f.icon}</span>
-              <span className="font-mouse text-[3.5vw] md:text-[1vw] text-purple-100 uppercase leading-tight">{f.label}</span>
+              <span className="font-mouse text-[3.5vw] md:text-[1.1vw] text-purple-200/80 uppercase">{f.label}</span>
             </div>
           ))}
         </div>
@@ -505,19 +497,17 @@ export default function AnthropicStyleSynapsLanding() {
             </p>
           </div>
 
-          <div data-reveal className="grid grid-cols-1 md:grid-cols-3 gap-[2vw]">
+          <div data-reveal className="grid grid-cols-1 md:grid-cols-3 gap-x-[6vw] gap-y-[5vw] text-left">
             {[
               { title: 'Encrypted at Rest', body: 'AES-256 GCM for stored data. TLS 1.3 for every request in transit.' },
               { title: 'Tenant Isolation', body: 'Row-level DB security ensures no data ever bleeds between organizations.' },
               { title: '2FA + OTP Auth', body: 'Backend HTTP-Only sessions with server-side 2FA. Zero client-side cookie exposure.' }
-            ].map((item) => (
-              <div
-                key={item.title}
-                data-pop-card
-                className="spring-card bg-[#5B21B6]/60 border-2 border-white/20 rounded-2xl p-[4vw] md:p-[1.8vw] text-left"
-              >
-                <h4 className="font-modak text-[5vw] md:text-[1.8vw] text-white mb-2">{item.title}</h4>
-                <p className="font-mouse text-[3vw] md:text-[1vw] text-purple-200/90 leading-relaxed">{item.body}</p>
+            ].map((item, i) => (
+              <div key={item.title} data-pop-card className="spring-card space-y-3">
+                <p className="font-modak text-[8vw] md:text-[3vw] leading-none text-[#FFD750] opacity-20 select-none">{String(i + 1).padStart(2, '0')}</p>
+                <h4 className="font-modak text-[5vw] md:text-[1.8vw] text-white leading-none -mt-[2vw] md:-mt-[1vw]">{item.title}</h4>
+                <div className="w-8 h-0.5 bg-yellow-300/40" />
+                <p className="font-mouse text-[3vw] md:text-[1vw] text-white/70 leading-relaxed">{item.body}</p>
               </div>
             ))}
           </div>
