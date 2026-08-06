@@ -252,9 +252,22 @@ export default function AnthropicStyleSynapsLanding() {
                 data-navattic-placeholder-src="https://app.navattic.com/api/poster/cmshd2htw000g04jp4r211hjd"
                 data-navattic-demo-id="cmshd2htw000g04jp4r211hjd"
                 className="w-full h-[520px] sm:h-[600px] border-none"
-                allow="fullscreen"
+                allow="fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-downloads"
                 title="Synaps AI Navattic Interactive Demo"
               />
+
+              <div className="p-4 bg-[#242320] border-t border-[#383631] flex flex-wrap items-center justify-between gap-3 text-xs font-mono-anthropic">
+                <span className="text-[#A5A095]">Having trouble loading the interactive player?</span>
+                <a
+                  href="https://capture.navattic.com/cmshd2htw000g04jp4r211hjd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-[#D96B27] hover:bg-[#C25918] text-white font-bold transition-all flex items-center gap-2"
+                >
+                  <span>Launch Interactive Tour in New Tab ↗</span>
+                </a>
+              </div>
             </div>
           ) : (
             /* AI INTERFACE BOX */
