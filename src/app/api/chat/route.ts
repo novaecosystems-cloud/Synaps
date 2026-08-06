@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: creditCheck.error, creditCheck }, { status: 429 });
     }
 
-    const { messages } = await req.json();
+    const { messages, webSearch } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ success: false, error: 'Messages array is required' }, { status: 400 });
@@ -51,7 +51,9 @@ export async function POST(req: NextRequest) {
     const query = latestMessage.content;
 
     // Check if query triggers Phase 3 Hybrid Web + Doc Research Reasoning
-    const isPhase3Research = /research|case|court|judg\w+|affect\s+this\s+contract|similar\s+cases|concern\s+management|company\s+background|publicly\s+available|benchmark/i.test(query);
+    // Triggered by: explicit webSearch flag, research keywords, or time-sensitive terms
+    const isPhase3Research = webSearch ||
+      /research|case|court|judg\w+|affect\s+this\s+contract|similar\s+cases|concern\s+management|company\s+background|publicly\s+available|benchmark|search the web|latest|recent|current|today|news/i.test(query);
 
     if (isPhase3Research) {
       try {
