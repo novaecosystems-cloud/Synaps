@@ -258,8 +258,8 @@ export default function AnthropicStyleSynapsLanding() {
             </div>
           ) : (
             /* AI INTERFACE BOX */
-          
-          {/* Main Floating Input Box */}
+            <div className="space-y-6">
+              {/* Main Floating Input Box */}
           <div className="bg-[#242320] border border-[#383631] rounded-2xl p-5 shadow-2xl space-y-4 text-left transition-all hover:border-[#4A4741]">
             <div className="flex items-start gap-3">
               <span className="text-[#A5A095] text-sm pt-0.5 font-serif-anthropic">How can I help you today?</span>
@@ -366,7 +366,6 @@ export default function AnthropicStyleSynapsLanding() {
                   <span>Page 8 · Section 8.4</span>
                 </div>
               </div>
-            </div>
             </div>
           )}
         </div>
