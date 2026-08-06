@@ -246,10 +246,10 @@ export default function AnthropicStyleSynapsLanding() {
             Read, connect, and ground complex contracts, ledgers, and operational records with 100% line-level source citations and zero hallucination.
           </p>
 
-          <div className="hero-fade-up flex flex-wrap items-center justify-center gap-4 pt-3" style={{ animationDelay: '1.0s' }}>
+          <div className="hero-fade-up flex flex-wrap items-center justify-center gap-6 pt-3" style={{ animationDelay: '1.0s' }}>
             <button
               onClick={() => setShowSignInModal(true)}
-              className="cluely-purple-btn px-7 py-3.5 rounded-xl text-white text-xs font-mono-cluely uppercase tracking-wider flex items-center gap-2 font-bold shadow-xl"
+              className="cluely-purple-btn px-7 py-3.5 rounded-full text-white text-xs font-mono-cluely uppercase tracking-wider flex items-center gap-2 font-bold shadow-xl"
             >
               ⚡ Enter Guest Workspace Demo
               <ArrowRight className="w-4 h-4" />
@@ -257,34 +257,30 @@ export default function AnthropicStyleSynapsLanding() {
 
             <button
               onClick={() => setDemoView('navattic')}
-              className={cn(
-                "px-6 py-3.5 rounded-xl border text-xs font-mono-cluely uppercase tracking-wider transition-all flex items-center gap-2 font-bold shadow-md",
-                demoView === 'navattic' 
-                  ? "border-purple-400 bg-purple-950/60 text-white shadow-purple-900/40" 
-                  : "border-purple-500/30 bg-[#141022] hover:border-purple-400 text-purple-200"
-              )}
+              className="text-xs font-mono-cluely uppercase tracking-wider text-purple-200/90 hover:text-white transition-colors flex items-center gap-2 font-medium cursor-pointer py-3"
             >
-              🎮 Interactive Navattic Demo
+              <span>🎮 Interactive Navattic Demo</span>
+              <ArrowRight className="w-3.5 h-3.5 text-purple-400" />
             </button>
 
             <a
               href="#evidence"
-              className="px-6 py-3.5 rounded-xl border border-purple-500/30 bg-[#141022] hover:border-purple-400 text-purple-200 text-xs font-mono-cluely uppercase tracking-wider transition-all flex items-center gap-2"
+              className="text-xs font-mono-cluely uppercase tracking-wider text-purple-200/70 hover:text-white transition-colors flex items-center gap-2 font-medium py-3"
             >
-              Read Technical Brief
+              <span>Read Technical Brief</span>
             </a>
           </div>
         </div>
 
-        {/* ── CLUELY STAGE VIEW TOGGLE BAR ── */}
-        <div className="flex items-center justify-center gap-3 mt-10">
+        {/* ── CLUELY SEAMLESS CAPSULE STAGE TOGGLE ── */}
+        <div className="inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[#131024]/90 border border-purple-500/20 backdrop-blur-xl shadow-lg mt-10">
           <button
             onClick={() => setDemoView('navattic')}
             className={cn(
-              "px-5 py-2.5 rounded-xl text-xs font-mono-cluely uppercase tracking-wider transition-all flex items-center gap-2 font-bold border",
+              "px-5 py-2 rounded-full text-xs font-mono-cluely uppercase tracking-wider transition-all flex items-center gap-2 font-bold cursor-pointer",
               demoView === 'navattic'
-                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-400 shadow-lg shadow-purple-900/40"
-                : "bg-[#141022] text-purple-300 border-purple-500/30 hover:text-white hover:border-purple-400"
+                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-900/50"
+                : "text-purple-300/80 hover:text-white"
             )}
           >
             <span>🎮 Navattic Interactive Tour</span>
@@ -293,10 +289,10 @@ export default function AnthropicStyleSynapsLanding() {
           <button
             onClick={() => setDemoView('ai')}
             className={cn(
-              "px-5 py-2.5 rounded-xl text-xs font-mono-cluely uppercase tracking-wider transition-all flex items-center gap-2 font-bold border",
+              "px-5 py-2 rounded-full text-xs font-mono-cluely uppercase tracking-wider transition-all flex items-center gap-2 font-bold cursor-pointer",
               demoView === 'ai'
-                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-400 shadow-lg shadow-purple-900/40"
-                : "bg-[#141022] text-purple-300 border-purple-500/30 hover:text-white hover:border-purple-400"
+                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-900/50"
+                : "text-purple-300/80 hover:text-white"
             )}
           >
             <span>⚡ Live AI Workspace Command</span>
@@ -384,12 +380,12 @@ export default function AnthropicStyleSynapsLanding() {
                 </div>
               </div>
 
-          {/* Quick Action Chips (Matching Screenshot exact pills) */}
+          {/* Quick Action Chips (Soft Frameless Pills) */}
           <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
             <button
               type="button"
               onClick={() => setPromptText("Draft a non-renewal notice for Section 8.4 rate escalation clause.")}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#19142E] border border-purple-500/30 hover:border-purple-400 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all shadow-md"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all cursor-pointer"
             >
               <PenTool className="w-3.5 h-3.5 text-purple-400" />
               <span>Write</span>
@@ -398,7 +394,7 @@ export default function AnthropicStyleSynapsLanding() {
             <button
               type="button"
               onClick={() => setPromptText("Explain how the 10-Agent Boardroom reaches risk consensus.")}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#19142E] border border-purple-500/30 hover:border-purple-400 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all shadow-md"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all cursor-pointer"
             >
               <GraduationCap className="w-3.5 h-3.5 text-purple-400" />
               <span>Learn</span>
@@ -407,7 +403,7 @@ export default function AnthropicStyleSynapsLanding() {
             <button
               type="button"
               onClick={() => setPromptText("Show Monte Carlo 10,000 risk simulation Python script.")}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#19142E] border border-purple-500/30 hover:border-purple-400 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all shadow-md"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all cursor-pointer"
             >
               <Code2 className="w-3.5 h-3.5 text-purple-400" />
               <span>Code</span>
@@ -416,7 +412,7 @@ export default function AnthropicStyleSynapsLanding() {
             <button
               type="button"
               onClick={() => setPromptText("Connect MSA_2026.pdf and Financial_Audit_2026.xlsx from Google Drive.")}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#19142E] border border-purple-500/30 hover:border-purple-400 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all shadow-md"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all cursor-pointer"
             >
               <FolderOpen className="w-3.5 h-3.5 text-purple-400" />
               <span>From Drive</span>
@@ -425,7 +421,7 @@ export default function AnthropicStyleSynapsLanding() {
             <button
               type="button"
               onClick={() => setPromptText("Check key contract renewal deadlines for Q3 2026.")}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#19142E] border border-purple-500/30 hover:border-purple-400 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all shadow-md"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/40 hover:bg-purple-900/60 text-purple-200 hover:text-white text-sm font-serif-garamond transition-all cursor-pointer"
             >
               <Calendar className="w-3.5 h-3.5 text-purple-400" />
               <span>From Calendar</span>
