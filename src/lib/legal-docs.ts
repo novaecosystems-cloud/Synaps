@@ -499,6 +499,182 @@ All IP Infringement notices and counter-notifications should be sent to our desi
 `
   },
 
+  dmca: {
+    slug: 'dmca',
+    title: 'DMCA Copyright & Takedown Policy',
+    category: 'Legal',
+    lastUpdated: 'August 6, 2026',
+    summary: 'Official DMCA Safe Harbor policy under 17 U.S.C. § 512, copyright takedown procedures, counter-notifications, and repeat infringer account termination rules.',
+    tableOfContents: [
+      { id: 'safe-harbor', title: '1. Safe Harbor Statement (17 U.S.C. § 512)' },
+      { id: 'designated-agent', title: '2. Designated Copyright Agent' },
+      { id: 'takedown-notice', title: '3. Submitting a DMCA Takedown Notice' },
+      { id: 'counter-notice', title: '4. Counter-Notification Procedure' },
+      { id: 'repeat-infringers', title: '5. Repeat Infringer Termination Policy' },
+      { id: 'user-warranties', title: '6. User Responsibility & Copyright Warranties' },
+      { id: 'legal-liability', title: '7. Misrepresentations & Perjury Notice' }
+    ],
+    contentMd: `
+# DMCA Copyright Policy & Takedown Procedure
+
+**Effective Date:** August 6, 2026
+
+Synaps AI ("Synaps", "Company", "we", "us", or "our") respects the intellectual property rights of creators, publishers, and copyright owners, and we expect all users of our SaaS platform, desktop applications, enterprise knowledge graphs, and APIs to do the same.
+
+In accordance with the Digital Millennium Copyright Act of 1998 (17 U.S.C. § 512) ("DMCA"), Synaps has implemented this DMCA Copyright Policy to provide safe harbor protection for online service providers and outline statutory procedures for responding to notices of alleged copyright infringement involving user-uploaded content.
+
+---
+
+## 1. Safe Harbor Statement (17 U.S.C. § 512) {#safe-harbor}
+Synaps operates as a cloud-based enterprise intelligence workspace and automated processing service under **17 U.S.C. § 512(c)**. Users, enterprise tenants, and API clients control the uploading, indexing, and management of their documents, records, contracts, and multimedia files. 
+
+Synaps does not pre-screen or monitor user-uploaded files for copyright compliance prior to storage. However, upon receiving a valid, written DMCA Takedown Notice complying with statutory requirements, Synaps will act expeditiously to remove or disable access to the material claimed to be infringing.
+
+---
+
+## 2. Designated Copyright Agent {#designated-agent}
+All formal DMCA takedown notices, counter-notifications, and copyright inquiries must be directed in writing to our Designated Copyright Agent:
+
+* **Designated Copyright Agent:** Synaps Legal & Intellectual Property Officer
+* **Email:** novaecosystems@gmail.com
+* **Corporate Address:** Synaps Inc., Legal Compliance Department, Pune, Maharashtra, India
+* **Subject Line:** DMCA Takedown Notice / Copyright Infringement Claim
+
+---
+
+## 3. Submitting a DMCA Takedown Notice {#takedown-notice}
+If you are a copyright owner (or an authorized representative acting on behalf of a copyright owner) and believe that any document, file, text, image, transcript, or material hosted or processed on Synaps infringes your copyrighted work, you must submit a written notification containing the following statutory details (17 U.S.C. § 512(c)(3)):
+
+1. **Signature:** A physical or electronic signature of the copyright owner or a person authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.
+2. **Identification of Copyrighted Work:** Clear identification of the copyrighted work claimed to have been infringed (or, if multiple copyrighted works are covered by a single notification, a representative list of such works).
+3. **Identification of Infringing Material:** Specific identification of the material that is claimed to be infringing or to be the subject of infringing activity, along with sufficient information (e.g., exact URL, document ID, workspace identifier) to permit Synaps to locate the material.
+4. **Complainant Contact Information:** Information reasonably sufficient to permit Synaps to contact you, such as your legal name, physical address, telephone number, and email address.
+5. **Good Faith Statement:** A statement that you have a good faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.
+6. **Perjury & Accuracy Statement:** A statement that the information in the notification is accurate, and under penalty of perjury, that you are authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.
+
+---
+
+## 4. Counter-Notification Procedure {#counter-notice}
+If a user or enterprise account holder receives notice that material uploaded by them has been removed or access disabled pursuant to a DMCA Takedown Notice, and believes that the material was removed or disabled as a result of mistake, misidentification, or authorization, the user may submit a Counter-Notification to our Designated Copyright Agent (17 U.S.C. § 512(g)(3)).
+
+A valid Counter-Notification must be in writing and include:
+1. The user's physical or electronic signature.
+2. Identification of the material that has been removed or to which access has been disabled, and the location at which the material appeared before it was removed or disabled.
+3. A statement under penalty of perjury that the user has a good faith belief that the material was removed or disabled as a result of mistake or misidentification of the material to be removed or disabled.
+4. The user's legal name, address, telephone number, and email address.
+5. A statement consenting to the jurisdiction of the Federal District Court or applicable judicial authority for the judicial district in which the address is located, and that the user will accept service of process from the person who provided the original DMCA notice.
+
+**Restoration Protocol:** Upon receipt of a valid Counter-Notification, Synaps will promptly forward a copy to the original complaining party. Unless the copyright owner files a court action seeking a judicial order to restrain the user from engaging in infringing activity within 10 to 14 business days, Synaps may restore or re-enable access to the material.
+
+---
+
+## 5. Repeat Infringer Termination Policy {#repeat-infringers}
+In compliance with Section 512(i)(1)(A) of the DMCA, Synaps enforces a strict **Repeat Infringer Policy**. 
+
+Synaps reserves the right, in its sole discretion, to suspend, disable, or permanently terminate the accounts, subscriptions, and workspace access of users or enterprise organizations who are determined to be repeat infringers or who repeatedly upload copyrighted material without authorization.
+
+---
+
+## 6. User Responsibility & Copyright Warranties {#user-warranties}
+Users bear sole legal responsibility for all files, data, records, documents, and multimedia uploaded, stored, or processed using Synaps. 
+
+By uploading any content to Synaps, the user explicitly warrants and represents that:
+* The user owns all copyright and IP rights in the content, OR
+* The user has obtained express written authorization, license, or legal permission from the copyright owner to upload and process the content on Synaps.
+
+---
+
+## 7. Misrepresentations & Perjury Notice {#legal-liability}
+Please note that under Section 512(f) of the DMCA, any person who knowingly materially misrepresents that material or activity is infringing, or that material was removed or disabled by mistake or misidentification, may be subject to severe civil liability, including legal damages, court costs, and attorneys' fees incurred by Synaps, the alleged infringer, or the copyright owner.
+`
+  },
+
+  eula: {
+    slug: 'eula',
+    title: 'End User License Agreement (EULA)',
+    category: 'Legal',
+    lastUpdated: 'August 6, 2026',
+    summary: 'End User License Agreement governing software usage, user document ownership, copyright warranties, user indemnification against IP claims, and liability limits.',
+    tableOfContents: [
+      { id: 'license-grant', title: '1. Grant of License & Scope' },
+      { id: 'content-ownership', title: '2. User Content Ownership & Copyright Warranties' },
+      { id: 'user-indemnification', title: '3. User Indemnification for Copyright Infringement' },
+      { id: 'use-restrictions', title: '4. Prohibited Uses & Reverse Engineering' },
+      { id: 'third-party-content', title: '5. Third-Party Content & Copyright Obligations' },
+      { id: 'account-termination', title: '6. License Termination & DMCA Suspension' },
+      { id: 'disclaimer-warranties', title: '7. Disclaimer of Warranties & Limitation of Liability' },
+      { id: 'governing-law', title: '8. Governing Law & Dispute Resolution' }
+    ],
+    contentMd: `
+# End User License Agreement (EULA)
+
+**Effective Date:** August 6, 2026
+
+PLEASE READ THIS END USER LICENSE AGREEMENT ("EULA" OR "AGREEMENT") CAREFULLY BEFORE DOWNLOADING, INSTALLING, ACCESSING, OR USING THE SYNAPS APPLICATION, SAAS PLATFORM, DESKTOP INSTALLERS, MOBILE PACKAGES, OR RELATED SERVICES (COLLECTIVELY, THE "SOFTWARE").
+
+BY DOWNLOADING, INSTALLING, CLICKING "I AGREE", OR ACCESSING SYNAPS, YOU ("LICENSEE", "USER", OR "YOU") AGREE TO BE BOUND BY THE TERMS OF THIS EULA. IF YOU DO NOT AGREE TO THESE TERMS, DO NOT INSTALL, COPY, OR USE THE SOFTWARE.
+
+---
+
+## 1. Grant of License & Scope {#license-grant}
+Subject to your compliance with this Agreement and payment of applicable subscription fees, Synaps Inc. ("Licensor") grants you a limited, non-exclusive, non-transferable, non-sublicensable, revocable license to:
+* Install and execute the Synaps Desktop Application on compatible Windows, macOS, or mobile operating systems; and
+* Access and use the Synaps SaaS platform, 3D Corporate Memory Graph, and AI Boardroom features solely for your internal business operations or personal non-commercial use.
+
+---
+
+## 2. User Content Ownership & Copyright Warranties {#content-ownership}
+### 2.1 Ownership of Uploaded Data
+You retain full legal ownership, title, and intellectual property rights in and to all documents, files, ledgers, contracts, meeting transcripts, records, and text uploaded, submitted, or processed through the Software ("User Content"). Synaps claims no ownership rights over your User Content.
+
+### 2.2 Express Copyright Warranties
+You explicitly represent, warrant, and covenant that:
+1. You possess all legal ownership rights, copyrights, licenses, consents, and permissions necessary to upload, store, process, and analyze your User Content using the Software.
+2. Your User Content does **NOT** infringe, misappropriate, or violate any third-party copyright, trademark, patent, trade secret, privacy right, publicity right, or contractual duty.
+3. You will **NOT** upload copyrighted materials (including third-party books, research papers, proprietary software code, or confidential corporate documents) unless you hold explicit legal permission or rights from the copyright holder.
+
+---
+
+## 3. User Indemnification for Copyright Infringement {#user-indemnification}
+YOU AGREE TO DEFEND, INDEMNIFY, AND HOLD HARMLESS SYNAPS INC., ITS AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, AGENTS, AND LICENSORS FROM AND AGAINST ANY AND ALL THIRD-PARTY CLAIMS, DEMANDS, SUITS, PROCEEDINGS, LOSSES, LIABILITIES, DAMAGES, SETTLEMENTS, FINES, COSTS, AND EXPENSES (INCLUDING REASONABLE ATTORNEYS' FEES AND COURT COSTS) ARISING OUT OF OR RELATING TO:
+
+1. ANY ALLEGED OR ACTUAL COPYRIGHT INFRINGEMENT, TRADEMARK INFRINGEMENT, OR INTELLECTUAL PROPERTY VIOLATION RESULTING FROM YOUR USER CONTENT OR FILES UPLOADED TO THE SOFTWARE;
+2. YOUR BREACH OF ANY COPYRIGHT WARRANTY OR REPRESENTATION CONTAINED IN THIS AGREEMENT; OR
+3. YOUR VIOLATION OF ANY APPLICABLE GLOBAL IP LAWS OR THIRD-PARTY RIGHTS.
+
+---
+
+## 4. Prohibited Uses & Restrictions {#use-restrictions}
+You agree that you will **NOT**, directly or indirectly:
+* Decompile, reverse engineer, disassemble, or attempt to derive the source code, underlying algorithms, or data structures of the Software.
+* Use the Software to upload, store, transmit, or process materials that violate intellectual property rights, contain malware, or violate applicable privacy laws.
+* Distill, scrape, extract, or harvest outputs or data from the Software to train competing artificial intelligence models.
+* Rent, lease, lend, sell, redistribute, or sublicense the Software to third parties.
+
+---
+
+## 5. Third-Party Content & Copyright Obligations {#third-party-content}
+The Software enables automated indexing, search, and retrieval of documents. You acknowledge that Synaps operates strictly as an automated processing service. Synaps is not responsible for validating the copyright status of files submitted by users. If third-party copyrighted material is uploaded to your workspace without authorization, it is subject to immediate takedown under our **DMCA Copyright Policy**.
+
+---
+
+## 6. License Termination & DMCA Suspension {#account-termination}
+This License is effective until terminated. Your rights under this Agreement will terminate automatically without notice if you fail to comply with any terms of this EULA or if your account is subject to repeat DMCA copyright infringement notices. Upon termination, you must cease all use of the Software and delete all copies of the Desktop Application installed on your devices.
+
+---
+
+## 7. Disclaimer of Warranties & Limitation of Liability {#disclaimer-warranties}
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. TO THE MAXIMUM EXTENT PERMITTED BY LAW, SYNAPS DISCLAIMS ALL WARRANTIES, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+IN NO EVENT SHALL SYNAPS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, OR PUNITIVE DAMAGES (INCLUDING LOSS OF DATA, REVENUE, OR BUSINESS OPPORTUNITY) ARISING OUT OF YOUR USE OF THE SOFTWARE OR USER CONTENT.
+
+---
+
+## 8. Governing Law & Dispute Resolution {#governing-law}
+This EULA shall be governed by and construed in accordance with the laws of India and applicable global international copyright treaties, without giving effect to conflict of laws principles. Any legal action or proceeding arising under this Agreement shall be brought exclusively in the competent courts located in Pune, Maharashtra, India.
+`
+  },
+
   contact: {
     slug: 'contact',
     title: 'Contact Us',

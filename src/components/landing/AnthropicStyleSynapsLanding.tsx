@@ -430,10 +430,12 @@ export default function AnthropicStyleSynapsLanding() {
 
         <div className="max-w-7xl mx-auto px-6 pt-16 border-t border-[#252421] mt-16 flex flex-col md:flex-row justify-between text-xs font-mono-anthropic text-[#7A766D]">
           <span>© 2026 SYNAPS INC. ANTHROPIC-INSPIRED ENTERPRISE OS.</span>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="#security" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#architecture" className="hover:text-white transition-colors">Terms</a>
-            <a href="#intelligence" className="hover:text-white transition-colors">Security</a>
+          <div className="flex flex-wrap gap-6 mt-4 md:mt-0">
+            <Link href="/legal/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <Link href="/legal/terms" className="hover:text-white transition-colors">Terms</Link>
+            <Link href="/legal/eula" className="hover:text-white transition-colors">EULA License</Link>
+            <Link href="/legal/dmca" className="hover:text-white transition-colors">DMCA Takedowns</Link>
+            <Link href="/legal/security" className="hover:text-white transition-colors">Security</Link>
           </div>
         </div>
       </footer>
