@@ -156,48 +156,70 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all">
       
-      {/* ── UIVERSE.IO STYLED CUSTOM FORM CONTAINER (RESPONSIVE 9:16 AND 16:9) ── */}
+      {/* ── CRAV BURGERS STYLED CUSTOM POPUP FORM ── */}
       <style jsx global>{`
-        .uiverse-popup-form {
-          --background: #120E21;
-          --input-focus: #9333EA;
-          --font-color: #ffffff;
-          --font-color-sub: #A855F7;
-          --bg-color: #19142E;
-          --main-color: #7C3AED;
-          padding: 24px 20px;
-          background: var(--background);
+        @import url('https://fonts.googleapis.com/css2?family=Modak&family=Mouse+Memoirs&display=swap');
+
+        @keyframes crav-pop-in {
+          0% {
+            transform: scale(0.3) translateY(60px);
+            opacity: 0;
+          }
+          70% {
+            transform: scale(1.04) translateY(-4px);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+        }
+
+        .crav-popup-form {
+          --background: #F91914;
+          --input-focus: #F91914;
+          --font-color: #4C0016;
+          --font-color-sub: #F5E3CD;
+          --bg-color: #F5E3CD;
+          --main-color: #4C0016;
+          padding: 28px 24px;
+          background: #F91914;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 14px;
-          border-radius: 20px;
-          border: 2px solid var(--main-color);
-          box-shadow: 6px 6px 0px var(--main-color);
+          gap: 16px;
+          border-radius: 28px;
+          border: 3px solid #4C0016;
+          box-shadow: 8px 8px 0px #4C0016;
           width: 94vw;
-          max-width: 420px;
+          max-width: 440px;
           max-height: 92vh;
           overflow-y: auto;
           position: relative;
+          animation: crav-pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
-        .uiverse-popup-form > p {
-          color: var(--font-color);
-          font-weight: 700;
-          font-size: 22px;
-          margin-bottom: 4px;
+        .crav-popup-form > p {
+          color: #F5E3CD;
+          font-family: 'Modak', cursive, sans-serif;
+          font-size: 32px;
+          line-height: 1;
+          margin-bottom: 2px;
           display: flex;
           flex-direction: column;
           align-items: center;
           text-align: center;
+          letter-spacing: 0.5px;
         }
 
-        .uiverse-popup-form > p > span {
-          color: var(--font-color-sub);
-          font-weight: 500;
-          font-size: 13px;
-          margin-top: 2px;
+        .crav-popup-form > p > span {
+          color: #FFD750;
+          font-family: 'Mouse Memoirs', sans-serif;
+          font-size: 18px;
+          margin-top: 4px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
         }
 
         .uiverse-popup-separator {
@@ -213,14 +235,14 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           flex: 1;
           height: 2px;
           border-radius: 5px;
-          background-color: #2D274A;
+          background-color: #4C0016;
         }
 
         .uiverse-popup-separator > span {
-          color: var(--font-color-sub);
-          font-size: 12px;
-          font-weight: 600;
-          letter-spacing: 1px;
+          color: #FFD750;
+          font-family: 'Mouse Memoirs', sans-serif;
+          font-size: 16px;
+          letter-spacing: 1.5px;
         }
 
         .uiverse-popup-oauthButton {
@@ -228,88 +250,79 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           justify-content: center;
           align-items: center;
           gap: 10px;
-          padding: 0 14px;
+          padding: 0 16px;
           width: 100%;
-          min-height: 44px;
-          border-radius: 12px;
-          border: 2px solid #2D274A;
-          background-color: var(--bg-color);
-          box-shadow: 4px 4px 0px #2D274A;
-          font-size: 13px;
-          font-weight: 600;
-          color: var(--font-color);
+          min-height: 48px;
+          border-radius: 9999px;
+          border: 2px solid #4C0016;
+          background-color: #F5E3CD;
+          box-shadow: 4px 4px 0px #4C0016;
+          font-family: 'Mouse Memoirs', sans-serif;
+          font-size: 20px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          color: #4C0016;
           cursor: pointer;
-          transition: all 200ms ease;
-          position: relative;
-          overflow: hidden;
-          z-index: 1;
-        }
-
-        .uiverse-popup-oauthButton::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          height: 100%;
-          width: 0;
-          background-color: #7C3AED;
-          z-index: -1;
-          transition: all 250ms ease;
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
         }
 
         .uiverse-popup-oauthButton:hover {
-          color: #ffffff;
-          border-color: #9333EA;
-          box-shadow: 4px 4px 0px #9333EA;
-        }
-
-        .uiverse-popup-oauthButton:hover::before {
-          width: 100%;
+          transform: scale(1.04);
+          background-color: #ffffff;
+          border-color: #4C0016;
+          box-shadow: 5px 5px 0px #4C0016;
         }
 
         .uiverse-popup-demoButton {
-          background: linear-gradient(180deg, #7C3AED 0%, #5B21B6 100%);
-          color: #ffffff;
-          border: 2px solid #9333EA;
-          box-shadow: 4px 4px 0px #9333EA;
-          font-weight: 700;
+          background-color: #FFD750;
+          color: #4C0016;
+          border: 2px solid #4C0016;
+          box-shadow: 4px 4px 0px #4C0016;
+          font-family: 'Mouse Memoirs', sans-serif;
+          font-size: 22px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
         }
 
-        .uiverse-popup-demoButton::before {
-          background: linear-gradient(180deg, #9333EA 0%, #6B21A8 100%);
+        .uiverse-popup-demoButton:hover {
+          background-color: #ffffff;
+          color: #F91914;
+          transform: scale(1.04);
         }
 
         .uiverse-popup-input {
           width: 100%;
-          min-height: 44px;
-          background-color: var(--bg-color);
-          border-radius: 12px;
-          border: 2px solid #2D274A;
-          padding: 0 14px;
+          min-height: 48px;
+          background-color: #F5E3CD;
+          border-radius: 16px;
+          border: 2px solid #4C0016;
+          padding: 0 16px;
           outline: none;
-          color: var(--font-color);
-          font-size: 13px;
+          color: #4C0016;
+          font-family: 'Mouse Memoirs', sans-serif;
+          font-size: 18px;
           transition: all 200ms ease;
         }
 
         .uiverse-popup-input:focus {
-          border-color: var(--input-focus);
-          box-shadow: 4px 4px 0px var(--input-focus);
+          border-color: #4C0016;
+          box-shadow: 4px 4px 0px #4C0016;
+          background-color: #ffffff;
         }
 
         .uiverse-popup-icon {
-          width: 18px;
-          height: 18px;
+          width: 20px;
+          height: 20px;
           flex-shrink: 0;
         }
       `}</style>
 
-      <div className="uiverse-popup-form animate-in fade-in zoom-in-95 duration-200">
+      <div className="crav-popup-form">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-purple-300 hover:text-white p-1.5 rounded-lg hover:bg-purple-900/40 transition-colors"
+          className="absolute top-4 right-4 text-[#F5E3CD] hover:text-white p-1.5 rounded-full bg-[#4C0016]/40 hover:bg-[#4C0016] transition-colors"
         >
           <X className="w-5 h-5" />
         </button>

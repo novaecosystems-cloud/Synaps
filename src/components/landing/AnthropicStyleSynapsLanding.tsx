@@ -318,7 +318,7 @@ export default function AnthropicStyleSynapsLanding() {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+              <div className="flex items-center justify-center pt-2">
                 <a
                   href="https://capture.navattic.com/cmshd2htw000g04jp4r211hjd"
                   target="_blank"
@@ -327,14 +327,6 @@ export default function AnthropicStyleSynapsLanding() {
                 >
                   <span>🎮 Launch Interactive Product Tour ↗</span>
                 </a>
-
-                <button
-                  type="button"
-                  onClick={() => setShowNavatticModal(true)}
-                  className="px-6 py-4 rounded-full border border-purple-500/30 hover:border-purple-400 text-purple-200 hover:text-white text-xs font-mono-cluely uppercase tracking-wider transition-all cursor-pointer font-medium"
-                >
-                  <span>Open Fullscreen Modal</span>
-                </button>
               </div>
             </div>
           ) : (
