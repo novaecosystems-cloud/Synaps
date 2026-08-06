@@ -19,33 +19,11 @@ gsap.registerPlugin(ScrollTrigger);
 export default function AnthropicStyleSynapsLanding() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Sign In Modal State & PWA Install Prompt
+  // Sign In Modal State
   const [showSignInModal, setShowSignInModal] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'grounding' | 'boardroom' | 'security'>('grounding');
   const [promptText, setPromptText] = useState("What price escalation risks exist in our 2026 Master Services Agreement?");
   const [selectedModel, setSelectedModel] = useState("Gemini 1.5 Pro");
-
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-
-  const handleInstallPWA = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setDeferredPrompt(null);
-      }
-    } else {
-      alert('To install Synaps AI on Windows/Android:\n1. Click the "Install App" icon in your browser address bar.\n2. Or open Menu (...) -> "Apps" -> "Install Synaps AI".');
-    }
-  };
 
   // GSAP Editorial Staggered Reveals
   useGSAP(() => {
@@ -177,12 +155,6 @@ export default function AnthropicStyleSynapsLanding() {
             >
               ⚡ Enter Guest Workspace Demo
               <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleInstallPWA}
-              className="px-6 py-3.5 rounded-xl border border-[#D96B27]/50 bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 font-medium shadow-md"
-            >
-              📱 Install Desktop & Mobile App (PWA)
             </button>
             <a
               href="#evidence"
