@@ -19,11 +19,29 @@ gsap.registerPlugin(ScrollTrigger);
 export default function AnthropicStyleSynapsLanding() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Sign In Modal State
+  // Sign In Modal & Navattic Interactive Demo State
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [showNavatticModal, setShowNavatticModal] = useState(false);
+  const [demoView, setDemoView] = useState<'navattic' | 'ai'>('navattic');
   const [activeTab, setActiveTab] = useState<'grounding' | 'boardroom' | 'security'>('grounding');
   const [promptText, setPromptText] = useState("What price escalation risks exist in our 2026 Master Services Agreement?");
   const [selectedModel, setSelectedModel] = useState("Gemini 1.5 Pro");
+
+  useEffect(() => {
+    // Dynamically load Navattic embed script
+    const scriptUrl = "https://js.navattic.com/embeds.js";
+    if (!document.querySelector(`script[src="${scriptUrl}"]`)) {
+      const script = document.createElement("script");
+      script.src = scriptUrl;
+      script.async = true;
+      script.onload = () => {
+        if ((window as any).NavatticEmbed) {
+          (window as any).NavatticEmbed.loadEmbeds();
+        }
+      };
+      document.body.appendChild(script);
+    }
+  }, []);
 
   // GSAP Editorial Staggered Reveals
   useGSAP(() => {
@@ -156,6 +174,19 @@ export default function AnthropicStyleSynapsLanding() {
               ⚡ Enter Guest Workspace Demo
               <ArrowRight className="w-4 h-4" />
             </button>
+
+            <button
+              onClick={() => setDemoView('navattic')}
+              className={cn(
+                "px-6 py-3.5 rounded-xl border text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 font-bold shadow-md",
+                demoView === 'navattic' 
+                  ? "border-[#D96B27] bg-[#D96B27]/20 text-[#ECE9E3]" 
+                  : "border-[#3A3834] bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3]"
+              )}
+            >
+              🎮 Interactive Navattic Demo
+            </button>
+
             <a
               href="#evidence"
               className="px-6 py-3.5 rounded-xl border border-[#3A3834] bg-[#22211E] hover:border-[#D96B27] text-[#ECE9E3] text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2"
@@ -165,8 +196,68 @@ export default function AnthropicStyleSynapsLanding() {
           </div>
         </div>
 
-        {/* ── ANTHROPIC CLAUDE INTERFACE BOX (MATCHING SCREENSHOT EXPLICITLY) ── */}
-        <div className="anthropic-stage mt-10 max-w-3xl mx-auto space-y-6">
+        {/* ── STAGE VIEW TOGGLE BAR ── */}
+        <div className="flex items-center justify-center gap-3 mt-10">
+          <button
+            onClick={() => setDemoView('navattic')}
+            className={cn(
+              "px-5 py-2.5 rounded-xl text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 font-bold border",
+              demoView === 'navattic'
+                ? "bg-[#D96B27] text-white border-[#D96B27] shadow-lg shadow-[#D96B27]/20"
+                : "bg-[#1E1D1A] text-[#A5A095] border-[#36342F] hover:text-white hover:border-[#D96B27]"
+            )}
+          >
+            <span>🎮 Navattic Interactive Tour</span>
+          </button>
+
+          <button
+            onClick={() => setDemoView('ai')}
+            className={cn(
+              "px-5 py-2.5 rounded-xl text-xs font-mono-anthropic uppercase tracking-wider transition-all flex items-center gap-2 font-bold border",
+              demoView === 'ai'
+                ? "bg-[#D96B27] text-white border-[#D96B27] shadow-lg shadow-[#D96B27]/20"
+                : "bg-[#1E1D1A] text-[#A5A095] border-[#36342F] hover:text-white hover:border-[#D96B27]"
+            )}
+          >
+            <span>⚡ Live AI Workspace Command</span>
+          </button>
+        </div>
+
+        {/* ── INTERACTIVE DEMO STAGE ── */}
+        <div className="anthropic-stage mt-6 max-w-4xl mx-auto space-y-6">
+          {demoView === 'navattic' ? (
+            /* NAVATTIC INTERACTIVE EMBED FRAME */
+            <div className="w-full rounded-2xl overflow-hidden border-2 border-[#D96B27]/50 shadow-2xl bg-[#1D1C19] text-left transition-all">
+              <div className="flex items-center justify-between px-5 py-3 bg-[#242320] border-b border-[#383631] text-xs font-mono-anthropic">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#D96B27] animate-pulse" />
+                  <span className="text-[#ECE9E3] font-bold uppercase tracking-wider">NAVATTIC INTERACTIVE PRODUCT TOUR</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="hidden sm:inline text-[#A5A095] text-[11px]">Click hotspots to explore platform features</span>
+                  <button
+                    onClick={() => setShowNavatticModal(true)}
+                    className="px-3.5 py-1.5 rounded-lg bg-[#D96B27]/20 border border-[#D96B27]/60 text-[#D96B27] hover:bg-[#D96B27] hover:text-white transition-all text-xs font-bold flex items-center gap-1.5"
+                  >
+                    <span>Fullscreen</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <iframe
+                data-navattic-src="https://capture.navattic.com/cmshd2htw000g04jp4r211hjd"
+                src="https://capture.navattic.com/cmshd2htw000g04jp4r211hjd"
+                data-navattic-placeholder-src="https://app.navattic.com/api/poster/cmshd2htw000g04jp4r211hjd"
+                data-navattic-demo-id="cmshd2htw000g04jp4r211hjd"
+                className="w-full h-[520px] sm:h-[600px] border-none"
+                allow="fullscreen"
+                title="Synaps AI Navattic Interactive Demo"
+              />
+            </div>
+          ) : (
+            /* AI INTERFACE BOX */
           
           {/* Main Floating Input Box */}
           <div className="bg-[#242320] border border-[#383631] rounded-2xl p-5 shadow-2xl space-y-4 text-left transition-all hover:border-[#4A4741]">
@@ -276,7 +367,8 @@ export default function AnthropicStyleSynapsLanding() {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -417,6 +509,33 @@ export default function AnthropicStyleSynapsLanding() {
         isOpen={showSignInModal}
         onClose={() => setShowSignInModal(false)}
       />
+
+      {/* ── FULLSCREEN NAVATTIC INTERACTIVE DEMO MODAL ── */}
+      {showNavatticModal && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-6xl h-[92vh] bg-[#1D1C19] border-2 border-[#D96B27] rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-5 py-3 bg-[#242320] border-b border-[#383631] text-xs font-mono-anthropic">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#D96B27] animate-pulse" />
+                <span className="text-[#ECE9E3] font-bold uppercase tracking-wider">NAVATTIC INTERACTIVE DEMO — FULLSCREEN</span>
+              </div>
+              <button
+                onClick={() => setShowNavatticModal(false)}
+                className="p-1.5 rounded-lg bg-[#2D2C28] hover:bg-[#383631] text-[#ECE9E3] transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <iframe
+              src="https://capture.navattic.com/cmshd2htw000g04jp4r211hjd"
+              data-navattic-src="https://capture.navattic.com/cmshd2htw000g04jp4r211hjd"
+              className="w-full flex-1 border-none"
+              allow="fullscreen"
+              title="Navattic Fullscreen Interactive Demo"
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );
