@@ -4,15 +4,18 @@ import { generateOTP } from '@/lib/otp-store';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const email = body.email || 'demo@synaps.ai';
+    const email = body.email || 'guest.demo@synaps.ai';
     const idToken = body.idToken;
 
-    const { code, expiresAt } = generateOTP(email, idToken);
+    const { code, expiresAt, isDemo } = generateOTP(email, idToken);
 
     return NextResponse.json({
       success: true,
-      message: `2FA Security Code sent to ${email}.`,
-      otpCodeHint: code, // Provided for user convenience & demo testing
+      message: isDemo 
+        ? `Demo 2FA Security Code sent. Code: 123456`
+        : `6-digit 2FA Security Code sent to your email. Check your inbox or server logs.`,
+      // Secret protection: Only reveal hint for guest demo accounts
+      otpCodeHint: isDemo ? '123456' : undefined,
       expiresAt: new Date(expiresAt).toISOString(),
     });
   } catch (error: any) {

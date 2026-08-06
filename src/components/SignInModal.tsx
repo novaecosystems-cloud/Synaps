@@ -40,17 +40,14 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
         body: JSON.stringify({ email: targetEmail, idToken }),
       });
       const data = await res.json();
-      if (data.otpCodeHint) {
-        setOtpHint(data.otpCodeHint);
-      }
+      setOtpHint(data.otpCodeHint || '');
       setShowOtpStep(true);
       toast({
         title: '🛡️ 2FA Security Code Sent',
-        description: `Enter the 6-digit code sent to ${targetEmail} (Code: ${data.otpCodeHint || '123456'})`,
+        description: data.message || `Enter 6-digit code sent to ${targetEmail}`,
       });
     } catch (e) {
       setShowOtpStep(true);
-      setOtpHint('123456');
     }
   };
 
