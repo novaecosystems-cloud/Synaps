@@ -302,46 +302,39 @@ export default function AnthropicStyleSynapsLanding() {
         {/* ── INTERACTIVE DEMO STAGE ── */}
         <div className="anthropic-stage mt-6 max-w-4xl mx-auto space-y-6">
           {demoView === 'navattic' ? (
-            /* NAVATTIC INTERACTIVE EMBED FRAME */
-            <div className="w-full rounded-2xl overflow-hidden border-2 border-purple-500/40 shadow-[0_10px_50px_rgba(124,58,237,0.3)] bg-[#120E21] text-left transition-all">
-              <div className="flex items-center justify-between px-5 py-3 bg-[#19142E] border-b border-purple-500/20 text-xs font-mono-cluely">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse" />
-                  <span className="text-white font-bold uppercase tracking-wider">NAVATTIC INTERACTIVE PRODUCT TOUR</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="hidden sm:inline text-purple-200/70 text-[11px]">Click hotspots to explore platform features</span>
-                  <button
-                    onClick={() => setShowNavatticModal(true)}
-                    className="px-3.5 py-1.5 rounded-lg bg-purple-950/80 border border-purple-400/50 text-purple-300 hover:bg-purple-600 hover:text-white transition-all text-xs font-bold flex items-center gap-1.5"
-                  >
-                    <span>Fullscreen</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+            /* CLEAN ELEGANT LAUNCH INTERACTIVE DEMO SHOWCASE (NO BROKEN IFRAME BOXES) */
+            <div className="w-full rounded-3xl p-8 sm:p-12 bg-gradient-to-b from-[#16122B] to-[#0D0A1A] border border-purple-500/20 shadow-2xl text-center space-y-6 transition-all hover:border-purple-500/40">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/40 border border-purple-400/30 text-purple-300 text-xs font-mono-cluely uppercase tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+                <span>INTERACTIVE NAVATTIC EXPERIENCE</span>
               </div>
 
-              <iframe
-                data-navattic-src="https://capture.navattic.com/cmshd2htw000g04jp4r211hjd"
-                src="https://capture.navattic.com/cmshd2htw000g04jp4r211hjd"
-                data-navattic-placeholder-src="https://app.navattic.com/api/poster/cmshd2htw000g04jp4r211hjd"
-                data-navattic-demo-id="cmshd2htw000g04jp4r211hjd"
-                className="w-full h-[520px] sm:h-[600px] border-none"
-                allow="fullscreen"
-                title="Synaps AI Navattic Interactive Demo"
-              />
+              <div className="space-y-3 max-w-xl mx-auto">
+                <h3 className="font-serif-garamond text-3xl sm:text-4xl font-medium text-white leading-tight">
+                  Experience SYNAPS in action
+                </h3>
+                <p className="text-sm font-sans-cluely text-purple-200/80 leading-relaxed">
+                  Explore how our 10-Agent Boardroom analyzes complex contracts, verifies source citations, and resolves enterprise risks in real time.
+                </p>
+              </div>
 
-              <div className="p-4 bg-[#19142E] border-t border-purple-500/20 flex flex-wrap items-center justify-between gap-3 text-xs font-mono-cluely">
-                <span className="text-purple-200/70">Having trouble loading the interactive player?</span>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                 <a
                   href="https://capture.navattic.com/cmshd2htw000g04jp4r211hjd"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="cluely-purple-btn px-4 py-2 rounded-xl text-white font-bold transition-all flex items-center gap-2"
+                  className="cluely-purple-btn px-8 py-4 rounded-full text-white text-xs font-mono-cluely uppercase tracking-wider flex items-center gap-2.5 font-bold shadow-xl cursor-pointer"
                 >
-                  <span>Launch Interactive Tour in New Tab ↗</span>
+                  <span>🎮 Launch Interactive Product Tour ↗</span>
                 </a>
+
+                <button
+                  type="button"
+                  onClick={() => setShowNavatticModal(true)}
+                  className="px-6 py-4 rounded-full border border-purple-500/30 hover:border-purple-400 text-purple-200 hover:text-white text-xs font-mono-cluely uppercase tracking-wider transition-all cursor-pointer font-medium"
+                >
+                  <span>Open Fullscreen Modal</span>
+                </button>
               </div>
             </div>
           ) : (
