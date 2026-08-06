@@ -8,6 +8,7 @@ import {
   FolderKanban, 
   Settings, 
   Search,
+  Globe,
   LogOut,
   ChevronRight,
   ChevronDown,
@@ -71,6 +72,7 @@ const sidebarSections: MenuSection[] = [
     title: 'COMMAND CENTER',
     items: [
       { name: 'Executive Overview', href: '/dashboard', icon: LayoutDashboard },
+      { name: 'Web Search & AI Chat', href: '/dashboard/chat', icon: Globe },
     ]
   },
   {
