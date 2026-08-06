@@ -489,78 +489,13 @@ export default function AnthropicStyleSynapsLanding() {
       {/* ── ARCHITECTURE & TECHNICAL SPECIFICATIONS ── */}
       <section id="architecture" className="py-20 max-w-7xl mx-auto px-6 space-y-12 text-left">
         <div className="max-w-2xl space-y-3">
-          <span className="text-xs font-mono-anthropic text-[#D96B27] uppercase tracking-widest">TECHNICAL SPECIFICATIONS</span>
-          <h2 className="font-serif-anthropic text-4xl text-[#ECE9E3]">
+          <span className="text-xs font-mono-cluely text-purple-400 uppercase tracking-widest">TECHNICAL SPECIFICATIONS</span>
+          <h2 className="font-serif-garamond text-4xl text-white">
             Enterprise intelligence stack
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="p-8 rounded-2xl bg-[#1E1D1A] border border-[#2B2925] space-y-6">
-            <h3 className="font-serif-anthropic text-2xl text-[#ECE9E3]">Data Processing Pipeline</h3>
-            <div className="space-y-4 text-xs font-mono-anthropic text-[#A5A095]">
-              <div className="flex justify-between border-b border-[#2B2925] pb-2">
-                <span>Ingestion Formats</span>
-                <span className="text-[#ECE9E3] font-medium">PDF, DOCX, XLSX, CSV, SQL</span>
-              </div>
-              <div className="flex justify-between border-b border-[#2B2925] pb-2">
-                <span>OCR & Table Extraction</span>
-                <span className="text-[#ECE9E3] font-medium">Layout-Aware Neural OCR</span>
-              </div>
-              <div className="flex justify-between border-b border-[#2B2925] pb-2">
-                <span>Indexing Speed</span>
-                <span className="text-[#ECE9E3] font-medium">~50 Pages / Second</span>
-              </div>
-              <div className="flex justify-between pb-2">
-                <span>Hallucination Guardrail</span>
-                <span className="text-[#D96B27] font-bold">100% Citation Enforcement</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-8 rounded-2xl bg-[#1E1D1A] border border-[#2B2925] space-y-6">
-            <h3 className="font-serif-anthropic text-2xl text-[#ECE9E3]">Security & Compliance</h3>
-            <div className="space-y-4 text-xs font-mono-anthropic text-[#A5A095]">
-              <div className="flex justify-between border-b border-[#2B2925] pb-2">
-                <span>Encryption at Rest</span>
-                <span className="text-[#ECE9E3] font-medium">AES-256 GCM</span>
-              </div>
-              <div className="flex justify-between border-b border-[#2B2925] pb-2">
-                <span>Encryption in Transit</span>
-                <span className="text-[#ECE9E3] font-medium">TLS 1.3 Strict</span>
-              </div>
-              <div className="flex justify-between border-b border-[#2B2925] pb-2">
-                <span>Audit Trail</span>
-                <span className="text-[#ECE9E3] font-medium">Immutable Audit Logs</span>
-              </div>
-              <div className="flex justify-between pb-2">
-                <span>Compliance Standard</span>
-                <span className="text-[#ECE9E3] font-bold">SOC 2 Type II & ISO 27001</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── FOOTER CTA ── */}
-      <footer className="py-20 bg-[#12110F] text-[#ECE9E3] text-left border-t border-[#252421]">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
-          <div className="md:col-span-8 space-y-4">
-            <span className="text-xs font-mono-anthropic text-[#D96B27] uppercase tracking-widest">GET STARTED WITH SYNAPS</span>
-            <h2 className="font-serif-anthropic text-4xl md:text-5xl text-[#ECE9E3] leading-tight">
-              Turn scattered information into decisions you can defend.
-            </h2>
-            <p className="text-sm font-sans-anthropic text-[#A5A095] max-w-xl">
-              Deploys seamlessly across your existing document repositories and operational storage.
-            </p>
-          </div>
-
-          <div className="md:col-span-4 flex flex-col items-start md:items-end gap-4">
-            <Link
-              href="/demo"
-              className="px-8 py-4 rounded-xl bg-[#D96B27] hover:bg-[#C25918] text-white text-xs font-mono-anthropic uppercase tracking-wider transition-colors shadow-lg shadow-[#D96B27]/20 font-bold"
-            >
-              Launch Workspace Demo →
           <div className="p-8 rounded-2xl bg-[#131022] border border-purple-500/20 space-y-6 shadow-xl">
             <h3 className="font-serif-garamond text-2xl text-white">Data Processing Pipeline</h3>
             <ul className="space-y-3 text-xs font-mono-cluely text-purple-200/70">
