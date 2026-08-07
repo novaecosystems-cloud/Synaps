@@ -1,692 +1,513 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { ArrowRight, X, Menu } from 'lucide-react';
+import { ArrowRight, ShieldCheck, CheckCircle2, FileText, Lock, Volume2, VolumeX, Sparkles, ChevronRight, Plus } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── FONT PRELOAD (Zero-style fonts) ─────────────────────────────────────────
-// Fustat, Google Sans Flex, STK Bureau Serif, Sloop Script Pro, PP Supply Mono
-// loaded via Google Fonts + Framer CDN in layout.tsx
-
-// ─── DATA ────────────────────────────────────────────────────────────────────
-const STEPS = [
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const ACCORDION_TOGGLES = [
   {
-    num: '01',
-    title: 'Upload anything',
-    body: 'Drop PDFs, Excel sheets, DOCX files, or CSVs. Synaps parses every page in seconds.',
+    id: '01',
+    title: 'DOCUMENT REASONING & PARSING',
+    subtitle: 'INGEST PDF, EXCEL, DOCX, CSV IN SECONDS',
+    content: 'Synaps parses multi-hundred-page PDFs, complex financial spreadsheets, and legal agreements with zero data loss. Line-level vector embeddings ground every answer directly in your source documents.',
   },
   {
-    num: '02',
-    title: 'Ask in plain language',
-    body: 'No query syntax. Ask like you\'re texting a CFO. Synaps locates the exact clause, cell, or paragraph.',
+    id: '02',
+    title: '10-AGENT BOARDROOM CONSENSUS',
+    subtitle: 'MULTI-AGENT RISK & OBLIGATION DEBATE',
+    content: 'Ten specialized AI agents (Legal, Financial, Compliance, Risk, Security) analyze your input simultaneously. They debate vulnerabilities, flag hidden liabilities, and produce an auditable consensus brief.',
   },
   {
-    num: '03',
-    title: 'Get cited, auditable answers',
-    body: 'Every response links directly to page and line numbers. Share with confidence. Never guess again.',
+    id: '03',
+    title: '3D ENTERPRISE MEMORY GRAPH',
+    subtitle: 'NEURAL RELATIONSHIP VISUALISATION',
+    content: 'Connect entity relationships across your entire company database. Synaps maps contracts to projects, requirements to regulations, and personnel to risk exposure in an interactive 3D graph.',
+  },
+  {
+    id: '04',
+    title: 'ZERO-TRUST VAULT & DPDP COMPLIANCE',
+    subtitle: 'AES-256 ENCRYPTION & MULTI-TENANT ISOLATION',
+    content: 'Built from day one to comply with India\'s DPDP Act 2023 and global SOC2 standards. Your tenant data is physically isolated, session cookies are HTTP-Only, and zero user data is ever trained on.',
   },
 ];
 
 const MARQUEE_ITEMS = [
-  'Evidence Grounded', 'No hallucinations', '10-Agent Boardroom', 'Real-time Risk Debate',
-  'AES-256 Encrypted', 'DPDP Act Compliant', 'Instant Answers', 'PDF · Excel · DOCX · CSV',
-  'Line-Level Citations', 'Memory Graph AI', 'Zero-Trust Vault',
+  'HASHGRAPH REASONING ENGINE',
+  '10-AGENT BOARDROOM DEBATE',
+  'EVIDENCE-GROUNDED RAG',
+  'ZERO-HALLUCINATION GUARANTEE',
+  'DPDP ACT 2023 COMPLIANT',
+  '3D KNOWLEDGE GRAPH',
+  'LINE-LEVEL SOURCE CITATIONS',
+  'AES-256 ZERO-TRUST VAULT',
 ];
 
-// ─── MARQUEE STRIP ────────────────────────────────────────────────────────────
-function MarqueeStrip() {
-  const track = useRef<HTMLDivElement>(null);
+export default function HybridVentureLanding() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [showSignInModal, setShowSignInModal] = useState(false);
+  const [soundActive, setSoundActive] = useState(false);
+  const [openToggle, setOpenToggle] = useState<string | null>('01');
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Scroll progress tracker
   useEffect(() => {
-    const el = track.current;
-    if (!el) return;
-    gsap.to(el, {
-      x: '-50%',
-      duration: 28,
-      ease: 'none',
-      repeat: -1,
-    });
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalScroll > 0) {
+        setScrollProgress((window.scrollY / totalScroll) * 100);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const doubled = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
-  return (
-    <div className="overflow-hidden w-full border-y border-[#e7e5e4]" style={{ background: '#fffdf7' }}>
-      <div ref={track} className="flex gap-0 whitespace-nowrap will-change-transform" style={{ width: 'max-content' }}>
-        {doubled.map((item, i) => (
-          <span key={i} className="inline-flex items-center gap-4 px-8 py-4"
-            style={{ fontFamily: "'PP Supply Mono Regular', monospace", fontSize: 13, color: '#262424', letterSpacing: '0.04em' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#ff5112] inline-block" />
-            {item}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
-export default function ZeroStyleSynapsLanding() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const navRef = useRef<HTMLElement>(null);
-  const [showSignInModal, setShowSignInModal] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  // ── GSAP Animations ────────────────────────────────────────────────────────
+  // ── GSAP ANIMATIONS ──────────────────────────────────────────────────────────
   useGSAP(() => {
-    // Nav slides up from below (Zero style — translateY 400px → 0)
-    if (navRef.current) {
-      gsap.from(navRef.current, {
-        y: 120,
-        opacity: 0,
-        duration: 0.9,
-        delay: 0.3,
-        ease: 'back.out(1.8)',
-      });
-    }
-
-    // Hero words spring pop-in
-    gsap.from('[data-pop]', {
-      scale: 0.15,
-      y: 48,
-      opacity: 0,
-      duration: 0.65,
-      ease: 'back.out(2.5)',
-      stagger: 0.07,
-    });
-
-    // Sub-text fade up
-    gsap.from('[data-fade]', {
-      opacity: 0,
-      y: 28,
-      duration: 0.75,
-      delay: 0.55,
-      ease: 'power3.out',
-      stagger: 0.1,
-    });
-
-    // Scroll reveals
-    gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el) => {
+    // 1. Text splitter reveal animation (Hashgraph style cubic-bezier)
+    gsap.utils.toArray<HTMLElement>('[data-anim-word]').forEach((el) => {
       gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
+        scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' },
+        y: '75%',
         opacity: 0,
-        y: 44,
-        duration: 0.75,
-        ease: 'power3.out',
+        duration: 0.8,
+        ease: 'cubic-bezier(0.14, 1, 0.34, 1)',
       });
     });
 
-    // Step number pop-ins
-    gsap.utils.toArray<HTMLElement>('[data-step]').forEach((el, i) => {
+    // 2. Dash reveal vertical lines
+    gsap.utils.toArray<HTMLElement>('[data-dash-reveal]').forEach((el) => {
       gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
-        scale: 0.7,
+        scrollTrigger: { trigger: el, start: 'top 85%' },
+        scaleY: 0,
+        transformOrigin: 'top center',
+        duration: 1.2,
+        ease: 'cubic-bezier(0.14, 1, 0.34, 1)',
+      });
+    });
+
+    // 3. Staggered fade in
+    gsap.utils.toArray<HTMLElement>('[data-anim-fade]').forEach((el) => {
+      gsap.from(el, {
+        scrollTrigger: { trigger: el, start: 'top 88%' },
         opacity: 0,
+        y: 20,
         duration: 0.6,
-        delay: i * 0.12,
-        ease: 'back.out(2)',
+        ease: 'power2.out',
       });
     });
   }, { scope: containerRef });
 
   return (
     <>
-      {/* ── Google Fonts ── */}
+      {/* ── Google & Theme Fonts Preload ── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fustat:wght@400;500;600;700&family=Google+Sans+Flex:wght@300..900&display=swap');
-        @font-face {
-          font-family: "STK Bureau Serif Book";
-          src: url("https://framerusercontent.com/assets/l3qQgMiMq1tGawLasW3ZYLwMDkk.woff2");
-          font-display: swap; font-style: normal; font-weight: 400;
-        }
-        @font-face {
-          font-family: "STK Bureau Serif Medium";
-          src: url("https://framerusercontent.com/assets/K1M9FDVW9oDVcdPb4bMucPx0Dus.woff2");
-          font-display: swap; font-style: normal; font-weight: 500;
-        }
-        @font-face {
-          font-family: "Sloop Script Pro Bold";
-          src: url("https://framerusercontent.com/assets/1XmrGlp7hIw1bpyVxsl2fMgytJA.woff2");
-          font-display: swap; font-style: italic; font-weight: 700;
-        }
-        @font-face {
-          font-family: "Sloop Script Pro Regular";
-          src: url("https://framerusercontent.com/assets/C1ObxRRtNQ1griqs4mhh5CVCw.woff2");
-          font-display: swap; font-style: italic; font-weight: 400;
-        }
-        @font-face {
-          font-family: "PP Supply Mono Regular";
-          src: url("https://framerusercontent.com/assets/CTX3fHUepJxbyoY195f0xCdXUU.woff2");
-          font-display: swap; font-style: normal; font-weight: 400;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
         :root {
-          --zero-bg: #fffdf7;
-          --zero-ink: #262424;
-          --zero-ink-muted: #6c6b6e;
-          --zero-rule: #e7e5e4;
-          --zero-cream: #f2efed;
-          --zero-orange: #ff5112;
-          --zero-hero-bg: #0b0e1a;
-          --zero-hero-accent: #7c3aed;
-          --zero-green: #b6ffb6;
+          --bg-hashgraph: #000209;
+          --bg-iberian: #fe3e29;
+          --color-cream: #f4f2ea;
+          --color-offwhite: #ebe9e0;
+          --color-cyan-glow: #9bb8e1;
+          --color-blue-dark: #2c4e73;
+          --color-[#7c3aed]: #7c3aed;
         }
 
-        html { scroll-behavior: smooth; }
-
-        .font-serif-stk { font-family: "STK Bureau Serif Medium", Georgia, serif; }
-        .font-sloop { font-family: "Sloop Script Pro Bold", cursive; font-style: italic; }
-        .font-sloop-reg { font-family: "Sloop Script Pro Regular", cursive; font-style: italic; }
-        .font-mono-pp { font-family: "PP Supply Mono Regular", monospace; }
-        .font-fustat { font-family: "Fustat", system-ui, sans-serif; }
-        .font-gsans { font-family: "Google Sans Flex", "Fustat", system-ui, sans-serif; }
-
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Superellipse pill nav — same shape as Zero */
-        .nav-pill {
-          border-radius: 99px;
-          background: rgba(255,255,255,0.88);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          border: 1px solid rgba(38,36,36,0.1);
-          box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset;
-        }
-        .nav-pill-dark {
-          background: rgba(11,14,26,0.75);
-          border-color: rgba(255,255,255,0.1);
+        body {
+          background-color: var(--bg-hashgraph);
+          color: #eee;
+          font-family: 'Space Grotesk', -apple-system, sans-serif;
+          overflow-x: hidden;
         }
 
-        /* Lenis-style smooth scroll stub */
-        [data-pop], [data-pop-card], [data-step] { will-change: transform; }
+        /* Typography Classes */
+        .ff-teko {
+          font-family: 'Teko', sans-serif;
+          text-transform: uppercase;
+          line-height: 0.85em;
+          letter-spacing: 0.02em;
+        }
 
-        /* Hero gradient orbs */
-        .hero-orb {
+        .ff-vulf-mono {
+          font-family: 'JetBrains Mono', monospace;
+          text-transform: uppercase;
+          letter-spacing: -0.03em;
+        }
+
+        .ff-sans {
+          font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Gradient text identifier */
+        .text-gradient-cyan {
+          background: linear-gradient(90deg, #9bb8e1, #7c3aed, #2c4e73);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        /* Shimmer Button (Hashgraph style) */
+        .btn-hashgraph {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 3.4rem;
+          padding: 0 2.4rem;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 13px;
+          font-weight: 700;
+          color: #eee;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          overflow: hidden;
+          border-radius: 6px;
+        }
+
+        .btn-hashgraph:before {
+          content: "";
           position: absolute;
-          border-radius: 50%;
-          filter: blur(80px);
-          mix-blend-mode: screen;
-          pointer-events: none;
+          inset: 0;
+          border: 2px solid #9bb8e1;
+          border-radius: 6px;
+          filter: blur(4px);
+          opacity: 0;
+          transition: opacity 0.6s cubic-bezier(0.14, 1, 0.34, 1);
+        }
+
+        .btn-hashgraph:hover:before {
+          opacity: 1;
+        }
+
+        .btn-hashgraph-bg {
+          position: absolute;
+          inset: 0;
+          border: 1px solid rgba(155, 184, 225, 0.3);
+          border-radius: 6px;
+          background: rgba(155, 184, 225, 0.05);
+          transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .btn-hashgraph:hover .btn-hashgraph-bg {
+          background: rgba(155, 184, 225, 0.15);
+          border-color: #9bb8e1;
+        }
+
+        /* Iberian Wave */
+        .wave-svg {
+          width: 300%;
+          height: 80px;
+          fill: var(--bg-hashgraph);
+        }
+
+        /* Rotating Badge */
+        @keyframes rotateBadge {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .badge-rotate {
+          animation: rotateBadge 35s linear infinite;
+        }
+
+        /* Custom Scrollbar Progress */
+        .scrollbar-progress-bar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          height: 3px;
+          background: linear-gradient(90deg, #9bb8e1, #7c3aed, #fe3e29);
+          z-index: 9999;
+          transition: width 0.1s linear;
         }
       `}</style>
 
-      <div ref={containerRef} style={{ background: 'var(--zero-bg)', color: 'var(--zero-ink)' }}>
+      {/* ── Top Progress Line ── */}
+      <div className="scrollbar-progress-bar" style={{ width: `${scrollProgress}%` }} />
 
-        {/* ── FLOATING NAV (bottom center, Zero style) ─────────────────────── */}
-        <nav ref={navRef} style={{
-          position: 'fixed',
-          bottom: 28,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 100,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-        }}>
-          <div className="nav-pill flex items-center gap-1 px-2 py-2">
-            {/* Logo mark */}
-            <div className="flex items-center gap-2 px-3 py-1.5"
-              style={{ fontFamily: '"Google Sans Flex", system-ui', fontWeight: 700, fontSize: 15, color: 'var(--zero-ink)' }}>
-              <div style={{
-                width: 28, height: 28, borderRadius: '8px',
-                background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <span style={{ color: '#fff', fontSize: 12, fontWeight: 800, fontFamily: '"Google Sans Flex", system-ui' }}>S</span>
+      <div ref={containerRef} className="relative min-h-screen bg-[#000209] text-[#eee]">
+
+        {/* ── FIXED HEADER (Hashgraph + Iberian Hybrid) ───────────────────── */}
+        <header className="fixed top-0 left-0 w-full z-50 px-6 lg:px-16 py-6 flex items-center justify-between pointer-events-none">
+          {/* Logo */}
+          <div className="flex items-center gap-3 pointer-events-auto">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7c3aed] via-[#2c4e73] to-[#9bb8e1] p-[1px] shadow-[0_0_20px_rgba(155,184,225,0.3)]">
+              <div className="w-full h-full bg-[#000209] rounded-xl flex items-center justify-center">
+                <span className="ff-teko text-2xl text-[#9bb8e1] font-bold">S</span>
               </div>
-              Synaps
             </div>
+            <div className="flex flex-col">
+              <span className="ff-teko text-2xl tracking-wider text-white font-bold leading-none">SYNAPS AI</span>
+              <span className="ff-vulf-mono text-[9px] text-[#9bb8e1] tracking-widest opacity-80">ENTERPRISE BRAIN</span>
+            </div>
+          </div>
 
-            <div style={{ width: 1, height: 20, background: 'var(--zero-rule)', margin: '0 4px' }} />
-
-            {/* Nav links */}
-            {[
-              { label: 'How it works', href: '#how' },
-              { label: 'Features', href: '#features' },
-              { label: 'Security', href: '#security' },
-            ].map(({ label, href }) => (
-              <a key={label} href={href}
-                style={{
-                  fontFamily: '"Fustat", system-ui', fontSize: 14, fontWeight: 500,
-                  color: 'var(--zero-ink)', padding: '6px 14px', borderRadius: 99,
-                  transition: 'background 0.15s', textDecoration: 'none',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(38,36,36,0.07)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-              >
-                {label}
-              </a>
-            ))}
-
-            <div style={{ width: 1, height: 20, background: 'var(--zero-rule)', margin: '0 4px' }} />
-
-            {/* CTA */}
+          {/* Sound / Mode Toggle */}
+          <div className="flex items-center gap-4 pointer-events-auto">
             <button
-              onClick={() => setShowSignInModal(true)}
-              style={{
-                fontFamily: '"Fustat", system-ui', fontSize: 14, fontWeight: 600,
-                background: 'var(--zero-ink)', color: '#fff',
-                border: 'none', borderRadius: 99, padding: '8px 20px', cursor: 'pointer',
-                transition: 'transform 0.15s, box-shadow 0.15s',
-                boxShadow: '0 2px 12px rgba(38,36,36,0.25)',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.04)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+              onClick={() => setSoundActive(!soundActive)}
+              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border border-[#9bb8e1]/20 bg-[#000209]/80 backdrop-blur-md text-xs text-[#9bb8e1] hover:border-[#9bb8e1]/60 transition-all"
             >
-              Get started →
-            </button>
-          </div>
-        </nav>
-
-        {/* ── HERO ─────────────────────────────────────────────────────────── */}
-        <section style={{
-          position: 'relative',
-          minHeight: '100vh',
-          background: 'var(--zero-hero-bg)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'hidden',
-          padding: '120px 24px 160px',
-        }}>
-          {/* Background orbs — like Zero's lottie blobs */}
-          <div className="hero-orb" style={{ width: 600, height: 600, background: '#7c3aed', opacity: 0.35, top: '-100px', left: '-100px' }} />
-          <div className="hero-orb" style={{ width: 500, height: 500, background: '#312e81', opacity: 0.4, bottom: '-80px', right: '-80px' }} />
-          <div className="hero-orb" style={{ width: 300, height: 300, background: '#b6ffb6', opacity: 0.08, top: '40%', left: '30%' }} />
-
-          {/* Badge */}
-          <div data-fade style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-            borderRadius: 99, padding: '6px 16px 6px 10px', marginBottom: 48,
-          }}>
-            <span style={{
-              background: '#7c3aed', borderRadius: 99, padding: '2px 10px',
-              fontSize: 11, fontWeight: 700, color: '#fff', fontFamily: '"PP Supply Mono Regular", monospace',
-              letterSpacing: '0.08em', textTransform: 'uppercase',
-            }}>Beta</span>
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontFamily: '"Fustat", system-ui' }}>
-              Your enterprise brain is here
-            </span>
-          </div>
-
-          {/* Main headline — Google Sans Flex, massive */}
-          <h1 style={{
-            fontFamily: '"Google Sans Flex", system-ui',
-            fontWeight: 700,
-            fontSize: 'clamp(48px, 8vw, 96px)',
-            lineHeight: 1.0,
-            color: '#ffffff',
-            textAlign: 'center',
-            maxWidth: 900,
-            letterSpacing: '-0.03em',
-          }}>
-            {['Know.', 'Decide.', 'Win.'].map((word) => (
-              <span key={word} data-pop style={{ display: 'inline-block', marginRight: '0.25em' }}>
-                {word}
+              {soundActive ? <Volume2 className="w-3.5 h-3.5 text-[#7c3aed] animate-pulse" /> : <VolumeX className="w-3.5 h-3.5 opacity-50" />}
+              <span className="ff-vulf-mono text-[10px] tracking-wider">
+                GROUNDING: <span className={soundActive ? 'text-[#9bb8e1]' : 'text-slate-500'}>{soundActive ? 'LIVE WEB ON' : 'DOCUMENTS ONLY'}</span>
               </span>
-            ))}
-          </h1>
+            </button>
 
-          {/* Script accent */}
-          <div data-fade style={{
-            fontFamily: '"Sloop Script Pro Bold", cursive',
-            fontStyle: 'italic',
-            fontSize: 'clamp(28px, 4vw, 52px)',
-            color: '#b6ffb6',
-            marginTop: 8,
-            marginBottom: 32,
-            textAlign: 'center',
-          }}>
-            Your enterprise AI, grounded in truth
-          </div>
-
-          {/* Subhead */}
-          <p data-fade style={{
-            fontFamily: '"STK Bureau Serif Book", Georgia, serif',
-            fontSize: 'clamp(16px, 2vw, 22px)',
-            lineHeight: 1.6,
-            color: 'rgba(255,255,255,0.62)',
-            textAlign: 'center',
-            maxWidth: 560,
-            marginBottom: 56,
-          }}>
-            Synaps turns your contracts, reports, and data into a conversational knowledge system. Ask anything. Get cited answers in seconds.
-          </p>
-
-          {/* CTAs */}
-          <div data-fade style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             <button
               onClick={() => setShowSignInModal(true)}
-              style={{
-                fontFamily: '"Fustat", system-ui', fontWeight: 600, fontSize: 16,
-                background: '#fff', color: 'var(--zero-ink)',
-                border: 'none', borderRadius: 99, padding: '14px 32px',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
-                boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.04)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+              className="btn-hashgraph pointer-events-auto"
             >
-              Start for free
-              <ArrowRight style={{ width: 16, height: 16 }} />
+              <span className="btn-hashgraph-bg" />
+              <span className="relative z-10 flex items-center gap-2">
+                LAUNCH SYSTEM <ArrowRight className="w-3.5 h-3.5" />
+              </span>
             </button>
-            <a href="#how" style={{
-              fontFamily: '"Fustat", system-ui', fontWeight: 500, fontSize: 16,
-              color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: 99, padding: '14px 28px', textDecoration: 'none',
-              transition: 'border-color 0.2s, color 0.2s',
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.6)'; (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.7)'; }}
-            >
-              See how it works
-            </a>
+          </div>
+        </header>
+
+        {/* ── HERO SECTION (Hashgraph Cyber-Dark + Massive Teko Headlines) ────── */}
+        <section className="relative min-h-screen flex flex-col justify-end pb-16 px-6 lg:px-16 pt-32 overflow-hidden">
+          {/* Background Ambient Glow Orbs */}
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-gradient-to-tr from-[#7c3aed]/20 via-[#2c4e73]/15 to-transparent rounded-full blur-[140px] pointer-events-none" />
+          <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-[#9bb8e1]/10 rounded-full blur-[120px] pointer-events-none" />
+
+          {/* Rotating Radial Text Badge (Iberian Style) */}
+          <div className="absolute top-36 right-10 lg:right-24 hidden md:flex items-center justify-center w-36 h-36 pointer-events-none">
+            <svg className="w-full h-full badge-rotate" viewBox="0 0 100 100">
+              <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
+              <text fill="#9bb8e1" className="ff-vulf-mono text-[8px] tracking-[0.25em]">
+                <textPath href="#circlePath">SYNAPS AI · 10-AGENT BOARDROOM · EVIDENCE GROUNDED ·</textPath>
+              </text>
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-[#7c3aed]" />
+            </div>
           </div>
 
-          {/* Bottom stat band inside hero */}
-          <div data-fade style={{
-            position: 'absolute', bottom: 40, left: 0, right: 0,
-            display: 'flex', justifyContent: 'center', gap: 48, flexWrap: 'wrap',
-          }}>
-            {[
-              { val: '10×', label: 'Faster document review' },
-              { val: '100%', label: 'Source-cited answers' },
-              { val: '10', label: 'AI agents in parallel' },
-            ].map(({ val, label }) => (
-              <div key={val} style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: '"Google Sans Flex", system-ui', fontWeight: 800, fontSize: 32, color: '#fff', lineHeight: 1 }}>{val}</div>
-                <div style={{ fontFamily: '"Fustat", system-ui', fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>{label}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── MARQUEE ───────────────────────────────────────────────────────── */}
-        <MarqueeStrip />
-
-        {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
-        <section id="how" style={{
-          background: 'var(--zero-bg)', padding: 'clamp(64px, 8vw, 128px) clamp(24px, 6vw, 96px)',
-          maxWidth: 1200, margin: '0 auto',
-        }}>
-          {/* Section label */}
-          <div data-reveal style={{
-            fontFamily: '"PP Supply Mono Regular", monospace', fontSize: 11,
-            letterSpacing: '0.15em', textTransform: 'uppercase',
-            color: 'var(--zero-orange)', marginBottom: 24,
-          }}>
-            How it works
-          </div>
-
-          <h2 data-reveal style={{
-            fontFamily: '"Google Sans Flex", system-ui', fontWeight: 700,
-            fontSize: 'clamp(36px, 5vw, 72px)',
-            color: 'var(--zero-ink)', lineHeight: 1.05, letterSpacing: '-0.025em',
-            maxWidth: 700, marginBottom: 80,
-          }}>
-            Three steps.<br />
-            <span className="font-sloop" style={{ fontSize: '0.85em', color: 'var(--zero-ink-muted)' }}>
-              Zero confusion.
-            </span>
-          </h2>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {STEPS.map(({ num, title, body }, i) => (
-              <div key={num} data-step style={{
-                display: 'grid',
-                gridTemplateColumns: 'auto 1fr',
-                gap: '0 48px',
-                padding: '40px 0',
-                borderTop: '1px solid var(--zero-rule)',
-                alignItems: 'start',
-              }}>
-                {/* Number */}
-                <div style={{
-                  fontFamily: '"Google Sans Flex", system-ui', fontWeight: 800,
-                  fontSize: 'clamp(64px, 8vw, 112px)', color: 'var(--zero-cream)',
-                  lineHeight: 1, letterSpacing: '-0.04em', minWidth: 120,
-                }}>
-                  {num}
-                </div>
-                {/* Text */}
-                <div style={{ paddingTop: 12 }}>
-                  <h3 style={{
-                    fontFamily: '"Google Sans Flex", system-ui', fontWeight: 700,
-                    fontSize: 'clamp(22px, 3vw, 36px)', color: 'var(--zero-ink)',
-                    marginBottom: 12, letterSpacing: '-0.02em',
-                  }}>
-                    {title}
-                  </h3>
-                  <p style={{
-                    fontFamily: '"STK Bureau Serif Book", Georgia, serif',
-                    fontSize: 'clamp(15px, 1.5vw, 19px)', color: 'var(--zero-ink-muted)',
-                    lineHeight: 1.7, maxWidth: 520,
-                  }}>
-                    {body}
-                  </p>
-                </div>
-              </div>
-            ))}
-            <div style={{ borderTop: '1px solid var(--zero-rule)' }} />
-          </div>
-        </section>
-
-        {/* ── DARK FEATURES BAND ────────────────────────────────────────────── */}
-        <section id="features" style={{
-          background: 'var(--zero-hero-bg)',
-          padding: 'clamp(64px, 8vw, 128px) clamp(24px, 6vw, 96px)',
-          position: 'relative', overflow: 'hidden',
-        }}>
-          {/* bg orb */}
-          <div className="hero-orb" style={{ width: 700, height: 700, background: '#4f46e5', opacity: 0.18, top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
-
-          <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-            <div data-reveal style={{
-              fontFamily: '"PP Supply Mono Regular", monospace', fontSize: 11,
-              letterSpacing: '0.15em', textTransform: 'uppercase', color: '#b6ffb6', marginBottom: 24,
-            }}>
-              Features
+          <div className="max-w-6xl z-10">
+            {/* Section Tag */}
+            <div className="flex items-center gap-3 mb-6" data-anim-fade>
+              <span className="w-8 h-[2px] bg-gradient-to-r from-[#9bb8e1] to-transparent" />
+              <span className="ff-vulf-mono text-xs text-[#9bb8e1] tracking-widest uppercase">
+                SYSTEM VERSION 3.4 · DPDP ACT COMPLIANT
+              </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 0 }}>
+            {/* Massive Display Title (Teko + Vulf Mono) */}
+            <h1 className="ff-teko text-[clamp(4.5rem,11vw,13rem)] leading-[0.82] text-white tracking-wide uppercase mb-6">
+              <span className="block overflow-hidden">
+                <span className="block" data-anim-word>EVIDENCE GROUNDED</span>
+              </span>
+              <span className="block overflow-hidden text-gradient-cyan">
+                <span className="block" data-anim-word>ENTERPRISE BRAIN</span>
+              </span>
+            </h1>
+
+            {/* Secondary Copy (Parabole / Space Grotesk) */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end mt-8">
+              <p className="md:col-span-7 text-lg lg:text-xl text-[#b7c6d4] leading-relaxed font-light" data-anim-fade>
+                Synaps transforms complex organizational documents, contracts, and datasets into an interactive, 
+                auditable knowledge graph. Powered by a 10-agent boardroom debate engine.
+              </p>
+
+              <div className="md:col-span-5 flex flex-col gap-4" data-anim-fade>
+                <div className="flex items-center gap-4 text-xs font-mono text-[#9bb8e1]/70 border-l-2 border-[#9bb8e1] pl-4 py-1">
+                  <span>PDF · EXCEL · DOCX · CSV</span>
+                  <span>|</span>
+                  <span>ZERO HALLUCINATIONS</span>
+                </div>
+                <button
+                  onClick={() => setShowSignInModal(true)}
+                  className="btn-hashgraph w-full sm:w-auto self-start"
+                >
+                  <span className="btn-hashgraph-bg" />
+                  <span className="relative z-10 flex items-center justify-center gap-3 py-1">
+                    START ENTERPRISE FREE TRIAL <ArrowRight className="w-4 h-4 text-[#9bb8e1]" />
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Vertical Dash Reveal Line (Hashgraph Style) */}
+          <div className="absolute bottom-0 right-16 w-[1px] h-32 bg-gradient-to-b from-transparent to-[#9bb8e1]/40 hidden lg:block" data-dash-reveal />
+        </section>
+
+        {/* ── TICKER STRIP ─────────────────────────────────────────────────── */}
+        <div className="w-full bg-[#050914] border-y border-[#9bb8e1]/10 py-4 overflow-hidden whitespace-nowrap">
+          <div className="inline-flex gap-12 animate-[marquee_30s_linear_infinite]">
+            {MARQUEE_ITEMS.concat(MARQUEE_ITEMS).map((item, idx) => (
+              <div key={idx} className="flex items-center gap-3 text-xs font-mono text-[#9bb8e1]/80 tracking-widest">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7c3aed]" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── SECTION 01: SYSTEM FEATURES (Iberian Accordion + Hashgraph Cards) ────── */}
+        <section className="py-24 px-6 lg:px-16 max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row justify-between items-start mb-16 gap-6">
+            <div>
+              <span className="ff-vulf-mono text-xs text-[#9bb8e1] tracking-widest uppercase block mb-2">
+                // SYSTEM ARCHITECTURE
+              </span>
+              <h2 className="ff-teko text-6xl lg:text-8xl text-white font-bold leading-none tracking-wide">
+                BUILT FOR ZERO RISK
+              </h2>
+            </div>
+            <p className="text-[#b7c6d4] max-w-md text-sm lg:text-base leading-relaxed">
+              Standard LLMs guess when they don&apos;t know. Synaps requires line-level evidence for every claim 
+              or refuses to answer.
+            </p>
+          </div>
+
+          {/* Accordion Toggles List (Iberian Style) */}
+          <div className="flex flex-col border-t border-[#9bb8e1]/20">
+            {ACCORDION_TOGGLES.map((item) => {
+              const isOpen = openToggle === item.id;
+              return (
+                <div
+                  key={item.id}
+                  className="border-b border-[#9bb8e1]/20 transition-colors duration-300"
+                >
+                  <button
+                    onClick={() => setOpenToggle(isOpen ? null : item.id)}
+                    className="w-full py-8 flex items-center justify-between text-left group"
+                  >
+                    <div className="flex items-center gap-6 lg:gap-12">
+                      <span className="ff-vulf-mono text-lg lg:text-2xl text-[#9bb8e1]/50 group-hover:text-[#9bb8e1] transition-colors">
+                        [{item.id}]
+                      </span>
+                      <div>
+                        <h3 className="ff-teko text-3xl lg:text-5xl text-white tracking-wider group-hover:text-[#9bb8e1] transition-colors leading-none">
+                          {item.title}
+                        </h3>
+                        <span className="ff-vulf-mono text-[10px] lg:text-xs text-slate-400 tracking-widest block mt-1">
+                          {item.subtitle}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={`w-10 h-10 rounded-full border border-[#9bb8e1]/30 flex items-center justify-center text-[#9bb8e1] transition-transform duration-300 ${isOpen ? 'rotate-[135deg] bg-[#7c3aed]/20 border-[#7c3aed]' : 'group-hover:border-[#9bb8e1]'}`}>
+                      <Plus className="w-5 h-5" />
+                    </div>
+                  </button>
+
+                  {/* Expandable Content */}
+                  {isOpen && (
+                    <div className="pb-8 pl-16 lg:pl-28 pr-6 max-w-4xl text-[#b7c6d4] text-base leading-relaxed animate-fadeIn">
+                      <p className="bg-[#050914] p-6 rounded-xl border border-[#9bb8e1]/10 text-slate-300 font-light">
+                        {item.content}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── SECTION 02: 10-AGENT BOARDROOM VISUALIZER (Dark Cyberpunk) ── */}
+        <section className="py-24 px-6 lg:px-16 bg-[#050914] border-y border-[#9bb8e1]/10 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="ff-vulf-mono text-xs text-[#7c3aed] tracking-widest uppercase block mb-3">
+                // PARALLEL REASONING ENGINE
+              </span>
+              <h2 className="ff-teko text-6xl lg:text-8xl text-white font-bold tracking-wide">
+                THE 10-AGENT BOARDROOM
+              </h2>
+              <p className="text-[#b7c6d4] text-base mt-2">
+                Watch specialized AI personas analyze your documents in real-time before finalizing decisions.
+              </p>
+            </div>
+
+            {/* Grid of Agents */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {[
-                { emoji: '📄', title: 'Document Intelligence', body: 'Ingests PDF, Excel, DOCX, CSV. Extracts meaning, not just text.' },
-                { emoji: '🧠', title: '10-Agent Boardroom', body: 'Ten specialist AI agents debate risks and obligations in parallel before giving you one clear answer.' },
-                { emoji: '🔒', title: 'Zero-Trust Vault', body: 'AES-256 encryption, HTTP-Only sessions, multi-tenant isolation. Your data stays yours.' },
-                { emoji: '⚡', title: 'Instant Answers', body: 'Sub-second retrieval. Line-level citations on every response. No more hunting through 300-page decks.' },
-                { emoji: '🌐', title: 'Web + Doc Hybrid AI', body: 'Ask about your documents and the live web at the same time. Grounded in real sources, always.' },
-                { emoji: '🇮🇳', title: 'DPDP Act Compliant', body: 'Built to meet India\'s Digital Personal Data Protection Act 2023 from day one.' },
-              ].map(({ emoji, title, body }, i) => (
-                <div key={title} data-reveal style={{
-                  padding: '40px 36px',
-                  borderTop: '1px solid rgba(255,255,255,0.08)',
-                  borderLeft: i % 3 !== 0 ? '1px solid rgba(255,255,255,0.08)' : 'none',
-                }}>
-                  <div style={{ fontSize: 32, marginBottom: 20 }}>{emoji}</div>
-                  <h3 style={{
-                    fontFamily: '"Google Sans Flex", system-ui', fontWeight: 700,
-                    fontSize: 20, color: '#fff', marginBottom: 10, letterSpacing: '-0.01em',
-                  }}>{title}</h3>
-                  <p style={{
-                    fontFamily: '"STK Bureau Serif Book", Georgia, serif',
-                    fontSize: 16, color: 'rgba(255,255,255,0.5)', lineHeight: 1.65,
-                  }}>{body}</p>
+                { title: 'CHIEF OF STAFF', role: 'Strategic Alignment', icon: ShieldCheck },
+                { title: 'LEGAL COUNSEL', role: 'Liability & Contract Clause', icon: FileText },
+                { title: 'CHIEF FINANCIAL OFFICER', role: 'Capital & ROI Exposure', icon: CheckCircle2 },
+                { title: 'RISK AUDITOR', role: 'Vulnerability Detection', icon: Lock },
+                { title: 'COMPLIANCE OFFICER', role: 'DPDP & Regulatory Match', icon: Sparkles },
+                { title: 'ENGINEERING LEAD', role: 'Technical Feasibility', icon: ShieldCheck },
+                { title: 'MARKETING STRATEGIST', role: 'Market Position Impact', icon: FileText },
+                { title: 'OPERATIONS HEAD', role: 'Workflow Bottlenecks', icon: CheckCircle2 },
+                { title: 'SECURITY ARCHITECT', role: 'Zero-Trust Isolation', icon: Lock },
+                { title: 'DIGITAL TWIN OS', role: 'Executive Consensus', icon: Sparkles },
+              ].map((agent, idx) => (
+                <div
+                  key={idx}
+                  className="p-5 rounded-2xl bg-[#000209] border border-[#9bb8e1]/15 hover:border-[#7c3aed]/50 transition-all group hover:-translate-y-1"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-[#7c3aed]/10 border border-[#7c3aed]/30 flex items-center justify-center text-[#9bb8e1] mb-4 group-hover:scale-110 transition-transform">
+                    <agent.icon className="w-4 h-4" />
+                  </div>
+                  <h4 className="ff-teko text-xl text-white tracking-wider leading-none mb-1 group-hover:text-[#9bb8e1]">
+                    {agent.title}
+                  </h4>
+                  <p className="ff-vulf-mono text-[10px] text-slate-400 tracking-tight">
+                    {agent.role}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── SECURITY / TRUST SECTION ──────────────────────────────────────── */}
-        <section id="security" style={{
-          background: 'var(--zero-cream)',
-          padding: 'clamp(64px, 8vw, 128px) clamp(24px, 6vw, 96px)',
-        }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-            <div data-reveal style={{
-              fontFamily: '"PP Supply Mono Regular", monospace', fontSize: 11,
-              letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--zero-orange)', marginBottom: 24,
-            }}>
-              Security & Trust
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px 96px', alignItems: 'start' }}>
-              <div data-reveal>
-                <h2 style={{
-                  fontFamily: '"Google Sans Flex", system-ui', fontWeight: 700,
-                  fontSize: 'clamp(32px, 4vw, 56px)', color: 'var(--zero-ink)',
-                  lineHeight: 1.1, letterSpacing: '-0.025em', marginBottom: 24,
-                }}>
-                  Enterprise-grade security.<br />
-                  <span className="font-sloop-reg" style={{ fontSize: '0.8em' }}>Built-in, not bolted-on.</span>
-                </h2>
-                <p style={{
-                  fontFamily: '"STK Bureau Serif Book", Georgia, serif',
-                  fontSize: 18, color: 'var(--zero-ink-muted)', lineHeight: 1.7,
-                }}>
-                  Your documents, your organisation, your data. Synaps never mixes data across tenants. Every request is authenticated. Every session is isolated.
-                </p>
-              </div>
-
-              <div data-reveal style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                {[
-                  { label: 'AES-256 encryption at rest & in transit', check: true },
-                  { label: 'Multi-tenant data isolation', check: true },
-                  { label: 'HTTP-Only session tokens (no XSS)', check: true },
-                  { label: 'DPDP Act 2023 compliant audit logs', check: true },
-                  { label: '2FA / MFA authentication support', check: true },
-                  { label: 'Zero data sold to third parties — ever', check: true },
-                ].map(({ label, check }) => (
-                  <div key={label} style={{
-                    display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '18px 0', borderBottom: '1px solid var(--zero-rule)',
-                  }}>
-                    <span style={{
-                      width: 22, height: 22, borderRadius: 99,
-                      background: '#262424', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0,
-                    }}>
-                      <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-                        <path d="M1 4.5L4 7.5L10 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </span>
-                    <span style={{ fontFamily: '"Fustat", system-ui', fontSize: 15, color: 'var(--zero-ink)' }}>{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTA ───────────────────────────────────────────────────────────── */}
-        <section style={{
-          background: 'var(--zero-hero-bg)', position: 'relative', overflow: 'hidden',
-          padding: 'clamp(80px, 10vw, 160px) clamp(24px, 6vw, 96px)',
-          textAlign: 'center',
-        }}>
-          <div className="hero-orb" style={{ width: 800, height: 800, background: '#7c3aed', opacity: 0.2, top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
-
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div data-reveal style={{
-              fontFamily: '"Sloop Script Pro Bold", cursive', fontStyle: 'italic',
-              fontSize: 'clamp(36px, 5vw, 64px)', color: '#b6ffb6', marginBottom: 16,
-            }}>
-              Ready to know more?
-            </div>
-
-            <h2 data-reveal style={{
-              fontFamily: '"Google Sans Flex", system-ui', fontWeight: 700,
-              fontSize: 'clamp(40px, 6vw, 80px)', color: '#fff',
-              lineHeight: 1.0, letterSpacing: '-0.03em', marginBottom: 24,
-            }}>
-              Your enterprise brain<br />starts here.
+        {/* ── CALL TO ACTION SECTION (High Contrast Iberian Vermilion Accent) ────── */}
+        <section className="py-32 px-6 lg:px-16 bg-gradient-to-b from-[#000209] via-[#0b0410] to-[#000209] text-center relative overflow-hidden">
+          <div className="max-w-4xl mx-auto relative z-10">
+            <span className="ff-vulf-mono text-xs text-[#fe3e29] tracking-widest uppercase block mb-4">
+              // READY TO TRANSFORM YOUR ENTERPRISE WORKFLOW?
+            </span>
+            <h2 className="ff-teko text-7xl lg:text-9xl text-white font-bold leading-none tracking-wide mb-8">
+              START REASONING WITH SYNAPS
             </h2>
-
-            <p data-reveal style={{
-              fontFamily: '"STK Bureau Serif Book", Georgia, serif',
-              fontSize: 'clamp(16px, 1.5vw, 20px)', color: 'rgba(255,255,255,0.55)',
-              maxWidth: 480, margin: '0 auto 48px',
-            }}>
-              Join teams already using Synaps to move faster, decide better, and eliminate document chaos.
+            <p className="text-[#b7c6d4] text-lg lg:text-xl font-light max-w-2xl mx-auto mb-10">
+              No credit card required. Upload your first document set and experience evidence-grounded AI 
+              in less than 2 minutes.
             </p>
 
-            <div data-reveal style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setShowSignInModal(true)}
-                style={{
-                  fontFamily: '"Fustat", system-ui', fontWeight: 700, fontSize: 17,
-                  background: '#fff', color: 'var(--zero-ink)',
-                  border: 'none', borderRadius: 99, padding: '16px 40px',
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
-                  boxShadow: '0 4px 32px rgba(0,0,0,0.35)',
-                  transition: 'transform 0.2s',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.04)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
-              >
-                Get started — it's free
-                <ArrowRight style={{ width: 18, height: 18 }} />
-              </button>
-            </div>
-
-            <p data-reveal style={{
-              fontFamily: '"Fustat", system-ui', fontSize: 13,
-              color: 'rgba(255,255,255,0.3)', marginTop: 20,
-            }}>
-              No credit card required · Setup in 2 minutes
-            </p>
+            <button
+              onClick={() => setShowSignInModal(true)}
+              className="btn-hashgraph text-lg py-6 px-10"
+            >
+              <span className="btn-hashgraph-bg bg-[#fe3e29]/15 border-[#fe3e29]" />
+              <span className="relative z-10 flex items-center gap-3">
+                ACCESS SYSTEM NOW <ChevronRight className="w-5 h-5 text-[#fe3e29]" />
+              </span>
+            </button>
           </div>
         </section>
 
-        {/* ── FOOTER ────────────────────────────────────────────────────────── */}
-        <footer style={{
-          background: 'var(--zero-ink)', padding: '40px clamp(24px, 6vw, 96px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 16,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: '8px',
-              background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <span style={{ color: '#fff', fontSize: 12, fontWeight: 800, fontFamily: '"Google Sans Flex", system-ui' }}>S</span>
-            </div>
-            <span style={{ fontFamily: '"Google Sans Flex", system-ui', fontWeight: 700, fontSize: 15, color: '#fff' }}>Synaps</span>
+        {/* ── FOOTER ───────────────────────────────────────────────────────── */}
+        <footer className="py-12 px-6 lg:px-16 border-t border-[#9bb8e1]/10 bg-[#000209] text-slate-500 text-xs font-mono flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3">
+            <span className="ff-teko text-2xl text-white font-bold tracking-wider">SYNAPS AI</span>
+            <span>·</span>
+            <span>© {new Date().getFullYear()} SYNAPS SYSTEMS</span>
           </div>
 
-          <div style={{ display: 'flex', gap: 24 }}>
-            {['Privacy', 'Terms', 'Contact'].map(link => (
-              <a key={link} href="#" style={{
-                fontFamily: '"Fustat", system-ui', fontSize: 13,
-                color: 'rgba(255,255,255,0.4)', textDecoration: 'none',
-                transition: 'color 0.15s',
-              }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.8)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.4)'; }}
-              >
-                {link}
-              </a>
-            ))}
+          <div className="flex items-center gap-6 text-[#9bb8e1]/70">
+            <a href="/dashboard/chat" className="hover:text-white transition-colors">AI CHAT</a>
+            <a href="/dashboard/documents" className="hover:text-white transition-colors">DOCUMENTS</a>
+            <a href="/dashboard/graph" className="hover:text-white transition-colors">MEMORY GRAPH</a>
+            <a href="#" className="hover:text-white transition-colors">PRIVACY & DPDP</a>
           </div>
-
-          <p style={{
-            fontFamily: '"Fustat", system-ui', fontSize: 12,
-            color: 'rgba(255,255,255,0.25)',
-          }}>
-            © {new Date().getFullYear()} Synaps. All rights reserved.
-          </p>
         </footer>
 
-        {/* ── SIGN IN MODAL ─────────────────────────────────────────────────── */}
+        {/* Auth Modal */}
         {showSignInModal && (
           <SignInModal onClose={() => setShowSignInModal(false)} />
         )}
