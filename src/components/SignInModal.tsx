@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, ShieldCheck, QrCode, Smartphone } from 'lucide-react';
+import { X, ShieldCheck, QrCode, Smartphone, Mail } from 'lucide-react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -17,8 +17,8 @@ interface SignInModalProps {
 }
 
 export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
+  const [authTab, setAuthTab] = useState<'email' | 'totp'>('email');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [showQrStep, setShowQrStep] = useState(false);
@@ -30,11 +30,12 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
 
   if (!isOpen) return null;
 
-  // Step 1: Request 2FA QR Code & Secret for Google Authenticator App
+  // Request 2FA QR Code & Secret for Google Authenticator App
   const handleSetupGoogleAuthenticator = async (targetEmail: string) => {
+    const cleanEmail = (targetEmail || email || 'user@synaps.ai').trim().toLowerCase();
     setLoading(true);
     try {
-      const res = await fetch(`/api/auth/totp?email=${encodeURIComponent(targetEmail)}`);
+      const res = await fetch(`/api/auth/totp?email=${encodeURIComponent(cleanEmail)}`);
       const data = await res.json();
       if (data.success) {
         setQrCodeData({
@@ -42,7 +43,11 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           secret: data.secret,
           otpauthUrl: data.otpauthUrl,
         });
+        setShowOtpStep(false);
         setShowQrStep(true);
+        toast({ title: '📱 QR Code Generated', description: 'Scan the QR code with Google Authenticator app on your phone!' });
+      } else {
+        toast({ title: 'Error', description: data.error || 'Failed to generate QR code.' });
       }
     } catch (e) {
       toast({ title: 'Error', description: 'Failed to generate Authenticator QR code.' });
@@ -51,24 +56,36 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
     }
   };
 
-  // Send Email 2FA Security Code (OTP) via Resend API
+  // Send Email 2FA Security Code (OTP) via Resend API (No password required!)
   const send2FACode = async (targetEmail: string, idToken: string) => {
+    const cleanEmail = (targetEmail || email).trim().toLowerCase();
+    if (!cleanEmail) {
+      toast({ title: 'Email Required', description: 'Please enter your corporate email address.' });
+      return;
+    }
+
     setPendingToken(idToken);
+    setLoading(true);
+
     try {
       const res = await fetch('/api/auth/otp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: targetEmail, idToken }),
+        body: JSON.stringify({ email: cleanEmail, idToken }),
       });
       const data = await res.json();
       setOtpHint(data.otpCodeHint || '');
+      setShowQrStep(false);
       setShowOtpStep(true);
       toast({
         title: '🛡️ 2FA Security Code Sent',
-        description: data.message || `Enter 6-digit code sent to ${targetEmail}`,
+        description: data.message || `Check your email inbox at ${cleanEmail}`,
       });
     } catch (e) {
+      setShowQrStep(false);
       setShowOtpStep(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -78,30 +95,38 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
     if (!otpCode.trim()) return;
     setLoading(true);
 
-    try {
-      // First try TOTP Google Authenticator check
-      const totpRes = await fetch('/api/auth/totp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email || 'user@synaps.ai',
-          token: otpCode.trim(),
-        }),
-      });
-      const totpData = await totpRes.json();
+    const cleanEmail = (email || 'user@synaps.ai').trim().toLowerCase();
 
-      if (totpData.success) {
-        toast({ title: '📱 Authenticator Verified!', description: 'Google Authenticator code verified. Launching workspace...' });
-        window.location.href = '/dashboard';
-        return;
+    try {
+      if (showQrStep) {
+        // Verify Google Authenticator Code
+        const totpRes = await fetch('/api/auth/totp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: cleanEmail,
+            token: otpCode.trim(),
+          }),
+        });
+        const totpData = await totpRes.json();
+
+        if (totpData.success) {
+          toast({ title: '📱 Authenticator Verified!', description: 'Google Authenticator code verified. Launching workspace...' });
+          window.location.href = '/dashboard';
+          return;
+        } else {
+          toast({ title: '❌ Invalid App Code', description: totpData.error || 'Invalid 6-digit code from Google Authenticator.' });
+          setLoading(false);
+          return;
+        }
       }
 
-      // Fallback to Email 2FA verification
+      // Verify Email 2FA OTP Code
       const res = await fetch('/api/auth/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: email || 'demo@synaps.ai',
+          email: cleanEmail,
           otpCode: otpCode.trim(),
           idToken: pendingToken,
         }),
@@ -114,41 +139,26 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
         window.location.href = data.redirect || '/dashboard';
         return;
       } else {
-        toast({ title: '❌ Verification Failed', description: data.error || totpData.error || 'Invalid 6-digit code.' });
+        toast({ title: '❌ Verification Failed', description: data.error || 'Invalid 6-digit Security Code.' });
       }
     } catch (err: any) {
-      toast({ title: 'Error', description: 'Failed to verify 2FA code.' });
+      toast({ title: 'Error', description: 'Failed to verify code.' });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setLoading(true);
-
     const cleanEmail = email.trim().toLowerCase();
-    let token = `TEST_TOKEN_${cleanEmail.split('@')[0]}_synaps`;
+    if (!cleanEmail) return;
 
-    try {
-      if (auth) {
-        try {
-          const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, password || 'synapsPass2026!');
-          token = await userCredential.user.getIdToken();
-        } catch (signInErr: any) {
-          if (signInErr?.code === 'auth/user-not-found' || signInErr?.code === 'auth/invalid-credential') {
-            try {
-              const newCredential = await createUserWithEmailAndPassword(auth, cleanEmail, password || 'synapsPass2026!');
-              token = await newCredential.user.getIdToken(true);
-            } catch (createErr: any) {}
-          }
-        }
-      }
-    } catch (err: any) {}
-
-    setLoading(false);
-    await send2FACode(cleanEmail, token);
+    if (authTab === 'totp') {
+      await handleSetupGoogleAuthenticator(cleanEmail);
+    } else {
+      let token = `TEST_TOKEN_${cleanEmail.split('@')[0]}_synaps`;
+      await send2FACode(cleanEmail, token);
+    }
   };
 
   const handleGoogleLogin = async (e: React.MouseEvent) => {
@@ -342,6 +352,23 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           height: 20px;
           flex-shrink: 0;
         }
+
+        .auth-tab-btn {
+          flex: 1;
+          padding: 8px 12px;
+          border-radius: 9999px;
+          border: 2px solid #4C0016;
+          font-family: 'Mouse Memoirs', sans-serif;
+          font-size: 17px;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
       `}</style>
 
       <div className="crav-popup-form">
@@ -361,12 +388,16 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
               <span>Open Google Authenticator App & Scan</span>
             </p>
 
-            <div className="p-3 bg-[#F5E3CD] border-2 border-[#4C0016] rounded-2xl shadow-[4px_4px_0px_#4C0016]">
-              <img src={qrCodeData.qrCode} alt="Google Authenticator QR Code" className="w-48 h-48 mx-auto" />
+            <div className="p-3 bg-white border-3 border-[#4C0016] rounded-2xl shadow-[5px_5px_0px_#4C0016]">
+              <img
+                src={qrCodeData.qrCode}
+                alt="Google Authenticator QR Code"
+                className="w-52 h-52 mx-auto rounded-lg"
+              />
             </div>
 
-            <div className="text-xs font-mono text-[#F5E3CD] bg-[#4C0016] px-3 py-1.5 rounded-lg border border-[#FFD750]/40 w-full break-all">
-              Key: <strong className="text-[#FFD750]">{qrCodeData.secret}</strong>
+            <div className="text-xs font-mono text-[#F5E3CD] bg-[#4C0016] px-3 py-2 rounded-xl border border-[#FFD750]/40 w-full break-all shadow-[2px_2px_0px_#FFD750]">
+              Key: <strong className="text-[#FFD750] text-sm tracking-wider">{qrCodeData.secret}</strong>
             </div>
 
             <form onSubmit={handleVerify2FA} className="w-full flex flex-col gap-2.5 mt-1">
@@ -375,7 +406,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                 placeholder="Enter 6-digit Authenticator Code"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="uiverse-popup-input text-center text-lg font-mono tracking-widest font-bold"
+                className="uiverse-popup-input text-center text-xl font-mono tracking-widest font-bold"
                 maxLength={6}
                 required
                 autoFocus
@@ -391,14 +422,14 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
 
             <button
               type="button"
-              onClick={() => setShowQrStep(false)}
-              className="text-xs text-[#F5E3CD] hover:text-white underline font-sans"
+              onClick={() => { setShowQrStep(false); setShowOtpStep(false); }}
+              className="text-xs text-[#F5E3CD] hover:text-white underline font-sans mt-1"
             >
-              ← Back to options
+              ← Back to Sign In options
             </button>
           </div>
         ) : showOtpStep ? (
-          /* ── STEP 2A: EMAIL / SERVER 2FA OTP VERIFICATION ── */
+          /* ── STEP 2A: EMAIL 2FA OTP VERIFICATION ── */
           <form onSubmit={handleVerify2FA} className="w-full flex flex-col items-center gap-4 py-2">
             <div className="w-12 h-12 rounded-full bg-[#4C0016] border border-[#FFD750] flex items-center justify-center text-[#FFD750] mb-1">
               <ShieldCheck className="w-6 h-6" />
@@ -420,7 +451,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                 placeholder="Enter 6-digit code (e.g. 123456)"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="uiverse-popup-input text-center text-lg font-mono tracking-widest font-bold"
+                className="uiverse-popup-input text-center text-xl font-mono tracking-widest font-bold"
                 maxLength={6}
                 required
                 autoFocus
@@ -438,21 +469,21 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             <button
               type="button"
               onClick={() => handleSetupGoogleAuthenticator(email || 'user@synaps.ai')}
-              className="text-xs text-[#FFD750] hover:text-white underline font-mono flex items-center gap-1 mt-1"
+              className="text-xs text-[#FFD750] hover:text-white underline font-mono flex items-center gap-1.5 mt-1"
             >
-              <QrCode className="w-3.5 h-3.5" /> Use Google Authenticator App QR Code instead
+              <QrCode className="w-4 h-4" /> Open Google Authenticator QR Code instead
             </button>
 
             <button
               type="button"
-              onClick={() => setShowOtpStep(false)}
+              onClick={() => { setShowOtpStep(false); setShowQrStep(false); }}
               className="text-xs text-[#F5E3CD] hover:text-white underline font-sans"
             >
               ← Back to Sign In options
             </button>
           </form>
         ) : (
-          /* ── STEP 1: INITIAL CREDENTIAL / DEMO SELECTION ── */
+          /* ── STEP 1: INITIAL SELECTION WITH TWO OPTIONS (EMAIL / GOOGLE AUTHENTICATOR) ── */
           <>
             <p>
               Welcome to SYNAPS
@@ -468,13 +499,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
               ⚡ Instant Guest Workspace Demo
             </button>
 
-            <div className="uiverse-popup-separator">
-              <div></div>
-              <span>OR AUTHENTICATE</span>
-              <div></div>
-            </div>
-
-            {/* GOOGLE SIGN IN */}
+            {/* GOOGLE POPUP AUTH */}
             <button
               onClick={handleGoogleLogin}
               disabled={loading}
@@ -486,22 +511,44 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
               </svg>
-              Continue with Google
+              Continue with Google Account
             </button>
 
-            {/* GOOGLE AUTHENTICATOR APP BUTTON */}
-            <button
-              type="button"
-              onClick={() => handleSetupGoogleAuthenticator(email || 'user@synaps.ai')}
-              disabled={loading}
-              className="uiverse-popup-oauthButton bg-[#4C0016] text-[#FFD750] border-[#FFD750]"
-            >
-              <Smartphone className="w-5 h-5" />
-              Google Authenticator QR Code
-            </button>
+            <div className="uiverse-popup-separator">
+              <div></div>
+              <span>CHOOSE 2FA METHOD</span>
+              <div></div>
+            </div>
 
-            {/* EMAIL FORM */}
-            <form onSubmit={handleEmailLogin} className="w-full flex flex-col gap-2.5 mt-1">
+            {/* TWO OPTIONS TABS: EMAIL 2FA vs GOOGLE AUTHENTICATOR */}
+            <div className="w-full flex gap-2">
+              <button
+                type="button"
+                onClick={() => setAuthTab('email')}
+                className={`auth-tab-btn ${
+                  authTab === 'email'
+                    ? 'bg-[#FFD750] text-[#4C0016] shadow-[3px_3px_0px_#4C0016]'
+                    : 'bg-[#F5E3CD] text-[#4C0016] opacity-70 hover:opacity-100'
+                }`}
+              >
+                <Mail className="w-4 h-4" /> Email 2FA
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAuthTab('totp')}
+                className={`auth-tab-btn ${
+                  authTab === 'totp'
+                    ? 'bg-[#FFD750] text-[#4C0016] shadow-[3px_3px_0px_#4C0016]'
+                    : 'bg-[#F5E3CD] text-[#4C0016] opacity-70 hover:opacity-100'
+                }`}
+              >
+                <Smartphone className="w-4 h-4" /> Google App QR
+              </button>
+            </div>
+
+            {/* FORM: EMAIL ONLY (NO PASSWORD REQUIRED AT ALL!) */}
+            <form onSubmit={handleEmailSubmit} className="w-full flex flex-col gap-2.5 mt-1">
               <input
                 type="email"
                 placeholder="Corporate Email Address"
@@ -510,20 +557,24 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                 className="uiverse-popup-input"
                 required
               />
-              <input
-                type="password"
-                placeholder="Password (optional for guest)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="uiverse-popup-input"
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="uiverse-popup-oauthButton mt-1"
-              >
-                {loading ? 'Sending 2FA Code...' : 'Send 2FA Security Code →'}
-              </button>
+
+              {authTab === 'email' ? (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="uiverse-popup-oauthButton mt-1"
+                >
+                  {loading ? 'Sending 2FA Code...' : 'Send Email 2FA Code →'}
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="uiverse-popup-oauthButton bg-[#4C0016] text-[#FFD750] border-[#FFD750] mt-1"
+                >
+                  <QrCode className="w-5 h-5" /> Open Google Authenticator QR Code →
+                </button>
+              )}
             </form>
           </>
         )}

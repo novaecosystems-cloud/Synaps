@@ -22,24 +22,32 @@ export async function GET(req: NextRequest) {
     }
 
     // Format standardized otpauth:// URI
-    const otpauthUrl = authenticator.keyuri(cleanEmail, 'Synaps AI Enterprise', secret);
+    const otpauthUrl = authenticator.keyuri(cleanEmail, 'Synaps AI', secret);
 
-    // Render Data URL QR Code
-    const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
-      margin: 2,
-      width: 260,
-      color: {
-        dark: '#4C0016',
-        light: '#F5E3CD',
-      },
-    });
+    // Fail-proof QR Code generation (Data URL with fallback HTTP API)
+    let qrCodeDataUrl = '';
+    try {
+      qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
+        margin: 2,
+        width: 260,
+        color: {
+          dark: '#000000',
+          light: '#ffffff',
+        },
+      });
+    } catch (e) {
+      console.warn('[TOTP QR] Native QRCode failed, using fallback:', e);
+    }
+
+    const fallbackQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(otpauthUrl)}`;
 
     return NextResponse.json({
       success: true,
       email: cleanEmail,
       secret,
       otpauthUrl,
-      qrCode: qrCodeDataUrl,
+      qrCode: qrCodeDataUrl || fallbackQrUrl,
+      fallbackQrUrl,
     });
   } catch (error: any) {
     console.error('[TOTP SETUP] Error:', error.message);
@@ -68,7 +76,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Check TOTP code validity
+    // Check TOTP code validity with window tolerance for clock drift
+    authenticator.options = { window: 1 };
     const isValid = authenticator.check(token, secret);
 
     if (isValid) {
