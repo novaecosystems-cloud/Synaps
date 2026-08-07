@@ -12,7 +12,7 @@ import {
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, QrCode, Smartphone } from 'lucide-react';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
 
@@ -25,6 +25,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [showOtpStep, setShowOtpStep] = useState(false);
+  const [showQrStep, setShowQrStep] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState<{ qrCode: string; secret: string; otpauthUrl: string } | null>(null);
   const [pendingToken, setPendingToken] = useState<string>('');
   const [otpHint, setOtpHint] = useState<string>('');
   const [emailError, setEmailError] = useState('');
@@ -50,6 +52,27 @@ export default function LoginPage() {
     checkRedirectResult();
   }, []);
 
+  // Request 2FA QR Code & Secret for Google Authenticator App
+  const handleSetupGoogleAuthenticator = async (targetEmail: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/auth/totp?email=${encodeURIComponent(targetEmail)}`);
+      const data = await res.json();
+      if (data.success) {
+        setQrCodeData({
+          qrCode: data.qrCode,
+          secret: data.secret,
+          otpauthUrl: data.otpauthUrl,
+        });
+        setShowQrStep(true);
+      }
+    } catch (e) {
+      toast({ title: 'Error', description: 'Failed to generate Authenticator QR code.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Send 2FA Security Code (OTP) via Backend API
   const send2FACode = async (targetEmail: string, idToken: string) => {
     setPendingToken(idToken);
@@ -71,13 +94,31 @@ export default function LoginPage() {
     }
   };
 
-  // Verify 2FA OTP Code on Backend & Establish HTTP-Only Session Cookie
+  // Verify TOTP Code (Google Authenticator App) OR Email OTP Code
   const handleVerify2FA = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpCode.trim()) return;
     setLoading(true);
 
     try {
+      // First try TOTP Google Authenticator check
+      const totpRes = await fetch('/api/auth/totp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email || 'user@synaps.ai',
+          token: otpCode.trim(),
+        }),
+      });
+      const totpData = await totpRes.json();
+
+      if (totpData.success) {
+        toast({ title: '📱 Authenticator Verified!', description: 'Google Authenticator code verified. Launching workspace...' });
+        window.location.href = '/dashboard';
+        return;
+      }
+
+      // Fallback to Email 2FA verification
       const res = await fetch('/api/auth/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,10 +136,10 @@ export default function LoginPage() {
         window.location.href = data.redirect || '/dashboard';
         return;
       } else {
-        toast({ title: '❌ 2FA Verification Failed', description: data.error || 'Invalid 6-digit Security Code.' });
+        toast({ title: '❌ Verification Failed', description: data.error || totpData.error || 'Invalid 6-digit code.' });
       }
     } catch (err: any) {
-      toast({ title: 'Error', description: 'Failed to verify 2FA security code.' });
+      toast({ title: 'Error', description: 'Failed to verify 2FA code.' });
     } finally {
       setLoading(false);
     }
@@ -333,8 +374,52 @@ export default function LoginPage() {
       </Link>
 
       <div className="crav-popup-form">
-        {showOtpStep ? (
-          /* ── STEP 2: 2FA OTP VERIFICATION ── */
+        {showQrStep && qrCodeData ? (
+          /* ── STEP 2B: GOOGLE AUTHENTICATOR QR CODE SCAN ── */
+          <div className="w-full flex flex-col items-center gap-3 py-1 text-center">
+            <p>
+              Scan QR Code
+              <span>Open Google Authenticator App & Scan</span>
+            </p>
+
+            <div className="p-3 bg-[#F5E3CD] border-2 border-[#4C0016] rounded-2xl shadow-[4px_4px_0px_#4C0016]">
+              <img src={qrCodeData.qrCode} alt="Google Authenticator QR Code" className="w-48 h-48 mx-auto" />
+            </div>
+
+            <div className="text-xs font-mono text-[#F5E3CD] bg-[#4C0016] px-3 py-1.5 rounded-lg border border-[#FFD750]/40 w-full break-all">
+              Key: <strong className="text-[#FFD750]">{qrCodeData.secret}</strong>
+            </div>
+
+            <form onSubmit={handleVerify2FA} className="w-full flex flex-col gap-2.5 mt-1">
+              <input
+                type="text"
+                placeholder="Enter 6-digit Authenticator Code"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="uiverse-popup-input text-center text-lg font-mono tracking-widest font-bold"
+                maxLength={6}
+                required
+                autoFocus
+              />
+              <button
+                type="submit"
+                disabled={loading || otpCode.length < 6}
+                className="uiverse-popup-oauthButton uiverse-popup-demoButton"
+              >
+                {loading ? 'Verifying...' : 'Verify App Code & Launch →'}
+              </button>
+            </form>
+
+            <button
+              type="button"
+              onClick={() => setShowQrStep(false)}
+              className="text-xs text-[#F5E3CD] hover:text-white underline font-sans"
+            >
+              ← Back to options
+            </button>
+          </div>
+        ) : showOtpStep ? (
+          /* ── STEP 2A: EMAIL / SERVER 2FA OTP VERIFICATION ── */
           <form onSubmit={handleVerify2FA} className="w-full flex flex-col items-center gap-4 py-2">
             <div className="w-12 h-12 rounded-full bg-[#4C0016] border border-[#FFD750] flex items-center justify-center text-[#FFD750] mb-1">
               <ShieldCheck className="w-6 h-6" />
@@ -373,8 +458,16 @@ export default function LoginPage() {
 
             <button
               type="button"
+              onClick={() => handleSetupGoogleAuthenticator(email || 'user@synaps.ai')}
+              className="text-xs text-[#FFD750] hover:text-white underline font-mono flex items-center gap-1 mt-1"
+            >
+              <QrCode className="w-3.5 h-3.5" /> Use Google Authenticator App QR Code instead
+            </button>
+
+            <button
+              type="button"
               onClick={() => setShowOtpStep(false)}
-              className="text-xs text-[#F5E3CD] hover:text-white underline mt-1 font-sans"
+              className="text-xs text-[#F5E3CD] hover:text-white underline font-sans"
             >
               ← Back to Sign In options
             </button>
@@ -417,7 +510,18 @@ export default function LoginPage() {
               Continue with Google
             </button>
 
-            {/* EMAIL FORM (GitHub removed as requested) */}
+            {/* GOOGLE AUTHENTICATOR APP BUTTON */}
+            <button
+              type="button"
+              onClick={() => handleSetupGoogleAuthenticator(email || 'user@synaps.ai')}
+              disabled={loading}
+              className="uiverse-popup-oauthButton bg-[#4C0016] text-[#FFD750] border-[#FFD750]"
+            >
+              <Smartphone className="w-5 h-5" />
+              Google Authenticator QR Code
+            </button>
+
+            {/* EMAIL FORM */}
             <form onSubmit={handleEmailLogin} className="w-full flex flex-col gap-2.5 mt-1">
               <div>
                 <input
