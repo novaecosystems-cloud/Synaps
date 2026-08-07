@@ -144,17 +144,24 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     let token = 'TEST_TOKEN_google_user_synaps';
+    let targetEmail = email;
 
     try {
       if (auth) {
         const provider = new GoogleAuthProvider();
         const userCredential = await signInWithPopup(auth, provider);
         token = await userCredential.user.getIdToken();
+        if (userCredential.user.email) {
+          targetEmail = userCredential.user.email;
+          setEmail(targetEmail);
+        }
       }
-    } catch (err: any) {}
+    } catch (err: any) {
+      console.error('[GOOGLE AUTH ERROR]', err);
+    }
 
     setLoading(false);
-    await send2FACode(email || 'google.user@synaps.ai', token);
+    await send2FACode(targetEmail || 'google.user@synaps.ai', token);
   };
 
   const handleInstantDemo = async (e: React.MouseEvent) => {

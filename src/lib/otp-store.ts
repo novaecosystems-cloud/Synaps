@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 /**
  * Server-Side 2FA & OTP Management Store
  * Strictly managed on backend server instance.
@@ -15,13 +17,14 @@ const otpMap = new Map<string, OtpRecord>();
 
 /**
  * Generate a 6-digit cryptographically random OTP for an email
+ * Every real email gets a completely unique random code (e.g. 749201, 839102)
  */
 export function generateOTP(email: string, idToken?: string): { code: string; expiresAt: number; isDemo: boolean } {
   const cleanEmail = email.trim().toLowerCase();
-  const isDemo = cleanEmail.includes('demo') || cleanEmail.includes('guest');
+  const isDemo = cleanEmail === 'guest.demo@synaps.ai';
   
-  // Generate random 6-digit code (100000 - 999999)
-  const code = isDemo ? '123456' : Math.floor(100000 + Math.random() * 900000).toString();
+  // Generate cryptographically secure random 6-digit code for real emails (100000 - 999999)
+  const code = isDemo ? '123456' : crypto.randomInt(100000, 999999).toString();
   const expiresAt = Date.now() + 5 * 60 * 1000; // 5 Minutes expiration
 
   otpMap.set(cleanEmail, {
@@ -31,8 +34,7 @@ export function generateOTP(email: string, idToken?: string): { code: string; ex
     idToken,
   });
 
-  // Strictly logged on secure backend server logs (Secret)
-  console.log(`[2FA SECURITY SERVER] 🔒 Secret 6-digit OTP generated for ${cleanEmail}: ${code} (Expires in 5m)`);
+  console.log(`[2FA SECURITY SERVER] 🔒 Unique 6-digit OTP generated for ${cleanEmail}: ${code} (Expires in 5m)`);
 
   return { code, expiresAt, isDemo };
 }
@@ -61,7 +63,7 @@ export function verifyOTP(email: string, inputCode: string): { valid: boolean; r
     return { valid: false, reason: 'Too many invalid attempts. Account temporarily locked for 5 minutes.' };
   }
 
-  // STRICT EXACT CODE CHECK (No guessing, no unauthorized bypasses)
+  // STRICT EXACT CODE CHECK
   const isMatch = record.code === sanitizedInput;
 
   if (!isMatch) {
