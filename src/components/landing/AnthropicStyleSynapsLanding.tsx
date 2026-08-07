@@ -11,7 +11,6 @@ import Link from 'next/link';
 gsap.registerPlugin(ScrollTrigger);
 
 // ─── TEXT SPLITTER: Word-preserving Hashgraph + Huge Inc `anim-fade` per-char ─
-// Wrapped in inline-block words with white-space: nowrap to prevent mid-word letter wrapping (fixes "ENTERPRIS E")
 function SplitText({ text, className = '' }: { text: string; className?: string }) {
   const words = text.split(' ');
   return (
@@ -104,9 +103,70 @@ export default function SynapsLanding() {
   const [hoveredAgent, setHoveredAgent] = useState<number | null>(null);
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
+  // ── Curtain Loader State ──────────────────────────────────────────────────
+  const [loaderProgress, setLoaderProgress] = useState(0);
+  const [loaderComplete, setLoaderComplete] = useState(false);
+  const curtainRef = useRef<HTMLDivElement>(null);
+  const curtainWaveRef = useRef<SVGPathElement>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
+
+  // ── Curtain Loader Progress Ticker (Hashgraph & Iberian style) ────────────
+  useEffect(() => {
+    let current = 0;
+    const interval = setInterval(() => {
+      current += Math.floor(Math.random() * 12) + 4;
+      if (current >= 100) {
+        current = 100;
+        setLoaderProgress(100);
+        clearInterval(interval);
+        
+        // Trigger Curtain Lift Animation with GSAP (cubic-bezier cubic curtain reveal)
+        setTimeout(() => {
+          if (curtainRef.current) {
+            gsap.to(curtainRef.current, {
+              y: '-100%',
+              duration: 1.2,
+              ease: 'cubic-bezier(0.14, 1, 0.34, 1)',
+              onComplete: () => setLoaderComplete(true),
+            });
+          }
+        }, 300);
+      } else {
+        setLoaderProgress(current);
+      }
+    }, 45);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Re-trigger Curtain Lift Wipe (for logo click or section change)
+  const triggerCurtainWipe = useCallback(() => {
+    if (!curtainRef.current) return;
+    setLoaderComplete(false);
+    setLoaderProgress(0);
+
+    gsap.fromTo(
+      curtainRef.current,
+      { y: '100%' },
+      {
+        y: '0%',
+        duration: 0.7,
+        ease: 'cubic-bezier(0.14, 1, 0.34, 1)',
+        onComplete: () => {
+          gsap.to(curtainRef.current, {
+            y: '-100%',
+            duration: 0.9,
+            delay: 0.2,
+            ease: 'cubic-bezier(0.14, 1, 0.34, 1)',
+            onComplete: () => setLoaderComplete(true),
+          });
+        },
+      }
+    );
+  }, []);
 
   // ── Scroll progress + header reveal ─────────────────────────────────────
   useEffect(() => {
@@ -225,7 +285,7 @@ export default function SynapsLanding() {
           --huge-black: #000000;
           --huge-magenta: #ff0090;
           --huge-cyan: #9bb8e1;
-          --huge-[#7c3aed]: #7c3aed;
+          --huge-purple: #7c3aed;
           --huge-gray-text: #73767d;
           --huge-dark-bg: #000209;
         }
@@ -401,7 +461,7 @@ export default function SynapsLanding() {
         }
         .synaps-btn:hover .synaps-btn__label--hover { opacity: 1; transform: translateY(0); }
 
-        /* ── Dash-wipe vertical lines (Hashgraph hero scroll indicator) ── */
+        /* ── Dash-wipe vertical lines ── */
         @keyframes dash-wipe {
           0%   { clip-path: inset(0 0 0 0); }
           25%  { clip-path: inset(100% 0 0 0); }
@@ -445,7 +505,7 @@ export default function SynapsLanding() {
           background-clip: text;
         }
 
-        /* ── Section title tag (Hashgraph //01 MANIFESTO) ── */
+        /* ── Section title tag ── */
         .section-tag {
           font-family: 'JetBrains Mono', monospace;
           font-size: 11px;
@@ -490,6 +550,87 @@ export default function SynapsLanding() {
         ::-webkit-scrollbar-thumb { background: linear-gradient(#9bb8e1, #7c3aed, #ff0090); border-radius: 99px; }
       `}</style>
 
+      {/* ── CURTAIN LOADER (Hashgraph + Iberian Curtain Wave loader) ────────── */}
+      {!loaderComplete && (
+        <div
+          ref={curtainRef}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999,
+            background: '#000209',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Ambient Glow behind loader */}
+          <div style={{
+            position: 'absolute', width: 600, height: 600,
+            background: 'radial-gradient(circle, rgba(124,58,237,0.3) 0%, rgba(255,0,144,0.15) 50%, transparent 75%)',
+            filter: 'blur(80px)', pointerEvents: 'none',
+          }} />
+
+          {/* Loader Content */}
+          <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+            {/* Spinning Emblem */}
+            <div style={{
+              position: 'relative', width: 100, height: 100,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg className="badge-rotate" viewBox="0 0 100 100" style={{ width: '100%', height: '100%', position: 'absolute' }}>
+                <path id="loader-circle" d="M 50,50 m -38,0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0" fill="none" />
+                <text fill="#9bb8e1" style={{ fontFamily: 'JetBrains Mono', fontSize: 7, letterSpacing: '0.24em' }}>
+                  <textPath href="#loader-circle">SYNAPS AI · INITIALIZING SYSTEM · REASONING ·</textPath>
+                </text>
+              </svg>
+              <div style={{
+                width: 48, height: 48, borderRadius: 12,
+                background: 'linear-gradient(135deg, #7c3aed, #ff0090)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 30px rgba(255,0,144,0.5)',
+              }}>
+                <span className="ff-teko" style={{ fontSize: 28, color: '#fff', lineHeight: 1 }}>S</span>
+              </div>
+            </div>
+
+            {/* Progress Counter Ticker */}
+            <div style={{ textAlign: 'center' }}>
+              <div className="ff-teko" style={{ fontSize: 64, color: '#fff', lineHeight: 1, letterSpacing: '0.04em' }}>
+                {loaderProgress.toString().padStart(2, '0')}<span style={{ fontSize: 32, color: '#ff0090' }}>%</span>
+              </div>
+              <div className="ff-mono" style={{ fontSize: 10, color: '#9bb8e1', letterSpacing: '0.2em', marginTop: 4 }}>
+                INITIALIZING ENTERPRISE BRAIN...
+              </div>
+            </div>
+
+            {/* Progress Bar Track */}
+            <div style={{
+              width: 240, height: 3, background: 'rgba(155,184,225,0.15)',
+              borderRadius: 99, overflow: 'hidden', marginTop: 8,
+            }}>
+              <div style={{
+                height: '100%', width: `${loaderProgress}%`,
+                background: 'linear-gradient(90deg, #9bb8e1, #7c3aed, #ff0090)',
+                transition: 'width 0.05s linear',
+              }} />
+            </div>
+          </div>
+
+          {/* Bottom Liquid Wave Curtain Edge (Iberian Style) */}
+          <div style={{
+            position: 'absolute', bottom: -60, left: 0, width: '100%',
+            height: 120, pointerEvents: 'none',
+          }}>
+            <svg viewBox="0 0 1440 120" style={{ width: '100%', height: '100%', fill: '#000209' }}>
+              <path ref={curtainWaveRef} d="M0,32L48,42.7C96,53,192,75,288,80C384,85,480,75,576,64C672,53,768,43,864,48C960,53,1056,75,1152,80C1248,85,1344,75,1392,69.3L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" />
+            </svg>
+          </div>
+        </div>
+      )}
+
       {/* ── PROGRESS BAR ──────────────────────────────────────────────────── */}
       <div
         style={{
@@ -522,8 +663,13 @@ export default function SynapsLanding() {
           borderBottom: headerVisible ? '1px solid rgba(155, 184, 225, 0.1)' : 'none',
           transition: 'background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease',
         }}>
-          {/* Logo */}
-          <div data-logo-mark style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Logo - click triggers curtain wipe */}
+          <div
+            data-logo-mark
+            onClick={triggerCurtainWipe}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+            title="Click to replay Curtain Loader"
+          >
             <div style={{
               width: 40, height: 40, borderRadius: 10,
               background: 'linear-gradient(135deg, #7c3aed, #ff0090)',
@@ -928,7 +1074,7 @@ export default function SynapsLanding() {
           </div>
         </section>
 
-        {/* ── CTA (Fixed "ENTERPRISE STARTS HERE" Wrapping) ────────────────── */}
+        {/* ── CTA ──────────────────────────────────────────────────────────── */}
         <section style={{
           padding: '160px 40px', textAlign: 'center',
           background: 'linear-gradient(180deg, #000209 0%, #060112 50%, #000209 100%)',
@@ -947,7 +1093,6 @@ export default function SynapsLanding() {
               <span className="section-tag__id">// READY TO START</span>
             </div>
 
-            {/* Fixed fontSize and Word-Preserving SplitText so "ENTERPRISE" never breaks onto separate line! */}
             <h2 className="ff-teko" data-anim-section style={{
               fontSize: 'clamp(44px, 8vw, 110px)', color: '#fff', lineHeight: 0.9, marginBottom: 28,
             }}>
