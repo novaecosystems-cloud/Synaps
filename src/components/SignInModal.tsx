@@ -1,17 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, ShieldCheck, KeyRound, ArrowRight } from 'lucide-react';
+import { X, ShieldCheck } from 'lucide-react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
-  GoogleAuthProvider,
-  GithubAuthProvider
+  GoogleAuthProvider
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link';
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -129,45 +127,16 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
     await send2FACode(email || 'google.user@synaps.ai', token);
   };
 
-  const handleGithubLogin = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    let token = 'TEST_TOKEN_github_user_synaps';
-
-    try {
-      if (auth) {
-        const provider = new GithubAuthProvider();
-        const userCredential = await signInWithPopup(auth, provider);
-        token = await userCredential.user.getIdToken();
-      }
-    } catch (err: any) {}
-
-    setLoading(false);
-    await send2FACode(email || 'github.user@synaps.ai', token);
-  };
-
-  const handleInstantDemo = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    localStorage.setItem('synaps_demo_usage_count', '0');
-    await send2FACode('guest.demo@synaps.ai', 'TEST_TOKEN_enterprise_guest_demo');
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-all">
-      
-      {/* ── CRAV BURGERS STYLED CUSTOM POPUP FORM ── */}
+      {/* ── Uiverse.io by D3OXY Neo-Brutalist Form Styles ── */}
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Modak&family=Mouse+Memoirs&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-        @keyframes crav-pop-in {
+        @keyframes deoxy-pop-in {
           0% {
-            transform: scale(0.3) translateY(60px);
+            transform: scale(0.85) translateY(30px);
             opacity: 0;
-          }
-          70% {
-            transform: scale(1.04) translateY(-4px);
-            opacity: 1;
           }
           100% {
             transform: scale(1) translateY(0);
@@ -175,282 +144,271 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           }
         }
 
-        .crav-popup-form {
-          --background: #F91914;
-          --input-focus: #F91914;
-          --font-color: #4C0016;
-          --font-color-sub: #F5E3CD;
-          --bg-color: #F5E3CD;
-          --main-color: #4C0016;
+        .deoxy-form {
+          --background: #d3d3d3;
+          --input-focus: #2d8cf0;
+          --font-color: #323232;
+          --font-color-sub: #666;
+          --bg-color: #fff;
+          --main-color: #323232;
           padding: 28px 24px;
-          background: #F91914;
+          background: var(--background);
           display: flex;
           flex-direction: column;
-          align-items: center;
+          align-items: flex-start;
           justify-content: center;
-          gap: 16px;
-          border-radius: 28px;
-          border: 3px solid #4C0016;
-          box-shadow: 8px 8px 0px #4C0016;
+          gap: 18px;
+          border-radius: 8px;
+          border: 2px solid var(--main-color);
+          box-shadow: 6px 6px 0px var(--main-color);
           width: 94vw;
-          max-width: 440px;
-          max-height: 92vh;
-          overflow-y: auto;
+          max-width: 320px;
           position: relative;
-          animation: crav-pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+          animation: deoxy-pop-in 0.3s cubic-bezier(0.14, 1, 0.34, 1) both;
         }
 
-        .crav-popup-form > p {
-          color: #F5E3CD;
-          font-family: 'Modak', cursive, sans-serif;
-          font-size: 32px;
-          line-height: 1;
-          margin-bottom: 2px;
+        .deoxy-form > p {
+          font-family: 'Space Mono', monospace, sans-serif;
+          color: var(--font-color);
+          font-weight: 700;
+          font-size: 20px;
+          margin-bottom: 5px;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          text-align: center;
-          letter-spacing: 0.5px;
+          line-height: 1.2;
         }
 
-        .crav-popup-form > p > span {
-          color: #FFD750;
-          font-family: 'Mouse Memoirs', sans-serif;
-          font-size: 18px;
+        .deoxy-form > p > span {
+          font-family: 'Space Mono', monospace, sans-serif;
+          color: var(--font-color-sub);
+          font-weight: 600;
+          font-size: 14px;
           margin-top: 4px;
-          letter-spacing: 1px;
-          text-transform: uppercase;
         }
 
-        .uiverse-popup-separator {
+        .deoxy-separator {
           width: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
+          gap: 8px;
           margin: 4px 0;
         }
 
-        .uiverse-popup-separator > div {
+        .deoxy-separator > div {
           flex: 1;
-          height: 2px;
+          height: 3px;
           border-radius: 5px;
-          background-color: #4C0016;
+          background-color: var(--font-color-sub);
         }
 
-        .uiverse-popup-separator > span {
-          color: #FFD750;
-          font-family: 'Mouse Memoirs', sans-serif;
-          font-size: 16px;
-          letter-spacing: 1.5px;
+        .deoxy-separator > span {
+          color: var(--font-color);
+          font-family: 'Space Mono', monospace;
+          font-weight: 700;
+          font-size: 13px;
         }
 
-        .uiverse-popup-oauthButton {
+        .deoxy-oauthButton {
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 10px;
-          padding: 0 16px;
+          gap: 8px;
           width: 100%;
-          min-height: 48px;
-          border-radius: 9999px;
-          border: 2px solid #4C0016;
-          background-color: #F5E3CD;
-          box-shadow: 4px 4px 0px #4C0016;
-          font-family: 'Mouse Memoirs', sans-serif;
-          font-size: 20px;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-          color: #4C0016;
+          height: 42px;
+          border-radius: 5px;
+          border: 2px solid var(--main-color);
+          background-color: var(--bg-color);
+          box-shadow: 4px 4px var(--main-color);
+          font-family: 'Space Mono', monospace, sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          color: var(--font-color);
           cursor: pointer;
-          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+          transition: all 250ms;
+          position: relative;
+          overflow: hidden;
+          z-index: 1;
         }
 
-        .uiverse-popup-oauthButton:hover {
-          transform: scale(1.04);
-          background-color: #ffffff;
-          border-color: #4C0016;
-          box-shadow: 5px 5px 0px #4C0016;
+        .deoxy-oauthButton::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 0;
+          background-color: #212121;
+          z-index: -1;
+          box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
+          transition: all 250ms;
         }
 
-        .uiverse-popup-demoButton {
-          background-color: #FFD750;
-          color: #4C0016;
-          border: 2px solid #4C0016;
-          box-shadow: 4px 4px 0px #4C0016;
-          font-family: 'Mouse Memoirs', sans-serif;
-          font-size: 22px;
-          letter-spacing: 1px;
-          text-transform: uppercase;
+        .deoxy-oauthButton:hover {
+          color: #e8e8e8;
         }
 
-        .uiverse-popup-demoButton:hover {
-          background-color: #ffffff;
-          color: #F91914;
-          transform: scale(1.04);
-        }
-
-        .uiverse-popup-input {
+        .deoxy-oauthButton:hover::before {
           width: 100%;
-          min-height: 48px;
-          background-color: #F5E3CD;
-          border-radius: 16px;
-          border: 2px solid #4C0016;
-          padding: 0 16px;
+        }
+
+        .deoxy-input {
+          width: 100%;
+          height: 42px;
+          border-radius: 5px;
+          border: 2px solid var(--main-color);
+          background-color: var(--bg-color);
+          box-shadow: 4px 4px var(--main-color);
+          font-family: 'Space Mono', monospace, sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--font-color);
+          padding: 5px 12px;
           outline: none;
-          color: #4C0016;
-          font-family: 'Mouse Memoirs', sans-serif;
-          font-size: 18px;
           transition: all 200ms ease;
         }
 
-        .uiverse-popup-input:focus {
-          border-color: #4C0016;
-          box-shadow: 4px 4px 0px #4C0016;
-          background-color: #ffffff;
+        .deoxy-input:focus {
+          border-color: var(--input-focus);
+          box-shadow: 4px 4px var(--input-focus);
         }
 
-        .uiverse-popup-icon {
-          width: 20px;
-          height: 20px;
+        .deoxy-icon {
+          width: 1.3rem;
+          height: 1.3rem;
           flex-shrink: 0;
+        }
+
+        .deoxy-close {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: transparent;
+          border: 2px solid var(--main-color);
+          border-radius: 4px;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--main-color);
+          cursor: pointer;
+          box-shadow: 2px 2px var(--main-color);
+          transition: all 200ms;
+        }
+
+        .deoxy-close:hover {
+          background: #212121;
+          color: #fff;
         }
       `}</style>
 
-      <div className="crav-popup-form">
-        
+      <div className="deoxy-form">
         {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-[#F5E3CD] hover:text-white p-1.5 rounded-full bg-[#4C0016]/40 hover:bg-[#4C0016] transition-colors"
-        >
-          <X className="w-5 h-5" />
+        <button onClick={onClose} className="deoxy-close" aria-label="Close modal">
+          <X className="w-4 h-4" />
         </button>
 
         {showOtpStep ? (
           /* ── STEP 2: 2FA OTP VERIFICATION ── */
-          <form onSubmit={handleVerify2FA} className="w-full flex flex-col items-center gap-4 py-2">
-            <div className="w-12 h-12 rounded-full bg-purple-600/20 border border-purple-500 flex items-center justify-center text-purple-400 mb-1">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
+          <form onSubmit={handleVerify2FA} className="w-full flex flex-col gap-4">
             <p>
-              2-Factor Authentication
-              <span>Enter 6-digit Security Code sent to server</span>
+              Security Code<span>Enter 6-digit code sent to server</span>
             </p>
 
             {otpHint && (
-              <div className="w-full text-center px-3 py-1.5 rounded-lg bg-purple-600/20 border border-purple-500/40 text-[11px] font-mono text-purple-300">
-                2FA OTP Code: <strong className="tracking-widest text-white">{otpHint}</strong>
+              <div className="w-full text-center py-1 rounded bg-[#212121] text-[#e8e8e8] font-mono text-xs font-bold">
+                OTP: {otpHint}
               </div>
             )}
 
-            <div className="w-full relative">
-              <input
-                type="text"
-                placeholder="Enter 6-digit code (e.g. 123456)"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="uiverse-popup-input text-center text-lg font-mono tracking-widest font-bold"
-                maxLength={6}
-                required
-                autoFocus
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Enter 6-digit OTP"
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              className="deoxy-input text-center font-mono text-base font-bold"
+              maxLength={6}
+              required
+              autoFocus
+            />
 
             <button
               type="submit"
               disabled={loading || otpCode.length < 6}
-              className="uiverse-popup-oauthButton uiverse-popup-demoButton mt-2"
+              className="deoxy-oauthButton"
             >
-              {loading ? 'Verifying 2FA...' : 'Verify Code & Launch Workspace →'}
+              {loading ? 'Verifying...' : 'Continue'}
+              <svg className="deoxy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m6 17 5-5-5-5"></path>
+                <path d="m13 17 5-5-5-5"></path>
+              </svg>
             </button>
 
             <button
               type="button"
               onClick={() => setShowOtpStep(false)}
-              className="text-xs text-[#A5A095] hover:text-white underline mt-1"
+              className="text-xs text-[#666] hover:text-[#323232] underline font-mono text-center"
             >
-              ← Back to Sign In options
+              ← Back to options
             </button>
           </form>
         ) : (
-          /* ── STEP 1: INITIAL CREDENTIAL / DEMO SELECTION ── */
+          /* ── STEP 1: GOOGLE & EMAIL SIGN IN ── */
           <>
             <p>
-              Welcome to SYNAPS
-              <span>Sign in to access your Enterprise Memory OS</span>
+              Welcome,<span>sign in to continue</span>
             </p>
 
-            {/* INSTANT DEMO BUTTON */}
-            <button
-              onClick={handleInstantDemo}
-              disabled={loading}
-              className="uiverse-popup-oauthButton uiverse-popup-demoButton"
-            >
-              ⚡ Instant Guest Workspace Demo
-            </button>
-
-            <div className="uiverse-popup-separator">
-              <div></div>
-              <span>OR AUTHENTICATE</span>
-              <div></div>
-            </div>
-
-            {/* GOOGLE SIGN IN */}
+            {/* CONTINUE WITH GOOGLE */}
             <button
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="uiverse-popup-oauthButton"
+              className="deoxy-oauthButton"
             >
-              <svg className="uiverse-popup-icon" viewBox="0 0 24 24">
+              <svg className="deoxy-icon" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+                <path d="M1 1h22v22H1z" fill="none"></path>
               </svg>
               Continue with Google
             </button>
 
-            {/* GITHUB SIGN IN */}
-            <button
-              onClick={handleGithubLogin}
-              disabled={loading}
-              className="uiverse-popup-oauthButton"
-            >
-              <svg className="uiverse-popup-icon" fill="currentColor" viewBox="0 0 24 24">
-                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
-              </svg>
-              Continue with GitHub
-            </button>
+            {/* SEPARATOR */}
+            <div className="deoxy-separator">
+              <div></div>
+              <span>OR</span>
+              <div></div>
+            </div>
 
             {/* EMAIL FORM */}
-            <form onSubmit={handleEmailLogin} className="w-full flex flex-col gap-2.5 mt-1">
+            <form onSubmit={handleEmailLogin} className="w-full flex flex-col gap-3">
               <input
                 type="email"
-                placeholder="Corporate Email Address"
+                placeholder="Email"
+                name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="uiverse-popup-input"
+                className="deoxy-input"
                 required
               />
-              <input
-                type="password"
-                placeholder="Password (optional for guest)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="uiverse-popup-input"
-              />
+
               <button
                 type="submit"
                 disabled={loading}
-                className="uiverse-popup-oauthButton mt-1"
+                className="deoxy-oauthButton"
               >
-                {loading ? 'Sending 2FA Code...' : 'Send 2FA Security Code →'}
+                {loading ? 'Continuing...' : 'Continue'}
+                <svg className="deoxy-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m6 17 5-5-5-5"></path>
+                  <path d="m13 17 5-5-5-5"></path>
+                </svg>
               </button>
             </form>
           </>
         )}
-
       </div>
     </div>
   );
