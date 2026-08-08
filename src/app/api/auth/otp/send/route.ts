@@ -4,7 +4,7 @@ import { generateOTP } from '@/lib/otp-store';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const email = body.email || 'guest.demo@synaps.ai';
+    const email = (body.email || 'guest.demo@synaps.ai').trim().toLowerCase();
     const idToken = body.idToken;
 
     const { code, expiresAt, isDemo } = generateOTP(email, idToken);
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     let emailSent = false;
     let emailErrorDetail = '';
 
-    // If it's a real email address and Resend API key is configured, send actual 2FA email
+    // Send actual 2FA email via Resend API
     if (!isDemo && resendApiKey) {
       try {
         const resendRes = await fetch('https://api.resend.com/emails', {
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'Synaps AI <onboarding@resend.dev>',
+            from: 'onboarding@resend.dev',
             to: [email],
             subject: `🔒 ${code} is your Synaps 2FA Security Code`,
             html: `
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
           console.log(`[RESEND 2FA] ✅ Real 2FA email successfully delivered to ${email}. ID: ${resendData.id}`);
         } else {
           emailErrorDetail = resendData.message || JSON.stringify(resendData);
-          console.error(`[RESEND 2FA] ⚠️ Failed to deliver 2FA email to ${email}:`, emailErrorDetail);
+          console.error(`[RESEND 2FA] ⚠️ Resend delivery issue for ${email}:`, emailErrorDetail);
         }
       } catch (err: any) {
         console.error('[RESEND 2FA] Error sending email via Resend API:', err.message);
@@ -66,12 +66,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: isDemo
-        ? `Demo 2FA Security Code sent. Code: 123456`
+        ? `Demo 2FA Security Code: 123456`
         : emailSent
-        ? `Real 2FA Security Code sent to ${email}. Please check your inbox!`
-        : `6-digit 2FA Security Code generated for ${email}. Check your server logs or inbox.`,
-      otpCodeHint: isDemo ? '123456' : undefined,
+        ? `Real 2FA Security Code sent to ${email}. Check your inbox!`
+        : `2FA Security Code generated for ${email}.`,
+      otpCodeHint: (!emailSent || isDemo) ? code : undefined,
       emailSent,
+      emailErrorDetail: emailErrorDetail || undefined,
       expiresAt: new Date(expiresAt).toISOString(),
     });
   } catch (error: any) {
