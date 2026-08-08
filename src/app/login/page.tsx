@@ -12,11 +12,12 @@ import {
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { ShieldCheck, ArrowLeft, QrCode, Smartphone, Mail } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, QrCode, Smartphone, Mail, Clock } from 'lucide-react';
 
 export default function LoginPage() {
   const [authTab, setAuthTab] = useState<'email' | 'totp'>('email');
   const [email, setEmail] = useState('');
+  const [activeEmail, setActiveEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [showQrStep, setShowQrStep] = useState(false);
@@ -24,6 +25,7 @@ export default function LoginPage() {
   const [pendingToken, setPendingToken] = useState<string>('');
   const [otpHint, setOtpHint] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [timerSeconds, setTimerSeconds] = useState(900); // 15 Minutes = 900 seconds
   const router = useRouter();
   const { toast } = useToast();
 
@@ -45,9 +47,29 @@ export default function LoginPage() {
     checkRedirectResult();
   }, []);
 
+  // 15-Minute Countdown Timer Effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (showOtpStep && timerSeconds > 0) {
+      interval = setInterval(() => {
+        setTimerSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [showOtpStep, timerSeconds]);
+
+  const formatTimer = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   // Request 2FA QR Code & Secret for Google Authenticator App
   const handleSetupGoogleAuthenticator = async (targetEmail: string) => {
     const cleanEmail = (targetEmail || email || 'user@synaps.ai').trim().toLowerCase();
+    setActiveEmail(cleanEmail);
     setLoading(true);
     try {
       const res = await fetch(`/api/auth/totp?email=${encodeURIComponent(cleanEmail)}`);
@@ -71,7 +93,7 @@ export default function LoginPage() {
     }
   };
 
-  // Send Email 2FA Security Code (OTP) via Resend API (No password required!)
+  // Send Email 2FA Security Code (OTP) via Resend/Gmail API
   const send2FACode = async (targetEmail: string, idToken: string) => {
     const cleanEmail = (targetEmail || email).trim().toLowerCase();
     if (!cleanEmail) {
@@ -79,8 +101,10 @@ export default function LoginPage() {
       return;
     }
 
+    setActiveEmail(cleanEmail);
     setPendingToken(idToken);
     setLoading(true);
+    setTimerSeconds(900); // Reset to 15 minutes
 
     try {
       const res = await fetch('/api/auth/otp/send', {
@@ -110,7 +134,7 @@ export default function LoginPage() {
     if (!otpCode.trim()) return;
     setLoading(true);
 
-    const cleanEmail = (email || 'user@synaps.ai').trim().toLowerCase();
+    const cleanEmail = (activeEmail || email || 'user@synaps.ai').trim().toLowerCase();
 
     try {
       if (showQrStep) {
@@ -435,15 +459,21 @@ export default function LoginPage() {
             </button>
           </div>
         ) : showOtpStep ? (
-          /* ── STEP 2A: EMAIL 2FA OTP VERIFICATION ── */
+          /* ── STEP 2A: EMAIL 2FA OTP VERIFICATION WITH 15-MINUTE COUNTDOWN TIMER ── */
           <form onSubmit={handleVerify2FA} className="w-full flex flex-col items-center gap-4 py-2">
             <div className="w-12 h-12 rounded-full bg-[#4C0016] border border-[#FFD750] flex items-center justify-center text-[#FFD750] mb-1">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <p>
               2-Factor Authentication
-              <span>Enter 6-digit Security Code sent to email</span>
+              <span>Security code sent to {activeEmail || 'email'}</span>
             </p>
+
+            {/* 15-Minute Countdown Timer Badge */}
+            <div className="w-full text-center px-3 py-1.5 rounded-xl bg-[#4C0016] border border-[#FFD750] text-xs font-mono text-[#FFD750] flex items-center justify-center gap-1.5 shadow-[2px_2px_0px_#FFD750]">
+              <Clock className="w-3.5 h-3.5 animate-pulse text-[#FFD750]" />
+              <span>Code expires in: <strong className="text-white text-sm font-bold tracking-widest">{formatTimer(timerSeconds)}</strong></span>
+            </div>
 
             {otpHint && (
               <div className="w-full text-center px-3 py-1.5 rounded-lg bg-[#4C0016] border border-[#FFD750] text-xs font-mono text-[#FFD750]">
@@ -466,15 +496,15 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading || otpCode.length < 6}
+              disabled={loading || otpCode.length < 6 || timerSeconds === 0}
               className="uiverse-popup-oauthButton uiverse-popup-demoButton mt-2"
             >
-              {loading ? 'Verifying 2FA...' : 'Verify Code & Launch Workspace →'}
+              {loading ? 'Verifying 2FA...' : timerSeconds === 0 ? 'Code Expired - Request New' : 'Verify Code & Launch Workspace →'}
             </button>
 
             <button
               type="button"
-              onClick={() => handleSetupGoogleAuthenticator(email || 'user@synaps.ai')}
+              onClick={() => handleSetupGoogleAuthenticator(activeEmail || email || 'user@synaps.ai')}
               className="text-xs text-[#FFD750] hover:text-white underline font-mono flex items-center gap-1.5 mt-1"
             >
               <QrCode className="w-4 h-4" /> Open Google Authenticator QR Code instead

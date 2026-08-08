@@ -10,6 +10,7 @@ interface OtpRecord {
   expiresAt: number;
   attempts: number;
   idToken?: string;
+  email: string;
 }
 
 // In-memory server map for 2FA OTP tokens
@@ -17,7 +18,7 @@ const otpMap = new Map<string, OtpRecord>();
 
 /**
  * Generate a 6-digit cryptographically random OTP for an email
- * Every real email gets a completely unique random code (e.g. 749201, 839102)
+ * Expiration: 15 Minutes (900 seconds)
  */
 export function generateOTP(email: string, idToken?: string): { code: string; expiresAt: number; isDemo: boolean } {
   const cleanEmail = email.trim().toLowerCase();
@@ -25,16 +26,19 @@ export function generateOTP(email: string, idToken?: string): { code: string; ex
   
   // Generate cryptographically secure random 6-digit code for real emails (100000 - 999999)
   const code = isDemo ? '123456' : crypto.randomInt(100000, 999999).toString();
-  const expiresAt = Date.now() + 5 * 60 * 1000; // 5 Minutes expiration
+  const expiresAt = Date.now() + 15 * 60 * 1000; // 15 Minutes expiration
 
-  otpMap.set(cleanEmail, {
+  const record: OtpRecord = {
     code,
     expiresAt,
     attempts: 0,
     idToken,
-  });
+    email: cleanEmail,
+  };
 
-  console.log(`[2FA SECURITY SERVER] 🔒 Unique 6-digit OTP generated for ${cleanEmail}: ${code} (Expires in 5m)`);
+  otpMap.set(cleanEmail, record);
+
+  console.log(`[2FA SECURITY SERVER] 🔒 Unique 6-digit OTP generated for ${cleanEmail}: ${code} (Expires in 15m)`);
 
   return { code, expiresAt, isDemo };
 }
@@ -43,24 +47,38 @@ export function generateOTP(email: string, idToken?: string): { code: string; ex
  * Verify a 6-digit OTP for an email on the backend
  */
 export function verifyOTP(email: string, inputCode: string): { valid: boolean; reason?: string; idToken?: string } {
-  const cleanEmail = email.trim().toLowerCase();
-  const record = otpMap.get(cleanEmail);
-  const sanitizedInput = inputCode.trim();
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const sanitizedInput = (inputCode || '').trim();
 
-  if (!record) {
-    return { valid: false, reason: 'No active 2FA security code found for this email. Please click "Resend Code".' };
+  // Primary lookup by exact cleanEmail
+  let record = otpMap.get(cleanEmail);
+  let matchedKey = cleanEmail;
+
+  // Smart fallback lookup: If record not found by exact email string, find active record by input code
+  if (!record && sanitizedInput) {
+    for (const [key, rec] of otpMap.entries()) {
+      if (rec.code === sanitizedInput && Date.now() <= rec.expiresAt) {
+        record = rec;
+        matchedKey = key;
+        break;
+      }
+    }
   }
 
-  // Check expiration (5 minutes)
+  if (!record) {
+    return { valid: false, reason: 'No active 2FA security code found. Please click "Resend Code".' };
+  }
+
+  // Check 15-minute expiration
   if (Date.now() > record.expiresAt) {
-    otpMap.delete(cleanEmail);
-    return { valid: false, reason: '2FA Security Code has expired. Please request a new code.' };
+    otpMap.delete(matchedKey);
+    return { valid: false, reason: '2FA Security Code has expired (15 minutes limit). Please request a new code.' };
   }
 
   // Check attempts (Max 5 attempts)
   if (record.attempts >= 5) {
-    otpMap.delete(cleanEmail);
-    return { valid: false, reason: 'Too many invalid attempts. Account temporarily locked for 5 minutes.' };
+    otpMap.delete(matchedKey);
+    return { valid: false, reason: 'Too many invalid attempts. Account temporarily locked for 15 minutes.' };
   }
 
   // STRICT EXACT CODE CHECK
@@ -68,15 +86,15 @@ export function verifyOTP(email: string, inputCode: string): { valid: boolean; r
 
   if (!isMatch) {
     record.attempts += 1;
-    otpMap.set(cleanEmail, record);
-    console.warn(`[2FA SECURITY SERVER] ❌ Failed 2FA attempt for ${cleanEmail}. Entered: ${sanitizedInput}, Expected: ${record.code}`);
+    otpMap.set(matchedKey, record);
+    console.warn(`[2FA SECURITY SERVER] ❌ Failed 2FA attempt for ${matchedKey}. Entered: ${sanitizedInput}, Expected: ${record.code}`);
     return { valid: false, reason: `Invalid 6-digit Security Code. ${5 - record.attempts} attempts remaining.` };
   }
 
   // SUCCESSFUL VERIFICATION! Remove code from store immediately to prevent replay attacks
-  console.log(`[2FA SECURITY SERVER] ✅ 2FA Authentication verified for ${cleanEmail}`);
+  console.log(`[2FA SECURITY SERVER] ✅ 2FA Authentication verified for ${matchedKey}`);
   const savedToken = record.idToken;
-  otpMap.delete(cleanEmail);
+  otpMap.delete(matchedKey);
 
   return { valid: true, idToken: savedToken };
 }
