@@ -2,44 +2,45 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 
-// In-memory store for TOTP secrets per user email
+// Server-side in-memory store mapping email -> unique TOTP Base32 secret
 const totpSecretStore = new Map<string, string>();
 
 /**
- * GET: Generate TOTP Secret + QR Code for setup
+ * GET: Generate Unique TOTP Secret + QR Code for Google Authenticator
  */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get('email') || 'user@synaps.ai';
+    const forceNew = searchParams.get('forceNew') === 'true';
     const cleanEmail = email.trim().toLowerCase();
 
-    // Generate or retrieve Base32 secret for user
+    // Generate fresh unique Base32 secret if forced or not exists
     let secret = totpSecretStore.get(cleanEmail);
-    if (!secret) {
+    if (!secret || forceNew) {
       secret = authenticator.generateSecret();
       totpSecretStore.set(cleanEmail, secret);
     }
 
-    // Format standardized otpauth:// URI
+    // Standard RFC 6238 format: otpauth://totp/Synaps%20AI:email?secret=...&issuer=Synaps%20AI
     const otpauthUrl = authenticator.keyuri(cleanEmail, 'Synaps AI', secret);
 
-    // Fail-proof QR Code generation (Data URL with fallback HTTP API)
+    // Fail-proof QR Code image generation (Native Data URL + API Fallback)
     let qrCodeDataUrl = '';
     try {
       qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
         margin: 2,
-        width: 260,
+        width: 280,
         color: {
           dark: '#000000',
           light: '#ffffff',
         },
       });
     } catch (e) {
-      console.warn('[TOTP QR] Native QRCode failed, using fallback:', e);
+      console.warn('[TOTP QR] QRCode.toDataURL fallback triggered:', e);
     }
 
-    const fallbackQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(otpauthUrl)}`;
+    const fallbackQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(otpauthUrl)}`;
 
     return NextResponse.json({
       success: true,
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * POST: Verify 6-digit TOTP code against stored secret
+ * POST: Verify 6-digit TOTP code against user's stored unique secret
  */
 export async function POST(req: NextRequest) {
   try {
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Check TOTP code validity with window tolerance for clock drift
+    // Allow 1-step window tolerance for slight device clock drift
     authenticator.options = { window: 1 };
     const isValid = authenticator.check(token, secret);
 
