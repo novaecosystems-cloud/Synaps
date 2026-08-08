@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { ArrowUpRight, ArrowRight, ShieldCheck, FileText, Lock, Sparkles, Plus, CheckCircle2, Globe, Cpu, Zap, Activity } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
+import SignInCardInline from '@/components/SignInCardInline';
 import Link from 'next/link';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -123,7 +124,7 @@ export default function SynapsLanding() {
         setLoaderProgress(100);
         clearInterval(interval);
         
-        // Trigger Curtain Lift Animation with GSAP (cubic-bezier cubic curtain reveal)
+        // Trigger Curtain Lift Animation with GSAP
         setTimeout(() => {
           if (curtainRef.current) {
             gsap.to(curtainRef.current, {
@@ -193,7 +194,6 @@ export default function SynapsLanding() {
 
   // ── GSAP: animations ────────────────────────────────────────────────────
   useGSAP(() => {
-    // IntersectionObserver for .anim-line wrappers -> trigger .is-visible
     const sections = document.querySelectorAll('[data-anim-section]');
     const io = new IntersectionObserver(
       (entries) => {
@@ -207,7 +207,6 @@ export default function SynapsLanding() {
     );
     sections.forEach((s) => io.observe(s));
 
-    // Hashgraph style: anim-word translateY 75% -> 0
     gsap.utils.toArray<HTMLElement>('[data-slide-up]').forEach((el) => {
       gsap.from(el, {
         scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' },
@@ -218,7 +217,6 @@ export default function SynapsLanding() {
       });
     });
 
-    // Iberian translateY(100%) fade
     gsap.utils.toArray<HTMLElement>('[data-slide-line]').forEach((el, i) => {
       gsap.from(el, {
         scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
@@ -230,7 +228,6 @@ export default function SynapsLanding() {
       });
     });
 
-    // Hashgraph dash-reveal on vertical rule
     gsap.utils.toArray<HTMLElement>('[data-dash-vertical]').forEach((el) => {
       gsap.fromTo(el,
         { scaleY: 0, transformOrigin: 'top center' },
@@ -243,7 +240,6 @@ export default function SynapsLanding() {
       );
     });
 
-    // Scale + opacity for agent cards (staggered)
     gsap.utils.toArray<HTMLElement>('[data-agent-card]').forEach((el, i) => {
       gsap.from(el, {
         scrollTrigger: { trigger: el, start: 'top 92%', toggleActions: 'play none none none' },
@@ -255,7 +251,6 @@ export default function SynapsLanding() {
       });
     });
 
-    // Logo mark: Hashgraph scale(.9) rotate(-20deg) -> scale(1) rotate(0)
     gsap.from('[data-logo-mark]', {
       scale: 0.9,
       rotate: -20,
@@ -453,49 +448,18 @@ export default function SynapsLanding() {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          z-index: 3;
-          opacity: 0;
           transform: translateY(100%);
-          transition: transform 0.6s cubic-bezier(0.14, 1, 0.34, 1), opacity 0.4s linear;
+          opacity: 0;
+          transition: transform 0.6s cubic-bezier(0.9, 0, 0.1, 1), opacity 0.5s linear 0.1s;
         }
         .synaps-btn:hover .synaps-btn__label--hover { opacity: 1; transform: translateY(0); }
 
-        /* ── Dash-wipe vertical lines ── */
-        @keyframes dash-wipe {
-          0%   { clip-path: inset(0 0 0 0); }
-          25%  { clip-path: inset(100% 0 0 0); }
-          100% { clip-path: inset(100% 0 0 0); }
+        /* ── Rotating Badge ── */
+        .badge-rotate { animation: badge-spin 22s linear infinite; }
+        @keyframes badge-spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
         }
-        @keyframes dash-reveal {
-          12%  { clip-path: inset(0 0 100% 0); }
-          30%  { clip-path: inset(0 0 0 0); }
-          100% { clip-path: inset(0 0 0 0); }
-        }
-        .dash-line {
-          display: flex;
-          height: 2.4rem;
-          position: relative;
-          width: 1px;
-        }
-        .dash-line::before,
-        .dash-line::after {
-          background: linear-gradient(180deg, #9bb8e1, #2c4e73);
-          content: "";
-          inset: 0;
-          position: absolute;
-        }
-        .dash-line::before { animation: dash-wipe 2s linear infinite; clip-path: inset(0 0 0 0); }
-        .dash-line::after  { animation: dash-reveal 2s linear infinite; clip-path: inset(0 0 100% 0); }
-
-        /* ── Iberian: rotating badge ── */
-        @keyframes rotateBadge { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .badge-rotate { animation: rotateBadge 35s linear infinite; }
-
-        /* ── Marquee ── */
-        @keyframes marqueeScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .marquee-track { animation: marqueeScroll 28s linear infinite; display: flex; width: max-content; }
-        .marquee-track:hover { animation-play-state: paused; }
 
         /* ── Gradient text ── */
         .text-gradient-blue {
@@ -722,76 +686,403 @@ export default function SynapsLanding() {
           </div>
         </header>
 
-        {/* ── HERO SECTION ─────────────────────────────────────────────────── */}
-        <section ref={heroRef} style={{
-          minHeight: '100svh', position: 'relative',
-          display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-          padding: '0 40px 60px', overflow: 'hidden',
-        }}>
-          {/* Background glow orbs */}
-          <div style={{
-            position: 'absolute', top: '25%', left: '35%', width: 750, height: 500,
-            background: 'radial-gradient(ellipse at center, rgba(124,58,237,0.24) 0%, rgba(255,0,144,0.1) 50%, transparent 75%)',
-            filter: 'blur(50px)', pointerEvents: 'none', transform: 'translate(-50%,-50%)',
-          }} />
+        {/* ── SPLIT LAYOUT: LEFT SIDE CONTENT & SCROLL ANIMATIONS | RIGHT SIDE STICKY SIGN UP POPUP ── */}
+        <div style={{ display: 'flex', width: '100%', minHeight: '100vh', position: 'relative' }}>
+          
+          {/* ── LEFT COLUMN: ALL SCROLL SECTIONS & ANIMATIONS ───────────────── */}
+          <div style={{ flex: 1, minWidth: 0 }}>
 
-          {/* Rotating badge (Iberian) */}
-          <div style={{
-            position: 'absolute', top: 110, right: 60, width: 140, height: 140,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <svg className="badge-rotate" viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
-              <path id="badge-circle" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
-              <text fill="#9bb8e1" style={{ fontFamily: 'JetBrains Mono', fontSize: 7.5, letterSpacing: '0.22em' }}>
-                <textPath href="#badge-circle">SYNAPS AI · 10-AGENT BOARDROOM · EVIDENCE GROUNDED ·</textPath>
-              </text>
-            </svg>
-            <Sparkles style={{ position: 'absolute', width: 22, height: 22, color: '#ff0090' }} />
-          </div>
+            {/* ── HERO SECTION ───────────────────────────────────────────────── */}
+            <section ref={heroRef} style={{
+              minHeight: '100svh', position: 'relative',
+              display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+              padding: '120px 40px 60px', overflow: 'hidden',
+            }}>
+              {/* Background glow orbs */}
+              <div style={{
+                position: 'absolute', top: '25%', left: '35%', width: 750, height: 500,
+                background: 'radial-gradient(ellipse at center, rgba(124,58,237,0.24) 0%, rgba(255,0,144,0.1) 50%, transparent 75%)',
+                filter: 'blur(50px)', pointerEvents: 'none', transform: 'translate(-50%,-50%)',
+              }} />
 
-          {/* Headline with word-preserving character split */}
-          <div style={{ maxWidth: 1250, position: 'relative', zIndex: 2 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-              <span className="dash-line" />
-              <span className="section-tag" data-slide-up>
-                <span className="section-tag__id">// SYSTEM 3.4</span> · DPDP ACT 2023 COMPLIANT
-              </span>
-            </div>
+              {/* Rotating badge (Iberian) */}
+              <div style={{
+                position: 'absolute', top: 110, right: 40, width: 130, height: 130,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg className="badge-rotate" viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
+                  <path id="badge-circle" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none" />
+                  <text fill="#9bb8e1" style={{ fontFamily: 'JetBrains Mono', fontSize: 7.5, letterSpacing: '0.22em' }}>
+                    <textPath href="#badge-circle">SYNAPS AI · 10-AGENT BOARDROOM · EVIDENCE GROUNDED ·</textPath>
+                  </text>
+                </svg>
+                <Sparkles style={{ position: 'absolute', width: 20, height: 20, color: '#ff0090' }} />
+              </div>
 
-            <h1
-              className="ff-teko"
-              data-anim-section
-              style={{ fontSize: 'clamp(54px, 9.5vw, 150px)', color: '#fff', marginBottom: 16, lineHeight: 0.88 }}
-            >
-              <SplitText text="EVIDENCE GROUNDED" className="block" />
-              <SplitText text="ENTERPRISE BRAIN" className="block text-gradient-blue" />
-            </h1>
-
-            {/* Sub-grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px 80px', marginTop: 40, alignItems: 'end' }}>
-              <p className="body-copy" data-slide-up style={{ fontSize: 17, maxWidth: 520, lineHeight: 1.65 }}>
-                Synaps transforms complex organizational documents, contracts, and datasets into an
-                interactive, auditable knowledge graph. Powered by a{' '}
-                <strong style={{ color: '#9bb8e1' }}>10-agent boardroom</strong> debate engine — grounded in your sources with line-level evidence.
-              </p>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div className="ff-mono" style={{
-                  fontSize: 11, color: 'rgba(155,184,225,0.7)', letterSpacing: '0.12em',
-                  paddingLeft: 12, borderLeft: '2px solid #ff0090', lineHeight: 1.8,
-                }}>
-                  PDF · EXCEL · DOCX · CSV<br />
-                  ZERO HALLUCINATIONS GUARANTEED
+              {/* Headline with word-preserving character split */}
+              <div style={{ maxWidth: 1000, position: 'relative', zIndex: 2 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+                  <span className="dash-line" />
+                  <span className="section-tag" data-slide-up>
+                    <span className="section-tag__id">// SYSTEM 3.4</span> · DPDP ACT 2023 COMPLIANT
+                  </span>
                 </div>
 
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                <h1
+                  className="ff-teko"
+                  data-anim-section
+                  style={{ fontSize: 'clamp(54px, 8.5vw, 130px)', color: '#fff', marginBottom: 16, lineHeight: 0.88 }}
+                >
+                  <SplitText text="EVIDENCE GROUNDED" className="block" />
+                  <SplitText text="ENTERPRISE BRAIN" className="block text-gradient-blue" />
+                </h1>
+
+                {/* Sub-grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px 40px', marginTop: 32, alignItems: 'end' }}>
+                  <p className="body-copy" data-slide-up style={{ fontSize: 16, maxWidth: 480, lineHeight: 1.65 }}>
+                    Synaps transforms complex organizational documents, contracts, and datasets into an
+                    interactive, auditable knowledge graph. Powered by a{' '}
+                    <strong style={{ color: '#9bb8e1' }}>10-agent boardroom</strong> debate engine — grounded in your sources with line-level evidence.
+                  </p>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <div className="ff-mono" style={{
+                      fontSize: 11, color: 'rgba(155,184,225,0.7)', letterSpacing: '0.12em',
+                      paddingLeft: 12, borderLeft: '2px solid #ff0090', lineHeight: 1.8,
+                    }}>
+                      PDF · EXCEL · DOCX · CSV<br />
+                      ZERO HALLUCINATIONS GUARANTEED
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                      <button onClick={openModal} className="synaps-btn" style={{ height: 48, fontSize: 12 }}>
+                        <svg className="synaps-btn__border" aria-hidden="true">
+                          <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="5" ry="5" />
+                        </svg>
+                        <span className="synaps-btn__shimmer"><span className="synaps-btn__shimmer-inner" /></span>
+                        <span className="synaps-btn__label">
+                          <span className="synaps-btn__label--base">START FREE TRIAL <ArrowRight style={{ width: 14, height: 14 }} /></span>
+                          <span className="synaps-btn__label--hover">SIGN UP NOW →</span>
+                        </span>
+                      </button>
+
+                      <Link href="/dashboard/chat" className="synaps-btn" style={{
+                        height: 48, fontSize: 12,
+                        border: '1px solid rgba(155,184,225,0.25)',
+                        borderRadius: 6,
+                      }}>
+                        <span className="synaps-btn__label" style={{ position: 'relative', zIndex: 2 }}>
+                          OPEN APP <ArrowUpRight className="w-3.5 h-3.5 huge-arrow" />
+                        </span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scroll indicator (Hashgraph style dash-wipe) */}
+              <div style={{
+                position: 'absolute', bottom: 36, right: 30,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+              }}>
+                <span className="ff-mono" style={{ fontSize: 9, color: '#576676', letterSpacing: '0.2em', writingMode: 'vertical-rl' }}>SCROLL</span>
+                <div style={{
+                  width: 1, height: 40,
+                  background: 'linear-gradient(180deg, #9bb8e1, #ff0090)',
+                  margin: '0 auto',
+                }} data-dash-vertical />
+              </div>
+            </section>
+
+            {/* ── MARQUEE STRIP ───────────────────────────────────────────────── */}
+            <div style={{
+              width: '100%', overflow: 'hidden', whiteSpace: 'nowrap',
+              borderTop: '1px solid rgba(155,184,225,0.1)',
+              borderBottom: '1px solid rgba(155,184,225,0.1)',
+              background: 'rgba(5,9,20,0.85)', padding: '14px 0',
+            }}>
+              <div ref={marqueeRef} className="marquee-track">
+                {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+                  <span key={i} className="ff-mono" style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 16, padding: '0 28px',
+                    fontSize: 11, color: 'rgba(155,184,225,0.75)', letterSpacing: '0.12em',
+                  }}>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#ff0090', display: 'inline-block' }} />
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* ── FEATURES ACCORDION (Huge Inc Hover Focus + Iberian Expand) ────── */}
+            <section id="features" style={{ padding: '100px 40px', maxWidth: 1000 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 54, flexWrap: 'wrap', gap: 24 }}>
+                <div>
+                  <div className="section-tag" data-slide-up style={{ marginBottom: 14 }}>
+                    <span className="section-tag__id">// 01</span> SYSTEM ARCHITECTURE
+                  </div>
+                  <h2 className="ff-teko" data-slide-up style={{ fontSize: 'clamp(48px, 6vw, 84px)', color: '#fff' }}>
+                    BUILT FOR<br />ZERO RISK
+                  </h2>
+                </div>
+                <p className="body-copy" data-slide-up style={{ maxWidth: 380, fontSize: 15, paddingTop: 20 }}>
+                  Standard LLMs guess when they don&apos;t know. Synaps requires line-level evidence for every claim — or refuses to answer entirely.
+                </p>
+              </div>
+
+              {/* Accordion list with Huge Inc hover-focus dimming */}
+              <div className="huge-hover-list" style={{ borderTop: '1px solid rgba(155,184,225,0.15)' }}>
+                {FEATURES.map((f) => {
+                  const isOpen = openFeature === f.id;
+                  const isHovered = hoveredFeature === f.id;
+
+                  return (
+                    <div
+                      key={f.id}
+                      className="huge-hover-item"
+                      onMouseEnter={() => setHoveredFeature(f.id)}
+                      onMouseLeave={() => setHoveredFeature(null)}
+                      style={{ borderBottom: '1px solid rgba(155,184,225,0.15)' }}
+                    >
+                      <button
+                        onClick={() => setOpenFeature(isOpen ? null : f.id)}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center',
+                          justifyContent: 'space-between', padding: '24px 0',
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'padding-left 0.4s cubic-bezier(0.14, 1, 0.34, 1)',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.paddingLeft = '10px')}
+                        onMouseLeave={e => (e.currentTarget.style.paddingLeft = '0')}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                          <span className="ff-mono" style={{
+                            fontSize: 15,
+                            color: isOpen ? '#ff0090' : isHovered ? '#9bb8e1' : 'rgba(155,184,225,0.35)',
+                            transition: 'color 0.3s ease', minWidth: 38,
+                          }}>
+                            [{f.id}]
+                          </span>
+                          <div>
+                            <h3 className="ff-teko" style={{
+                              fontSize: 'clamp(24px, 3vw, 42px)',
+                              color: isOpen ? '#ff0090' : isHovered ? '#ffffff' : '#eee',
+                              transition: 'color 0.3s ease', lineHeight: 1,
+                            }}>
+                              {f.title}
+                            </h3>
+                            <span className="ff-mono" style={{ fontSize: 10, color: '#73767d', letterSpacing: '0.1em' }}>{f.sub}</span>
+                          </div>
+                        </div>
+
+                        <div className={`accordion-icon ${isOpen ? 'open' : ''}`} style={{
+                          width: 40, height: 40, borderRadius: '50%',
+                          border: `1px solid ${isOpen ? '#ff0090' : isHovered ? '#9bb8e1' : 'rgba(155,184,225,0.2)'}`,
+                          background: isOpen ? 'rgba(255,0,144,0.15)' : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: isOpen ? '#ff0090' : '#9bb8e1', flexShrink: 0,
+                          transition: 'transform 0.8s cubic-bezier(0.14,1,0.34,1), border-color 0.3s, background 0.3s',
+                        }}>
+                          <Plus style={{ width: 16, height: 16 }} />
+                        </div>
+                      </button>
+
+                      <div className={`accordion-body ${isOpen ? 'open' : ''}`}>
+                        <div style={{
+                          paddingLeft: 62, paddingBottom: 28, paddingRight: 40,
+                          maxWidth: 700,
+                        }}>
+                          <p className="body-copy" style={{ fontSize: 14.5, lineHeight: 1.7 }}>
+                            {f.body}
+                          </p>
+
+                          <div style={{ display: 'flex', gap: 14, marginTop: 20 }}>
+                            <button onClick={openModal} className="synaps-btn" style={{ height: 40, fontSize: 11 }}>
+                              <svg className="synaps-btn__border" aria-hidden="true">
+                                <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="5" ry="5" />
+                              </svg>
+                              <span className="synaps-btn__shimmer"><span className="synaps-btn__shimmer-inner" /></span>
+                              <span className="synaps-btn__label">
+                                <span className="synaps-btn__label--base">TRY THIS FEATURE →</span>
+                                <span className="synaps-btn__label--hover">SIGN IN →</span>
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* ── 10-AGENT BOARDROOM (Huge Inc Grid + Dim Hover) ────────────────── */}
+            <section id="boardroom" style={{
+              background: 'rgba(5,9,20,0.95)',
+              borderTop: '1px solid rgba(155,184,225,0.08)',
+              borderBottom: '1px solid rgba(155,184,225,0.08)',
+              padding: '100px 40px',
+            }}>
+              <div style={{ maxWidth: 1000 }}>
+                <div style={{ textAlign: 'left', marginBottom: 54 }}>
+                  <div className="section-tag" data-slide-up style={{ marginBottom: 14 }}>
+                    <span className="section-tag__id">// 02</span> PARALLEL REASONING ENGINE
+                  </div>
+                  <h2 className="ff-teko" data-slide-up style={{ fontSize: 'clamp(48px, 6vw, 84px)', color: '#fff' }}>
+                    THE 10-AGENT<br />
+                    <span className="text-gradient-blue">BOARDROOM</span>
+                  </h2>
+                  <p className="body-copy" data-slide-up style={{ maxWidth: 500, margin: '14px 0 0', fontSize: 15 }}>
+                    Ten specialized AI personas analyze your documents simultaneously and debate before responding.
+                  </p>
+                </div>
+
+                {/* Grid of Agents with Huge Inc hover list dimming */}
+                <div className="huge-hover-list" style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                  gap: 14,
+                }}>
+                  {AGENTS.map((agent, i) => (
+                    <div
+                      key={i}
+                      className="agent-card huge-hover-item"
+                      data-agent-card
+                      onMouseEnter={() => setHoveredAgent(i)}
+                      onMouseLeave={() => setHoveredAgent(null)}
+                      style={{
+                        padding: '22px 18px',
+                        borderRadius: 12,
+                        background: 'rgba(0, 2, 9, 0.85)',
+                        border: hoveredAgent === i ? '1px solid #ff0090' : '1px solid rgba(155,184,225,0.12)',
+                      }}
+                    >
+                      <div style={{
+                        width: 34, height: 34, borderRadius: 8,
+                        background: hoveredAgent === i ? 'rgba(255,0,144,0.15)' : 'rgba(124,58,237,0.12)',
+                        border: hoveredAgent === i ? '1px solid #ff0090' : '1px solid rgba(124,58,237,0.3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: hoveredAgent === i ? '#ff0090' : '#9bb8e1', marginBottom: 14,
+                        transition: 'transform 0.4s cubic-bezier(0.14,1,0.34,1), background 0.3s, border-color 0.3s',
+                      }}>
+                        <agent.icon style={{ width: 16, height: 16 }} />
+                      </div>
+                      <h4 className="ff-teko" style={{
+                        fontSize: 20, color: hoveredAgent === i ? '#ffffff' : '#eee', marginBottom: 4, letterSpacing: '0.05em',
+                      }}>
+                        {agent.title}
+                      </h4>
+                      <p className="ff-mono" style={{ fontSize: 9.5, color: '#73767d', letterSpacing: '0.06em' }}>
+                        {agent.role}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* ── SECURITY ─────────────────────────────────────────────────────── */}
+            <section id="security" style={{ padding: '100px 40px' }}>
+              <div style={{ maxWidth: 1000, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px 60px', alignItems: 'start' }}>
+                <div>
+                  <div className="section-tag" data-slide-up style={{ marginBottom: 14 }}>
+                    <span className="section-tag__id">// 03</span> SECURITY & TRUST
+                  </div>
+                  <h2 className="ff-teko" data-slide-up style={{ fontSize: 'clamp(40px, 4.5vw, 68px)', color: '#fff', marginBottom: 20 }}>
+                    ENTERPRISE-GRADE<br />SECURITY.<br />
+                    <span style={{ color: '#ff0090' }}>BUILT-IN.</span>
+                  </h2>
+                  <p className="body-copy" data-slide-up style={{ fontSize: 15, lineHeight: 1.7 }}>
+                    Your documents, your organisation, your data. Synaps never mixes data across tenants. Every request is authenticated. Every session is isolated. DPDP Act 2023 compliant from day one.
+                  </p>
+
+                  <button onClick={openModal} className="synaps-btn" style={{ marginTop: 32, height: 48, fontSize: 12 }}>
+                    <svg className="synaps-btn__border" aria-hidden="true">
+                      <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="5" ry="5" />
+                    </svg>
+                    <span className="synaps-btn__shimmer"><span className="synaps-btn__shimmer-inner" /></span>
+                    <span className="synaps-btn__label">
+                      <span className="synaps-btn__label--base">START FREE TRIAL →</span>
+                      <span className="synaps-btn__label--hover">GET SECURE ACCESS →</span>
+                    </span>
+                  </button>
+                </div>
+
+                <div data-anim-section style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                  {[
+                    'AES-256 encryption at rest & in transit',
+                    'Multi-tenant physical data isolation',
+                    'HTTP-Only session tokens (no XSS)',
+                    'DPDP Act 2023 compliant audit logs',
+                    '2FA / MFA authentication support',
+                    'Zero user data trained on models — ever',
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      className="anim-body-line"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '16px 0',
+                        borderBottom: '1px solid rgba(155,184,225,0.1)',
+                        transitionDelay: `${i * 0.1}s`,
+                      }}
+                    >
+                      <div style={{
+                        width: 22, height: 22, borderRadius: '50%',
+                        background: 'rgba(255,0,144,0.1)', border: '1px solid rgba(255,0,144,0.3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                      }}>
+                        <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
+                          <path d="M1 4L3.5 6.5L9 1" stroke="#ff0090" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                      <span className="ff-mono" style={{ fontSize: 12.5, color: '#b7c6d4', letterSpacing: '0.03em' }}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* ── CTA ──────────────────────────────────────────────────────────── */}
+            <section style={{
+              padding: '120px 40px', textAlign: 'center',
+              background: 'linear-gradient(180deg, #000209 0%, #060112 50%, #000209 100%)',
+              position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{
+                position: 'absolute', top: '50%', left: '50%',
+                transform: 'translate(-50%,-50%)',
+                width: 700, height: 700,
+                background: 'radial-gradient(ellipse at center, rgba(255,0,144,0.15) 0%, transparent 75%)',
+                filter: 'blur(60px)', pointerEvents: 'none',
+              }} />
+
+              <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+                <div className="section-tag" data-slide-up style={{ marginBottom: 20, display: 'block' }}>
+                  <span className="section-tag__id">// READY TO START</span>
+                </div>
+
+                <h2 className="ff-teko" data-anim-section style={{
+                  fontSize: 'clamp(40px, 7vw, 96px)', color: '#fff', lineHeight: 0.9, marginBottom: 24,
+                }}>
+                  <SplitText text="YOUR ENTERPRISE" className="block" />
+                  <SplitText text="BRAIN STARTS" className="block text-gradient-blue" />
+                  <SplitText text="HERE" className="block" />
+                </h2>
+
+                <p className="body-copy" data-slide-up style={{ fontSize: 15, marginBottom: 40, lineHeight: 1.75, maxWidth: 520, margin: '0 auto 40px' }}>
+                  Join teams already using Synaps to move faster, decide better, and eliminate document chaos.
+                </p>
+
+                <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
                   <button onClick={openModal} className="synaps-btn" style={{ height: 50, fontSize: 13 }}>
                     <svg className="synaps-btn__border" aria-hidden="true">
                       <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="5" ry="5" />
                     </svg>
                     <span className="synaps-btn__shimmer"><span className="synaps-btn__shimmer-inner" /></span>
                     <span className="synaps-btn__label">
-                      <span className="synaps-btn__label--base">START FREE TRIAL <ArrowRight style={{ width: 14, height: 14 }} /></span>
+                      <span className="synaps-btn__label--base">GET STARTED FREE <ArrowRight style={{ width: 15, height: 15 }} /></span>
                       <span className="synaps-btn__label--hover">SIGN UP NOW →</span>
                     </span>
                   </button>
@@ -802,370 +1093,59 @@ export default function SynapsLanding() {
                     borderRadius: 6,
                   }}>
                     <span className="synaps-btn__label" style={{ position: 'relative', zIndex: 2 }}>
-                      OPEN APP <ArrowUpRight className="w-3.5 h-3.5 huge-arrow" />
+                      OPEN LIVE APP <ArrowUpRight className="w-3.5 h-3.5 huge-arrow" />
                     </span>
                   </Link>
                 </div>
+
+                <p className="ff-mono" style={{ marginTop: 20, fontSize: 10.5, color: '#73767d', letterSpacing: '0.1em' }}>
+                  NO CREDIT CARD · SETUP IN 2 MINUTES
+                </p>
               </div>
+            </section>
+
+            {/* ── FOOTER ───────────────────────────────────────────────────────── */}
+            <footer style={{
+              padding: '36px 40px',
+              borderTop: '1px solid rgba(155,184,225,0.08)',
+              background: '#000209',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              flexWrap: 'wrap', gap: 16,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="ff-teko" style={{ fontSize: 20, color: '#fff', letterSpacing: '0.08em' }}>SYNAPS AI</span>
+                <span className="ff-mono" style={{ fontSize: 10, color: '#73767d', marginLeft: 8 }}>
+                  © {new Date().getFullYear()}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', gap: 28 }}>
+                {[
+                  { label: 'APP', href: '/dashboard/chat' },
+                  { label: 'DOCUMENTS', href: '/dashboard/documents' },
+                  { label: 'GRAPH', href: '/dashboard/graph' },
+                  { label: 'PRIVACY', href: '#' },
+                ].map(({ label, href }) => (
+                  <a key={label} href={href} className="ff-mono huge-link" style={{
+                    fontSize: 10, color: '#73767d', letterSpacing: '0.12em',
+                  }}>
+                    <span>{label}</span>
+                  </a>
+                ))}
+              </div>
+            </footer>
+          </div>
+
+          {/* ── RIGHT COLUMN: PERSISTENT STICKY SIGN UP POPUP CARD ──────────── */}
+          <div className="hidden lg:block" style={{ width: 440, paddingRight: 40, paddingTop: 100, flexShrink: 0 }}>
+            <div style={{ position: 'sticky', top: 100, zIndex: 90 }}>
+              <SignInCardInline />
             </div>
           </div>
 
-          {/* Scroll indicator (Hashgraph style dash-wipe) */}
-          <div style={{
-            position: 'absolute', bottom: 36, right: 40,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-          }}>
-            <span className="ff-mono" style={{ fontSize: 9, color: '#576676', letterSpacing: '0.2em', writingMode: 'vertical-rl' }}>SCROLL</span>
-            <div style={{
-              width: 1, height: 50,
-              background: 'linear-gradient(180deg, #9bb8e1, #ff0090)',
-              margin: '0 auto',
-            }} data-dash-vertical />
-          </div>
-        </section>
-
-        {/* ── MARQUEE STRIP ─────────────────────────────────────────────────── */}
-        <div style={{
-          width: '100%', overflow: 'hidden', whiteSpace: 'nowrap',
-          borderTop: '1px solid rgba(155,184,225,0.1)',
-          borderBottom: '1px solid rgba(155,184,225,0.1)',
-          background: 'rgba(5,9,20,0.85)', padding: '14px 0',
-        }}>
-          <div ref={marqueeRef} className="marquee-track">
-            {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
-              <span key={i} className="ff-mono" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 16, padding: '0 28px',
-                fontSize: 11, color: 'rgba(155,184,225,0.75)', letterSpacing: '0.12em',
-              }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#ff0090', display: 'inline-block' }} />
-                {item}
-              </span>
-            ))}
-          </div>
         </div>
 
-        {/* ── FEATURES ACCORDION (Huge Inc Hover Focus + Iberian Expand) ────── */}
-        <section id="features" style={{ padding: '120px 40px', maxWidth: 1250, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 64, flexWrap: 'wrap', gap: 24 }}>
-            <div>
-              <div className="section-tag" data-slide-up style={{ marginBottom: 16 }}>
-                <span className="section-tag__id">// 01</span> SYSTEM ARCHITECTURE
-              </div>
-              <h2 className="ff-teko" data-slide-up style={{ fontSize: 'clamp(52px, 6.5vw, 92px)', color: '#fff' }}>
-                BUILT FOR<br />ZERO RISK
-              </h2>
-            </div>
-            <p className="body-copy" data-slide-up style={{ maxWidth: 420, fontSize: 15, paddingTop: 24 }}>
-              Standard LLMs guess when they don&apos;t know. Synaps requires line-level evidence for every claim — or refuses to answer entirely.
-            </p>
-          </div>
-
-          {/* Accordion list with Huge Inc hover-focus dimming */}
-          <div className="huge-hover-list" style={{ borderTop: '1px solid rgba(155,184,225,0.15)' }}>
-            {FEATURES.map((f) => {
-              const isOpen = openFeature === f.id;
-              const isHovered = hoveredFeature === f.id;
-
-              return (
-                <div
-                  key={f.id}
-                  className="huge-hover-item"
-                  onMouseEnter={() => setHoveredFeature(f.id)}
-                  onMouseLeave={() => setHoveredFeature(null)}
-                  style={{ borderBottom: '1px solid rgba(155,184,225,0.15)' }}
-                >
-                  <button
-                    onClick={() => setOpenFeature(isOpen ? null : f.id)}
-                    style={{
-                      width: '100%', display: 'flex', alignItems: 'center',
-                      justifyContent: 'space-between', padding: '28px 0',
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'padding-left 0.4s cubic-bezier(0.14, 1, 0.34, 1)',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.paddingLeft = '12px')}
-                    onMouseLeave={e => (e.currentTarget.style.paddingLeft = '0')}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-                      <span className="ff-mono" style={{
-                        fontSize: 16,
-                        color: isOpen ? '#ff0090' : isHovered ? '#9bb8e1' : 'rgba(155,184,225,0.35)',
-                        transition: 'color 0.3s ease', minWidth: 42,
-                      }}>
-                        [{f.id}]
-                      </span>
-                      <div>
-                        <h3 className="ff-teko" style={{
-                          fontSize: 'clamp(28px, 3.5vw, 48px)',
-                          color: isOpen ? '#ff0090' : isHovered ? '#ffffff' : '#eee',
-                          transition: 'color 0.3s ease', lineHeight: 1,
-                        }}>
-                          {f.title}
-                        </h3>
-                        <span className="ff-mono" style={{ fontSize: 10, color: '#73767d', letterSpacing: '0.1em' }}>{f.sub}</span>
-                      </div>
-                    </div>
-
-                    <div className={`accordion-icon ${isOpen ? 'open' : ''}`} style={{
-                      width: 44, height: 44, borderRadius: '50%',
-                      border: `1px solid ${isOpen ? '#ff0090' : isHovered ? '#9bb8e1' : 'rgba(155,184,225,0.2)'}`,
-                      background: isOpen ? 'rgba(255,0,144,0.15)' : 'transparent',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: isOpen ? '#ff0090' : '#9bb8e1', flexShrink: 0,
-                      transition: 'transform 0.8s cubic-bezier(0.14,1,0.34,1), border-color 0.3s, background 0.3s',
-                    }}>
-                      <Plus style={{ width: 18, height: 18 }} />
-                    </div>
-                  </button>
-
-                  <div className={`accordion-body ${isOpen ? 'open' : ''}`}>
-                    <div style={{
-                      paddingLeft: 74, paddingBottom: 32, paddingRight: 60,
-                      maxWidth: 750,
-                    }}>
-                      <p className="body-copy" style={{ fontSize: 15, lineHeight: 1.75 }}>
-                        {f.body}
-                      </p>
-
-                      <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
-                        <button onClick={openModal} className="synaps-btn" style={{ height: 42, fontSize: 11 }}>
-                          <svg className="synaps-btn__border" aria-hidden="true">
-                            <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="5" ry="5" />
-                          </svg>
-                          <span className="synaps-btn__shimmer"><span className="synaps-btn__shimmer-inner" /></span>
-                          <span className="synaps-btn__label">
-                            <span className="synaps-btn__label--base">TRY THIS FEATURE →</span>
-                            <span className="synaps-btn__label--hover">SIGN IN →</span>
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ── 10-AGENT BOARDROOM (Huge Inc Grid + Dim Hover) ────────────────── */}
-        <section id="boardroom" style={{
-          background: 'rgba(5,9,20,0.95)',
-          borderTop: '1px solid rgba(155,184,225,0.08)',
-          borderBottom: '1px solid rgba(155,184,225,0.08)',
-          padding: '120px 40px',
-        }}>
-          <div style={{ maxWidth: 1250, margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: 64 }}>
-              <div className="section-tag" data-slide-up style={{ marginBottom: 16 }}>
-                <span className="section-tag__id">// 02</span> PARALLEL REASONING ENGINE
-              </div>
-              <h2 className="ff-teko" data-slide-up style={{ fontSize: 'clamp(52px, 6.5vw, 92px)', color: '#fff' }}>
-                THE 10-AGENT<br />
-                <span className="text-gradient-blue">BOARDROOM</span>
-              </h2>
-              <p className="body-copy" data-slide-up style={{ maxWidth: 540, margin: '16px auto 0', fontSize: 15 }}>
-                Ten specialized AI personas analyze your documents simultaneously and debate before responding.
-              </p>
-            </div>
-
-            {/* Grid of Agents with Huge Inc hover list dimming */}
-            <div className="huge-hover-list" style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-              gap: 16,
-            }}>
-              {AGENTS.map((agent, i) => (
-                <div
-                  key={i}
-                  className="agent-card huge-hover-item"
-                  data-agent-card
-                  onMouseEnter={() => setHoveredAgent(i)}
-                  onMouseLeave={() => setHoveredAgent(null)}
-                  style={{
-                    padding: '26px 22px',
-                    borderRadius: 12,
-                    background: 'rgba(0, 2, 9, 0.85)',
-                    border: hoveredAgent === i ? '1px solid #ff0090' : '1px solid rgba(155,184,225,0.12)',
-                  }}
-                >
-                  <div style={{
-                    width: 36, height: 36, borderRadius: 8,
-                    background: hoveredAgent === i ? 'rgba(255,0,144,0.15)' : 'rgba(124,58,237,0.12)',
-                    border: hoveredAgent === i ? '1px solid #ff0090' : '1px solid rgba(124,58,237,0.3)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: hoveredAgent === i ? '#ff0090' : '#9bb8e1', marginBottom: 16,
-                    transition: 'transform 0.4s cubic-bezier(0.14,1,0.34,1), background 0.3s, border-color 0.3s',
-                  }}>
-                    <agent.icon style={{ width: 18, height: 18 }} />
-                  </div>
-                  <h4 className="ff-teko" style={{
-                    fontSize: 22, color: hoveredAgent === i ? '#ffffff' : '#eee', marginBottom: 4, letterSpacing: '0.05em',
-                  }}>
-                    {agent.title}
-                  </h4>
-                  <p className="ff-mono" style={{ fontSize: 10, color: '#73767d', letterSpacing: '0.06em' }}>
-                    {agent.role}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── SECURITY ─────────────────────────────────────────────────────── */}
-        <section id="security" style={{ padding: '120px 40px' }}>
-          <div style={{ maxWidth: 1250, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px 80px', alignItems: 'start' }}>
-            <div>
-              <div className="section-tag" data-slide-up style={{ marginBottom: 16 }}>
-                <span className="section-tag__id">// 03</span> SECURITY & TRUST
-              </div>
-              <h2 className="ff-teko" data-slide-up style={{ fontSize: 'clamp(44px, 5vw, 76px)', color: '#fff', marginBottom: 24 }}>
-                ENTERPRISE-GRADE<br />SECURITY.<br />
-                <span style={{ color: '#ff0090' }}>BUILT-IN.</span>
-              </h2>
-              <p className="body-copy" data-slide-up style={{ fontSize: 16, lineHeight: 1.75 }}>
-                Your documents, your organisation, your data. Synaps never mixes data across tenants. Every request is authenticated. Every session is isolated. DPDP Act 2023 compliant from day one.
-              </p>
-
-              <button onClick={openModal} className="synaps-btn" style={{ marginTop: 36, height: 50, fontSize: 13 }}>
-                <svg className="synaps-btn__border" aria-hidden="true">
-                  <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="5" ry="5" />
-                </svg>
-                <span className="synaps-btn__shimmer"><span className="synaps-btn__shimmer-inner" /></span>
-                <span className="synaps-btn__label">
-                  <span className="synaps-btn__label--base">START FREE TRIAL →</span>
-                  <span className="synaps-btn__label--hover">GET SECURE ACCESS →</span>
-                </span>
-              </button>
-            </div>
-
-            <div data-anim-section style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {[
-                'AES-256 encryption at rest & in transit',
-                'Multi-tenant physical data isolation',
-                'HTTP-Only session tokens (no XSS)',
-                'DPDP Act 2023 compliant audit logs',
-                '2FA / MFA authentication support',
-                'Zero user data trained on models — ever',
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="anim-body-line"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 14,
-                    padding: '18px 0',
-                    borderBottom: '1px solid rgba(155,184,225,0.1)',
-                    transitionDelay: `${i * 0.1}s`,
-                  }}
-                >
-                  <div style={{
-                    width: 24, height: 24, borderRadius: '50%',
-                    background: 'rgba(255,0,144,0.1)', border: '1px solid rgba(255,0,144,0.3)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                  }}>
-                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                      <path d="M1 4L3.5 6.5L9 1" stroke="#ff0090" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                  <span className="ff-mono" style={{ fontSize: 13, color: '#b7c6d4', letterSpacing: '0.03em' }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTA ──────────────────────────────────────────────────────────── */}
-        <section style={{
-          padding: '160px 40px', textAlign: 'center',
-          background: 'linear-gradient(180deg, #000209 0%, #060112 50%, #000209 100%)',
-          position: 'relative', overflow: 'hidden',
-        }}>
-          <div style={{
-            position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%,-50%)',
-            width: 800, height: 800,
-            background: 'radial-gradient(ellipse at center, rgba(255,0,144,0.15) 0%, transparent 75%)',
-            filter: 'blur(60px)', pointerEvents: 'none',
-          }} />
-
-          <div style={{ maxWidth: 1000, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-            <div className="section-tag" data-slide-up style={{ marginBottom: 24, display: 'block' }}>
-              <span className="section-tag__id">// READY TO START</span>
-            </div>
-
-            <h2 className="ff-teko" data-anim-section style={{
-              fontSize: 'clamp(44px, 8vw, 110px)', color: '#fff', lineHeight: 0.9, marginBottom: 28,
-            }}>
-              <SplitText text="YOUR ENTERPRISE" className="block" />
-              <SplitText text="BRAIN STARTS" className="block text-gradient-blue" />
-              <SplitText text="HERE" className="block" />
-            </h2>
-
-            <p className="body-copy" data-slide-up style={{ fontSize: 16, marginBottom: 48, lineHeight: 1.75, maxWidth: 560, margin: '0 auto 48px' }}>
-              Join teams already using Synaps to move faster, decide better, and eliminate document chaos.
-            </p>
-
-            <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button onClick={openModal} className="synaps-btn" style={{ height: 54, fontSize: 14 }}>
-                <svg className="synaps-btn__border" aria-hidden="true">
-                  <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="5" ry="5" />
-                </svg>
-                <span className="synaps-btn__shimmer"><span className="synaps-btn__shimmer-inner" /></span>
-                <span className="synaps-btn__label">
-                  <span className="synaps-btn__label--base">GET STARTED FREE <ArrowRight style={{ width: 16, height: 16 }} /></span>
-                  <span className="synaps-btn__label--hover">SIGN UP NOW →</span>
-                </span>
-              </button>
-
-              <Link href="/dashboard/chat" className="synaps-btn" style={{
-                height: 54, fontSize: 14,
-                border: '1px solid rgba(155,184,225,0.25)',
-                borderRadius: 6,
-              }}>
-                <span className="synaps-btn__label" style={{ position: 'relative', zIndex: 2 }}>
-                  OPEN LIVE APP <ArrowUpRight className="w-4 h-4 huge-arrow" />
-                </span>
-              </Link>
-            </div>
-
-            <p className="ff-mono" style={{ marginTop: 24, fontSize: 11, color: '#73767d', letterSpacing: '0.1em' }}>
-              NO CREDIT CARD · SETUP IN 2 MINUTES
-            </p>
-          </div>
-        </section>
-
-        {/* ── FOOTER ───────────────────────────────────────────────────────── */}
-        <footer style={{
-          padding: '40px',
-          borderTop: '1px solid rgba(155,184,225,0.08)',
-          background: '#000209',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 16,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span className="ff-teko" style={{ fontSize: 20, color: '#fff', letterSpacing: '0.08em' }}>SYNAPS AI</span>
-            <span className="ff-mono" style={{ fontSize: 10, color: '#73767d', marginLeft: 8 }}>
-              © {new Date().getFullYear()}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', gap: 32 }}>
-            {[
-              { label: 'APP', href: '/dashboard/chat' },
-              { label: 'DOCUMENTS', href: '/dashboard/documents' },
-              { label: 'GRAPH', href: '/dashboard/graph' },
-              { label: 'PRIVACY', href: '#' },
-            ].map(({ label, href }) => (
-              <a key={label} href={href} className="ff-mono huge-link" style={{
-                fontSize: 10, color: '#73767d', letterSpacing: '0.12em',
-              }}>
-                <span>{label}</span>
-              </a>
-            ))}
-          </div>
-        </footer>
-
-        {/* ── SIGN IN MODAL ─────────────────────────────────────────────────── */}
+        {/* ── SIGN IN MODAL (FOR MOBILE / NAV CLICK) ─────────────────────────── */}
         <SignInModal isOpen={showSignIn} onClose={() => setShowSignIn(false)} />
       </div>
     </>
