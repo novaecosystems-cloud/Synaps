@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
+import { createSessionCookie } from '@/lib/auth-server';
 
 // Server-side in-memory store mapping email -> unique TOTP Base32 secret
 const totpSecretStore = new Map<string, string>();
@@ -60,7 +61,7 @@ export async function GET(req: NextRequest) {
 }
 
 /**
- * POST: Verify 6-digit TOTP code against user's stored unique secret
+ * POST: Verify 6-digit TOTP code & set HTTP-Only Session Cookie
  */
 export async function POST(req: NextRequest) {
   try {
@@ -82,10 +83,26 @@ export async function POST(req: NextRequest) {
     const isValid = authenticator.check(token, secret);
 
     if (isValid) {
-      return NextResponse.json({
+      // 2FA Verified! Establish Backend HTTP-Only Session Cookie
+      const targetToken = `TEST_TOKEN_${email.split('@')[0]}_synaps_totp`;
+      const sessionCookieValue = await createSessionCookie(targetToken);
+
+      const response = NextResponse.json({
         success: true,
         message: 'Google Authenticator 2FA code verified successfully!',
+        redirect: '/dashboard',
       });
+
+      // Set Backend HTTP-Only Secure Session Cookie
+      response.cookies.set('synaps-session', sessionCookieValue, {
+        maxAge: 60 * 60 * 24 * 30, // 30 Days
+        path: '/',
+        httpOnly: true, // STRICT HTTP-ONLY
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+
+      return response;
     } else {
       return NextResponse.json({
         success: false,
