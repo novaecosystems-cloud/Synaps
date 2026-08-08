@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticator } from 'otplib';
+import * as otplib from 'otplib';
 import QRCode from 'qrcode';
 import { createSessionCookie } from '@/lib/auth-server';
 
@@ -19,12 +19,16 @@ export async function GET(req: NextRequest) {
     // Generate fresh unique Base32 secret if forced or not exists
     let secret = totpSecretStore.get(cleanEmail);
     if (!secret || forceNew) {
-      secret = authenticator.generateSecret();
+      secret = otplib.generateSecret();
       totpSecretStore.set(cleanEmail, secret);
     }
 
     // Standard RFC 6238 format: otpauth://totp/Synaps%20AI:email?secret=...&issuer=Synaps%20AI
-    const otpauthUrl = authenticator.keyuri(cleanEmail, 'Synaps AI', secret);
+    const otpauthUrl = otplib.generateURI({
+      secret,
+      label: cleanEmail,
+      issuer: 'Synaps AI',
+    });
 
     // Fail-proof QR Code image generation (Native Data URL + API Fallback)
     let qrCodeDataUrl = '';
@@ -52,9 +56,9 @@ export async function GET(req: NextRequest) {
       fallbackQrUrl,
     });
   } catch (error: any) {
-    console.error('[TOTP SETUP] Error:', error.message);
+    console.error('[TOTP SETUP] Error generating QR code:', error.message);
     return NextResponse.json(
-      { success: false, error: 'Failed to generate 2FA QR code.' },
+      { success: false, error: error.message || 'Failed to generate 2FA QR code.' },
       { status: 500 }
     );
   }
@@ -78,11 +82,14 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Allow 1-step window tolerance for slight device clock drift
-    authenticator.options = { window: 1 };
-    const isValid = authenticator.check(token, secret);
+    // Verify 6-digit TOTP token against stored secret with 1-step time tolerance
+    const verifyResult = await otplib.verify({
+      token,
+      secret,
+      epochTolerance: 1,
+    });
 
-    if (isValid) {
+    if (verifyResult && verifyResult.valid) {
       // 2FA Verified! Establish Backend HTTP-Only Session Cookie
       const targetToken = `TEST_TOKEN_${email.split('@')[0]}_synaps_totp`;
       const sessionCookieValue = await createSessionCookie(targetToken);
