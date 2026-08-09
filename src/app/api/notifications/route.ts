@@ -1,11 +1,18 @@
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
-import { PrismaClient, Prisma } from '@prisma/client';
-
+import { Prisma } from '@prisma/client';
+import { cookies } from 'next/headers';
+import { verifySessionCookie } from '@/lib/auth-server';
 import prisma from '@/lib/prisma';
 
 export async function GET(request: Request) {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('synaps-session')?.value;
+  if (!sessionCookie) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   
   const userId = searchParams.get('userId');
@@ -53,6 +60,12 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('synaps-session')?.value;
+    if (!sessionCookie) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { userId, organizationId, type, title, message, link } = body;
 
@@ -73,8 +86,14 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('synaps-session')?.value;
+    if (!sessionCookie) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { userId, notificationId, markAllAsRead } = body;
+    const { userId, organizationId, notificationId, markAllAsRead } = body;
 
     if (!userId) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
@@ -82,7 +101,7 @@ export async function PATCH(request: Request) {
 
     if (markAllAsRead) {
       await prisma.notification.updateMany({
-        where: { userId, isRead: false },
+        where: { userId, ...(organizationId ? { organizationId } : {}), isRead: false },
         data: { isRead: true }
       });
       return NextResponse.json({ success: true });

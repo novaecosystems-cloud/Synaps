@@ -71,8 +71,9 @@ export async function POST(req: NextRequest) {
           organizationId: targetUser.organizationId || 'default_org',
           userId: decoded.uid,
           action: 'ADMIN_PLAN_UPGRADE',
-          resource: 'Billing',
-          details: `Owner Admin approved & upgraded ${targetUser.email} to ${planId.toUpperCase()} plan (${newCreditLimit} daily AI credits active).`
+          entityType: 'Billing',
+          entityId: targetUser.id,
+          metadata: { details: `Owner Admin approved & upgraded ${targetUser.email} to ${planId.toUpperCase()} plan (${newCreditLimit} daily AI credits active).` }
         }
       });
     } catch (e) {}

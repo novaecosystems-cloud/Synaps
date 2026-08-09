@@ -537,9 +537,24 @@ export default function ChatPage() {
                               ? "bg-[#1c1c2a] border-purple-500/40"
                               : "bg-[#1c1c2a] border-white/10 focus-within:border-white/20"
                             }`}>
-              {/* Attach */}
-              <button className="p-2 shrink-0 text-white/30 hover:text-white/60
-                                 hover:bg-white/5 rounded-xl transition-colors mb-0.5">
+              {/* Hidden File Input & Attach Button */}
+              <input
+                type="file"
+                id="chat-file-upload"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setInput((prev) => (prev ? `${prev} [Attached: ${file.name}]` : `Please analyze this document: ${file.name}`));
+                  }
+                }}
+              />
+              <button 
+                type="button"
+                onClick={() => document.getElementById('chat-file-upload')?.click()}
+                title="Attach Document for RAG Analysis"
+                className="p-2 shrink-0 text-white/30 hover:text-white/60 hover:bg-white/5 rounded-xl transition-colors mb-0.5"
+              >
                 <Paperclip className="w-4 h-4" />
               </button>
 

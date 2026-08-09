@@ -79,51 +79,39 @@ export async function POST(req: NextRequest) {
             action: 'PENDING_UPGRADE_REQUEST',
             entityType: 'Billing & Payments',
             entityId: emailToUse,
-            details: JSON.stringify({
+            metadata: {
               userEmail: emailToUse,
               userName: targetUser?.name || emailToUse.split('@')[0],
               planId: planId || 'pro',
               amount: planId === 'enterprise' ? 20 : 7,
               requestedAt: new Date().toISOString(),
               status: 'PENDING'
-            })
+            }
           }
         });
       } catch (e) {}
 
       return NextResponse.json({
         success: true,
-        message: 'Upgrade request transmitted to Owner Admin! Activation usually takes a few minutes.',
-        userEmail: emailToUse,
-        planId
+        message: `Plan upgrade request for ${emailToUse} received! Owner Admin will review & process within 5 minutes.`,
+        userEmail: emailToUse
       });
     }
 
-    // 2. Handle Refund Requests & Instant Role Downgrade to MEMBER (50 Credits)
-    if (action === 'refund_request') {
+    // 2. Handle 14-Day Money-Back Guarantee Refund Request
+    if (action === 'request_refund') {
       const emailToUse = userEmail || 'user@synaps.ai';
       
       let targetUser = await prisma.user.findFirst({
         where: { email: { equals: emailToUse, mode: 'insensitive' } }
       });
 
-      if (targetUser) {
-        try {
-          await prisma.user.update({
-            where: { id: targetUser.id },
-            data: { role: 'MEMBER' as any }
-          });
-        } catch (e) {}
-      } else if (callerId) {
-        try {
-          await prisma.user.update({
-            where: { id: callerId },
-            data: { role: 'MEMBER' as any }
-          });
-        } catch (e) {}
-      }
-
-      ROLE_CREDIT_LIMITS['MEMBER'] = 50;
+      try {
+        await prisma.user.update({
+          where: { id: callerId },
+          data: { role: 'MEMBER' as any }
+        });
+      } catch (e) {}
 
       try {
         await prisma.auditLog.create({
@@ -133,14 +121,14 @@ export async function POST(req: NextRequest) {
             action: 'PENDING_REFUND_REQUEST',
             entityType: 'Billing & Payments',
             entityId: emailToUse,
-            details: JSON.stringify({
+            metadata: {
               userEmail: emailToUse,
               refundMethod: refundMethod || 'paypal',
               refundPayoutDetails: refundPayoutDetails || emailToUse,
               reason: reason || '14-Day 100% Money-Back Guarantee',
               requestedAt: new Date().toISOString(),
               status: 'PENDING'
-            })
+            }
           }
         });
       } catch (e) {}
@@ -205,7 +193,7 @@ export async function POST(req: NextRequest) {
           action: 'PLAN_UPGRADED',
           entityType: 'Billing & Subscriptions',
           entityId: callerId,
-          details: `User upgraded to ${planId?.toUpperCase() || 'PRO'} plan. Daily AI credits increased to ${newCreditLimit}.`
+          metadata: { details: `User upgraded to ${planId?.toUpperCase() || 'PRO'} plan. Daily AI credits increased to ${newCreditLimit}.` }
         }
       });
     } catch (e) {}

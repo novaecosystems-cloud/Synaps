@@ -44,33 +44,6 @@ export default function SignInCardInline() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Request 2FA QR Code & Secret for Google Authenticator App
-  const handleSetupGoogleAuthenticator = async (targetEmail: string) => {
-    const cleanEmail = (targetEmail || email || 'user@synaps.ai').trim().toLowerCase();
-    setActiveEmail(cleanEmail);
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/auth/totp?email=${encodeURIComponent(cleanEmail)}`);
-      const data = await res.json();
-      if (data.success) {
-        setQrCodeData({
-          qrCode: data.qrCode,
-          secret: data.secret,
-          otpauthUrl: data.otpauthUrl,
-        });
-        setShowOtpStep(false);
-        setShowQrStep(true);
-        toast({ title: '📱 QR Code Generated', description: 'Scan the QR code with Google Authenticator app on your phone!' });
-      } else {
-        toast({ title: 'Error', description: data.error || 'Failed to generate QR code.' });
-      }
-    } catch (e) {
-      toast({ title: 'Error', description: 'Failed to generate Authenticator QR code.' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Send Email 2FA Security Code (OTP) via Resend/Gmail API
   const send2FACode = async (targetEmail: string, idToken: string) => {
     const cleanEmail = (targetEmail || email).trim().toLowerCase();
@@ -92,21 +65,19 @@ export default function SignInCardInline() {
       });
       const data = await res.json();
       setOtpHint(data.otpCodeHint || '');
-      setShowQrStep(false);
       setShowOtpStep(true);
       toast({
         title: '🛡️ 2FA Security Code Sent',
         description: data.message || `Check your email inbox at ${cleanEmail}`,
       });
     } catch (e) {
-      setShowQrStep(false);
       setShowOtpStep(true);
     } finally {
       setLoading(false);
     }
   };
 
-  // Verify TOTP Code (Google Authenticator App) OR Email OTP Code
+  // Verify Email OTP 2FA Code
   const handleVerify2FA = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpCode.trim()) return;
@@ -115,30 +86,6 @@ export default function SignInCardInline() {
     const cleanEmail = (activeEmail || email || 'user@synaps.ai').trim().toLowerCase();
 
     try {
-      if (showQrStep) {
-        // Verify Google Authenticator Code
-        const totpRes = await fetch('/api/auth/totp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: cleanEmail,
-            token: otpCode.trim(),
-          }),
-        });
-        const totpData = await totpRes.json();
-
-        if (totpData.success) {
-          toast({ title: '📱 Authenticator Verified!', description: 'Google Authenticator code verified. Launching workspace...' });
-          window.location.href = '/dashboard';
-          return;
-        } else {
-          toast({ title: '❌ Invalid App Code', description: totpData.error || 'Invalid 6-digit code from Google Authenticator.' });
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Verify Email 2FA OTP Code
       const res = await fetch('/api/auth/otp/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -170,36 +117,50 @@ export default function SignInCardInline() {
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail) return;
 
-    if (authTab === 'totp') {
-      await handleSetupGoogleAuthenticator(cleanEmail);
-    } else {
-      let token = `TEST_TOKEN_${cleanEmail.split('@')[0]}_synaps`;
-      await send2FACode(cleanEmail, token);
-    }
+    let token = `TEST_TOKEN_${cleanEmail.split('@')[0]}_synaps`;
+    await send2FACode(cleanEmail, token);
   };
 
   const handleGoogleLogin = async (e: React.MouseEvent) => {
     e.preventDefault();
     setLoading(true);
-    let token = 'TEST_TOKEN_google_user_synaps';
-    let targetEmail = email;
 
     try {
-      if (auth) {
-        const provider = new GoogleAuthProvider();
-        const userCredential = await signInWithPopup(auth, provider);
-        token = await userCredential.user.getIdToken();
-        if (userCredential.user.email) {
-          targetEmail = userCredential.user.email;
-          setEmail(targetEmail);
-        }
+      if (!auth) {
+        throw new Error('Firebase Authentication is not initialized.');
+      }
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const token = await userCredential.user.getIdToken();
+      if (userCredential.user.email) {
+        setEmail(userCredential.user.email);
+      }
+
+      // Establish verified HTTP-Only session cookie on backend
+      const res = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: token }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast({ title: '✅ Google Sign-In Verified', description: 'Session established securely on server. Opening workspace...' });
+        window.location.href = data.redirect || '/dashboard';
+        return;
+      } else {
+        toast({ title: '❌ Verification Failed', description: data.error || 'Failed to establish verified session.' });
       }
     } catch (err: any) {
-      console.error('[GOOGLE AUTH ERROR]', err);
+      console.warn('[GOOGLE AUTH ERROR]', err?.code, err?.message);
+      if (err?.code === 'auth/popup-closed-by-user' || err?.code === 'auth/cancelled-popup-request') {
+        toast({ title: 'Sign-In Cancelled', description: 'Google sign-in popup was closed.' });
+        return;
+      }
+      toast({ title: 'Google Sign-In Failed', description: err?.message || 'Failed to sign in with Google.' });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-    await send2FACode(targetEmail || 'google.user@synaps.ai', token);
   };
 
   const handleInstantDemo = async (e: React.MouseEvent) => {
@@ -370,56 +331,8 @@ export default function SignInCardInline() {
       `}</style>
 
       <div className="crav-sticky-card">
-        {showQrStep && qrCodeData ? (
-          /* ── STEP 2B: GOOGLE AUTHENTICATOR QR CODE SCAN ── */
-          <div className="w-full flex flex-col items-center gap-2.5 text-center">
-            <p>
-              Scan QR Code
-              <span>Open Google Authenticator App & Scan</span>
-            </p>
-
-            <div className="p-2.5 bg-white border-2 border-[#4C0016] rounded-2xl shadow-[4px_4px_0px_#4C0016]">
-              <img
-                src={qrCodeData.qrCode}
-                alt="Google Authenticator QR Code"
-                className="w-44 h-44 mx-auto rounded-lg"
-              />
-            </div>
-
-            <div className="text-[11px] font-mono text-[#F5E3CD] bg-[#4C0016] px-2.5 py-1.5 rounded-lg border border-[#FFD750]/40 w-full break-all shadow-[2px_2px_0px_#FFD750]">
-              Key: <strong className="text-[#FFD750] text-xs tracking-wider">{qrCodeData.secret}</strong>
-            </div>
-
-            <form onSubmit={handleVerify2FA} className="w-full flex flex-col gap-2 mt-1">
-              <input
-                type="text"
-                placeholder="Enter 6-digit App Code"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="uiverse-popup-input text-center text-lg font-mono tracking-widest font-bold"
-                maxLength={6}
-                required
-                autoFocus
-              />
-              <button
-                type="submit"
-                disabled={loading || otpCode.length < 6}
-                className="uiverse-popup-oauthButton uiverse-popup-demoButton"
-              >
-                {loading ? 'Verifying...' : 'Verify App Code & Launch →'}
-              </button>
-            </form>
-
-            <button
-              type="button"
-              onClick={() => { setShowQrStep(false); setShowOtpStep(false); }}
-              className="text-xs text-[#F5E3CD] hover:text-white underline font-sans mt-0.5"
-            >
-              ← Back to Sign In options
-            </button>
-          </div>
-        ) : showOtpStep ? (
-          /* ── STEP 2A: EMAIL 2FA OTP VERIFICATION WITH 15-MINUTE COUNTDOWN TIMER ── */
+        {showOtpStep ? (
+          /* ── STEP 2: EMAIL 2FA OTP VERIFICATION WITH 15-MINUTE COUNTDOWN TIMER ── */
           <form onSubmit={handleVerify2FA} className="w-full flex flex-col items-center gap-3 py-1">
             <div className="w-10 h-10 rounded-full bg-[#4C0016] border border-[#FFD750] flex items-center justify-center text-[#FFD750]">
               <ShieldCheck className="w-5 h-5" />
@@ -464,22 +377,14 @@ export default function SignInCardInline() {
 
             <button
               type="button"
-              onClick={() => handleSetupGoogleAuthenticator(activeEmail || email || 'user@synaps.ai')}
-              className="text-xs text-[#FFD750] hover:text-white underline font-mono flex items-center gap-1 mt-0.5"
-            >
-              <QrCode className="w-3.5 h-3.5" /> Open Google Authenticator QR Code
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setShowOtpStep(false); setShowQrStep(false); }}
+              onClick={() => setShowOtpStep(false)}
               className="text-xs text-[#F5E3CD] hover:text-white underline font-sans"
             >
               ← Back to Sign In options
             </button>
           </form>
         ) : (
-          /* ── STEP 1: INITIAL SELECTION WITH TWO OPTIONS (EMAIL / GOOGLE AUTHENTICATOR) ── */
+          /* ── STEP 1: INITIAL SELECTION ── */
           <>
             <p>
               Welcome to SYNAPS
@@ -512,38 +417,11 @@ export default function SignInCardInline() {
 
             <div className="uiverse-popup-separator">
               <div></div>
-              <span>CHOOSE 2FA METHOD</span>
+              <span>OR ENTER EMAIL</span>
               <div></div>
             </div>
 
-            {/* TWO OPTIONS TABS: EMAIL 2FA vs GOOGLE AUTHENTICATOR */}
-            <div className="w-full flex gap-1.5">
-              <button
-                type="button"
-                onClick={() => setAuthTab('email')}
-                className={`auth-tab-btn ${
-                  authTab === 'email'
-                    ? 'bg-[#FFD750] text-[#4C0016] shadow-[2px_2px_0px_#4C0016]'
-                    : 'bg-[#F5E3CD] text-[#4C0016] opacity-70 hover:opacity-100'
-                }`}
-              >
-                <Mail className="w-3.5 h-3.5" /> Email 2FA
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setAuthTab('totp')}
-                className={`auth-tab-btn ${
-                  authTab === 'totp'
-                    ? 'bg-[#FFD750] text-[#4C0016] shadow-[2px_2px_0px_#4C0016]'
-                    : 'bg-[#F5E3CD] text-[#4C0016] opacity-70 hover:opacity-100'
-                }`}
-              >
-                <Smartphone className="w-3.5 h-3.5" /> Google App QR
-              </button>
-            </div>
-
-            {/* FORM: EMAIL ONLY (NO PASSWORD REQUIRED AT ALL!) */}
+            {/* FORM: EMAIL 2FA */}
             <form onSubmit={handleEmailSubmit} className="w-full flex flex-col gap-2 mt-0.5">
               <input
                 type="email"
@@ -554,23 +432,13 @@ export default function SignInCardInline() {
                 required
               />
 
-              {authTab === 'email' ? (
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="uiverse-popup-oauthButton mt-0.5"
-                >
-                  {loading ? 'Sending 2FA Code...' : 'Send Email 2FA Code →'}
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="uiverse-popup-oauthButton bg-[#4C0016] text-[#FFD750] border-[#FFD750] mt-0.5"
-                >
-                  <QrCode className="w-4 h-4" /> Open Authenticator QR Code →
-                </button>
-              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="uiverse-popup-oauthButton mt-0.5"
+              >
+                {loading ? 'Sending 2FA Code...' : 'Send Email 2FA Code →'}
+              </button>
             </form>
           </>
         )}

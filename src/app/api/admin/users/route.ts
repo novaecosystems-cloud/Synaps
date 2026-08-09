@@ -36,15 +36,14 @@ export async function GET(req: NextRequest) {
       });
 
       pendingRequests = pendingLogs.map(log => {
-        let details: any = {};
-        try { details = JSON.parse(log.details); } catch(e) {}
+        const metadata: any = (log.metadata && typeof log.metadata === 'object') ? log.metadata : {};
         return {
           id: log.id,
-          userEmail: details.userEmail || 'unknown@synaps.ai',
-          planId: details.planId || 'pro',
-          amount: details.amount || 7,
+          userEmail: metadata.userEmail || 'unknown@synaps.ai',
+          planId: metadata.planId || 'pro',
+          amount: metadata.amount || 7,
           createdAt: log.createdAt,
-          status: details.status || 'PENDING'
+          status: metadata.status || 'PENDING'
         };
       }).filter(req => req.status === 'PENDING');
     } catch (e) {}
@@ -59,16 +58,15 @@ export async function GET(req: NextRequest) {
       });
 
       pendingRefunds = refundLogs.map(log => {
-        let details: any = {};
-        try { details = JSON.parse(log.details); } catch(e) {}
+        const metadata: any = (log.metadata && typeof log.metadata === 'object') ? log.metadata : {};
         return {
           id: log.id,
-          userEmail: details.userEmail || 'unknown@synaps.ai',
-          refundMethod: details.refundMethod || 'paypal',
-          refundPayoutDetails: details.refundPayoutDetails || details.userEmail || 'N/A',
-          reason: details.reason || '14-Day Money Back Guarantee',
+          userEmail: metadata.userEmail || 'unknown@synaps.ai',
+          refundMethod: metadata.refundMethod || 'paypal',
+          refundPayoutDetails: metadata.refundPayoutDetails || metadata.userEmail || 'N/A',
+          reason: metadata.reason || '14-Day Money Back Guarantee',
           createdAt: log.createdAt,
-          status: details.status || 'PENDING'
+          status: metadata.status || 'PENDING'
         };
       });
     } catch (e) {}

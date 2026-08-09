@@ -10,14 +10,14 @@ export async function POST(req: NextRequest) {
 
     const { code, expiresAt, isDemo } = generateOTP(email, idToken);
 
-    // Read credentials from env, with runtime safe fallback
+    // Read credentials from env
     const gmailUser = process.env.GMAIL_USER || 'novaecosystems@gmail.com';
-    const gmailAppPassword = process.env.GMAIL_APP_PASSWORD || ('scau' + 'onzb' + 'dyie' + 'icbx');
+    const gmailAppPassword = process.env.GMAIL_APP_PASSWORD;
 
     let emailSent = false;
     let deliveryMethod = '';
 
-    // Primary Delivery Method: Gmail SMTP (Sends to ANY email worldwide, 100% Free)
+    // Primary Delivery Method: Gmail SMTP
     if (!isDemo && gmailUser && gmailAppPassword) {
       try {
         const transporter = nodemailer.createTransport({
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
                 <div style="font-family: monospace; font-size: 38px; font-weight: 900; letter-spacing: 12px; color: #FFD750; background: #000000; padding: 16px 24px; border-radius: 8px; border: 2px solid #4C0016; display: inline-block;">
                   ${code}
                 </div>
-                <p style="font-size: 12px; color: #73767d; margin-bottom: 0; margin-top: 16px;">This code will expire in <strong style="color: #ff0090;">5 minutes</strong>.</p>
+                <p style="font-size: 12px; color: #73767d; margin-bottom: 0; margin-top: 16px;">This code will expire in <strong style="color: #ff0090;">15 minutes</strong>.</p>
               </div>
               
               <p style="font-size: 12px; color: #73767d; text-align: center; line-height: 1.6; margin: 0;">

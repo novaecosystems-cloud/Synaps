@@ -207,13 +207,16 @@ export default function SynapsLanding() {
     );
     sections.forEach((s) => io.observe(s));
 
+    // Apple Design: Fluid Spring Easing (cubic-bezier(0.16, 1, 0.3, 1) critically damped)
+    const appleSpringEase = 'cubic-bezier(0.16, 1, 0.3, 1)';
+
     gsap.utils.toArray<HTMLElement>('[data-slide-up]').forEach((el) => {
       gsap.from(el, {
         scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' },
         y: '75%',
         opacity: 0,
         duration: 0.85,
-        ease: 'cubic-bezier(0.14, 1, 0.34, 1)',
+        ease: appleSpringEase,
       });
     });
 
@@ -224,7 +227,7 @@ export default function SynapsLanding() {
         opacity: 0,
         duration: 0.8,
         delay: i * 0.06,
-        ease: 'cubic-bezier(0.14, 1, 0.34, 1)',
+        ease: appleSpringEase,
       });
     });
 
@@ -234,7 +237,7 @@ export default function SynapsLanding() {
         {
           scaleY: 1,
           duration: 1.2,
-          ease: 'cubic-bezier(0.14, 1, 0.34, 1)',
+          ease: appleSpringEase,
           scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
         }
       );
@@ -243,11 +246,11 @@ export default function SynapsLanding() {
     gsap.utils.toArray<HTMLElement>('[data-agent-card]').forEach((el, i) => {
       gsap.from(el, {
         scrollTrigger: { trigger: el, start: 'top 92%', toggleActions: 'play none none none' },
-        scale: 0.88,
+        scale: 0.92,
         opacity: 0,
         duration: 0.65,
-        delay: (i % 5) * 0.06,
-        ease: 'back.out(1.4)',
+        delay: (i % 5) * 0.05,
+        ease: 'back.out(1.2)', // Apple momentum release bounce
       });
     });
 
@@ -256,7 +259,7 @@ export default function SynapsLanding() {
       rotate: -20,
       opacity: 0,
       duration: 1.4,
-      ease: 'cubic-bezier(0.14, 1, 0.34, 1)',
+      ease: appleSpringEase,
     });
 
     return () => io.disconnect();
@@ -498,15 +501,66 @@ export default function SynapsLanding() {
           transition: opacity 0.4s ease, filter 0.4s ease, transform 0.3s ease, border-color 0.3s ease;
         }
 
-        /* ── Accordion ── */
-        .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.8s cubic-bezier(0.14, 1, 0.34, 1); }
-        .accordion-body.open { max-height: 350px; }
-        .accordion-icon { transition: transform 0.8s cubic-bezier(0.14, 1, 0.34, 1); }
-        .accordion-icon.open { transform: rotate(135deg); }
+        /* ── APPLE DESIGN SYSTEM (Emil Kowalski Apple Design Skill) ── */
+        /* 1. Instant Physical Response — kill latency on pointer-down */
+        .apple-press, button, .synaps-btn, .huge-link, .agent-card {
+          touch-action: manipulation;
+          will-change: transform;
+        }
+        .apple-press:active, button:active, .synaps-btn:active {
+          transform: scale(0.97) !important;
+          transition: transform 90ms cubic-bezier(0, 0, 0.2, 1) !important;
+        }
 
-        /* ── Agent card hover ── */
-        .agent-card { transition: transform 0.4s cubic-bezier(0.14, 1, 0.34, 1), border-color 0.3s ease, background 0.3s ease; cursor: default; }
-        .agent-card:hover { transform: translateY(-6px); border-color: rgba(255, 0, 144, 0.6); background: rgba(255, 0, 144, 0.08); }
+        /* 2. Apple Material Glassmorphism & Translucency */
+        .apple-glass-card {
+          background: rgba(12, 18, 32, 0.65);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        /* 3. Accordion Fluid Spring (Response: 0.35s, Critically Damped) */
+        .accordion-body {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+          opacity: 0;
+        }
+        .accordion-body.open {
+          max-height: 380px;
+          opacity: 1;
+        }
+        .accordion-icon {
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .accordion-icon.open {
+          transform: rotate(135deg);
+        }
+
+        /* 4. Apple Agent Card Spring Hover with Momentum Scale */
+        .agent-card {
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, background 0.3s ease, box-shadow 0.35s ease;
+          cursor: default;
+          transform-origin: center center;
+        }
+        .agent-card:hover {
+          transform: translateY(-8px) scale(1.02);
+          border-color: rgba(255, 0, 144, 0.6);
+          background: rgba(255, 0, 144, 0.08);
+          box-shadow: 0 16px 36px rgba(255, 0, 144, 0.25);
+        }
+
+        /* 5. Reduced Motion Accessibility (Apple Design Guidelines) */
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+          }
+        }
 
         /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 3px; }

@@ -73,7 +73,7 @@ export function BackgroundTaskProvider({ children }: { children: ReactNode }) {
                     {
                       heading: 'AI Output Summary',
                       content: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
-                      kvPairs: typeof result === 'object' && !Array.isArray(result) ? result : undefined
+                      kvPairs: (typeof result === 'object' && result !== null && !Array.isArray(result)) ? (result as Record<string, any>) : undefined
                     }
                   ]
                 });

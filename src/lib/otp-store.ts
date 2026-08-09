@@ -38,7 +38,7 @@ export function generateOTP(email: string, idToken?: string): { code: string; ex
 
   otpMap.set(cleanEmail, record);
 
-  console.log(`[2FA SECURITY SERVER] 🔒 Unique 6-digit OTP generated for ${cleanEmail}: ${code} (Expires in 15m)`);
+  console.log(`[2FA SECURITY SERVER] 🔒 Unique 6-digit OTP generated for ${cleanEmail} (Expires in 15m)`);
 
   return { code, expiresAt, isDemo };
 }
@@ -53,17 +53,6 @@ export function verifyOTP(email: string, inputCode: string): { valid: boolean; r
   // Primary lookup by exact cleanEmail
   let record = otpMap.get(cleanEmail);
   let matchedKey = cleanEmail;
-
-  // Smart fallback lookup: If record not found by exact email string, find active record by input code
-  if (!record && sanitizedInput) {
-    for (const [key, rec] of otpMap.entries()) {
-      if (rec.code === sanitizedInput && Date.now() <= rec.expiresAt) {
-        record = rec;
-        matchedKey = key;
-        break;
-      }
-    }
-  }
 
   if (!record) {
     return { valid: false, reason: 'No active 2FA security code found. Please click "Resend Code".' };
@@ -87,7 +76,7 @@ export function verifyOTP(email: string, inputCode: string): { valid: boolean; r
   if (!isMatch) {
     record.attempts += 1;
     otpMap.set(matchedKey, record);
-    console.warn(`[2FA SECURITY SERVER] ❌ Failed 2FA attempt for ${matchedKey}. Entered: ${sanitizedInput}, Expected: ${record.code}`);
+    console.warn(`[2FA SECURITY SERVER] ❌ Failed 2FA attempt for ${matchedKey}.`);
     return { valid: false, reason: `Invalid 6-digit Security Code. ${5 - record.attempts} attempts remaining.` };
   }
 

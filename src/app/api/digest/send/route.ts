@@ -65,7 +65,11 @@ Include:
 
     // 1. Send via Gmail SMTP
     const gmailUser = process.env.GMAIL_USER || 'novaecosystems@gmail.com';
-    const gmailPass = process.env.GMAIL_APP_PASS || 'qqjfqnrrrgwrwazl';
+    const gmailPass = process.env.GMAIL_APP_PASS || process.env.GMAIL_APP_PASSWORD;
+
+    if (!gmailPass) {
+      return NextResponse.json({ success: false, error: 'Gmail SMTP credentials missing in environment variables.' }, { status: 500 });
+    }
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',

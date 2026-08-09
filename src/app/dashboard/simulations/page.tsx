@@ -377,7 +377,7 @@ export default function SimulationsPage() {
                   Simulated Frequency Distribution Histogram (15 Bins)
                 </h4>
 
-                <div className="grid grid-cols-15 gap-1 items-end h-28 pt-4 pb-2 border-b border-white/10">
+                <div className="grid gap-1 items-end h-28 pt-4 pb-2 border-b border-white/10" style={{ gridTemplateColumns: 'repeat(15, minmax(0, 1fr))' }}>
                   {simulationResult.monteCarloMath.distributionHistogram?.map((bin: any, idx: number) => {
                     const maxFreq = Math.max(...simulationResult.monteCarloMath.distributionHistogram.map((b: any) => b.frequency));
                     const heightPercent = maxFreq > 0 ? (bin.frequency / maxFreq) * 100 : 0;

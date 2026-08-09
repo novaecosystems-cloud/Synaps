@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
-const SECRET_KEY = process.env.ENCRYPTION_SECRET_KEY || 'synaps_super_secret_enterprise_encryption_key_32_bytes_long';
+const SECRET_KEY = process.env.ENCRYPTION_SECRET_KEY || process.env.NEXTAUTH_SECRET || 'synaps_default_aes_key_32_bytes_len';
 
 export function encryptApiKey(text: string): string {
   if (!text) return '';

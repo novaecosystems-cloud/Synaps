@@ -1,14 +1,30 @@
 export const dynamic = 'force-dynamic';
-import { PrismaClient } from '@prisma/client';
+import { cookies } from 'next/headers';
+import { verifySessionCookie } from '@/lib/auth-server';
 import RequirementsClient from './client';
-
 import prisma from '@/lib/prisma';
-
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 export default async function RequirementsPage() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get('synaps-session')?.value;
+  let organizationId = 'demo_apex_org_id';
+
+  if (session) {
+    const decoded = await verifySessionCookie(session);
+    if (decoded?.uid) {
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.uid },
+        select: { organizationId: true }
+      });
+      if (user?.organizationId) {
+        organizationId = user.organizationId;
+      }
+    }
+  }
+
   const documents = await prisma.document.findMany({
-    where: { isDeleted: false },
+    where: { isDeleted: false, organizationId },
     select: { id: true, name: true },
     orderBy: { createdAt: 'desc' }
   });

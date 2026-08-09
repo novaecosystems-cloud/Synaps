@@ -236,7 +236,7 @@ export default function DecisionsPage() {
               onClick={() => { setNlQuery(q); handleQueryDecisionMemory(q); }}
               className="text-xs px-3 py-1 rounded-full bg-white/10 hover:bg-indigo-500/30 border border-white/10 text-slate-200 hover:text-white transition-all"
             >
-              "{q}"
+              &ldquo;{q}&rdquo;
             </button>
           ))}
         </div>
@@ -251,7 +251,7 @@ export default function DecisionsPage() {
 
           <div className="flex items-center gap-2 border-b border-base-300 pb-3">
             <Sparkles className="w-5 h-5 text-indigo-500" />
-            <h3 className="font-bold text-base text-base-content">Decision Memory Result for "{queryMemoryResult.query}"</h3>
+            <h3 className="font-bold text-base text-base-content">Decision Memory Result for &ldquo;{queryMemoryResult.query}&rdquo;</h3>
             {queryMemoryResult.hasPrecedent && (
               <span className="ml-auto text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
                 ✓ Precedent Detected ({queryMemoryResult.confidenceScore}% Match)
@@ -326,7 +326,7 @@ export default function DecisionsPage() {
                   : "bg-base-100 border-base-300 text-base-content/70 hover:text-base-content"
               )}
             >
-              {st.replace('_', ' ')}
+              {st.replace(/_/g, ' ')}
             </button>
           ))}
         </div>
@@ -375,7 +375,7 @@ export default function DecisionsPage() {
 
                     {dec.logicEvaluation && (
                       <p className="text-[11px] text-base-content/60 line-clamp-2 bg-base-200 p-2.5 rounded-xl border border-base-300 italic">
-                        "{dec.logicEvaluation}"
+                        &ldquo;{dec.logicEvaluation}&rdquo;
                       </p>
                     )}
                   </div>

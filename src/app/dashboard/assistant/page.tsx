@@ -97,7 +97,7 @@ export default function AssistantPage() {
               onClick={() => { setQuery(q); handleAskAssistant(q); }}
               className="text-xs px-3 py-1 rounded-full bg-base-200 hover:bg-teal-500/10 border border-base-300 hover:border-teal-500/30 text-base-content/70 hover:text-teal-400 transition-all text-left"
             >
-              "{q}"
+              &ldquo;{q}&rdquo;
             </button>
           ))}
         </div>
@@ -129,7 +129,7 @@ export default function AssistantPage() {
                   Graph RAG Grounded Answer
                 </span>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mt-2 leading-snug">
-                  "{assistantResult.query}"
+                  &ldquo;{assistantResult.query}&rdquo;
                 </h2>
               </div>
 

@@ -8,8 +8,8 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get('synaps-session')?.value;
   const path = request.nextUrl.pathname;
 
-  // 1. Auto-authenticate any visitor accessing /demo as Demo Administrator
-  if (path.startsWith('/demo') || request.headers.get('referer')?.includes('/demo')) {
+  // 1. Auto-authenticate visitors explicitly accessing the /demo landing path
+  if (path.startsWith('/demo')) {
     const res = NextResponse.next();
     if (!session) {
       res.cookies.set('synaps-session', 'TEST_TOKEN_demo_admin_synaps', {

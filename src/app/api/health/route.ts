@@ -19,8 +19,6 @@ export async function GET() {
   } catch (error: any) {
     logger.error({ err: error }, 'Health check failed');
     return NextResponse.json({ status: 'unhealthy', error: 'Database connection failed' }, { status: 503 });
-  } finally {
-    await prisma.$disconnect();
   }
 }
 

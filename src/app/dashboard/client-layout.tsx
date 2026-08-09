@@ -155,7 +155,7 @@ function SidebarItem({ item, pathname, closeMobileMenu }: { item: MenuItem, path
   const isChildActive = item.children?.some(child => pathname === child.href || pathname.startsWith(child.href));
   
   const [isOpen, setIsOpen] = useState(isChildActive);
-  const Icon = item.icon;
+  const Icon = item.icon as any;
 
   useEffect(() => {
     if (isChildActive) setIsOpen(true);

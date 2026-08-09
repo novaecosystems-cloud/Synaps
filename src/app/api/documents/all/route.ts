@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
     }));
 
     const allDocuments = formattedDbDocs.length > 0 
-      ? [...formattedDbDocs, ...demoDocsFormatted]
+      ? formattedDbDocs
       : demoDocsFormatted;
 
     // Collect unique groups
@@ -88,18 +88,9 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error('GET /api/documents/all error:', error);
     return NextResponse.json({
-      success: true,
-      groups: ['General Vault', 'Alibaba CoCreate Pitch', 'Legal & MSA'],
-      documents: NOVA_DEMO_DOCUMENTS.map((d, i) => ({
-        id: `demo_${i}`,
-        name: d.name,
-        mimeType: 'application/pdf',
-        sizeBytes: 1024 * 1024,
-        createdAt: new Date().toISOString(),
-        group: i === 0 ? 'Alibaba CoCreate Pitch' : 'General Vault',
-        source: 'DEMO'
-      }))
-    });
+      success: false,
+      error: error.message || 'Failed to fetch documents'
+    }, { status: 500 });
   }
 }
 
@@ -108,6 +99,12 @@ export async function GET(req: NextRequest) {
  */
 export async function DELETE(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('synaps-session')?.value;
+    if (!sessionCookie) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const documentId = searchParams.get('documentId');
 
@@ -127,6 +124,12 @@ export async function DELETE(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('synaps-session')?.value;
+    if (!sessionCookie) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { documentId, group } = await req.json();
     if (!documentId || !group) {
       return NextResponse.json({ error: 'documentId and group are required' }, { status: 400 });

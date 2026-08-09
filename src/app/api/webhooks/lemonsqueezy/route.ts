@@ -9,7 +9,7 @@ import { checkIdempotency, saveIdempotencyResponse } from '@/lib/idempotency';
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
-    const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET || 'synaps_ls_sec_982f4e7c1a5b8390d421e6fa';
+    const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
 
     // Verify HMAC SHA256 Signature if header is present
     const signature = req.headers.get('x-signature');
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
             action: 'LEMONSQUEEZY_PAYMENT_SUCCESS',
             entityType: 'Billing & Payments',
             entityId: userEmail,
-            details: `LemonSqueezy order created for ${userEmail}. Upgraded to ${newRole} (${newLimit} Daily Credits).`
+            metadata: { details: `LemonSqueezy order created for ${userEmail}. Upgraded to ${newRole} (${newLimit} Daily Credits).` }
           }
         });
       } catch (e) {}
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
             action: 'LEMONSQUEEZY_REFUND_PROCESSED',
             entityType: 'Billing & Payments',
             entityId: userEmail,
-            details: `LemonSqueezy 100% refund processed for ${userEmail}. Account reset to Starter Tier (50 credits/day).`
+            metadata: { details: `LemonSqueezy 100% refund processed for ${userEmail}. Account reset to Starter Tier (50 credits/day).` }
           }
         });
       } catch (e) {}

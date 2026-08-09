@@ -6,9 +6,6 @@ import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { ratelimit } from '@/lib/ratelimit';
 
-// Bypass local SSL inspection/proxy issues causing fetch failed
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 import prisma from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
@@ -22,7 +19,7 @@ export async function POST(req: NextRequest) {
 
     const dbUser = await prisma.user.findUnique({
       where: { id: decoded.uid },
-      select: { organizationId: true }
+      select: { organizationId: true, role: true }
     });
     
     const organizationId = dbUser?.organizationId;

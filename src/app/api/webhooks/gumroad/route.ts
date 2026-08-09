@@ -77,27 +77,25 @@ export async function POST(req: NextRequest) {
 
         ROLE_CREDIT_LIMITS[targetRole] = targetCredits;
 
-        const userOrg = await prisma.organizationMember.findFirst({
-          where: { userId: targetUser.id }
-        });
-
-        if (userOrg) {
-          await prisma.organization.update({
-            where: { id: userOrg.organizationId },
-            data: {
-              plan: planName as any,
-              maxCreditsPerDay: targetCredits
-            }
-          });
+        if (targetUser.organizationId) {
+          try {
+            await prisma.organization.update({
+              where: { id: targetUser.organizationId },
+              data: {
+                isVerified: true
+              }
+            });
+          } catch (e) {}
         }
 
         await prisma.auditLog.create({
           data: {
-            id: `audit_gum_${Date.now()}`,
+            organizationId: targetUser.organizationId || 'default_org',
             userId: targetUser.id,
             action: 'GUMROAD_PAYMENT_SUCCESS',
-            category: 'BILLING',
-            details: `Gumroad payment verified for ${email}. Upgraded to ${planName} (${targetCredits} daily AI credits).`
+            entityType: 'BILLING',
+            entityId: targetUser.id,
+            metadata: { details: `Gumroad payment verified for ${email}. Upgraded to ${planName} (${targetCredits} daily AI credits).` }
           }
         });
 
@@ -108,20 +106,6 @@ export async function POST(req: NextRequest) {
         });
 
         ROLE_CREDIT_LIMITS['MEMBER'] = 50;
-
-        const userOrg = await prisma.organizationMember.findFirst({
-          where: { userId: targetUser.id }
-        });
-
-        if (userOrg) {
-          await prisma.organization.update({
-            where: { id: userOrg.organizationId },
-            data: {
-              plan: 'FREE',
-              maxCreditsPerDay: 50
-            }
-          });
-        }
       }
     } catch (dbError) {
       console.warn('[Gumroad Webhook DB Operations]:', dbError);

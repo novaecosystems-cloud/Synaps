@@ -111,7 +111,7 @@ export default function BoardroomPage() {
               onClick={() => { setQuery(q); handleRunBoardMeeting(q); }}
               className="text-xs px-3 py-1 rounded-full bg-base-200 hover:bg-purple-500/10 border border-base-300 hover:border-purple-500/30 text-base-content/70 hover:text-purple-400 transition-all text-left"
             >
-              "{q.slice(0, 38)}..."
+              &ldquo;{q.slice(0, 38)}...&rdquo;
             </button>
           ))}
         </div>
@@ -142,7 +142,7 @@ export default function BoardroomPage() {
                   Board Consensus & Executive Debate Synthesis
                 </span>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mt-2 leading-snug">
-                  "{meetingResult.query}"
+                  &ldquo;{meetingResult.query}&rdquo;
                 </h2>
               </div>
               <div className="bg-white/10 border border-white/20 px-4 py-2 rounded-2xl text-center">
@@ -222,7 +222,7 @@ export default function BoardroomPage() {
                     </div>
 
                     <p className="text-xs text-base-content/70 line-clamp-3 leading-relaxed">
-                      "{exec.reasoning}"
+                      &ldquo;{exec.reasoning}&rdquo;
                     </p>
 
                     {exec.keyConcerns?.length > 0 && (

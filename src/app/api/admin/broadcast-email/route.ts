@@ -24,7 +24,11 @@ export async function POST(req: Request) {
     }
 
     const gmailUser = process.env.GMAIL_USER || 'novaecosystems@gmail.com';
-    const gmailPass = process.env.GMAIL_APP_PASS || 'qqjfqnrrrgwrwazl';
+    const gmailPass = process.env.GMAIL_APP_PASS || process.env.GMAIL_APP_PASSWORD;
+
+    if (!gmailPass) {
+      return NextResponse.json({ success: false, error: 'Gmail SMTP credentials missing in environment variables.' }, { status: 500 });
+    }
 
     // Create Gmail SMTP Transporter
     const transporter = nodemailer.createTransport({

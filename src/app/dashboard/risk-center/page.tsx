@@ -206,7 +206,7 @@ export default function RiskCenterPage() {
                     </h4>
 
                     <p className="text-xs text-base-content/70 line-clamp-3 leading-relaxed">
-                      "{pred.explanation}"
+                      &ldquo;{pred.explanation}&rdquo;
                     </p>
                   </div>
 
@@ -264,7 +264,7 @@ export default function RiskCenterPage() {
                       <div className="flex justify-between items-start">
                         {getSeverityBadge(risk.severity)}
                         <span className="text-[10px] font-bold uppercase tracking-wider text-base-content/50">
-                          {risk.category.replace('_', ' ')}
+                          {risk.category.replace(/_/g, ' ')}
                         </span>
                       </div>
 
@@ -280,7 +280,7 @@ export default function RiskCenterPage() {
                     <div className="p-3 bg-base-200 border border-base-300 rounded-2xl text-xs space-y-1">
                       <span className="font-bold text-red-500 block text-[10px] uppercase tracking-wider">Supporting Evidence Quote</span>
                       <p className="text-base-content/80 italic line-clamp-2 font-mono">
-                        "{risk.supportingEvidence}"
+                        &ldquo;{risk.supportingEvidence}&rdquo;
                       </p>
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function RiskCenterPage() {
 
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs space-y-2">
               <h4 className="font-bold text-red-400 uppercase tracking-wider">Supporting Corporate Evidence</h4>
-              <p className="text-base-content/90 font-mono italic">"{selectedRisk.supportingEvidence}"</p>
+              <p className="text-base-content/90 font-mono italic">&ldquo;{selectedRisk.supportingEvidence}&rdquo;</p>
             </div>
 
             <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-xs space-y-2">
