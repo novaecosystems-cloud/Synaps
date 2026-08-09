@@ -293,6 +293,9 @@ export default function ChatPage() {
           body: JSON.stringify({ query: q }),
         });
         const data = await res.json();
+        if (data.credits) {
+          window.dispatchEvent(new CustomEvent('synaps:credits_updated', { detail: data.credits }));
+        }
         setChats(prev => prev.map(c =>
           c.id === chatId
             ? { ...c, messages: c.messages.map(m =>
@@ -315,6 +318,9 @@ export default function ChatPage() {
           body: JSON.stringify({ messages }),
         });
         const data = await res.json();
+        if (data.credits) {
+          window.dispatchEvent(new CustomEvent('synaps:credits_updated', { detail: data.credits }));
+        }
         setChats(prev => prev.map(c =>
           c.id === chatId
             ? { ...c, messages: c.messages.map(m =>

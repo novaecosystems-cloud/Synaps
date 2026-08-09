@@ -25,14 +25,6 @@ export async function POST(req: NextRequest) {
     const organizationId = dbUser?.organizationId;
     if (!organizationId) return NextResponse.json({ success: false, error: 'User must belong to an organization' }, { status: 403 });
 
-    // Rate & Daily AI Credit Limiting
-    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
-    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1);
-
-    if (!creditCheck.success) {
-      return NextResponse.json({ success: false, error: creditCheck.error, creditCheck }, { status: 429 });
-    }
-
     const { messages, webSearch } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -48,9 +40,32 @@ export async function POST(req: NextRequest) {
     const query = latestMessage.content;
 
     // Check if query triggers Phase 3 Hybrid Web + Doc Research Reasoning
-    // Triggered by: explicit webSearch flag, research keywords, or time-sensitive terms
     const isPhase3Research = webSearch ||
       /research|case|court|judg\w+|affect\s+this\s+contract|similar\s+cases|concern\s+management|company\s+background|publicly\s+available|benchmark|search the web|latest|recent|current|today|news/i.test(query);
+
+    // Rate & Daily AI Credit Limiting (Cost: 2 credits for web research, 1 for standard chat)
+    const creditCost = isPhase3Research ? 2 : 1;
+    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', creditCost);
+
+    if (!creditCheck.success) {
+      return NextResponse.json({
+        success: false,
+        error: creditCheck.error,
+        credits: {
+          remaining: 0,
+          creditLimit: creditCheck.creditLimit,
+          creditsUsed: creditCheck.creditsUsed,
+        }
+      }, { status: 429 });
+    }
+
+    const creditsPayload = {
+      remaining: creditCheck.remaining,
+      creditLimit: creditCheck.creditLimit,
+      creditsUsed: creditCheck.creditsUsed,
+      role: dbUser?.role || 'MEMBER'
+    };
 
     if (isPhase3Research) {
       try {
@@ -68,7 +83,8 @@ export async function POST(req: NextRequest) {
           internalCitations: researchRes.internalCitations,
           externalCitations: researchRes.externalCitations,
           caseTimeline: researchRes.caseTimeline,
-          risksIdentified: researchRes.risksIdentified
+          risksIdentified: researchRes.risksIdentified,
+          credits: creditsPayload
         });
       } catch (researchErr) {
         console.warn('[CHAT] Phase 3 Reasoning Agent notice:', researchErr);
@@ -90,7 +106,8 @@ export async function POST(req: NextRequest) {
           evidence: agentRes.toolSteps.map(s => ({ text: `[${s.action || 'Thought'}] ${JSON.stringify(s.observation || s.thought)}` })),
           toolSteps: agentRes.toolSteps,
           risks: agentRes.risks,
-          timeline: agentRes.timeline
+          timeline: agentRes.timeline,
+          credits: creditsPayload
         });
       } catch (agentErr) {
         console.warn('[CHAT] Agentic query execution fallback:', agentErr);
@@ -245,7 +262,8 @@ export async function POST(req: NextRequest) {
       answer: aiResponse.answer,
       confidenceScore: aiResponse.confidenceScore,
       sources: aiResponse.sources,
-      evidence: enhancedChunks
+      evidence: enhancedChunks,
+      credits: creditsPayload
     });
 
   } catch (error: any) {

@@ -48,8 +48,10 @@ export async function checkAndConsumeAiCredits(
   cost: number = 1
 ): Promise<CreditLimitResult> {
 
+  const cleanUserId = (userId || 'demo-user').trim().toLowerCase();
+
   // 1. If user has supplied their own custom API key (BYOK), daily credit limits are UNLIMITED!
-  const customKey = getCustomUserApiKey(userId);
+  const customKey = getCustomUserApiKey(cleanUserId);
   if (customKey) {
     return {
       success: true,
@@ -63,7 +65,7 @@ export async function checkAndConsumeAiCredits(
 
   // 2. Otherwise enforce system daily credit quota
   const today = new Date().toISOString().slice(0, 10);
-  const storeKey = `${userId}:${today}`;
+  const storeKey = `${cleanUserId}:${today}`;
   const creditLimit = ROLE_CREDIT_LIMITS[role.toUpperCase()] || 50;
 
   const currentUsed = dailyCreditStore.get(storeKey) || 0;
@@ -73,7 +75,7 @@ export async function checkAndConsumeAiCredits(
       success: false,
       creditsUsed: currentUsed,
       creditLimit,
-      remaining: 0,
+      remaining: Math.max(0, creditLimit - currentUsed),
       resetAt: 'Midnight UTC',
       isByokActive: false,
       error: `Daily AI credit limit reached (${currentUsed}/${creditLimit} credits used today). Add your own API key in Settings → Developer API for unlimited credits or upgrade your plan!`
@@ -94,14 +96,15 @@ export async function checkAndConsumeAiCredits(
     success: true,
     creditsUsed: newUsed,
     creditLimit,
-    remaining: creditLimit - newUsed,
+    remaining: Math.max(0, creditLimit - newUsed),
     resetAt: 'Midnight UTC',
     isByokActive: false
   };
 }
 
 export function getUserDailyAiCredits(userId: string, role: string = 'MEMBER') {
-  const customKey = getCustomUserApiKey(userId);
+  const cleanUserId = (userId || 'demo-user').trim().toLowerCase();
+  const customKey = getCustomUserApiKey(cleanUserId);
   if (customKey) {
     return {
       creditsUsed: 0,
@@ -113,7 +116,7 @@ export function getUserDailyAiCredits(userId: string, role: string = 'MEMBER') {
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const storeKey = `${userId}:${today}`;
+  const storeKey = `${cleanUserId}:${today}`;
   const creditLimit = ROLE_CREDIT_LIMITS[role.toUpperCase()] || 50;
   const creditsUsed = dailyCreditStore.get(storeKey) || 0;
 

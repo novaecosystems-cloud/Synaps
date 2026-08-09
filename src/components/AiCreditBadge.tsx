@@ -21,13 +21,29 @@ export default function AiCreditBadge() {
     };
 
     fetchCredits();
+
+    const handleCreditUpdate = (e: Event) => {
+      const customEv = e as CustomEvent;
+      if (customEv.detail) {
+        setCredits((prev) => ({
+          creditsUsed: customEv.detail.creditsUsed ?? prev?.creditsUsed ?? 0,
+          creditLimit: customEv.detail.creditLimit ?? prev?.creditLimit ?? 10000,
+          remaining: customEv.detail.remaining ?? prev?.remaining ?? 10000,
+          role: customEv.detail.role ?? prev?.role ?? 'MEMBER'
+        }));
+      }
+      fetchCredits();
+    };
+
     // Fast 5-second polling so Owner Admin approvals reflect instantly on the user app!
     const interval = setInterval(fetchCredits, 5000);
     window.addEventListener('focus', fetchCredits);
+    window.addEventListener('synaps:credits_updated', handleCreditUpdate);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('focus', fetchCredits);
+      window.removeEventListener('synaps:credits_updated', handleCreditUpdate);
     };
   }, []);
 

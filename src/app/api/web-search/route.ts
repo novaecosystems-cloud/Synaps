@@ -130,6 +130,36 @@ export async function POST(req: NextRequest) {
     const { query } = await req.json();
     if (!query?.trim()) return NextResponse.json({ error: 'Query required' }, { status: 400 });
 
+    // Deduct AI credits for Web Search (2 credits)
+    let userRole = 'MEMBER';
+    try {
+      const prisma = (await import('@/lib/prisma')).default;
+      const dbUser = await prisma.user.findUnique({
+        where: { id: decoded.uid },
+        select: { role: true }
+      });
+      if (dbUser?.role) userRole = dbUser.role;
+    } catch (e) {}
+
+    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, userRole, 2);
+
+    if (!creditCheck.success) {
+      return NextResponse.json({
+        answer: creditCheck.error || 'Daily AI credit limit reached.',
+        sources: [],
+        searchQuery: query,
+        credits: { remaining: 0, creditLimit: creditCheck.creditLimit, creditsUsed: creditCheck.creditsUsed }
+      }, { status: 429 });
+    }
+
+    const creditsPayload = {
+      remaining: creditCheck.remaining,
+      creditLimit: creditCheck.creditLimit,
+      creditsUsed: creditCheck.creditsUsed,
+      role: userRole
+    };
+
     // Step 1 — Fetch live web sources (Brave preferred, DuckDuckGo fallback)
     let sources = await fetchBraveSources(query);
     if (sources.length === 0) {
@@ -178,7 +208,8 @@ Provide a clear, structured answer based on these results.`;
       sources,
       searchQuery: query,
       providerUsed,
-    } satisfies WebSearchResult);
+      credits: creditsPayload
+    });
 
   } catch (error: any) {
     console.error('[WEB-SEARCH] Fatal error:', error);
