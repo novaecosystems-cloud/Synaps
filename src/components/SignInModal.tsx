@@ -1,13 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ShieldCheck, QrCode, Smartphone, Mail, Clock } from 'lucide-react';
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider
-} from 'firebase/auth';
+import { X, ShieldCheck, Clock } from 'lucide-react';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,13 +12,10 @@ interface SignInModalProps {
 }
 
 export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
-  const [authTab, setAuthTab] = useState<'email' | 'totp'>('email');
   const [email, setEmail] = useState('');
   const [activeEmail, setActiveEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [showOtpStep, setShowOtpStep] = useState(false);
-  const [showQrStep, setShowQrStep] = useState(false);
-  const [qrCodeData, setQrCodeData] = useState<{ qrCode: string; secret: string; otpauthUrl: string } | null>(null);
   const [pendingToken, setPendingToken] = useState<string>('');
   const [otpHint, setOtpHint] = useState<string>('');
   const [loading, setLoading] = useState(false);

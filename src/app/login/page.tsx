@@ -2,50 +2,23 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  getRedirectResult
-} from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { ShieldCheck, ArrowLeft, QrCode, Smartphone, Mail, Clock } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, Clock } from 'lucide-react';
 
 export default function LoginPage() {
-  const [authTab, setAuthTab] = useState<'email' | 'totp'>('email');
   const [email, setEmail] = useState('');
   const [activeEmail, setActiveEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [showOtpStep, setShowOtpStep] = useState(false);
-  const [showQrStep, setShowQrStep] = useState(false);
-  const [qrCodeData, setQrCodeData] = useState<{ qrCode: string; secret: string; otpauthUrl: string } | null>(null);
   const [pendingToken, setPendingToken] = useState<string>('');
   const [otpHint, setOtpHint] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(900); // 15 Minutes = 900 seconds
   const router = useRouter();
   const { toast } = useToast();
-
-  useEffect(() => {
-    const checkRedirectResult = async () => {
-      try {
-        if (auth) {
-          const result = await getRedirectResult(auth);
-          if (result && result.user) {
-            setLoading(true);
-            const token = await result.user.getIdToken();
-            await send2FACode(result.user.email || 'user@synaps.ai', token);
-          }
-        }
-      } catch (err: any) {
-        console.error('[AUTH] Redirect result check error:', err);
-      }
-    };
-    checkRedirectResult();
-  }, []);
 
   // 15-Minute Countdown Timer Effect
   useEffect(() => {
