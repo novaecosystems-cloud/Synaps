@@ -258,6 +258,36 @@ export default function SynapsLanding() {
     );
   }, []);
 
+  // ── Shader.se Inertia Spring Cursor Ring ─────────────────────────────────
+  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
+  const [ringPos, setRingPos] = useState({ x: -100, y: -100 });
+  const [isHoveredLink, setIsHoveredLink] = useState(false);
+  const [showVideoBadge, setShowVideoBadge] = useState(true);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setCursorPos({ x: e.clientX, y: e.clientY });
+      const target = e.target as HTMLElement;
+      setIsHoveredLink(Boolean(target.closest('a, button, .huge-link, .measured-3d-item, .btn-inc')));
+    };
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Inertia lerp loop for spring cursor ring
+  useEffect(() => {
+    let animId: number;
+    const loop = () => {
+      setRingPos((prev) => ({
+        x: prev.x + (cursorPos.x - prev.x) * 0.15,
+        y: prev.y + (cursorPos.y - prev.y) * 0.15,
+      }));
+      animId = requestAnimationFrame(loop);
+    };
+    animId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animId);
+  }, [cursorPos]);
+
   // ── Scroll progress + header reveal ─────────────────────────────────────
   useEffect(() => {
     const onScroll = () => {
@@ -488,6 +518,102 @@ export default function SynapsLanding() {
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+        }
+
+        /* Santioni Radial Progress Loader Ring */
+        .santioni-progress-ring {
+          stroke-dasharray: 283;
+          stroke-dashoffset: calc(283 - (283 * var(--loader-per, 0)) / 100);
+          transition: stroke-dashoffset 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        /* ── INCREDIBLES.DEV CUSTOM FLOATING SCROLLBAR (incredibles.dev) ── */
+        .inc-scrollbar-track {
+          position: fixed;
+          top: 0;
+          right: 4px;
+          z-index: 9999;
+          width: 6px;
+          height: 100vh;
+          pointer-events: none;
+        }
+        .inc-scrollbar-thumb {
+          width: 6px;
+          background: rgba(252, 71, 120, 0.7);
+          border-radius: 999px;
+          box-shadow: 0 0 10px rgba(252, 71, 120, 0.5);
+          transition: transform 0.1s ease-out, height 0.2s ease, background-color 0.2s ease;
+        }
+
+        /* Incredibles Executive Quote Showcase Card */
+        .inc-quote-card {
+          position: relative;
+          background: #060913;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 24px;
+          padding: 3rem 2.5rem;
+          overflow: hidden;
+          transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .inc-quote-card:hover {
+          border-color: rgba(252, 71, 120, 0.6);
+          box-shadow: 0 20px 50px rgba(252, 71, 120, 0.15);
+        }
+        .inc-quote-mark {
+          position: absolute;
+          top: -0.2em;
+          left: 0.8rem;
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 8rem;
+          line-height: 1;
+          color: rgba(252, 71, 120, 0.15);
+          user-select: none;
+          pointer-events: none;
+        }
+
+        /* ── MEASURED.SITE FLOATING WALKTHROUGH BADGE (measured.site) ── */
+        .measured-video-badge {
+          position: fixed;
+          bottom: 24px;
+          left: 24px;
+          z-index: 90;
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          background: rgba(12, 18, 32, 0.85);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          border-radius: 16px;
+          padding: 12px;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+          transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1), border-color 0.3s ease;
+        }
+        .measured-video-badge:hover {
+          transform: translateY(-4px) scale(1.02);
+          border-color: rgba(4, 150, 255, 0.6);
+        }
+
+        /* ── SHADER.SE SPRING MOUSE FOLLOWER (shader.se) ── */
+        .spring-cursor-ring {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 36px;
+          height: 36px;
+          border: 1px solid rgba(4, 150, 255, 0.5);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 10000;
+          transform: translate(-50%, -50%);
+          transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+          will-change: transform;
+        }
+        .spring-cursor-ring.hovered {
+          width: 56px;
+          height: 56px;
+          border-color: rgba(255, 0, 144, 0.8);
+          background-color: rgba(255, 0, 144, 0.08);
         }
 
         /* ── Poly App Font Utilities ── */
@@ -999,6 +1125,51 @@ export default function SynapsLanding() {
         </defs>
       </svg>
 
+      {/* ── SHADER.SE INERTIA SPRING CURSOR RING ────────────────────────────── */}
+      <div
+        className={`spring-cursor-ring hidden md:block ${isHoveredLink ? 'hovered' : ''}`}
+        style={{
+          transform: `translate3d(${ringPos.x}px, ${ringPos.y}px, 0)`,
+        }}
+      />
+
+      {/* ── INCREDIBLES.DEV FLOATING CUSTOM SCROLLBAR TRACK ──────────────────── */}
+      <div className="inc-scrollbar-track hidden md:block">
+        <div
+          className="inc-scrollbar-thumb"
+          style={{
+            transform: `translateY(${(scrollProgress * (typeof window !== 'undefined' ? window.innerHeight - 100 : 800)) / 100}px)`,
+            height: '80px',
+          }}
+        />
+      </div>
+
+      {/* ── MEASURED.SITE FLOATING VIDEO WALKTHROUGH BADGE ────────────────────── */}
+      {showVideoBadge && (
+        <div className="measured-video-badge hidden lg:flex">
+          <button
+            onClick={() => setShowVideoBadge(false)}
+            className="text-white/40 hover:text-white transition-colors text-xs font-mono"
+            title="Close badge"
+          >
+            ✕
+          </button>
+          <div className="w-10 h-10 rounded-lg bg-[#0496ff]/20 border border-[#0496ff]/40 flex items-center justify-center text-[#0496ff] font-bold text-xs">
+            ▶
+          </div>
+          <div className="text-left">
+            <div className="text-xs font-semibold text-white">SYNAPS Walkthrough</div>
+            <div className="text-[10px] font-mono text-white/60">2 Min Architecture Overview</div>
+          </div>
+          <button
+            onClick={openModal}
+            className="text-[11px] font-mono text-[#0496ff] hover:underline ml-2"
+          >
+            Watch →
+          </button>
+        </div>
+      )}
+
       <div ref={containerRef}>
         {/* ── POLY CUSTOM POINTER CURSOR FOLLOWER ────────────────────────────── */}
         <div
@@ -1434,6 +1605,27 @@ export default function SynapsLanding() {
                     </span>
                   </div>
                 ))}
+              </div>
+            </section>
+
+            {/* ── INCREDIBLES.DEV EXECUTIVE QUOTE SHOWCASE SECTION ──────────────────── */}
+            <section className="relative py-20 px-6 max-w-[1000px] mx-auto overflow-hidden">
+              <div className="inc-quote-card" data-slide-up>
+                <div className="inc-quote-mark">“</div>
+                <div className="relative z-10 max-w-2xl">
+                  <p className="title-sub-poly text-2xl sm:text-4xl text-white/90 leading-tight mb-6">
+                    &quot;Synaps turned multi-vendor contract redlining from a 3-week legal nightmare into a 2-minute decision. Zero hallucinations, 100% line-level grounded evidence.&quot;
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#fc4778] to-[#7c3aed] flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                      VK
+                    </div>
+                    <div>
+                      <div className="font-sans font-bold text-white text-base">Vikram Kapoor</div>
+                      <div className="font-mono text-xs text-[#fc4778]">VP of Legal &amp; Compliance · Global Fintech</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 
