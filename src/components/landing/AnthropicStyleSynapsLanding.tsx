@@ -787,10 +787,17 @@ export default function SynapsLanding() {
           opacity: 1;
         }
         .accordion-icon {
-          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+          transform: rotate(0deg) scale(1);
+          will-change: transform;
+        }
+        .accordion-icon:hover {
+          transform: scale(1.1);
+          box-shadow: 0 0 14px rgba(155, 184, 225, 0.3);
         }
         .accordion-icon.open {
-          transform: rotate(135deg);
+          transform: rotate(135deg) scale(1.08);
+          box-shadow: 0 0 18px rgba(255, 0, 144, 0.4);
         }
 
         /* 4. Apple Agent Card Spring Hover with Momentum Scale */
