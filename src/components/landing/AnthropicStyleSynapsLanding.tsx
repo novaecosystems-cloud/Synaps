@@ -49,7 +49,7 @@ const MARQUEE_ITEMS = [
   'PDF · EXCEL · DOCX · CSV',
 ];
 
-// ─── OPENGL 3D MATRIX ANIMATION CANVAS (inspired by 3D-animation.cpp) ────────
+// ─── OPENGL 3D MATRIX ANIMATION CANVAS (inspired by 3D-animation.cpp & Zero University) ────────
 function OpenGL3DAnimationCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -72,7 +72,7 @@ function OpenGL3DAnimationCanvas() {
 
     // 3D Nodes based on 3D-animation.cpp joints & matrix math
     const nodes: { x: number; y: number; z: number; ox: number; oy: number; oz: number }[] = [];
-    const numNodes = 42;
+    const numNodes = 48;
     const radius = Math.min(width, height) * 0.28;
 
     for (let i = 0; i < numNodes; i++) {
@@ -86,11 +86,23 @@ function OpenGL3DAnimationCanvas() {
 
     let angleX = 0;
     let angleY = 0;
+    let targetAngleX = 0;
+    let targetAngleY = 0;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      targetAngleY = ((e.clientX - cx) / cx) * 0.4;
+      targetAngleX = ((e.clientY - cy) / cy) * 0.4;
+    };
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
-      angleX += 0.008;
-      angleY += 0.006;
+      
+      // Smooth lerp towards target mouse tilt
+      angleX += (targetAngleX - angleX) * 0.05 + 0.005;
+      angleY += (targetAngleY - angleY) * 0.05 + 0.005;
 
       const fov = 350;
       const cx = width / 2;
@@ -117,7 +129,7 @@ function OpenGL3DAnimationCanvas() {
       }
 
       // Draw 3D wireframe connecting edges
-      ctx.strokeStyle = 'rgba(4, 150, 255, 0.25)';
+      ctx.strokeStyle = 'rgba(4, 150, 255, 0.28)';
       ctx.lineWidth = 1;
       for (let i = 0; i < projected.length; i++) {
         for (let j = i + 1; j < projected.length; j++) {
@@ -136,7 +148,7 @@ function OpenGL3DAnimationCanvas() {
       // Draw 3D glowing joint nodes
       for (let i = 0; i < projected.length; i++) {
         const p = projected[i];
-        const r = Math.max(1.5, 3.5 * p.scale);
+        const r = Math.max(1.5, 3.8 * p.scale);
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fillStyle = i % 3 === 0 ? '#ff0090' : '#0496ff';
@@ -152,6 +164,7 @@ function OpenGL3DAnimationCanvas() {
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animId);
     };
   }, []);
@@ -373,35 +386,64 @@ export default function SynapsLanding() {
     );
   }, []);
 
-  // ── Shader.se Inertia Spring Cursor Ring ─────────────────────────────────
-  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
-  const [ringPos, setRingPos] = useState({ x: -100, y: -100 });
-  const [isHoveredLink, setIsHoveredLink] = useState(false);
+  // ── High-Performance 60fps Cursor Tracking & Zero University Spotlight ──────
+  const ringRef = useRef<HTMLDivElement>(null);
+  const cursorDotRef = useRef<HTMLDivElement>(null);
   const [showVideoBadge, setShowVideoBadge] = useState(true);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY });
-      const target = e.target as HTMLElement;
-      setIsHoveredLink(Boolean(target.closest('a, button, .huge-link, .measured-3d-item, .btn-inc')));
-    };
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    let mouseX = -100;
+    let mouseY = -100;
+    let ringX = -100;
+    let ringY = -100;
 
-  // Inertia lerp loop for spring cursor ring
-  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      if (cursorDotRef.current) {
+        cursorDotRef.current.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+      }
+
+      const target = e.target as HTMLElement;
+      const isHovered = Boolean(target?.closest('a, button, .huge-link, .measured-3d-item, .btn-inc, .poly-scatter-card'));
+      if (ringRef.current) {
+        if (isHovered) {
+          ringRef.current.classList.add('hovered');
+        } else {
+          ringRef.current.classList.remove('hovered');
+        }
+      }
+
+      // Zero University cursor spotlight calculations
+      const cards = document.querySelectorAll('.zero-card-glow, .poly-scatter-card, .agent-card');
+      cards.forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        (card as HTMLElement).style.setProperty('--mouse-x', `${x}px`);
+        (card as HTMLElement).style.setProperty('--mouse-y', `${y}px`);
+      });
+    };
+
     let animId: number;
     const loop = () => {
-      setRingPos((prev) => ({
-        x: prev.x + (cursorPos.x - prev.x) * 0.15,
-        y: prev.y + (cursorPos.y - prev.y) * 0.15,
-      }));
+      ringX += (mouseX - ringX) * 0.18;
+      ringY += (mouseY - ringY) * 0.18;
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+      }
       animId = requestAnimationFrame(loop);
     };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     animId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animId);
-  }, [cursorPos]);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
 
   // ── Scroll progress + header reveal ─────────────────────────────────────
   useEffect(() => {
@@ -1242,9 +1284,10 @@ export default function SynapsLanding() {
 
       {/* ── SHADER.SE INERTIA SPRING CURSOR RING ────────────────────────────── */}
       <div
-        className={`spring-cursor-ring hidden md:block ${isHoveredLink ? 'hovered' : ''}`}
+        ref={ringRef}
+        className="spring-cursor-ring hidden md:block"
         style={{
-          transform: `translate3d(${ringPos.x}px, ${ringPos.y}px, 0)`,
+          transform: 'translate3d(-100px, -100px, 0)',
         }}
       />
 
@@ -1288,17 +1331,15 @@ export default function SynapsLanding() {
       <div ref={containerRef}>
         {/* ── POLY CUSTOM POINTER CURSOR FOLLOWER ────────────────────────────── */}
         <div
-          className="pointer-events-none fixed z-[99999] transition-transform duration-75 ease-out -translate-x-1/2 -translate-y-1/2 hidden md:block"
+          ref={cursorDotRef}
+          className="pointer-events-none fixed z-[99999] -translate-x-1/2 -translate-y-1/2 hidden md:block"
           style={{
-            left: mousePos.x,
-            top: mousePos.y,
+            left: 0,
+            top: 0,
+            transform: 'translate3d(-100px, -100px, 0)',
           }}
         >
-          <div className={`rounded-full transition-all duration-300 ${
-            isHoveringClickable
-              ? 'w-10 h-10 bg-[#0496ff]/20 border border-[#0496ff] backdrop-blur-sm scale-110 shadow-[0_0_20px_#0496ff]'
-              : 'w-4 h-4 bg-[#0496ff] shadow-[0_0_12px_#0496ff]'
-          }`} />
+          <div className="w-3.5 h-3.5 rounded-full bg-[#0496ff] shadow-[0_0_12px_#0496ff]" />
         </div>
 
         {/* ── FIXED HEADER (Hashgraph + Huge Inc) ─────────────────────────── */}
