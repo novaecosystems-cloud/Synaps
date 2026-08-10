@@ -103,6 +103,47 @@ export default function SynapsLanding() {
   const [headerVisible, setHeaderVisible] = useState(false);
   const [hoveredAgent, setHoveredAgent] = useState<number | null>(null);
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
+  // ── Poly Floating Search Bar Live Typing Simulation ────────────────────────
+  const [typedText, setTypedText] = useState('');
+  const polyQueries = [
+    'Find liability clauses in Q3 Vendor Contracts...',
+    'Run 10-Agent Boardroom consensus on regulatory risk...',
+    'Search natural language across 500+ financial PDFs...',
+    'Map 3D memory graph connections between personnel & projects...',
+  ];
+
+  useEffect(() => {
+    let queryIdx = 0;
+    let charIdx = 0;
+    let isDeleting = false;
+    let timeoutId: NodeJS.Timeout;
+
+    const type = () => {
+      const currentQuery = polyQueries[queryIdx];
+      if (isDeleting) {
+        setTypedText(currentQuery.substring(0, charIdx - 1));
+        charIdx--;
+        if (charIdx === 0) {
+          isDeleting = false;
+          queryIdx = (queryIdx + 1) % polyQueries.length;
+          timeoutId = setTimeout(type, 400);
+          return;
+        }
+      } else {
+        setTypedText(currentQuery.substring(0, charIdx + 1));
+        charIdx++;
+        if (charIdx === currentQuery.length) {
+          isDeleting = true;
+          timeoutId = setTimeout(type, 2200);
+          return;
+        }
+      }
+      timeoutId = setTimeout(type, isDeleting ? 25 : 55);
+    };
+
+    timeoutId = setTimeout(type, 800);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   // ── Curtain Loader State ──────────────────────────────────────────────────
   const [loaderProgress, setLoaderProgress] = useState(0);
@@ -271,12 +312,123 @@ export default function SynapsLanding() {
     <>
       {/* ── GLOBAL STYLES (Hashgraph + Iberian + Huge Inc Fusion) ───────────── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600;1,700&family=Space+Grotesk:wght@400;500;600;700&family=Teko:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
         /* ── Base ── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
         body { background-color: #000209; color: #eee; font-family: 'Space Grotesk', system-ui, sans-serif; overflow-x: hidden; }
+
+        /* ── Poly App Font Utilities ── */
+        .title-main-poly {
+          font-family: 'Space Grotesk', system-ui, sans-serif;
+          font-weight: 600;
+          letter-spacing: -0.02em;
+        }
+        .title-sub-poly {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-style: italic;
+          letter-spacing: -0.03em;
+          font-weight: 400;
+        }
+
+        /* ── Poly Pill Button Variants ── */
+        .poly-btn-orange {
+          background: linear-gradient(134.77deg, #f4824d 25.1%, #f42919 74.9%);
+          box-shadow: 2px 2px 5px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(0,0,0,0.15), inset 2px 2px 4px rgba(255,255,255,0.25);
+          backdrop-filter: blur(40px);
+          -webkit-backdrop-filter: blur(40px);
+          color: #ffffff;
+          border: 1px solid rgba(244, 130, 77, 0.4);
+          border-radius: 10px;
+          transition: box-shadow 0.3s ease, transform 0.2s ease;
+        }
+        .poly-btn-orange:hover {
+          box-shadow: 4px 4px 12px rgba(244, 41, 25, 0.4), inset -2px -2px 4px rgba(0,0,0,0.2), inset 2px 2px 4px rgba(255,255,255,0.35);
+          transform: translateY(-1px);
+        }
+        .poly-btn-orange:active {
+          box-shadow: inset 2px 2px 3px rgba(0,0,0,0.25), inset -2px -2px 2px rgba(255,255,255,0.25);
+          transform: scale(0.97);
+        }
+
+        .poly-btn-white {
+          background: linear-gradient(100.81deg, #f4f4f4 7.89%, #eaeaea 91.16%);
+          box-shadow: 2px 2px 5px rgba(0,0,0,0.2), inset -2px -2px 4px rgba(0,0,0,0.15), inset 2px 2px 4px #ffffff;
+          backdrop-filter: blur(40px);
+          -webkit-backdrop-filter: blur(40px);
+          color: #111115;
+          border: 1px solid rgba(255, 255, 255, 0.6);
+          border-radius: 10px;
+          transition: box-shadow 0.3s ease, transform 0.2s ease;
+        }
+        .poly-btn-white:hover {
+          box-shadow: 4px 4px 12px rgba(255,255,255,0.3), inset -2px -2px 4px rgba(0,0,0,0.2), inset 2px 2px 4px #ffffff;
+          transform: translateY(-1px);
+        }
+        .poly-btn-white:active {
+          box-shadow: inset 2px 2px 3px rgba(0,0,0,0.2), inset -2px -2px 2px rgba(255,255,255,0.3);
+          transform: scale(0.97);
+        }
+
+        .poly-btn-black {
+          background: linear-gradient(100.81deg, #292930 7.89%, #19191d 91.16%);
+          box-shadow: 2px 2px 5px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(0,0,0,0.15), inset 2px 2px 4px rgba(255,255,255,0.25);
+          backdrop-filter: blur(40px);
+          -webkit-backdrop-filter: blur(40px);
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: 10px;
+          transition: box-shadow 0.3s ease, transform 0.2s ease;
+        }
+        .poly-btn-black:hover {
+          box-shadow: 4px 4px 12px rgba(0,0,0,0.5), inset -2px -2px 4px rgba(0,0,0,0.2), inset 2px 2px 4px rgba(255,255,255,0.35);
+          transform: translateY(-1px);
+        }
+        .poly-btn-black:active {
+          box-shadow: inset 2px 2px 3px rgba(0,0,0,0.3), inset -2px -2px 2px rgba(255,255,255,0.2);
+          transform: scale(0.97);
+        }
+
+        /* Poly Search Bar & Cursor Simulation */
+        .poly-search-bar {
+          backdrop-filter: blur(40px);
+          -webkit-backdrop-filter: blur(40px);
+          background: linear-gradient(100.81deg, rgba(244, 244, 244, 0.15) 7.89%, rgba(244, 244, 244, 0.05) 91.16%);
+          box-shadow: 4px 5px 20px rgba(0,0,0,0.4), inset -1px -1px 4px rgba(0,0,0,0.15), inset 1px 1px 4px rgba(255,255,255,0.2);
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          border-radius: 12px;
+        }
+
+        .poly-cursor {
+          background: #0496ff;
+          height: 1.1em;
+          width: 2px;
+          display: inline-block;
+          margin-left: 2px;
+          vertical-align: middle;
+          animation: poly-blink 1s steps(2, start) infinite;
+        }
+        @keyframes poly-blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+
+        /* Poly Floating Scatter Card Array */
+        .poly-scatter-card {
+          backdrop-filter: blur(28px);
+          -webkit-backdrop-filter: blur(28px);
+          background: linear-gradient(100.81deg, rgba(41, 41, 48, 0.6) 7.89%, rgba(25, 25, 29, 0.6) 91.16%);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          box-shadow: 0 16px 36px rgba(0,0,0,0.4), inset 1px 1px 2px rgba(255,255,255,0.15);
+          border-radius: 16px;
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .poly-scatter-card:hover {
+          transform: translateY(-6px) scale(1.03) !important;
+          border-color: rgba(244, 130, 77, 0.6);
+          box-shadow: 0 20px 48px rgba(244, 41, 25, 0.25), inset 1px 1px 2px rgba(255,255,255,0.3);
+        }
 
         /* ── Huge Inc Color Palette Tokens ── */
         :root {
@@ -791,8 +943,26 @@ export default function SynapsLanding() {
                   <SplitText text="ENTERPRISE BRAIN" className="block text-gradient-blue" />
                 </h1>
 
+                {/* Poly Floating Search Bar Simulation */}
+                <div className="poly-search-bar my-6 p-4 sm:p-5 w-full max-w-[46rem] flex items-center justify-between gap-3 text-white text-sm sm:text-base" data-slide-up>
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <Sparkles className="w-5 h-5 text-[#f4824d] shrink-0 animate-pulse" />
+                    <div className="font-mono text-xs sm:text-sm text-white/90 truncate">
+                      <span>{typedText}</span>
+                      <span className="poly-cursor" />
+                    </div>
+                  </div>
+                  <button
+                    onClick={openModal}
+                    className="poly-btn-orange px-4 py-2 text-xs font-semibold uppercase tracking-wider shrink-0 flex items-center gap-1.5"
+                  >
+                    <span>SEARCH ENGINE</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
                 {/* Sub-grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px 40px', marginTop: 32, alignItems: 'end' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px 40px', marginTop: 24, alignItems: 'end' }}>
                   <p className="body-copy" data-slide-up style={{ fontSize: 16, maxWidth: 480, lineHeight: 1.65 }}>
                     Synaps transforms complex organizational documents, contracts, and datasets into an
                     interactive, auditable knowledge graph. Powered by a{' '}
@@ -809,25 +979,14 @@ export default function SynapsLanding() {
                     </div>
 
                     <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                      <button onClick={openModal} className="synaps-btn" style={{ height: 48, fontSize: 12 }}>
-                        <svg className="synaps-btn__border" aria-hidden="true">
-                          <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="5" ry="5" />
-                        </svg>
-                        <span className="synaps-btn__shimmer"><span className="synaps-btn__shimmer-inner" /></span>
-                        <span className="synaps-btn__label">
-                          <span className="synaps-btn__label--base">START FREE TRIAL <ArrowRight style={{ width: 14, height: 14 }} /></span>
-                          <span className="synaps-btn__label--hover">SIGN UP NOW →</span>
-                        </span>
+                      <button onClick={openModal} className="poly-btn-orange px-5 py-3 text-xs font-semibold uppercase tracking-wider flex items-center gap-2">
+                        <span>LAUNCH SYSTEM</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
 
-                      <Link href="/dashboard/chat" className="synaps-btn" style={{
-                        height: 48, fontSize: 12,
-                        border: '1px solid rgba(155,184,225,0.25)',
-                        borderRadius: 6,
-                      }}>
-                        <span className="synaps-btn__label" style={{ position: 'relative', zIndex: 2 }}>
-                          OPEN APP <ArrowUpRight className="w-3.5 h-3.5 huge-arrow" />
-                        </span>
+                      <Link href="/dashboard/chat" className="poly-btn-black px-5 py-3 text-xs font-semibold uppercase tracking-wider flex items-center gap-2">
+                        <span>OPEN APP</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
                   </div>
@@ -867,6 +1026,96 @@ export default function SynapsLanding() {
                 ))}
               </div>
             </div>
+
+            {/* ── POLY 3D SCATTER ASSETS GRID (poly.app style) ────────────────────────── */}
+            <section className="relative py-20 px-6 max-w-[1000px] mx-auto overflow-hidden">
+              <div className="text-center mb-14">
+                <div className="section-tag mb-3" data-slide-up>
+                  <span className="section-tag__id">// PLATFORM INTELLIGENCE</span> · POLY 3D ENGINE
+                </div>
+                <h2 className="title-main-poly text-4xl sm:text-6xl text-white">
+                  Understand your data <span className="title-sub-poly text-[#f4824d]">naturally.</span>
+                </h2>
+                <p className="body-copy max-w-xl mx-auto mt-4 text-sm sm:text-base">
+                  Synaps reads down to the paragraph, clause, page, or line number. To help you summarize, extract risk, calculate capital exposure, and collaborate seamlessly.
+                </p>
+              </div>
+
+              {/* Poly Scatter Cards Matrix */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* Scatter Card 1: Document Reasoning */}
+                <div className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem]" data-slide-up>
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-[#f4824d] bg-[#f4824d]/10 px-2 py-1 rounded border border-[#f4824d]/30">PDF · EXCEL · DOCX</span>
+                    <FileText className="w-5 h-5 text-white/70" />
+                  </div>
+                  <div>
+                    <h3 className="title-main-poly text-xl sm:text-2xl text-white mb-2">Document Reasoning</h3>
+                    <p className="text-xs text-white/70 leading-relaxed">
+                      Deep vector embeddings ground every answer directly in source files with zero hallucination.
+                    </p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-[#9bb8e1]">
+                    <span>contract_q3_risk.pdf</span>
+                    <span>p.14 §4.2</span>
+                  </div>
+                </div>
+
+                {/* Scatter Card 2: 10-Agent Boardroom */}
+                <div className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem] lg:mt-6" data-slide-up>
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-purple-400 bg-purple-500/10 px-2 py-1 rounded border border-purple-500/30">10-AGENT DEBATE</span>
+                    <Sparkles className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="title-main-poly text-xl sm:text-2xl text-white mb-2">Boardroom Consensus</h3>
+                    <p className="text-xs text-white/70 leading-relaxed">
+                      Parallel multi-agent debate across Legal, CFO, Risk, Compliance, and Operations.
+                    </p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-purple-300">
+                    <span>Consensus Brief</span>
+                    <span>AUDITABLE</span>
+                  </div>
+                </div>
+
+                {/* Scatter Card 3: 3D Memory Graph */}
+                <div className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem]" data-slide-up>
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded border border-cyan-500/30">3D GRAPH ENGINE</span>
+                    <Globe className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <div>
+                    <h3 className="title-main-poly text-xl sm:text-2xl text-white mb-2">3D Memory Graph</h3>
+                    <p className="text-xs text-white/70 leading-relaxed">
+                      Map entity connections, vendor liabilities, and regulatory dependencies across your org.
+                    </p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-cyan-300">
+                    <span>Entity Links</span>
+                    <span>NEURAL GRAPH</span>
+                  </div>
+                </div>
+
+                {/* Scatter Card 4: Zero-Trust Vault */}
+                <div className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem] lg:mt-6" data-slide-up>
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/30">DPDP COMPLIANT</span>
+                    <Lock className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h3 className="title-main-poly text-xl sm:text-2xl text-white mb-2">Zero-Trust Vault</h3>
+                    <p className="text-xs text-white/70 leading-relaxed">
+                      AES-256 encryption, HTTP-Only sessions, multi-tenant isolation, 100% DPDP Act compliant.
+                    </p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-emerald-300">
+                    <span>AES-256</span>
+                    <span>ISOLATED</span>
+                  </div>
+                </div>
+              </div>
+            </section>
 
             {/* ── FEATURES ACCORDION (Huge Inc Hover Focus + Iberian Expand) ────── */}
             <section id="features" style={{ padding: '100px 40px', maxWidth: 1000 }}>
