@@ -1658,6 +1658,76 @@ export default function SynapsLanding() {
               </div>
             </section>
 
+            {/* ── SHADER.SE INTERACTIVE CONTACT STUDIO SECTION ─────────────────────── */}
+            <section id="contact" className="relative py-24 px-6 max-w-[1000px] mx-auto border-t border-white/10 overflow-hidden">
+              <div className="text-center mb-16">
+                <div className="section-tag mb-3" data-slide-up>
+                  <span className="section-tag__id">// SHADER STUDIO</span> · GET IN TOUCH
+                </div>
+                <h2 className="title-main-poly text-4xl sm:text-7xl text-white">
+                  Let&apos;s build the <span className="title-sub-poly text-[#ff0090]">future.</span>
+                </h2>
+                <p className="body-copy max-w-xl mx-auto mt-4 text-sm sm:text-base">
+                  Contact our executive team for custom enterprise deployments, DPDP audit consultations, or technical integration inquiries.
+                </p>
+              </div>
+
+              {/* Shader.se Editorial Contact Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10" data-slide-up>
+                {/* Fieldset 1: General Enquiries */}
+                <div className="p-6 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl hover:border-[#ff0090]/50 transition-all group">
+                  <div className="font-mono text-[10px] text-[#ff0090] tracking-widest uppercase mb-3">// GENERAL ENQUIRIES</div>
+                  <a href="mailto:hello@synaps.ai" className="block text-white font-semibold text-base mb-2 group-hover:text-[#ff0090] transition-colors">
+                    hello@synaps.ai
+                  </a>
+                  <button onClick={openModal} className="text-xs font-mono text-white/60 hover:text-white flex items-center gap-1 transition-colors mt-4">
+                    <span>Book Executive Call</span>
+                    <ArrowUpRight className="w-3 h-3 text-[#ff0090]" />
+                  </button>
+                </div>
+
+                {/* Fieldset 2: Enterprise Hub */}
+                <div className="p-6 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl hover:border-[#0496ff]/50 transition-all group">
+                  <div className="font-mono text-[10px] text-[#0496ff] tracking-widest uppercase mb-3">// ENTERPRISE HUB</div>
+                  <div className="text-white font-semibold text-sm leading-relaxed">
+                    Synaps Citadel<br />
+                    Cyber City, Gurugram<br />
+                    <span className="text-white/60 text-xs">India &amp; Global Remote</span>
+                  </div>
+                </div>
+
+                {/* Fieldset 3: Social Networks */}
+                <div className="p-6 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl hover:border-purple-500/50 transition-all group">
+                  <div className="font-mono text-[10px] text-purple-400 tracking-widest uppercase mb-3">// SOCIAL NETWORKS</div>
+                  <div className="flex flex-col gap-2 font-mono text-xs text-white/80">
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors flex items-center justify-between">
+                      <span>LinkedIn</span>
+                      <ArrowUpRight className="w-3 h-3" />
+                    </a>
+                    <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors flex items-center justify-between">
+                      <span>X (Twitter)</span>
+                      <ArrowUpRight className="w-3 h-3" />
+                    </a>
+                    <a href="https://github.com/novaecosystems-cloud/Synaps" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors flex items-center justify-between">
+                      <span>GitHub Repo</span>
+                      <ArrowUpRight className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Fieldset 4: New Business */}
+                <div className="p-6 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl hover:border-emerald-400/50 transition-all group">
+                  <div className="font-mono text-[10px] text-emerald-400 tracking-widest uppercase mb-3">// NEW BUSINESS</div>
+                  <a href="mailto:ceo@synaps.ai" className="block text-white font-semibold text-base mb-2 group-hover:text-emerald-400 transition-colors">
+                    ceo@synaps.ai
+                  </a>
+                  <p className="text-[11px] font-mono text-white/50 leading-normal">
+                    Reach out directly for DPDP Act compliance auditing and custom SLA agreements.
+                  </p>
+                </div>
+              </div>
+            </section>
+
             {/* ── FOOTER ───────────────────────────────────────────────────────── */}
             <footer style={{
               padding: '36px 40px',
