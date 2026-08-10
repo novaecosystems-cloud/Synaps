@@ -421,6 +421,75 @@ export default function SynapsLanding() {
           box-shadow: 0 20px 50px rgba(21, 59, 202, 0.35);
         }
 
+        /* ── INCREDIBLES.DEV LIQUID CLIP-PATH BUTTONS & MEDIA REVEAL (incredibles.dev) ── */
+        .btn-inc {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.8rem 1.8rem;
+          border-radius: 999px;
+          background: #fc4778;
+          color: #ffffff;
+          font-family: 'Space Grotesk', system-ui, sans-serif;
+          font-weight: 600;
+          font-size: 0.875rem;
+          letter-spacing: -0.02em;
+          text-transform: uppercase;
+          overflow: hidden;
+          cursor: pointer;
+          border: 1px solid rgba(252, 71, 120, 0.4);
+          transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.4s ease;
+        }
+        .btn-inc:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 25px rgba(252, 71, 120, 0.4);
+        }
+        .btn-inc__hover {
+          position: absolute;
+          inset: 0;
+          background: #ffffff;
+          color: #2b2b2b;
+          border-radius: inherit;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          clip-path: ellipse(80% 50% at 50% 152%);
+          transition: clip-path 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+          will-change: clip-path;
+        }
+        .btn-inc:hover .btn-inc__hover {
+          clip-path: ellipse(100% 70% at 50% 50%);
+        }
+
+        /* Incredibles.dev 3D Card Stack */
+        .inc-usp-wrapper {
+          perspective: 25rem;
+        }
+        .inc-usp-card {
+          transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.6s ease;
+          transform-origin: 50% -20%;
+          will-change: transform, opacity;
+        }
+        .inc-usp-card:hover {
+          transform: translateZ(30px) scale(1.03) !important;
+        }
+
+        /* ── SANTIONI SPIRITS HIGH-FASHION EDITORIAL TYPOGRAPHY (santionispirits.com) ── */
+        .santioni-heading {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-weight: 400;
+          letter-spacing: 0.005em;
+          text-transform: uppercase;
+          line-height: 1.1;
+        }
+        .santioni-gold-gradient {
+          background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #aa7c11 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
         /* ── Poly App Font Utilities ── */
         .title-main-poly {
           font-family: 'Space Grotesk', system-ui, sans-serif;
@@ -1629,7 +1698,7 @@ export default function SynapsLanding() {
                   Join teams already using Synaps to move faster, decide better, and eliminate document chaos.
                 </p>
 
-                <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
                   <button onClick={openModal} className="synaps-btn" style={{ height: 50, fontSize: 13 }}>
                     <svg className="synaps-btn__border" aria-hidden="true">
                       <rect x="0.5" y="0.5" width="calc(100% - 1px)" height="calc(100% - 1px)" rx="5" ry="5" />
@@ -1639,6 +1708,11 @@ export default function SynapsLanding() {
                       <span className="synaps-btn__label--base">GET STARTED FREE <ArrowRight style={{ width: 15, height: 15 }} /></span>
                       <span className="synaps-btn__label--hover">SIGN UP NOW →</span>
                     </span>
+                  </button>
+
+                  <button onClick={openModal} className="btn-inc h-[50px]">
+                    <span>INCREDIBLES DEPLOYMENT</span>
+                    <span className="btn-inc__hover">LAUNCH NOW →</span>
                   </button>
 
                   <Link href="/dashboard/chat" className="synaps-btn" style={{
