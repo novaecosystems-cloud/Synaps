@@ -49,6 +49,121 @@ const MARQUEE_ITEMS = [
   'PDF · EXCEL · DOCX · CSV',
 ];
 
+// ─── OPENGL 3D MATRIX ANIMATION CANVAS (inspired by 3D-animation.cpp) ────────
+function OpenGL3DAnimationCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 600);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = canvas.parentElement?.clientWidth || window.innerWidth;
+      height = canvas.height = canvas.parentElement?.clientHeight || 600;
+    };
+    window.addEventListener('resize', handleResize);
+
+    // 3D Nodes based on 3D-animation.cpp joints & matrix math
+    const nodes: { x: number; y: number; z: number; ox: number; oy: number; oz: number }[] = [];
+    const numNodes = 42;
+    const radius = Math.min(width, height) * 0.28;
+
+    for (let i = 0; i < numNodes; i++) {
+      const phi = Math.acos(-1 + (2 * i) / numNodes);
+      const theta = Math.sqrt(numNodes * Math.PI) * phi;
+      const x = radius * Math.cos(theta) * Math.sin(phi);
+      const y = radius * Math.sin(theta) * Math.sin(phi);
+      const z = radius * Math.cos(phi);
+      nodes.push({ x, y, z, ox: x, oy: y, oz: z });
+    }
+
+    let angleX = 0;
+    let angleY = 0;
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+      angleX += 0.008;
+      angleY += 0.006;
+
+      const fov = 350;
+      const cx = width / 2;
+      const cy = height / 2;
+
+      const projected: { x: number; y: number; scale: number }[] = [];
+
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        const radX = angleX;
+        const radY = angleY;
+
+        let y1 = node.oy * Math.cos(radX) - node.oz * Math.sin(radX);
+        let z1 = node.oy * Math.sin(radX) + node.oz * Math.cos(radX);
+
+        let x2 = node.ox * Math.cos(radY) + z1 * Math.sin(radY);
+        let z2 = -node.ox * Math.sin(radY) + z1 * Math.cos(radY);
+
+        const scale = fov / (fov + z2 + 275); // eye_z = 275 from 3D-animation.cpp
+        const px = x2 * scale + cx;
+        const py = y1 * scale + cy;
+
+        projected.push({ x: px, y: py, scale });
+      }
+
+      // Draw 3D wireframe connecting edges
+      ctx.strokeStyle = 'rgba(4, 150, 255, 0.25)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < projected.length; i++) {
+        for (let j = i + 1; j < projected.length; j++) {
+          const dx = projected[i].x - projected[j].x;
+          const dy = projected[i].y - projected[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(projected[i].x, projected[i].y);
+            ctx.lineTo(projected[j].x, projected[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw 3D glowing joint nodes
+      for (let i = 0; i < projected.length; i++) {
+        const p = projected[i];
+        const r = Math.max(1.5, 3.5 * p.scale);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = i % 3 === 0 ? '#ff0090' : '#0496ff';
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = i % 3 === 0 ? '#ff0090' : '#0496ff';
+        ctx.fill();
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-70"
+    />
+  );
+}
+
 // ─── ACCORDION DATA (Huge Inc + Iberian) ──────────────────────────────────────
 const FEATURES = [
   {
@@ -1264,12 +1379,15 @@ export default function SynapsLanding() {
             {/* ── HERO SECTION ───────────────────────────────────────────────── */}
             <section ref={heroRef} style={{
               minHeight: '100svh', position: 'relative',
-              display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-              padding: '120px 40px 60px', overflow: 'hidden',
+              display: 'flex', flexDirection: 'column', justifyContent: 'center',
+              padding: '140px 40px 80px', overflow: 'hidden',
             }}>
+              {/* OpenGL 3D Matrix Mesh Canvas (inspired by 3D-animation.cpp) */}
+              <OpenGL3DAnimationCanvas />
+
               {/* Background glow orbs */}
               <div style={{
-                position: 'absolute', top: '25%', left: '35%', width: 750, height: 500,
+                position: 'absolute', top: '50%', left: '35%', width: 750, height: 500,
                 background: 'radial-gradient(ellipse at center, rgba(124,58,237,0.24) 0%, rgba(255,0,144,0.1) 50%, transparent 75%)',
                 filter: 'blur(50px)', pointerEvents: 'none', transform: 'translate(-50%,-50%)',
               }} />
