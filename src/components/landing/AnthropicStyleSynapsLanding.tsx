@@ -1767,27 +1767,6 @@ export default function SynapsLanding() {
               </div>
             </section>
 
-            {/* ── INCREDIBLES.DEV EXECUTIVE QUOTE SHOWCASE SECTION ──────────────────── */}
-            <section className="relative py-20 px-6 max-w-[1000px] mx-auto overflow-hidden">
-              <div className="inc-quote-card" data-slide-up>
-                <div className="inc-quote-mark">“</div>
-                <div className="relative z-10 max-w-2xl">
-                  <p className="title-sub-poly text-2xl sm:text-4xl text-white/90 leading-tight mb-6">
-                    &quot;Synaps turned multi-vendor contract redlining from a 3-week legal nightmare into a 2-minute decision. Zero hallucinations, 100% line-level grounded evidence.&quot;
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#fc4778] to-[#7c3aed] flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                      VK
-                    </div>
-                    <div>
-                      <div className="font-sans font-bold text-white text-base">Vikram Kapoor</div>
-                      <div className="font-mono text-xs text-[#fc4778]">VP of Legal &amp; Compliance · Global Fintech</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
             {/* ── FEATURES ACCORDION (Huge Inc Hover Focus + Iberian Expand) ────── */}
             <section id="features" style={{ padding: '100px 40px', maxWidth: 1000 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 54, flexWrap: 'wrap', gap: 24 }}>
@@ -2054,45 +2033,51 @@ export default function SynapsLanding() {
                 </div>
 
                 {/* Pro Tier (Featured / Popular) */}
-                <div className="p-8 rounded-2xl border-2 border-[#0496ff] bg-gradient-to-b from-[#0496ff]/15 to-slate-900/80 backdrop-blur-xl flex flex-col justify-between shadow-2xl relative">
+                <div className="zero-card-glow p-8 rounded-2xl border-2 border-[#0496ff] bg-gradient-to-b from-[#0496ff]/15 to-slate-900/80 backdrop-blur-xl flex flex-col justify-between shadow-2xl relative">
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#0496ff] text-white font-mono text-[10px] font-bold uppercase tracking-widest shadow-lg">
                     MOST POPULAR
                   </div>
                   <div>
-                    <div className="font-mono text-xs text-[#0496ff] uppercase tracking-widest mb-2">// PRO BUSINESS</div>
+                    <div className="font-mono text-xs text-[#0496ff] uppercase tracking-widest mb-2">// PRO INTELLIGENCE</div>
                     <h3 className="title-main-poly text-2xl text-white font-bold mb-1">Pro</h3>
-                    <div className="text-3xl font-mono font-bold text-white my-4">$29 <span className="text-xs text-white/40 font-normal">/ mo</span></div>
-                    <p className="text-xs text-white/70 mb-6 leading-relaxed">Full access to the 10-Agent Boardroom and 3D Enterprise Memory Graph.</p>
+                    <div className="flex items-baseline gap-2 my-4">
+                      <div className="text-4xl font-mono font-bold text-white">$7 <span className="text-xs text-white/50 font-normal">/ mo</span></div>
+                      <div className="text-xs font-mono text-[#0496ff] bg-[#0496ff]/15 px-2 py-0.5 rounded border border-[#0496ff]/30">Or $1.99 / wk</div>
+                    </div>
+                    <p className="text-xs text-white/70 mb-6 leading-relaxed">Full 500 daily AI credits, 10-Agent Boardroom, and 3D Corporate Memory Graph.</p>
                     <ul className="space-y-3 text-xs font-mono text-white/90">
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> 10-Agent Boardroom Consensus</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> Unlimited Document Parsing</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> 3D Enterprise Memory Graph</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> 500 AI Credits / Day (Immediate Upgrade)</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> Collaborative 10-Agent AI Boardroom</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> 3D Corporate Memory Graph</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> Line-Level Grounded Citations</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> Priority Email Support</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> 14-Day 100% Money-Back Guarantee</li>
                     </ul>
                   </div>
                   <button onClick={openModal} className="mt-8 w-full py-3 rounded-lg bg-[#0496ff] hover:bg-[#0496ff]/90 text-white font-mono text-xs font-bold transition-all shadow-lg">
-                    GET STARTED PRO →
+                    GET STARTED PRO ($7/MO) →
                   </button>
                 </div>
 
                 {/* Studio / Enterprise Tier */}
-                <div className="p-8 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between hover:border-white/30 transition-all">
+                <div className="zero-card-glow p-8 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between hover:border-white/30 transition-all">
                   <div>
-                    <div className="font-mono text-xs text-purple-400 uppercase tracking-widest mb-2">// ENTERPRISE</div>
-                    <h3 className="title-main-poly text-2xl text-white font-bold mb-1">Studio</h3>
-                    <div className="text-3xl font-mono font-bold text-white my-4">$99 <span className="text-xs text-white/40 font-normal">/ mo</span></div>
-                    <p className="text-xs text-white/60 mb-6 leading-relaxed">Custom zero-trust deployments with dedicated SLA and DPDP Act compliance auditing.</p>
+                    <div className="font-mono text-xs text-purple-400 uppercase tracking-widest mb-2">// ENTERPRISE MAX</div>
+                    <h3 className="title-main-poly text-2xl text-white font-bold mb-1">Enterprise Max</h3>
+                    <div className="flex items-baseline gap-2 my-4">
+                      <div className="text-4xl font-mono font-bold text-white">$20 <span className="text-xs text-white/50 font-normal">/ mo</span></div>
+                      <div className="text-xs font-mono text-purple-400 bg-purple-500/15 px-2 py-0.5 rounded border border-purple-500/30">Or $4.99 / wk</div>
+                    </div>
+                    <p className="text-xs text-white/60 mb-6 leading-relaxed">Unlimited AI capabilities, custom LLM keys, and zero-trust data isolation.</p>
                     <ul className="space-y-3 text-xs font-mono text-white/80">
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Unlimited Workspaces &amp; Members</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Unlimited Daily AI Credits &amp; Workspaces</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Custom LLM Provider API Keys</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Zero-Trust Multi-Tenant Isolation</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> 100% DPDP Act 2023 Auditing</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> 100% DPDP Act 2023 Compliance Audits</li>
                       <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> 24/7 Dedicated Account Manager</li>
                     </ul>
                   </div>
                   <button onClick={openModal} className="mt-8 w-full py-3 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-mono text-xs transition-all">
-                    CONTACT ENTERPRISE →
+                    UPGRADE TO ENTERPRISE ($20/MO) →
                   </button>
                 </div>
               </div>
