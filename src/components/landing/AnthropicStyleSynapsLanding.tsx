@@ -145,6 +145,24 @@ export default function SynapsLanding() {
     return () => clearTimeout(timeoutId);
   }, []);
 
+  // ── Poly Custom Pointer Cursor Mouse Tracker ───────────────────────────────
+  const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
+  const [isHoveringClickable, setIsHoveringClickable] = useState(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+      const target = e.target as HTMLElement;
+      if (target?.closest('button, a, .poly-scatter-card, .agent-card')) {
+        setIsHoveringClickable(true);
+      } else {
+        setIsHoveringClickable(false);
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   // ── Curtain Loader State ──────────────────────────────────────────────────
   const [loaderProgress, setLoaderProgress] = useState(0);
   const [loaderComplete, setLoaderComplete] = useState(false);
@@ -822,6 +840,20 @@ export default function SynapsLanding() {
       </svg>
 
       <div ref={containerRef}>
+        {/* ── POLY CUSTOM POINTER CURSOR FOLLOWER ────────────────────────────── */}
+        <div
+          className="pointer-events-none fixed z-[99999] transition-transform duration-75 ease-out -translate-x-1/2 -translate-y-1/2 hidden md:block"
+          style={{
+            left: mousePos.x,
+            top: mousePos.y,
+          }}
+        >
+          <div className={`rounded-full transition-all duration-300 ${
+            isHoveringClickable
+              ? 'w-10 h-10 bg-[#0496ff]/20 border border-[#0496ff] backdrop-blur-sm scale-110 shadow-[0_0_20px_#0496ff]'
+              : 'w-4 h-4 bg-[#0496ff] shadow-[0_0_12px_#0496ff]'
+          }`} />
+        </div>
 
         {/* ── FIXED HEADER (Hashgraph + Huge Inc) ─────────────────────────── */}
         <header style={{
