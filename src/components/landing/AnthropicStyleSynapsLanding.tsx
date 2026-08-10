@@ -8,6 +8,7 @@ import { ArrowUpRight, ArrowRight, ShieldCheck, FileText, Lock, Sparkles, Plus, 
 import SignInModal from '@/components/SignInModal';
 import SignInCardInline from '@/components/SignInCardInline';
 import Link from 'next/link';
+import Lenis from 'lenis';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -285,22 +286,29 @@ export default function SynapsLanding() {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // ── Poly Custom Pointer Cursor Mouse Tracker ───────────────────────────────
-  const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
-  const [isHoveringClickable, setIsHoveringClickable] = useState(false);
-
+  // ── Ultra-Smooth Inertial Scroll via Lenis (GSAP Integration) ────────────────
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-      const target = e.target as HTMLElement;
-      if (target?.closest('button, a, .poly-scatter-card, .agent-card')) {
-        setIsHoveringClickable(true);
-      } else {
-        setIsHoveringClickable(false);
-      }
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1.05,
+    });
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    const tickerCallback = (time: number) => {
+      lenis.raf(time * 1000);
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    gsap.ticker.add(tickerCallback);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      gsap.ticker.remove(tickerCallback);
+      lenis.destroy();
+    };
   }, []);
 
   // ── Poly 3D Card Tilt Physics Handlers ─────────────────────────────────────
