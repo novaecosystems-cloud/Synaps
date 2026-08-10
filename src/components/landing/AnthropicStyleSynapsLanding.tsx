@@ -355,6 +355,46 @@ export default function SynapsLanding() {
         html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
         body { background-color: #000209; color: #eee; font-family: 'Space Grotesk', system-ui, sans-serif; overflow-x: hidden; }
 
+        /* ── PAGEBUDDY APP ANIMATION SYSTEM (pagebuddy.app) ── */
+        .pagebuddy-caret {
+          width: 2px;
+          height: 1.15em;
+          background: #0496ff;
+          display: inline-block;
+          margin-left: 2px;
+          vertical-align: middle;
+          animation: blink-caret 1500ms linear infinite;
+        }
+        @keyframes blink-caret {
+          0%, 100% { opacity: 1; background-color: #0496ff; }
+          50% { opacity: 0; background-color: transparent; }
+        }
+
+        .pagebuddy-drag-label-add {
+          animation: drag-label-add-anm 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .pagebuddy-drag-label-remove {
+          animation: drag-label-remove-anm 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes drag-label-add-anm {
+          0% { opacity: 0; transform: scale(0.85) translateY(10px); filter: blur(8px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+        @keyframes drag-label-remove-anm {
+          0% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+          100% { opacity: 0; transform: scale(0.85) translateY(-10px); filter: blur(8px); }
+        }
+
+        .pagebuddy-inline-controls {
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          background: rgba(18, 22, 34, 0.85);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+          border-radius: 999px;
+          transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         /* ── Poly App Font Utilities ── */
         .title-main-poly {
           font-family: 'Space Grotesk', system-ui, sans-serif;
@@ -1182,6 +1222,74 @@ export default function SynapsLanding() {
                   <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-emerald-300">
                     <span>AES-256</span>
                     <span>ISOLATED</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ── PAGEBUDDY APP INTERACTIVE DOCUMENT STUDIO SECTION ──────────────────── */}
+            <section className="relative py-16 px-6 max-w-[1000px] mx-auto overflow-hidden">
+              <div className="text-center mb-10">
+                <div className="section-tag mb-3" data-slide-up>
+                  <span className="section-tag__id">// NEXT-GEN DOCS</span> · PAGEBUDDY ENGINE
+                </div>
+                <h2 className="title-main-poly text-4xl sm:text-6xl text-white">
+                  Document intelligence <span className="title-sub-poly text-[#0496ff]">reimagined.</span>
+                </h2>
+                <p className="body-copy max-w-xl mx-auto mt-4 text-sm sm:text-base">
+                  No more static, rigid PDFs or plain text. Synaps lets you edit, ground evidence, format semantic blocks, and generate reports on the fly.
+                </p>
+              </div>
+
+              {/* Pagebuddy Interactive Document Canvas Card */}
+              <div className="relative rounded-2xl border border-white/20 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-6 sm:p-10 shadow-2xl backdrop-blur-xl" data-slide-up>
+                
+                {/* Pagebuddy Inline Text Formatting Controls Bar */}
+                <div className="pagebuddy-inline-controls pagebuddy-drag-label-add mb-6 mx-auto w-fit px-4 py-2 flex items-center gap-4 text-xs text-white/90">
+                  <div className="flex items-center gap-2 font-mono font-bold text-white bg-white/10 px-2.5 py-1 rounded-full cursor-pointer hover:bg-white/20 transition-colors">
+                    <span>B</span>
+                    <span className="text-[10px] text-white/60">Bold</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-mono italic text-white/80 px-2.5 py-1 rounded-full cursor-pointer hover:bg-white/10 transition-colors">
+                    <span>I</span>
+                    <span className="text-[10px] text-white/60">Italic</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-mono underline text-white/80 px-2.5 py-1 rounded-full cursor-pointer hover:bg-white/10 transition-colors">
+                    <span>U</span>
+                    <span className="text-[10px] text-white/60">Underline</span>
+                  </div>
+                  <div className="w-px h-4 bg-white/20" />
+                  <span className="font-mono text-[10px] text-[#0496ff]">SYNAPS PARSER v3.4</span>
+                </div>
+
+                {/* Document Content View with Caret */}
+                <div className="font-mono text-sm sm:text-base text-white/90 leading-relaxed max-w-2xl mx-auto p-5 rounded-xl border border-white/10 bg-black/50 relative overflow-hidden">
+                  <div className="text-xs text-[#0496ff] mb-2 font-mono">// SECTION 4.2 · LIABILITY EXPOSURE AUDIT</div>
+                  <p className="text-white/90">
+                    &quot;The vendor warrants multi-tenant physical data isolation under DPDP Act 2023 compliance guidelines...&quot;
+                    <span className="pagebuddy-caret" />
+                  </p>
+                </div>
+
+                {/* Block Drag & Drop Toolbar */}
+                <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="px-3 py-1.5 rounded-lg border border-white/15 bg-white/5 text-xs font-mono text-white/80 flex items-center gap-2 hover:border-[#0496ff]/60 transition-colors cursor-pointer">
+                      <FileText className="w-3.5 h-3.5 text-[#0496ff]" />
+                      <span>Paragraph</span>
+                    </div>
+                    <div className="px-3 py-1.5 rounded-lg border border-white/15 bg-white/5 text-xs font-mono text-white/80 flex items-center gap-2 hover:border-[#0496ff]/60 transition-colors cursor-pointer">
+                      <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                      <span>Heading 1</span>
+                    </div>
+                    <div className="px-3 py-1.5 rounded-lg border border-white/15 bg-white/5 text-xs font-mono text-white/80 flex items-center gap-2 hover:border-[#0496ff]/60 transition-colors cursor-pointer">
+                      <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Columns</span>
+                    </div>
+                  </div>
+                  <div className="text-[11px] font-mono text-white/50 italic flex items-center gap-1.5">
+                    <span>Interactive block formatting ready</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#0496ff]" />
                   </div>
                 </div>
               </div>
