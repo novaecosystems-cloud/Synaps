@@ -296,59 +296,42 @@ export default function SynapsLanding() {
     );
     sections.forEach((s) => io.observe(s));
 
-    // Apple Design: Fluid Spring Easing (cubic-bezier(0.16, 1, 0.3, 1) critically damped)
+    // ── GSAP 60fps Smooth Animations (GSAP + Ponytail Principles) ────────────
     const appleSpringEase = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
-    gsap.utils.toArray<HTMLElement>('[data-slide-up]').forEach((el) => {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' },
-        y: '75%',
-        opacity: 0,
-        duration: 0.85,
-        ease: appleSpringEase,
-      });
-    });
-
-    gsap.utils.toArray<HTMLElement>('[data-slide-line]').forEach((el, i) => {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
-        y: '100%',
-        opacity: 0,
-        duration: 0.8,
-        delay: i * 0.06,
-        ease: appleSpringEase,
-      });
-    });
-
-    gsap.utils.toArray<HTMLElement>('[data-dash-vertical]').forEach((el) => {
-      gsap.fromTo(el,
-        { scaleY: 0, transformOrigin: 'top center' },
-        {
-          scaleY: 1,
-          duration: 1.2,
+    ScrollTrigger.batch('[data-slide-up]', {
+      onEnter: (batch) =>
+        gsap.from(batch, {
+          y: 60,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.06,
           ease: appleSpringEase,
-          scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
-        }
-      );
+          force3D: true,
+        }),
+      once: true,
     });
 
-    gsap.utils.toArray<HTMLElement>('[data-agent-card]').forEach((el, i) => {
-      gsap.from(el, {
-        scrollTrigger: { trigger: el, start: 'top 92%', toggleActions: 'play none none none' },
-        scale: 0.92,
-        opacity: 0,
-        duration: 0.65,
-        delay: (i % 5) * 0.05,
-        ease: 'back.out(1.2)', // Apple momentum release bounce
-      });
+    ScrollTrigger.batch('[data-agent-card]', {
+      onEnter: (batch) =>
+        gsap.from(batch, {
+          scale: 0.92,
+          opacity: 0,
+          duration: 0.6,
+          stagger: 0.04,
+          ease: 'back.out(1.2)',
+          force3D: true,
+        }),
+      once: true,
     });
 
     gsap.from('[data-logo-mark]', {
       scale: 0.9,
       rotate: -20,
       opacity: 0,
-      duration: 1.4,
+      duration: 1.2,
       ease: appleSpringEase,
+      force3D: true,
     });
 
     return () => io.disconnect();
