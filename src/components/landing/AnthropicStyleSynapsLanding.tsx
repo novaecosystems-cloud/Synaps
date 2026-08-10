@@ -1859,6 +1859,86 @@ export default function SynapsLanding() {
               </div>
             </section>
 
+            {/* ── PRICING SECTION (Neo-Brutalist 3-Tier Breakdown) ────────────────── */}
+            <section id="pricing" className="relative py-24 px-6 max-w-[1000px] mx-auto overflow-hidden">
+              <div className="text-center mb-16">
+                <div className="section-tag mb-3" data-slide-up>
+                  <span className="section-tag__id">// 04</span> TRANSPARENT PRICING
+                </div>
+                <h2 className="title-main-poly text-4xl sm:text-7xl text-white">
+                  Built for creators, <span className="title-sub-poly text-[#0496ff]">scaled for enterprise.</span>
+                </h2>
+                <p className="body-copy max-w-xl mx-auto mt-4 text-sm sm:text-base">
+                  Choose the plan that fits your organizational scale. No hidden fees, instant activation.
+                </p>
+              </div>
+
+              {/* 3-Tier Pricing Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10" data-slide-up>
+                {/* Free Tier */}
+                <div className="p-8 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between hover:border-white/30 transition-all">
+                  <div>
+                    <div className="font-mono text-xs text-white/50 uppercase tracking-widest mb-2">// STARTER</div>
+                    <h3 className="title-main-poly text-2xl text-white font-bold mb-1">Free</h3>
+                    <div className="text-3xl font-mono font-bold text-white my-4">$0 <span className="text-xs text-white/40 font-normal">/ mo</span></div>
+                    <p className="text-xs text-white/60 mb-6 leading-relaxed">Perfect for exploring line-level document intelligence and basic vector search.</p>
+                    <ul className="space-y-3 text-xs font-mono text-white/80">
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> 1 Active Workspace</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> 50 Document Parsing Runs / mo</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> Basic Semantic Search</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> Community Support</li>
+                    </ul>
+                  </div>
+                  <button onClick={openModal} className="mt-8 w-full py-3 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 text-white font-mono text-xs transition-all">
+                    START FREE →
+                  </button>
+                </div>
+
+                {/* Pro Tier (Featured / Popular) */}
+                <div className="p-8 rounded-2xl border-2 border-[#0496ff] bg-gradient-to-b from-[#0496ff]/15 to-slate-900/80 backdrop-blur-xl flex flex-col justify-between shadow-2xl relative">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#0496ff] text-white font-mono text-[10px] font-bold uppercase tracking-widest shadow-lg">
+                    MOST POPULAR
+                  </div>
+                  <div>
+                    <div className="font-mono text-xs text-[#0496ff] uppercase tracking-widest mb-2">// PRO BUSINESS</div>
+                    <h3 className="title-main-poly text-2xl text-white font-bold mb-1">Pro</h3>
+                    <div className="text-3xl font-mono font-bold text-white my-4">$29 <span className="text-xs text-white/40 font-normal">/ mo</span></div>
+                    <p className="text-xs text-white/70 mb-6 leading-relaxed">Full access to the 10-Agent Boardroom and 3D Enterprise Memory Graph.</p>
+                    <ul className="space-y-3 text-xs font-mono text-white/90">
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> 10-Agent Boardroom Consensus</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> Unlimited Document Parsing</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> 3D Enterprise Memory Graph</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> Line-Level Grounded Citations</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-[#0496ff]" /> Priority Email Support</li>
+                    </ul>
+                  </div>
+                  <button onClick={openModal} className="mt-8 w-full py-3 rounded-lg bg-[#0496ff] hover:bg-[#0496ff]/90 text-white font-mono text-xs font-bold transition-all shadow-lg">
+                    GET STARTED PRO →
+                  </button>
+                </div>
+
+                {/* Studio / Enterprise Tier */}
+                <div className="p-8 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between hover:border-white/30 transition-all">
+                  <div>
+                    <div className="font-mono text-xs text-purple-400 uppercase tracking-widest mb-2">// ENTERPRISE</div>
+                    <h3 className="title-main-poly text-2xl text-white font-bold mb-1">Studio</h3>
+                    <div className="text-3xl font-mono font-bold text-white my-4">$99 <span className="text-xs text-white/40 font-normal">/ mo</span></div>
+                    <p className="text-xs text-white/60 mb-6 leading-relaxed">Custom zero-trust deployments with dedicated SLA and DPDP Act compliance auditing.</p>
+                    <ul className="space-y-3 text-xs font-mono text-white/80">
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Unlimited Workspaces &amp; Members</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Custom LLM Provider API Keys</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Zero-Trust Multi-Tenant Isolation</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> 100% DPDP Act 2023 Auditing</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> 24/7 Dedicated Account Manager</li>
+                    </ul>
+                  </div>
+                  <button onClick={openModal} className="mt-8 w-full py-3 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-mono text-xs transition-all">
+                    CONTACT ENTERPRISE →
+                  </button>
+                </div>
+              </div>
+            </section>
+
             {/* ── CTA ──────────────────────────────────────────────────────────── */}
             <section style={{
               padding: '120px 40px', textAlign: 'center',
