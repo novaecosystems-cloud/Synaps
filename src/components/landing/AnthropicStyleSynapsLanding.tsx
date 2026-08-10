@@ -95,6 +95,18 @@ const AGENTS = [
   { title: 'DIGITAL TWIN', role: 'Executive Consensus', icon: Sparkles },
 ];
 
+// ─── MEASURED SITE 3D LEADERBOARD ITEMS ──────────────────────────────────────
+const MEASURED_3D_ITEMS = [
+  { rank: '1st', label: 'SYNAPS Evidence Engine', stat: '12,763 Queries' },
+  { rank: '2nd', label: '10-Agent Boardroom Consensus', stat: '7,707 Consensus Runs' },
+  { rank: '3rd', label: '3D Enterprise Memory Graph', stat: '4,786 Neural Nodes' },
+  { rank: '4th', label: 'Zero-Trust Encryption Vault', stat: '4,755 AES-256 Keys' },
+  { rank: '5th', label: 'PDF & Financial Spreadsheet Parser', stat: '3,895 Documents' },
+  { rank: '6th', label: 'DPDP Act 2023 Compliance Auditor', stat: '2,844 Audits' },
+  { rank: '7th', label: 'Scenario Stress Simulator', stat: '2,179 Simulations' },
+  { rank: '8th', label: 'Line-Level Grounded Vector Search', stat: '2,162 Embeddings' },
+];
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function SynapsLanding() {
   const [showSignIn, setShowSignIn] = useState(false);
@@ -393,6 +405,37 @@ export default function SynapsLanding() {
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
           border-radius: 999px;
           transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ── MEASURED SITE 3D PERSPECTIVE SYSTEM (measured.site) ── */
+        .measured-perspective-container {
+          perspective: 700vw;
+          perspective-origin: center;
+        }
+        .measured-3d-item {
+          will-change: transform;
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .measured-3d-item:hover {
+          color: #153bca;
+          border-color: rgba(21, 59, 202, 0.6);
+          box-shadow: 0 12px 30px rgba(21, 59, 202, 0.25);
+          transform: translateZ(40px) scale(1.04) !important;
+        }
+
+        .measured-giant-watermark {
+          line-height: 0.69;
+          font-size: 24vw;
+          font-weight: 700;
+          color: rgba(255, 255, 255, 0.04);
+          letter-spacing: -0.05em;
+          user-select: none;
+          pointer-events: none;
+        }
+
+        .measured-electric-blue-box {
+          background-color: #153bca;
+          box-shadow: 0 20px 50px rgba(21, 59, 202, 0.35);
         }
 
         /* ── Poly App Font Utilities ── */
@@ -1292,6 +1335,46 @@ export default function SynapsLanding() {
                     <ArrowRight className="w-3.5 h-3.5 text-[#0496ff]" />
                   </div>
                 </div>
+              </div>
+            </section>
+
+            {/* ── MEASURED.SITE 3D PERSPECTIVE TUNNEL & LEADERBOARD SECTION ──────────── */}
+            <section className="relative py-24 px-6 max-w-[1000px] mx-auto overflow-hidden">
+              <div className="text-center mb-16">
+                <div className="section-tag mb-3" data-slide-up>
+                  <span className="section-tag__id">// REAL-TIME METRICS</span> · MEASURED 3D TUNNEL
+                </div>
+                <h2 className="title-main-poly text-4xl sm:text-7xl text-white">
+                  Global enterprise <span className="title-sub-poly text-[#153bca]">performance.</span>
+                </h2>
+                <p className="body-copy max-w-xl mx-auto mt-4 text-sm sm:text-base">
+                  Real-time throughput ranks every agent, memory node, and grounded search execution in 3D perspective space.
+                </p>
+              </div>
+
+              {/* Measured 3D Perspective Tunnel Container */}
+              <div className="measured-perspective-container my-10 max-w-3xl mx-auto space-y-4" data-slide-up>
+                {MEASURED_3D_ITEMS.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="measured-3d-item group p-4 sm:p-5 rounded-xl border border-white/10 bg-slate-900/60 backdrop-blur-md flex items-center justify-between cursor-pointer"
+                    style={{
+                      transform: `perspective(700vw) rotateX(${(idx - 3.5) * 3}deg) translateZ(${-idx * 12}px)`,
+                    }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="font-mono text-xs sm:text-sm font-bold text-[#153bca] bg-[#153bca]/15 px-2.5 py-1 rounded border border-[#153bca]/30">
+                        {item.rank}
+                      </span>
+                      <span className="font-sans font-semibold text-white text-base sm:text-lg group-hover:text-[#153bca] transition-colors">
+                        {item.label}
+                      </span>
+                    </div>
+                    <span className="font-mono text-xs sm:text-sm text-white/60 group-hover:text-white transition-colors">
+                      {item.stat}
+                    </span>
+                  </div>
+                ))}
               </div>
             </section>
 
