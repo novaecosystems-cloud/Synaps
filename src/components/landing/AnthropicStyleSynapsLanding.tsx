@@ -163,6 +163,24 @@ export default function SynapsLanding() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // ── Poly 3D Card Tilt Physics Handlers ─────────────────────────────────────
+  const handleCard3DTilt = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -12;
+    const rotateY = ((x - centerX) / centerX) * 12;
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+  };
+
+  const handleCard3DReset = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+  };
+
   // ── Curtain Loader State ──────────────────────────────────────────────────
   const [loaderProgress, setLoaderProgress] = useState(0);
   const [loaderComplete, setLoaderComplete] = useState(false);
@@ -1076,7 +1094,12 @@ export default function SynapsLanding() {
               {/* Poly Scatter Cards Matrix */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {/* Scatter Card 1: Document Reasoning */}
-                <div className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem]" data-slide-up>
+                <div
+                  className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem]"
+                  data-slide-up
+                  onMouseMove={handleCard3DTilt}
+                  onMouseLeave={handleCard3DReset}
+                >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[10px] text-[#f4824d] bg-[#f4824d]/10 px-2 py-1 rounded border border-[#f4824d]/30">PDF · EXCEL · DOCX</span>
                     <FileText className="w-5 h-5 text-white/70" />
@@ -1094,7 +1117,12 @@ export default function SynapsLanding() {
                 </div>
 
                 {/* Scatter Card 2: 10-Agent Boardroom */}
-                <div className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem] lg:mt-6" data-slide-up>
+                <div
+                  className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem] lg:mt-6"
+                  data-slide-up
+                  onMouseMove={handleCard3DTilt}
+                  onMouseLeave={handleCard3DReset}
+                >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[10px] text-purple-400 bg-purple-500/10 px-2 py-1 rounded border border-purple-500/30">10-AGENT DEBATE</span>
                     <Sparkles className="w-5 h-5 text-purple-400" />
@@ -1112,7 +1140,12 @@ export default function SynapsLanding() {
                 </div>
 
                 {/* Scatter Card 3: 3D Memory Graph */}
-                <div className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem]" data-slide-up>
+                <div
+                  className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem]"
+                  data-slide-up
+                  onMouseMove={handleCard3DTilt}
+                  onMouseLeave={handleCard3DReset}
+                >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded border border-cyan-500/30">3D GRAPH ENGINE</span>
                     <Globe className="w-5 h-5 text-cyan-400" />
@@ -1130,7 +1163,12 @@ export default function SynapsLanding() {
                 </div>
 
                 {/* Scatter Card 4: Zero-Trust Vault */}
-                <div className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem] lg:mt-6" data-slide-up>
+                <div
+                  className="poly-scatter-card p-6 flex flex-col justify-between h-[23rem] lg:mt-6"
+                  data-slide-up
+                  onMouseMove={handleCard3DTilt}
+                  onMouseLeave={handleCard3DReset}
+                >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/30">DPDP COMPLIANT</span>
                     <Lock className="w-5 h-5 text-emerald-400" />
