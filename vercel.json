@@ -1,7 +1,7 @@
 {
   "version": 2,
   "alias": [
-    "synaps.qd.je",
+    "synaps.is-a.dev",
     "synaps-one.vercel.app"
   ],
   "framework": "nextjs",
