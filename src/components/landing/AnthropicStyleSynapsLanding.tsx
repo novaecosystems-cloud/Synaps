@@ -12,7 +12,7 @@ import Link from 'next/link';
 import Lenis from 'lenis';
 
 const Spline = dynamic(
-  () => import('@splinetool/react-spline').then((mod) => mod.default),
+  () => import('@splinetool/react-spline/next'),
   {
     ssr: false,
     loading: () => (
