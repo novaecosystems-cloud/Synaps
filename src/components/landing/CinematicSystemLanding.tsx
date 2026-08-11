@@ -21,8 +21,8 @@ import {
   AlertTriangle,
   Scale,
   Zap,
-  ChevronRight,
-  ExternalLink
+  Check,
+  ChevronRight
 } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
 import Link from 'next/link';
@@ -30,52 +30,51 @@ import Lenis from 'lenis';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── TYPES & INTERFACES ───────────────────────────────────────────────────────
-interface MemoryImprint {
-  id: string;
-  title: string;
-  category: 'Legal' | 'Finance' | 'Compliance' | 'Strategy';
-  date: string;
-  confidence: number;
-  snippet: string;
+// ─── 01 SCENE: GEOMETRIC SYNAPS MARK ASSEMBLY (SVG Line-by-Line Connection) ───
+function SynapsLogoAssemblyAnimation() {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useGSAP(() => {
+    if (!svgRef.current) return;
+    const paths = svgRef.current.querySelectorAll('path, circle, line');
+
+    gsap.fromTo(
+      paths,
+      { strokeDasharray: 300, strokeDashoffset: 300, opacity: 0 },
+      {
+        strokeDashoffset: 0,
+        opacity: 1,
+        duration: 2.2,
+        stagger: 0.25,
+        ease: 'power3.inOut',
+      }
+    );
+  }, []);
+
+  return (
+    <svg ref={svgRef} viewBox="0 0 120 120" className="w-24 h-24 sm:w-32 sm:h-32 mx-auto drop-shadow-[0_0_35px_rgba(0,150,255,0.4)]">
+      {/* Outer Hexagon Frame */}
+      <path d="M 60 10 L 105 35 L 105 85 L 60 110 L 15 85 L 15 35 Z" fill="none" stroke="#0055FF" strokeWidth="2.5" />
+      {/* Inner Node Connections */}
+      <line x1="60" y1="10" x2="60" y2="60" stroke="#00F0FF" strokeWidth="2" />
+      <line x1="105" y1="35" x2="60" y2="60" stroke="#00F0FF" strokeWidth="2" />
+      <line x1="105" y1="85" x2="60" y2="60" stroke="#00F0FF" strokeWidth="2" />
+      <line x1="60" y1="110" x2="60" y2="60" stroke="#0055FF" strokeWidth="2" />
+      <line x1="15" y1="85" x2="60" y2="60" stroke="#0055FF" strokeWidth="2" />
+      <line x1="15" y1="35" x2="60" y2="60" stroke="#00F0FF" strokeWidth="2" />
+      {/* Core Node Joints */}
+      <circle cx="60" cy="60" r="6" fill="#00F0FF" />
+      <circle cx="60" cy="10" r="3.5" fill="#0055FF" />
+      <circle cx="105" cy="35" r="3.5" fill="#00F0FF" />
+      <circle cx="105" cy="85" r="3.5" fill="#0055FF" />
+      <circle cx="60" cy="110" r="3.5" fill="#0055FF" />
+      <circle cx="15" cy="85" r="3.5" fill="#00F0FF" />
+      <circle cx="15" cy="35" r="3.5" fill="#0055FF" />
+    </svg>
+  );
 }
 
-const MEMORY_IMPRINTS: MemoryImprint[] = [
-  {
-    id: 'mem-01',
-    title: 'Master Services Agreement v4.2',
-    category: 'Legal',
-    date: '2026-02-14',
-    confidence: 99.4,
-    snippet: 'Indemnification cap capped at 2.5x ARR with 30-day cure period.',
-  },
-  {
-    id: 'mem-02',
-    title: 'Q3 Enterprise Risk Audit',
-    category: 'Compliance',
-    date: '2026-05-18',
-    confidence: 98.7,
-    snippet: 'DPDP Act 2023 data residency compliance verified across EU-Asia nodes.',
-  },
-  {
-    id: 'mem-03',
-    title: 'Vendor Procurement Framework',
-    category: 'Finance',
-    date: '2026-07-02',
-    confidence: 97.9,
-    snippet: 'Automatic termination clause triggers if SLA drops below 99.95%.',
-  },
-  {
-    id: 'mem-04',
-    title: 'Executive Boardroom Minutes',
-    category: 'Strategy',
-    date: '2026-08-01',
-    confidence: 99.8,
-    snippet: 'Approval of $12M multi-region infrastructure expansion.',
-  },
-];
-
-// ─── 3D CYBERNETIC STRUCTURE CANVAS (Zero purple, pure performance) ──────────
+// ─── 3D CYBERNETIC STRUCTURE CANVAS ──────────────────────────────────────────
 function CinematicSystemCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -96,7 +95,6 @@ function CinematicSystemCanvas() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Assembly Nodes
     const numNodes = 64;
     const radius = Math.min(width, height) * 0.34;
     const nodes: { ox: number; oy: number; oz: number; size: number }[] = [];
@@ -172,7 +170,6 @@ function CinematicSystemCanvas() {
         projected.push({ x: px, y: py, scale, z: z2 });
       }
 
-      // Render wireframe relationships (Cobalt Blue & Cyan)
       for (let i = 0; i < projected.length; i++) {
         for (let j = i + 1; j < projected.length; j++) {
           const dx = projected[i].x - projected[j].x;
@@ -190,7 +187,6 @@ function CinematicSystemCanvas() {
         }
       }
 
-      // Render glowing structure joints
       for (let i = 0; i < projected.length; i++) {
         const p = projected[i];
         const node = nodes[i];
@@ -220,16 +216,15 @@ function CinematicSystemCanvas() {
   return <canvas ref={canvasRef} className="w-full h-full block rounded-2xl cursor-grab active:cursor-grabbing" />;
 }
 
-// ─── MAIN LANDING PAGE COMPONENT ───────────────────────────────────────────────
+// ─── MAIN CINEMATIC LANDING COMPONENT ─────────────────────────────────────────
 export default function CinematicSystemLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'clause' | 'question' | 'memory' | 'decision'>('clause');
+  const [transformationStage, setTransformationStage] = useState<number>(0);
   const [agentProgress, setAgentProgress] = useState(0);
   const [agentSearching, setAgentSearching] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const logoMarkRef = useRef<HTMLDivElement>(null);
-  const heroSectionRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   // Initialize Lenis Smooth Scroll
   useEffect(() => {
@@ -250,24 +245,14 @@ export default function CinematicSystemLanding() {
     };
   }, []);
 
-  // GSAP ScrollTrigger Assembly Animations
+  // GSAP ScrollTrigger Sequence Setup
   useGSAP(
     () => {
-      if (!logoMarkRef.current) return;
-
-      // Opening Logo Assembly Animation
-      gsap.fromTo(
-        logoMarkRef.current,
-        { scale: 0.85, opacity: 0, filter: 'blur(10px)' },
-        { scale: 1, opacity: 1, filter: 'blur(0px)', duration: 1.6, ease: 'power3.out' }
-      );
-
-      // Reveal sections on scroll
-      const slideElements = gsap.utils.toArray<HTMLElement>('[data-reveal]');
-      slideElements.forEach((el) => {
+      const reveals = gsap.utils.toArray<HTMLElement>('[data-reveal]');
+      reveals.forEach((el) => {
         gsap.fromTo(
           el,
-          { opacity: 0, y: 40 },
+          { opacity: 0, y: 35 },
           {
             opacity: 1,
             y: 0,
@@ -285,6 +270,14 @@ export default function CinematicSystemLanding() {
     { scope: containerRef }
   );
 
+  // Auto progression for Document Transformation Sequence
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTransformationStage((prev) => (prev + 1) % 4);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, []);
+
   const triggerAgentSearch = () => {
     setAgentSearching(true);
     setAgentProgress(0);
@@ -298,15 +291,15 @@ export default function CinematicSystemLanding() {
         }
         return prev + 10;
       });
-    }, 120);
+    }, 130);
   };
 
   return (
     <div ref={containerRef} className="min-h-screen bg-[#07080c] text-slate-100 font-sans selection:bg-cyan-500/30 selection:text-cyan-200 overflow-x-hidden">
-      {/* ── FIXED HEADER ──────────────────────────────────────────────────────── */}
-      <header className="fixed top-0 left-0 w-full z-50 px-6 sm:px-12 py-5 flex items-center justify-between backdrop-blur-xl bg-[#07080c]/80 border-b border-white/10 transition-all">
-        <div ref={logoMarkRef} className="flex items-center gap-3 cursor-pointer group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 p-[1px] shadow-[0_0_24px_rgba(0,150,255,0.35)] group-hover:scale-105 transition-transform">
+      {/* ── HEADER ───────────────────────────────────────────────────────────── */}
+      <header className="fixed top-0 left-0 w-full z-50 px-6 sm:px-12 py-5 flex items-center justify-between backdrop-blur-xl bg-[#07080c]/80 border-b border-white/10">
+        <div className="flex items-center gap-3 cursor-pointer group">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 p-[1px] shadow-[0_0_24px_rgba(0,150,255,0.35)]">
             <div className="w-full h-full rounded-[11px] bg-[#07080c] flex items-center justify-center">
               <span className="font-mono text-xl font-bold text-cyan-400">S</span>
             </div>
@@ -318,10 +311,10 @@ export default function CinematicSystemLanding() {
         </div>
 
         <nav className="hidden md:flex items-center gap-8 font-mono text-xs text-slate-400 tracking-wider">
-          <a href="#transformation" className="hover:text-cyan-400 transition-colors uppercase">01 // THESIS</a>
-          <a href="#intelligence" className="hover:text-cyan-400 transition-colors uppercase">02 // EVIDENCE</a>
-          <a href="#memory" className="hover:text-cyan-400 transition-colors uppercase">03 // MEMORY</a>
-          <a href="#decision" className="hover:text-cyan-400 transition-colors uppercase">04 // DECISION</a>
+          <a href="#opening" className="hover:text-cyan-400 transition-colors uppercase">01 // ASSEMBLY</a>
+          <a href="#transformation" className="hover:text-cyan-400 transition-colors uppercase">02 // PARSER</a>
+          <a href="#question" className="hover:text-cyan-400 transition-colors uppercase">03 // INQUIRY</a>
+          <a href="#agents" className="hover:text-cyan-400 transition-colors uppercase">04 // AGENTS</a>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -343,260 +336,205 @@ export default function CinematicSystemLanding() {
         </div>
       </header>
 
-      {/* ── 03 SCENE: OPENING & HERO TRANSFORMATION ───────────────────────────── */}
-      <section ref={heroSectionRef} className="relative pt-36 sm:pt-44 pb-20 px-6 sm:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 font-mono text-xs uppercase tracking-widest mb-6">
+      {/* ── 03 SCENE: OPENING SCENE (Logo Mark Assembly) ─────────────────────── */}
+      <section id="opening" className="pt-36 sm:pt-44 pb-20 px-6 sm:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
+        <SynapsLogoAssemblyAnimation />
+
+        <div className="mt-8 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 font-mono text-xs uppercase tracking-widest">
           <div className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-          <span>SYNAPS 3.4 · DPDP ACT COMPLIANT</span>
+          <span>AN INTELLIGENCE SYSTEM REVEALING ITSELF</span>
         </div>
 
-        <h1 className="font-mono text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-none mb-6">
-          AN INTELLIGENCE SYSTEM <br />
+        <h1 className="font-mono text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-none mt-6 mb-6">
+          SYNAPS <br />
           <span className="bg-gradient-to-r from-blue-500 via-cyan-400 to-sky-300 bg-clip-text text-transparent">
-            REVEALING ITSELF.
+            EVIDENCE-GROUNDED BRAIN
           </span>
         </h1>
 
         <p className="max-w-2xl text-slate-400 text-base sm:text-lg leading-relaxed mb-10 font-sans">
-          Synaps transforms complex unstructured contracts, financial models, and governance documents into an auditable, interconnected evidence engine — with line-level verification and 0% hallucinations.
+          Documents do not exist in isolation. Synaps turns raw PDFs, contracts, and financial reports into an auditable spatial system of verified relationships.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs font-bold uppercase tracking-wider shadow-[0_0_32px_rgba(0,85,255,0.45)] hover:scale-105 transition-all flex items-center gap-2.5"
+            className="px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs font-bold uppercase tracking-wider shadow-[0_0_32px_rgba(0,85,255,0.45)] hover:scale-105 transition-all flex items-center gap-2.5"
           >
-            <span>LAUNCH SYSTEM</span>
+            <span>ENTER SYNAPS SYSTEM</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
           <Link
             href="/dashboard"
-            className="px-7 py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-slate-200 font-mono text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-2.5"
+            className="px-8 py-4 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-slate-200 font-mono text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-2.5"
           >
-            <span>EXPLORE WORKSPACE</span>
+            <span>LAUNCH DASHBOARD</span>
             <ArrowUpRight className="w-4 h-4 text-cyan-400" />
           </Link>
         </div>
 
-        {/* 3D Cyber Core Canvas Container */}
+        {/* 3D Cyber Core Engine Container */}
         <div className="w-full h-[450px] sm:h-[580px] lg:h-[680px] relative rounded-2xl overflow-hidden border border-cyan-500/25 shadow-[0_0_60px_rgba(0,150,255,0.15)] bg-[#07080c]">
           <CinematicSystemCanvas />
           <div className="absolute top-4 right-4 pointer-events-none z-10 flex items-center gap-2 bg-[#07080c]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-cyan-500/30">
             <div className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span className="font-mono text-[10px] text-cyan-300 uppercase tracking-widest font-bold">3D INTERACTIVE SYNAPS ENGINE</span>
+            <span className="font-mono text-[10px] text-cyan-300 uppercase tracking-widest font-bold">3D CYBERNETIC SYNAPS ENGINE</span>
           </div>
         </div>
       </section>
 
-      {/* ── 04 SCENE: HERO TRANSFORMATION (Document -> Evidence) ──────────────── */}
+      {/* ── 04 SCENE: HERO TRANSFORMATION (Document -> Paragraph -> Concept -> Decision) */}
       <section id="transformation" className="py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/10">
         <div className="grid lg:grid-cols-12 gap-12 items-center" data-reveal>
           <div className="lg:col-span-5 flex flex-col gap-6">
-            <div className="font-mono text-xs text-cyan-400 uppercase tracking-widest font-bold">// 01 TRANSFORMATION THESIS</div>
+            <div className="font-mono text-xs text-cyan-400 uppercase tracking-widest font-bold">// 02 DOCUMENT TRANSFORMATION</div>
             <h2 className="font-mono text-3xl sm:text-4xl font-bold text-white leading-tight">
-              FROM UNSTRUCTURED TEXT TO DECISION-READY EVIDENCE.
+              A PARAGRAPH BECOMES A CONCEPT. A CONCEPT BECOMES A DECISION.
             </h2>
             <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              When a document enters Synaps, it does not remain a static file. It gets scanned, parsed, cross-referenced, and linked to organizational memory.
+              Watch Synaps dynamically decompose complex enterprise documentation into verified, auditable knowledge primitives.
             </p>
 
-            <div className="grid grid-cols-2 gap-4 mt-2 font-mono text-xs text-slate-300">
-              <div className="p-3.5 rounded-xl border border-white/10 bg-white/5 flex items-center gap-2.5">
+            <div className="space-y-3 font-mono text-xs">
+              <button
+                onClick={() => setTransformationStage(0)}
+                className={`w-full p-3.5 rounded-xl border text-left transition-all flex items-center justify-between ${
+                  transformationStage === 0 ? 'border-cyan-400 bg-cyan-500/10 text-cyan-200 font-bold' : 'border-white/10 bg-white/5 text-slate-400'
+                }`}
+              >
+                <span>1. DOCUMENT SCANNING & OCR</span>
                 <FileText className="w-4 h-4 text-cyan-400" />
-                <span>1. PDF / DOCX Scan</span>
-              </div>
-              <div className="p-3.5 rounded-xl border border-white/10 bg-white/5 flex items-center gap-2.5">
+              </button>
+
+              <button
+                onClick={() => setTransformationStage(1)}
+                className={`w-full p-3.5 rounded-xl border text-left transition-all flex items-center justify-between ${
+                  transformationStage === 1 ? 'border-blue-400 bg-blue-500/10 text-blue-200 font-bold' : 'border-white/10 bg-white/5 text-slate-400'
+                }`}
+              >
+                <span>2. PARAGRAPH & CLAUSE PARSING</span>
                 <Layers className="w-4 h-4 text-blue-400" />
-                <span>2. Concept Parse</span>
-              </div>
-              <div className="p-3.5 rounded-xl border border-white/10 bg-white/5 flex items-center gap-2.5">
+              </button>
+
+              <button
+                onClick={() => setTransformationStage(2)}
+                className={`w-full p-3.5 rounded-xl border text-left transition-all flex items-center justify-between ${
+                  transformationStage === 2 ? 'border-amber-400 bg-amber-500/10 text-amber-200 font-bold' : 'border-white/10 bg-white/5 text-slate-400'
+                }`}
+              >
+                <span>3. CROSS-DOCUMENT RELATIONSHIP MAPPING</span>
                 <GitBranch className="w-4 h-4 text-amber-400" />
-                <span>3. Relation Mapping</span>
-              </div>
-              <div className="p-3.5 rounded-xl border border-white/10 bg-white/5 flex items-center gap-2.5">
+              </button>
+
+              <button
+                onClick={() => setTransformationStage(3)}
+                className={`w-full p-3.5 rounded-xl border text-left transition-all flex items-center justify-between ${
+                  transformationStage === 3 ? 'border-emerald-400 bg-emerald-500/10 text-emerald-200 font-bold' : 'border-white/10 bg-white/5 text-slate-400'
+                }`}
+              >
+                <span>4. EXECUTIVE DECISION COMPRESSION</span>
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>4. Evidence Verify</span>
-              </div>
+              </button>
             </div>
           </div>
 
           <div className="lg:col-span-7">
             <div className="p-6 sm:p-8 rounded-2xl border border-white/10 bg-[#0d0f17] shadow-2xl relative">
               <div className="flex items-center justify-between pb-4 mb-6 border-b border-white/10 font-mono text-xs text-slate-400">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                  <span className="ml-2 text-slate-300">Global_Supply_Agreement_v3.pdf</span>
-                </div>
-                <span className="text-cyan-400 font-semibold">SYNAPS PARSER ACTIVE</span>
+                <span className="text-white font-bold">SYNAPS PIPELINE ENGINE // STAGE {transformationStage + 1} OF 4</span>
+                <span className="text-cyan-400">STATUS: ACTIVE</span>
               </div>
 
-              <div className="space-y-4 font-mono text-xs sm:text-sm leading-relaxed text-slate-300">
-                <p className="p-3 rounded-lg bg-white/5 border border-white/5">
-                  <strong className="text-slate-100">Section 14.2 [Indemnification]:</strong> Supplier agrees to indemnify, defend, and hold harmless Customer against any losses exceeding <span className="bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/40">$2,500,000 USD</span> arising out of data protection breaches.
-                </p>
-                <div className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-200 space-y-2">
-                  <div className="flex items-center justify-between font-bold text-xs uppercase tracking-wider text-cyan-300">
-                    <span className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-cyan-400" /> SYNAPS EVIDENCE INSIGHT</span>
-                    <span>100% CONFIDENCE</span>
-                  </div>
-                  <p className="text-xs text-slate-300">
-                    Cross-referenced with Q2 Compliance Framework: Liability cap is <strong className="text-cyan-300">$500k higher</strong> than standard guidelines. Requires Chief Legal Officer sign-off.
-                  </p>
-                </div>
-              </div>
+              <AnimatePresence mode="wait">
+                {transformationStage === 0 && (
+                  <motion.div key="stage0" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-4 font-mono text-xs sm:text-sm">
+                    <div className="p-4 rounded-xl border border-cyan-500/30 bg-black/40 space-y-2">
+                      <div className="text-cyan-300 font-bold">INCOMING DOCUMENT: Master_Services_Agreement_2026.pdf</div>
+                      <p className="text-slate-400">Page count: 48 · Extracted entities: 142 · Table structures: 12</p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {transformationStage === 1 && (
+                  <motion.div key="stage1" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-4 font-mono text-xs sm:text-sm">
+                    <div className="p-4 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-200 space-y-2">
+                      <div className="text-blue-300 font-bold uppercase">Section 14.2 — Liability Limitation</div>
+                      <p className="text-slate-200 font-sans">"The aggregate liability of either party under this agreement shall not exceed $2,500,000 USD."</p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {transformationStage === 2 && (
+                  <motion.div key="stage2" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-4 font-mono text-xs sm:text-sm">
+                    <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 space-y-2">
+                      <div className="text-amber-300 font-bold uppercase">Cross-Document Relationship Discovered</div>
+                      <p className="text-slate-300">Linked to <strong className="text-white">Q3_Risk_Framework.pdf</strong>: standard cap is $1.0M. Discrepancy of <strong className="text-amber-400">+$1.5M detected</strong>.</p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {transformationStage === 3 && (
+                  <motion.div key="stage3" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} className="space-y-4 font-mono text-xs sm:text-sm">
+                    <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-200 space-y-2">
+                      <div className="text-emerald-300 font-bold uppercase">Verified Decision Surface</div>
+                      <p className="text-slate-200">Require CLO approval prior to execution. Risk mitigation clause automatically drafted.</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── 06 SCENE: DOCUMENT INTELLIGENCE & "ONE QUESTION" MOMENT ──────────── */}
-      <section id="intelligence" className="py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/10">
+      {/* ── 07 SCENE: "ONE QUESTION" MOMENT ───────────────────────────────────── */}
+      <section id="question" className="py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/10">
         <div className="text-center max-w-3xl mx-auto mb-16" data-reveal>
-          <div className="font-mono text-xs text-cyan-400 uppercase tracking-widest font-bold mb-3">// 02 EVIDENTIARY REASONING</div>
+          <div className="font-mono text-xs text-cyan-400 uppercase tracking-widest font-bold mb-3">// 03 THE ONE QUESTION MOMENT</div>
           <h2 className="font-mono text-3xl sm:text-5xl font-bold text-white mb-4">
-            ASK ONE QUESTION. REVEAL THE ENTIRE TRUTH.
+            "WHAT CHANGED ACROSS OUR CONTRACTS?"
           </h2>
           <p className="text-slate-400 text-base">
-            Synaps does not return vague summaries. It points directly to exact clauses, sources, and line-level evidence across your entire repository.
+            Instead of reading 50 pages line-by-line, ask Synaps. The system brings the exact difference into focus.
           </p>
         </div>
 
-        {/* Interactive Tabbed Intelligence Demonstrator */}
-        <div className="rounded-2xl border border-white/10 bg-[#0d0f17] overflow-hidden shadow-2xl" data-reveal>
-          <div className="flex flex-wrap border-b border-white/10 bg-black/40 p-2 gap-2 font-mono text-xs">
-            <button
-              onClick={() => setActiveTab('clause')}
-              className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 ${
-                activeTab === 'clause' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>Cross-Document Clause Analysis</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('question')}
-              className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 ${
-                activeTab === 'question' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Search className="w-3.5 h-3.5" />
-              <span>"What Changed?" Engine</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('memory')}
-              className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 ${
-                activeTab === 'memory' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Database className="w-3.5 h-3.5" />
-              <span>Spatial Memory Imprints</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('decision')}
-              className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 ${
-                activeTab === 'decision' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Scale className="w-3.5 h-3.5" />
-              <span>Executive Decision Matrix</span>
-            </button>
+        <div className="p-6 sm:p-10 rounded-2xl border border-white/10 bg-[#0d0f17] shadow-2xl space-y-6" data-reveal>
+          <div className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-200 font-mono text-sm flex items-center justify-between">
+            <span className="font-bold text-white">QUERY: "Compare termination notice periods across 2025 vs 2026 supplier agreements"</span>
+            <span className="text-xs text-cyan-300">PROCESSED IN 95ms</span>
           </div>
 
-          <div className="p-6 sm:p-10">
-            <AnimatePresence mode="wait">
-              {activeTab === 'clause' && (
-                <motion.div key="clause" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="space-y-6">
-                  <div className="flex items-center justify-between font-mono text-xs text-slate-400">
-                    <span>DOCUMENT A: MSA_Acme_2026.pdf</span>
-                    <span className="text-cyan-400">LINKED TO DOCUMENT B: Risk_Policy_v2.pdf</span>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-6 font-mono text-xs sm:text-sm">
-                    <div className="p-4 rounded-xl border border-white/10 bg-white/5 space-y-2">
-                      <div className="text-slate-400 font-bold uppercase">Source Clause 19.4</div>
-                      <p className="text-slate-200">"Notice of termination must be served strictly 60 days prior to annual renewal date."</p>
-                    </div>
-                    <div className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 space-y-2 text-cyan-200">
-                      <div className="text-cyan-300 font-bold uppercase">Synaps Cross-Verification</div>
-                      <p className="text-slate-300">Conflict detected with Standard Operational Playbook (30-day requirement). Alert flagged for Operations team.</p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {activeTab === 'question' && (
-                <motion.div key="question" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="space-y-6">
-                  <div className="p-4 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-200 font-mono text-sm flex items-center justify-between">
-                    <span className="font-semibold text-white">QUERY: "What changed in liability limits between 2025 and 2026 vendor agreements?"</span>
-                    <span className="text-xs text-cyan-400 bg-cyan-500/20 px-2.5 py-1 rounded">EXECUTION: 140ms</span>
-                  </div>
-                  <div className="p-5 rounded-xl border border-white/10 bg-black/40 space-y-3 font-mono text-xs text-slate-300">
-                    <div className="text-emerald-400 font-bold">✓ 3 KEY DISCREPANCIES DETECTED:</div>
-                    <ul className="space-y-2 list-disc list-inside text-slate-300">
-                      <li>2025 Cap: $1,000,000 USD (Fixed) → 2026 Cap: 2.5x Contract Value</li>
-                      <li>Data Breach Indemnity: Excluded in 2025 → Mandatory $5M cover in 2026</li>
-                      <li>Governing Jurisdiction: Delaware → London International Arbitration</li>
-                    </ul>
-                  </div>
-                </motion.div>
-              )}
-
-              {activeTab === 'memory' && (
-                <motion.div key="memory" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="grid sm:grid-cols-2 gap-4">
-                  {MEMORY_IMPRINTS.map((mem) => (
-                    <div key={mem.id} className="p-4 rounded-xl border border-white/10 bg-white/5 hover:border-cyan-500/40 transition-all font-mono text-xs space-y-2">
-                      <div className="flex items-center justify-between text-slate-400">
-                        <span className="text-cyan-400 font-bold">{mem.category}</span>
-                        <span>{mem.date}</span>
-                      </div>
-                      <div className="text-slate-100 font-bold text-sm">{mem.title}</div>
-                      <p className="text-slate-400 text-xs">{mem.snippet}</p>
-                      <div className="pt-2 border-t border-white/5 text-[10px] text-emerald-400 flex items-center justify-between">
-                        <span>CONFIDENCE: {mem.confidence}%</span>
-                        <span>AUDITED</span>
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-
-              {activeTab === 'decision' && (
-                <motion.div key="decision" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="space-y-6">
-                  <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-200 font-mono text-xs sm:text-sm font-semibold flex items-center justify-between">
-                    <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-amber-400" /> EXECUTIVE RECOMMENDATION: APPROVE WITH CONDITIONS</span>
-                    <span className="text-xs bg-amber-500/20 px-2 py-0.5 rounded text-amber-300">MEDIUM RISK</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs text-center">
-                    <div className="p-3 rounded-lg border border-white/10 bg-white/5"><div className="text-slate-400 text-[10px]">FACTS</div><div className="text-white font-bold mt-1">14 Clauses Verified</div></div>
-                    <div className="p-3 rounded-lg border border-white/10 bg-white/5"><div className="text-amber-400 text-[10px]">RISKS</div><div className="text-amber-300 font-bold mt-1">1 Jurisdiction Conflict</div></div>
-                    <div className="p-3 rounded-lg border border-white/10 bg-white/5"><div className="text-blue-400 text-[10px]">DEPENDENCIES</div><div className="text-blue-300 font-bold mt-1">DPDP Act Section 7</div></div>
-                    <div className="p-3 rounded-lg border border-white/10 bg-white/5"><div className="text-emerald-400 text-[10px]">OPTIONS</div><div className="text-emerald-300 font-bold mt-1">Add Amendment Addendum</div></div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div className="grid md:grid-cols-2 gap-6 font-mono text-xs sm:text-sm">
+            <div className="p-5 rounded-xl border border-red-500/30 bg-red-500/10 space-y-2">
+              <div className="text-red-300 font-bold">2025 Agreement Clause 9.1</div>
+              <p className="text-slate-300">"Either party may terminate upon <span className="bg-red-500/30 text-white px-1.5 py-0.5 rounded">30 days</span> written notice."</p>
+            </div>
+            <div className="p-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 space-y-2">
+              <div className="text-emerald-300 font-bold">2026 Agreement Clause 11.4</div>
+              <p className="text-slate-300">"Either party may terminate upon <span className="bg-emerald-500/30 text-white px-1.5 py-0.5 rounded">90 days</span> written notice + cure period."</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── 10 SCENE: AUTONOMOUS AGENT WORKFLOW ───────────────────────────────── */}
-      <section className="py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/10">
+      <section id="agents" className="py-24 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/10">
         <div className="grid lg:grid-cols-12 gap-12 items-center" data-reveal>
           <div className="lg:col-span-6 flex flex-col gap-6">
-            <div className="font-mono text-xs text-cyan-400 uppercase tracking-widest font-bold">// 03 AUTONOMOUS WORKFLOWS</div>
+            <div className="font-mono text-xs text-cyan-400 uppercase tracking-widest font-bold">// 04 AUTONOMOUS AGENTS</div>
             <h2 className="font-mono text-3xl sm:text-4xl font-bold text-white leading-tight">
-              SYNAPS AGENTS ACT. THEY DON'T JUST CHAT.
+              SYNAPS AGENTS ACT. THEY DO NOT SIMPLY CHAT.
             </h2>
             <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              Delegate complex multi-document auditing, compliance reviews, and proposal drafting to autonomous Synaps agents. Watch them parse, verify, and output actionable results.
+              Instantly launch autonomous agent workflows to audit risk, extract clauses, verify compliance, or draft response playbooks.
             </p>
 
             <button
               onClick={triggerAgentSearch}
               disabled={agentSearching}
-              className="w-fit px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-mono text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2.5 shadow-[0_0_24px_rgba(0,85,255,0.35)]"
+              className="w-fit px-7 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-mono text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2.5 shadow-[0_0_24px_rgba(0,85,255,0.35)]"
             >
               <Cpu className="w-4 h-4 text-cyan-300" />
               <span>{agentSearching ? 'EXECUTING AGENT WORKFLOW...' : 'RUN LIVE AGENT DEMO'}</span>
@@ -604,13 +542,12 @@ export default function CinematicSystemLanding() {
           </div>
 
           <div className="lg:col-span-6">
-            <div className="p-6 rounded-2xl border border-white/10 bg-[#0d0f17] font-mono text-xs space-y-4">
+            <div className="p-6 rounded-2xl border border-white/10 bg-[#0d0f17] font-mono text-xs space-y-4 shadow-2xl">
               <div className="flex items-center justify-between pb-3 border-b border-white/10 text-slate-400">
                 <span className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-cyan-400" /> AGENT TASK: AUDIT INDEMNIFICATION CLAUSES</span>
                 <span className="text-cyan-400 font-bold">{agentProgress}%</span>
               </div>
 
-              {/* Progress Track */}
               <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-emerald-400 transition-all duration-150" style={{ width: `${agentProgress}%` }} />
               </div>
@@ -619,7 +556,7 @@ export default function CinematicSystemLanding() {
                 <div>[14:27:01] Scanning 142 repository files...</div>
                 {agentProgress >= 30 && <div className="text-blue-400">[14:27:02] Identified 7 indemnification references across 4 agreements.</div>}
                 {agentProgress >= 70 && <div className="text-amber-400">[14:27:03] Flagged 1 outdated liability cap in MSA_2024.pdf.</div>}
-                {agentProgress >= 100 && <div className="text-emerald-400 font-bold">[14:27:04] WORKFLOW COMPLETE. Report generated & saved to Workspace.</div>}
+                {agentProgress >= 100 && <div className="text-emerald-400 font-bold">[14:27:04] WORKFLOW COMPLETE. Audit report saved to Workspace.</div>}
               </div>
             </div>
           </div>
@@ -628,18 +565,14 @@ export default function CinematicSystemLanding() {
 
       {/* ── 15 SCENE: FINAL CONVERGENCE & ENTRY ──────────────────────────────── */}
       <section className="py-32 px-6 sm:px-12 max-w-5xl mx-auto text-center border-t border-white/10 relative" data-reveal>
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 via-cyan-400 to-sky-300 p-[1px] mx-auto mb-8 shadow-[0_0_50px_rgba(0,150,255,0.4)]">
-          <div className="w-full h-full rounded-[15px] bg-[#07080c] flex items-center justify-center">
-            <span className="font-mono text-2xl font-bold text-cyan-400">S</span>
-          </div>
-        </div>
+        <SynapsLogoAssemblyAnimation />
 
-        <h2 className="font-mono text-3xl sm:text-5xl font-extrabold text-white mb-6 tracking-tight">
+        <h2 className="font-mono text-3xl sm:text-5xl font-extrabold text-white mt-8 mb-6 tracking-tight">
           YOUR INFORMATION ALREADY KNOWS MORE THAN YOU THINK.
         </h2>
 
         <p className="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
-          Stop searching blindly through endless folders. Unlock the hidden evidentiary relationships inside your organization.
+          Stop searching blindly through isolated folders. Unlock the hidden evidentiary relationships inside your enterprise.
         </p>
 
         <button
