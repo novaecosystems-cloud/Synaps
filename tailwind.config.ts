@@ -14,8 +14,11 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'sans-serif'],
-        mono: ['var(--font-plex-mono)', 'monospace'],
+        headline: ['var(--font-fraunces)', 'Fraunces', 'serif'],
+        serif: ['var(--font-fraunces)', 'Fraunces', 'serif'],
+        sans: ['var(--font-sora)', 'Sora', 'sans-serif'],
+        body: ['var(--font-sora)', 'Sora', 'sans-serif'],
+        mono: ['var(--font-mono)', 'JetBrains Mono', 'monospace'],
       }
     },
   },
@@ -27,29 +30,29 @@ const config: Config = {
     themes: [
       {
         synapsLight: {
-          "primary": "#4f46e5", // Indigo 600
-          "secondary": "#9333ea", // Purple 600
-          "accent": "#0ea5e9", // Sky 500
-          "neutral": "#0f172a", // Slate 900
+          "primary": "#0055FF",
+          "secondary": "#00F0FF",
+          "accent": "#00F0FF",
+          "neutral": "#0f172a",
           "base-100": "#ffffff",
           "base-200": "#f8fafc",
           "base-300": "#f1f5f9",
           "base-content": "#0f172a",
-          "info": "#0ea5e9",
+          "info": "#00F0FF",
           "success": "#22c55e",
           "warning": "#f59e0b",
           "error": "#ef4444",
         },
         synapsDark: {
-          "primary": "#6366f1", // Indigo 500
-          "secondary": "#a855f7", // Purple 500
-          "accent": "#38bdf8", // Sky 400
-          "neutral": "#1e293b", // Slate 800
-          "base-100": "#050508", // OriginKit very dark background
-          "base-200": "#0f172a", // OriginKit slate 900
-          "base-300": "#1e293b", // OriginKit slate 800
-          "base-content": "#f8fafc", // Slate 50
-          "info": "#38bdf8",
+          "primary": "#0055FF",
+          "secondary": "#00F0FF",
+          "accent": "#00F0FF",
+          "neutral": "#1e293b",
+          "base-100": "#08080a",
+          "base-200": "#0d0d11",
+          "base-300": "#1a1a24",
+          "base-content": "#f8fafc",
+          "info": "#00F0FF",
           "success": "#22c55e",
           "warning": "#fbbf24",
           "error": "#ef4444",

@@ -247,7 +247,7 @@ export default function PonderEditorialSynapsLanding() {
           <div className="overflow-hidden">
             <h1
               ref={heroHeadingRef}
-              className="font-mono text-[clamp(3.5rem,9.5vw,9.5rem)] font-black text-white tracking-tighter leading-[0.88] uppercase"
+              className="font-serif text-[clamp(3.5rem,9.5vw,9.5rem)] font-black text-white tracking-tighter leading-[0.88] uppercase"
             >
               INFORMATION <br />
               BECOMES <br />
@@ -284,7 +284,7 @@ export default function PonderEditorialSynapsLanding() {
       <section id="core-idea" className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-white/10 space-y-16">
         <div className="space-y-4" data-editorial-reveal>
           <span className="font-mono text-xs text-blue-400 uppercase tracking-widest">// THE PROBLEM</span>
-          <h2 className="font-mono text-[clamp(2.5rem,6.5vw,6.5rem)] font-bold text-white tracking-tight leading-[0.95]">
+          <h2 className="font-serif text-[clamp(2.5rem,6.5vw,6.5rem)] font-bold text-white tracking-tight leading-[0.95]">
             Your organization already <br />
             has the answers. <br />
             <span className="text-neutral-500">They are just everywhere.</span>

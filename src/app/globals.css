@@ -39,7 +39,11 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Sora', var(--font-sora), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, .font-headline, .font-fraunces {
+  font-family: 'Fraunces', var(--font-fraunces), serif;
 }
 
 /* From Uiverse.io by D3OXY */

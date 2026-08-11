@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Fraunces, Sora, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 import { AuthProvider } from "@/context/AuthContext";
@@ -10,9 +11,27 @@ import MicrosoftClarity from "@/components/MicrosoftClarity";
 import AppUpdateNotifier from "@/components/AppUpdateNotifier";
 import { getSoftwareApplicationJsonLd } from "@/lib/openseo";
 
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
+
+const sora = Sora({
+  subsets: ["latin"],
+  variable: "--font-sora",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Synaps AI — 3D Corporate Memory & 10-Agent AI Boardroom",
-  description: "Synaps AI transforms complex document libraries into an interactive 3D Knowledge Graph and a 10-Agent AI C-Suite Boardroom.",
+  title: "Synaps AI — Enterprise Intelligence Layer & Evidence Engine",
+  description: "Synaps AI transforms complex document libraries into an interactive 3D Knowledge Graph and a 10-Agent AI Boardroom.",
 };
 
 export const viewport: Viewport = {
@@ -20,7 +39,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#6b8ab4",
+  themeColor: "#0055FF",
 };
 
 export default function RootLayout({
@@ -29,16 +48,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`${fraunces.variable} ${sora.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
-        {/* Load Syne, Unbounded, Space Grotesk & Plus Jakarta Sans via direct Google Fonts link */}
+        {/* Load Fraunces & Sora via direct Google Fonts link fallback */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Modak&family=Mouse+Memoirs&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Sora:wght@100..800&family=JetBrains+Mono:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
-        {/* Microsoft Clarity Analytics Script Fallback */}
+        {/* Microsoft Clarity Analytics Script */}
         <Script
           id="microsoft-clarity"
           strategy="afterInteractive"
@@ -60,7 +79,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased selection:bg-black selection:text-[#D96B27] min-h-screen overflow-x-hidden" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+      <body className="antialiased selection:bg-blue-600 selection:text-white min-h-screen overflow-x-hidden" style={{ fontFamily: "'Sora', sans-serif" }}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <AuthProvider>
             <MicrosoftClarity />
