@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -9,6 +10,19 @@ import SignInModal from '@/components/SignInModal';
 import SignInCardInline from '@/components/SignInCardInline';
 import Link from 'next/link';
 import Lenis from 'lenis';
+
+const Spline = dynamic(
+  () => import('@splinetool/react-spline').then((mod) => mod.default),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full min-h-[450px] flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 text-center">
+        <div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
+        <span className="font-mono text-xs text-cyan-300 tracking-widest uppercase">INITIALIZING 3D SYNAPS ENGINE...</span>
+      </div>
+    ),
+  }
+) as React.ComponentType<{ scene: string; className?: string; style?: React.CSSProperties }>;
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -897,7 +911,7 @@ export default function SynapsLanding() {
           --huge-black: #000000;
           --huge-magenta: #ff0090;
           --huge-cyan: #9bb8e1;
-          --huge-purple: #7c3aed;
+          --huge-cobalt: #0055ff;
           --huge-gray-text: #73767d;
           --huge-dark-bg: #000209;
         }
@@ -1080,7 +1094,7 @@ export default function SynapsLanding() {
 
         /* ── Gradient text ── */
         .text-gradient-blue {
-          background: linear-gradient(135deg, #9bb8e1, #7c3aed, #ff0090);
+          background: linear-gradient(135deg, #9bb8e1, #0055ff, #ff0090);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -1186,7 +1200,7 @@ export default function SynapsLanding() {
         /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-track { background: #000209; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(#9bb8e1, #7c3aed, #ff0090); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(#9bb8e1, #0055ff, #ff0090); border-radius: 99px; }
       `}</style>
 
       {/* ── CURTAIN LOADER (Hashgraph + Iberian Curtain Wave loader) ────────── */}
@@ -1227,7 +1241,7 @@ export default function SynapsLanding() {
               </svg>
               <div style={{
                 width: 48, height: 48, borderRadius: 12,
-                background: 'linear-gradient(135deg, #7c3aed, #ff0090)',
+                background: 'linear-gradient(135deg, #0055ff, #ff0090)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 0 30px rgba(255,0,144,0.5)',
               }}>
@@ -1252,7 +1266,7 @@ export default function SynapsLanding() {
             }}>
               <div style={{
                 height: '100%', width: `${loaderProgress}%`,
-                background: 'linear-gradient(90deg, #9bb8e1, #7c3aed, #ff0090)',
+                background: 'linear-gradient(90deg, #9bb8e1, #0055ff, #ff0090)',
                 transition: 'width 0.05s linear',
               }} />
             </div>
@@ -1274,7 +1288,7 @@ export default function SynapsLanding() {
       <div
         style={{
           position: 'fixed', top: 0, left: 0, zIndex: 9999,
-          height: 2, background: 'linear-gradient(90deg, #9bb8e1, #7c3aed, #ff0090)',
+          height: 2, background: 'linear-gradient(90deg, #9bb8e1, #0055ff, #ff0090)',
           width: `${scrollProgress}%`, transition: 'width 0.1s linear',
         }}
       />
@@ -1284,7 +1298,7 @@ export default function SynapsLanding() {
         <defs>
           <linearGradient id="btnBorderGrad" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#9bb8e1" />
-            <stop offset="50%" stopColor="#7c3aed" />
+            <stop offset="50%" stopColor="#0055ff" />
             <stop offset="100%" stopColor="#ff0090" />
           </linearGradient>
         </defs>
@@ -1369,7 +1383,7 @@ export default function SynapsLanding() {
           >
             <div style={{
               width: 40, height: 40, borderRadius: 10,
-              background: 'linear-gradient(135deg, #7c3aed, #ff0090)',
+              background: 'linear-gradient(135deg, #0055ff, #ff0090)',
               padding: 1, boxShadow: '0 0 20px rgba(255,0,144,0.35)',
             }}>
               <div style={{
@@ -1521,6 +1535,15 @@ export default function SynapsLanding() {
                     </div>
                   </div>
                 </div>
+
+                {/* 3D Spline Interactive Experience */}
+                <div className="mt-12 w-full h-[450px] sm:h-[550px] lg:h-[650px] relative rounded-2xl overflow-hidden border border-cyan-500/25 shadow-[0_0_50px_rgba(0,150,255,0.15)] bg-gradient-to-b from-[#090b14] to-[#04060b]" data-slide-up>
+                  <Spline scene="https://prod.spline.design/2UsgThiwypI79TVA/scene.splinecode" />
+                  <div className="absolute top-4 right-4 pointer-events-none z-10 flex items-center gap-2 bg-black/65 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-cyan-500/30">
+                    <div className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                    <span className="font-mono text-[10px] text-cyan-300 uppercase tracking-widest font-bold">3D INTERACTIVE SYNAPS ENGINE</span>
+                  </div>
+                </div>
               </div>
 
               {/* Scroll indicator (Hashgraph style dash-wipe) */}
@@ -1604,8 +1627,8 @@ export default function SynapsLanding() {
                   onMouseLeave={handleCard3DReset}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-[10px] text-purple-400 bg-purple-500/10 px-2 py-1 rounded border border-purple-500/30">10-AGENT DEBATE</span>
-                    <Sparkles className="w-5 h-5 text-purple-400" />
+                    <span className="font-mono text-[10px] text-cyan-400 bg-cyan-500/10 px-2 py-1 rounded border border-cyan-500/30">10-AGENT DEBATE</span>
+                    <Sparkles className="w-5 h-5 text-cyan-400" />
                   </div>
                   <div>
                     <h3 className="title-main-poly text-xl sm:text-2xl text-white mb-2">Boardroom Consensus</h3>
@@ -1613,7 +1636,7 @@ export default function SynapsLanding() {
                       Parallel multi-agent debate across Legal, CFO, Risk, Compliance, and Operations.
                     </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-purple-300">
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-cyan-300">
                     <span>Consensus Brief</span>
                     <span>AUDITABLE</span>
                   </div>
@@ -1719,7 +1742,7 @@ export default function SynapsLanding() {
                       <span>Paragraph</span>
                     </div>
                     <div className="px-3 py-1.5 rounded-lg border border-white/15 bg-white/5 text-xs font-mono text-white/80 flex items-center gap-2 hover:border-[#0496ff]/60 transition-colors cursor-pointer">
-                      <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                      <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
                       <span>Heading 1</span>
                     </div>
                     <div className="px-3 py-1.5 rounded-lg border border-white/15 bg-white/5 text-xs font-mono text-white/80 flex items-center gap-2 hover:border-[#0496ff]/60 transition-colors cursor-pointer">
@@ -2069,22 +2092,22 @@ export default function SynapsLanding() {
                 {/* Studio / Enterprise Tier */}
                 <div className="zero-card-glow p-8 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl flex flex-col justify-between hover:border-white/30 transition-all">
                   <div>
-                    <div className="font-mono text-xs text-purple-400 uppercase tracking-widest mb-2">// ENTERPRISE MAX</div>
+                    <div className="font-mono text-xs text-cyan-400 uppercase tracking-widest mb-2">// ENTERPRISE MAX</div>
                     <h3 className="title-main-poly text-2xl text-white font-bold mb-1">Enterprise Max</h3>
                     <div className="flex items-baseline gap-2 my-4">
                       <div className="text-4xl font-mono font-bold text-white">$20 <span className="text-xs text-white/50 font-normal">/ mo</span></div>
-                      <div className="text-xs font-mono text-purple-400 bg-purple-500/15 px-2 py-0.5 rounded border border-purple-500/30">Or $4.99 / wk</div>
+                      <div className="text-xs font-mono text-cyan-400 bg-cyan-500/15 px-2 py-0.5 rounded border border-cyan-500/30">Or $4.99 / wk</div>
                     </div>
                     <p className="text-xs text-white/60 mb-6 leading-relaxed">Unlimited AI capabilities, custom LLM keys, and zero-trust data isolation.</p>
                     <ul className="space-y-3 text-xs font-mono text-white/80">
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Unlimited Daily AI Credits &amp; Workspaces</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Custom LLM Provider API Keys</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> Zero-Trust Multi-Tenant Isolation</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> 100% DPDP Act 2023 Compliance Audits</li>
-                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-purple-400" /> 24/7 Dedicated Account Manager</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" /> Unlimited Daily AI Credits &amp; Workspaces</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" /> Custom LLM Provider API Keys</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" /> Zero-Trust Multi-Tenant Isolation</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" /> 100% DPDP Act 2023 Compliance Audits</li>
+                      <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" /> 24/7 Dedicated Account Manager</li>
                     </ul>
                   </div>
-                  <button onClick={openModal} className="mt-8 w-full py-3 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-mono text-xs transition-all">
+                  <button onClick={openModal} className="mt-8 w-full py-3 rounded-lg border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 font-mono text-xs transition-all">
                     UPGRADE TO ENTERPRISE ($20/MO) →
                   </button>
                 </div>
@@ -2195,18 +2218,18 @@ export default function SynapsLanding() {
                 </div>
 
                 {/* Fieldset 3: Social Networks */}
-                <div className="p-6 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl hover:border-purple-500/50 transition-all group">
-                  <div className="font-mono text-[10px] text-purple-400 tracking-widest uppercase mb-3">// SOCIAL NETWORKS</div>
+                <div className="p-6 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl hover:border-cyan-500/50 transition-all group">
+                  <div className="font-mono text-[10px] text-cyan-400 tracking-widest uppercase mb-3">// SOCIAL NETWORKS</div>
                   <div className="flex flex-col gap-2 font-mono text-xs text-white/80">
-                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors flex items-center justify-between">
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center justify-between">
                       <span>LinkedIn</span>
                       <ArrowUpRight className="w-3 h-3" />
                     </a>
-                    <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors flex items-center justify-between">
+                    <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center justify-between">
                       <span>X (Twitter)</span>
                       <ArrowUpRight className="w-3 h-3" />
                     </a>
-                    <a href="https://github.com/novaecosystems-cloud/Synaps" target="_blank" rel="noopener noreferrer" className="hover:text-purple-400 transition-colors flex items-center justify-between">
+                    <a href="https://github.com/novaecosystems-cloud/Synaps" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors flex items-center justify-between">
                       <span>GitHub Repo</span>
                       <ArrowUpRight className="w-3 h-3" />
                     </a>

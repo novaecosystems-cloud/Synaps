@@ -41,6 +41,8 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@react-three/postprocessing": "^3.0.4",
+    "@splinetool/react-spline": "^4.0.0",
+    "@splinetool/runtime": "^1.9.50",
     "@supabase/supabase-js": "^2.110.4",
     "@types/nodemailer": "^8.0.1",
     "@types/papaparse": "^5.5.2",
