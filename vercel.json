@@ -1,7 +1,6 @@
 {
   "version": 2,
   "alias": [
-    "synaps.is-a.dev",
     "synaps-one.vercel.app"
   ],
   "framework": "nextjs",
