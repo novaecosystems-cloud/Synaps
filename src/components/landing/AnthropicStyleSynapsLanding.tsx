@@ -11,18 +11,49 @@ import SignInCardInline from '@/components/SignInCardInline';
 import Link from 'next/link';
 import Lenis from 'lenis';
 
-const Spline = dynamic(
-  () => import('@splinetool/react-spline/next'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-full min-h-[450px] flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 text-center">
-        <div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
-        <span className="font-mono text-xs text-cyan-300 tracking-widest uppercase">INITIALIZING 3D SYNAPS ENGINE...</span>
-      </div>
-    ),
-  }
-) as React.ComponentType<{ scene: string; className?: string; style?: React.CSSProperties }>;
+function Spline3DScene({ scene }: { scene: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let app: any = null;
+    let isMounted = true;
+
+    async function initSpline() {
+      try {
+        const { Application } = await import('@splinetool/runtime');
+        if (!canvasRef.current || !isMounted) return;
+
+        app = new Application(canvasRef.current);
+        await app.load(scene);
+        if (isMounted) setLoaded(true);
+      } catch (e) {
+        console.warn('Spline 3D Scene Runtime load fallback:', e);
+      }
+    }
+
+    initSpline();
+
+    return () => {
+      isMounted = false;
+      if (app && typeof app.dispose === 'function') {
+        try { app.dispose(); } catch (_) {}
+      }
+    };
+  }, [scene]);
+
+  return (
+    <div className="w-full h-full relative">
+      {!loaded && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-2xl p-6 text-center z-10">
+          <div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
+          <span className="font-mono text-xs text-cyan-300 tracking-widest uppercase">INITIALIZING 3D SYNAPS ENGINE...</span>
+        </div>
+      )}
+      <canvas ref={canvasRef} className="w-full h-full block" />
+    </div>
+  );
+}
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -1538,7 +1569,7 @@ export default function SynapsLanding() {
 
                 {/* 3D Spline Interactive Experience */}
                 <div className="mt-12 w-full h-[450px] sm:h-[550px] lg:h-[650px] relative rounded-2xl overflow-hidden border border-cyan-500/25 shadow-[0_0_50px_rgba(0,150,255,0.15)] bg-gradient-to-b from-[#090b14] to-[#04060b]" data-slide-up>
-                  <Spline scene="https://prod.spline.design/2UsgThiwypI79TVA/scene.splinecode" />
+                  <Spline3DScene scene="https://prod.spline.design/2UsgThiwypI79TVA/scene.splinecode" />
                   <div className="absolute top-4 right-4 pointer-events-none z-10 flex items-center gap-2 bg-black/65 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-cyan-500/30">
                     <div className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                     <span className="font-mono text-[10px] text-cyan-300 uppercase tracking-widest font-bold">3D INTERACTIVE SYNAPS ENGINE</span>

@@ -1,13 +1,17 @@
+declare module '@splinetool/runtime' {
+  export class Application {
+    constructor(canvas: HTMLCanvasElement);
+    load(sceneUrl: string): Promise<void>;
+    dispose(): void;
+  }
+}
+
 declare module '@splinetool/react-spline' {
   import React from 'react';
   export interface SplineProps {
     scene: string;
     className?: string;
     style?: React.CSSProperties;
-    onLoad?: (splineApp: any) => void;
-    onMouseDown?: (e: any) => void;
-    onMouseUp?: (e: any) => void;
-    onMouseMove?: (e: any) => void;
   }
   const Spline: React.ComponentType<SplineProps>;
   export default Spline;
