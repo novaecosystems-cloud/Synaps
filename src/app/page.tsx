@@ -2,11 +2,11 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import HeyParkerStyleLanding from '@/components/landing/HeyParkerStyleLanding';
+import FramerSynapsLanding from '@/components/landing/FramerSynapsLanding';
 
 export const metadata = {
-  title: 'SYNAPS — Document Intelligence On Autopilot | Enterprise Evidence Engine',
-  description: 'Meet SYNAPS — the AI that thinks like your best enterprise legal strategist and risk operations manager.',
+  title: 'SYNAPS — Enterprise Intelligence Layer',
+  description: "SYNAPS turns your company's scattered information into usable intelligence. Evidence-grounded answers, risk detection, and organizational memory.",
 };
 
 export default async function RootPage() {
@@ -20,5 +20,5 @@ export default async function RootPage() {
     }
   }
 
-  return <HeyParkerStyleLanding />;
+  return <FramerSynapsLanding />;
 }
