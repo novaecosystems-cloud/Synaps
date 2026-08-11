@@ -1,5 +1,9 @@
 {
   "version": 2,
+  "alias": [
+    "synaps.qd.je",
+    "synaps-one.vercel.app"
+  ],
   "framework": "nextjs",
   "buildCommand": "prisma generate && next build",
   "installCommand": "npm install",
