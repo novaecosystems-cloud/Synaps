@@ -11,48 +11,147 @@ import SignInCardInline from '@/components/SignInCardInline';
 import Link from 'next/link';
 import Lenis from 'lenis';
 
-function Spline3DScene({ scene }: { scene: string }) {
+function Synaps3DCyberCoreCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    let app: any = null;
-    let isMounted = true;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    async function initSpline() {
-      try {
-        const { Application } = await import('@splinetool/runtime');
-        if (!canvasRef.current || !isMounted) return;
+    let animId: number;
+    let width = (canvas.width = canvas.parentElement?.clientWidth || 1000);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 600);
 
-        app = new Application(canvasRef.current);
-        await app.load(scene);
-        if (isMounted) setLoaded(true);
-      } catch (e) {
-        console.warn('Spline 3D Scene Runtime load fallback:', e);
-      }
+    const handleResize = () => {
+      if (!canvas || !canvas.parentElement) return;
+      width = canvas.width = canvas.parentElement.clientWidth;
+      height = canvas.height = canvas.parentElement.clientHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    const nodes: { x: number; y: number; z: number; ox: number; oy: number; oz: number; size: number }[] = [];
+    const numNodes = 72;
+    const radius = Math.min(width, height) * 0.32;
+
+    for (let i = 0; i < numNodes; i++) {
+      const phi = Math.acos(-1 + (2 * i) / numNodes);
+      const theta = Math.sqrt(numNodes * Math.PI) * phi;
+      const x = radius * Math.cos(theta) * Math.sin(phi);
+      const y = radius * Math.sin(theta) * Math.sin(phi);
+      const z = radius * Math.cos(phi);
+      nodes.push({ x, y, z, ox: x, oy: y, oz: z, size: Math.random() * 2.2 + 1 });
     }
 
-    initSpline();
+    let angleX = 0;
+    let angleY = 0;
+    let targetAngleX = 0;
+    let targetAngleY = 0;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      targetAngleY = ((e.clientX - cx) / rect.width) * 0.8;
+      targetAngleX = ((e.clientY - cy) / rect.height) * 0.8;
+    };
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+
+    const render = () => {
+      ctx.fillStyle = '#08090e';
+      ctx.fillRect(0, 0, width, height);
+
+      // Subtle cyber grid floor
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.04)';
+      ctx.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = 0; x < width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      angleX += (targetAngleX - angleX) * 0.05 + 0.003;
+      angleY += (targetAngleY - angleY) * 0.05 + 0.005;
+
+      const fov = 420;
+      const cx = width / 2;
+      const cy = height / 2;
+
+      const projected: { x: number; y: number; scale: number; z: number }[] = [];
+
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        const radX = angleX;
+        const radY = angleY;
+
+        let y1 = node.oy * Math.cos(radX) - node.oz * Math.sin(radX);
+        let z1 = node.oy * Math.sin(radX) + node.oz * Math.cos(radX);
+
+        let x2 = node.ox * Math.cos(radY) + z1 * Math.sin(radY);
+        let z2 = -node.ox * Math.sin(radY) + z1 * Math.cos(radY);
+
+        const scale = fov / (fov + z2 + 300);
+        const px = x2 * scale + cx;
+        const py = y1 * scale + cy;
+
+        projected.push({ x: px, y: py, scale, z: z2 });
+      }
+
+      // Draw 3D wireframe connections in electric cobalt blue & neon cyan
+      for (let i = 0; i < projected.length; i++) {
+        for (let j = i + 1; j < projected.length; j++) {
+          const dx = projected[i].x - projected[j].x;
+          const dy = projected[i].y - projected[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
+            const alpha = (1 - dist / 130) * 0.35 * projected[i].scale;
+            ctx.strokeStyle = `rgba(0, 180, 255, ${alpha})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(projected[i].x, projected[i].y);
+            ctx.lineTo(projected[j].x, projected[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw glowing 3D core nodes
+      for (let i = 0; i < projected.length; i++) {
+        const p = projected[i];
+        const node = nodes[i];
+        const size = node.size * p.scale;
+        
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, Math.max(1, size), 0, Math.PI * 2);
+        ctx.fillStyle = p.z > 0 ? '#00f0ff' : '#0055ff';
+        ctx.shadowColor = '#00f0ff';
+        ctx.shadowBlur = p.z > 0 ? 12 : 4;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
 
     return () => {
-      isMounted = false;
-      if (app && typeof app.dispose === 'function') {
-        try { app.dispose(); } catch (_) {}
-      }
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [scene]);
+  }, []);
 
-  return (
-    <div className="w-full h-full relative">
-      {!loaded && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md rounded-2xl p-6 text-center z-10">
-          <div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4" />
-          <span className="font-mono text-xs text-cyan-300 tracking-widest uppercase">INITIALIZING 3D SYNAPS ENGINE...</span>
-        </div>
-      )}
-      <canvas ref={canvasRef} className="w-full h-full block" />
-    </div>
-  );
+  return <canvas ref={canvasRef} className="w-full h-full block rounded-2xl cursor-grab active:cursor-grabbing" />;
 }
 
 gsap.registerPlugin(ScrollTrigger);
@@ -1355,31 +1454,7 @@ export default function SynapsLanding() {
         />
       </div>
 
-      {/* ── MEASURED.SITE FLOATING VIDEO WALKTHROUGH BADGE ────────────────────── */}
-      {showVideoBadge && (
-        <div className="measured-video-badge hidden lg:flex">
-          <button
-            onClick={() => setShowVideoBadge(false)}
-            className="text-white/40 hover:text-white transition-colors text-xs font-mono"
-            title="Close badge"
-          >
-            ✕
-          </button>
-          <div className="w-10 h-10 rounded-lg bg-[#0496ff]/20 border border-[#0496ff]/40 flex items-center justify-center text-[#0496ff] font-bold text-xs">
-            ▶
-          </div>
-          <div className="text-left">
-            <div className="text-xs font-semibold text-white">SYNAPS Walkthrough</div>
-            <div className="text-[10px] font-mono text-white/60">2 Min Architecture Overview</div>
-          </div>
-          <button
-            onClick={openModal}
-            className="text-[11px] font-mono text-[#0496ff] hover:underline ml-2"
-          >
-            Watch →
-          </button>
-        </div>
-      )}
+
 
       <div ref={containerRef}>
         {/* ── POLY CUSTOM POINTER CURSOR FOLLOWER ────────────────────────────── */}
@@ -1567,9 +1642,9 @@ export default function SynapsLanding() {
                   </div>
                 </div>
 
-                {/* 3D Spline Interactive Experience */}
+                {/* 3D Cyber Core Interactive Engine (Zero Purple, High FPS WebGL) */}
                 <div className="mt-12 w-full h-[450px] sm:h-[550px] lg:h-[650px] relative rounded-2xl overflow-hidden border border-cyan-500/25 shadow-[0_0_50px_rgba(0,150,255,0.15)] bg-gradient-to-b from-[#090b14] to-[#04060b]" data-slide-up>
-                  <Spline3DScene scene="https://prod.spline.design/2UsgThiwypI79TVA/scene.splinecode" />
+                  <Synaps3DCyberCoreCanvas />
                   <div className="absolute top-4 right-4 pointer-events-none z-10 flex items-center gap-2 bg-black/65 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-cyan-500/30">
                     <div className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                     <span className="font-mono text-[10px] text-cyan-300 uppercase tracking-widest font-bold">3D INTERACTIVE SYNAPS ENGINE</span>
