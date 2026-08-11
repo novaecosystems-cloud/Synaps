@@ -2,11 +2,11 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import CinematicSystemLanding from '@/components/landing/CinematicSystemLanding';
+import PonderEditorialSynapsLanding from '@/components/landing/PonderEditorialSynapsLanding';
 
 export const metadata = {
-  title: 'SYNAPS — Enterprise Intelligence Workspace & Evidence Engine',
-  description: 'Turns documents, knowledge, evidence and business information into something people can actually understand, search, review and act on.',
+  title: 'SYNAPS — Enterprise Intelligence Layer & Evidence Engine',
+  description: 'SYNAPS turns documents, knowledge, evidence and organizational information into actionable intelligence.',
 };
 
 export default async function RootPage() {
@@ -20,5 +20,5 @@ export default async function RootPage() {
     }
   }
 
-  return <CinematicSystemLanding />;
+  return <PonderEditorialSynapsLanding />;
 }
