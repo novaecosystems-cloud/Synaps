@@ -30,41 +30,20 @@ export default function SynapsWrappedModal({
     creditsUsed: 140
   });
 
-  // Calculate live dynamic user stats on mount
+  // Calculate live dynamic user stats on mount using database math calculations
   useEffect(() => {
     if (!isOpen) return;
 
     async function loadLiveUserStats() {
       setLoading(true);
       try {
-        const creditsRes = await fetch('/api/settings/ai/credits');
-        const creditsData = await creditsRes.json();
-        
-        const docsRes = await fetch('/api/documents');
-        const docsData = await docsRes.json();
-
-        const docsCount = Array.isArray(docsData?.documents) ? docsData.documents.length : (docsData?.documents?.count || 8);
-        const creditsUsed = creditsData?.credits?.creditLimit ? (creditsData.credits.creditLimit - creditsData.credits.remaining) : 85;
-
-        const calculatedHoursSaved = parseFloat((docsCount * 0.75 + (creditsUsed / 10) * 0.25).toFixed(1));
-        const calculatedNodes = docsCount * 8 + creditsUsed * 2;
-        const calculatedDebates = Math.max(1, Math.floor(creditsUsed / 15));
-
-        let persona = 'Grounded Risk Eliminator';
-        if (calculatedNodes > 150) persona = '3D Knowledge Master';
-        else if (calculatedDebates > 10) persona = 'C-Suite Consensus Visionary';
-        else if (docsCount > 15) persona = 'Enterprise Operations Lead';
-
-        setUserStats({
-          documentsAudited: docsCount,
-          hoursSaved: calculatedHoursSaved > 0 ? calculatedHoursSaved : 4.5,
-          boardroomDebates: calculatedDebates,
-          nodesDiscovered: calculatedNodes > 0 ? calculatedNodes : 48,
-          groundedRate: 100,
-          executivePersona: persona,
-          creditsUsed: creditsUsed
-        });
+        const res = await fetch('/api/user/wrapped-stats');
+        const json = await res.json();
+        if (json.success && json.stats) {
+          setUserStats(json.stats);
+        }
       } catch (e) {
+        console.error("Failed to load wrapped stats:", e);
       } finally {
         setLoading(false);
       }
