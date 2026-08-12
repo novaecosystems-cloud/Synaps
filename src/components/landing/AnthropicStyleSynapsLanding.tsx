@@ -8,6 +8,7 @@ import { useGSAP } from '@gsap/react';
 import { ArrowUpRight, ArrowRight, ShieldCheck, FileText, Lock, Sparkles, Plus, CheckCircle2, Globe, Cpu, Zap, Activity } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
 import SignInCardInline from '@/components/SignInCardInline';
+import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
 import Link from 'next/link';
 import Lenis from 'lenis';
 
@@ -476,6 +477,7 @@ export default function SynapsLanding() {
   // ── Curtain Loader State ──────────────────────────────────────────────────
   const [loaderProgress, setLoaderProgress] = useState(0);
   const [loaderComplete, setLoaderComplete] = useState(false);
+  const [legalModalDoc, setLegalModalDoc] = useState<LegalDocType | null>(null);
   const curtainRef = useRef<HTMLDivElement>(null);
   const curtainWaveRef = useRef<SVGPathElement>(null);
 
@@ -2370,19 +2372,13 @@ export default function SynapsLanding() {
                 </span>
               </div>
 
-              <div style={{ display: 'flex', gap: 28 }}>
-                {[
-                  { label: 'APP', href: '/dashboard/chat' },
-                  { label: 'DOCUMENTS', href: '/dashboard/documents' },
-                  { label: 'GRAPH', href: '/dashboard/graph' },
-                  { label: 'PRIVACY', href: '#' },
-                ].map(({ label, href }) => (
-                  <a key={label} href={href} className="ff-mono huge-link" style={{
-                    fontSize: 10, color: '#73767d', letterSpacing: '0.12em',
-                  }}>
-                    <span>{label}</span>
-                  </a>
-                ))}
+              <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                <a href="/dashboard/chat" className="ff-mono huge-link" style={{ fontSize: 10, color: '#73767d', letterSpacing: '0.12em' }}>APP</a>
+                <a href="/dashboard/documents" className="ff-mono huge-link" style={{ fontSize: 10, color: '#73767d', letterSpacing: '0.12em' }}>DOCUMENTS</a>
+                <button onClick={() => setLegalModalDoc('terms')} className="ff-mono cursor-pointer hover:text-white" style={{ fontSize: 10, color: '#73767d', letterSpacing: '0.12em' }}>TERMS OF SERVICE</button>
+                <button onClick={() => setLegalModalDoc('privacy')} className="ff-mono cursor-pointer hover:text-white" style={{ fontSize: 10, color: '#73767d', letterSpacing: '0.12em' }}>PRIVACY POLICY</button>
+                <button onClick={() => setLegalModalDoc('security')} className="ff-mono cursor-pointer hover:text-white" style={{ fontSize: 10, color: '#73767d', letterSpacing: '0.12em' }}>SECURITY & SOC2</button>
+                <button onClick={() => setLegalModalDoc('cookies')} className="ff-mono cursor-pointer hover:text-white" style={{ fontSize: 10, color: '#73767d', letterSpacing: '0.12em' }}>COOKIE POLICY</button>
               </div>
             </footer>
           </div>
@@ -2396,8 +2392,9 @@ export default function SynapsLanding() {
 
         </div>
 
-        {/* ── SIGN IN MODAL (FOR MOBILE / NAV CLICK) ─────────────────────────── */}
+        {/* ── SIGN IN & LEGAL MODALS ─────────────────────────── */}
         <SignInModal isOpen={showSignIn} onClose={() => setShowSignIn(false)} />
+        <LegalDialogModal type={legalModalDoc} onClose={() => setLegalModalDoc(null)} />
       </div>
     </>
   );

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const organizationId = dbUser?.organizationId;
     if (!organizationId) return NextResponse.json({ success: false, error: 'User must belong to an organization' }, { status: 403 });
 
-    const { messages, webSearch } = await req.json();
+    const { messages, webSearch, effort = 'Medium', responseLength = 'Standard' } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ success: false, error: 'Messages array is required' }, { status: 400 });
@@ -43,8 +43,14 @@ export async function POST(req: NextRequest) {
     const isPhase3Research = webSearch ||
       /research|case|court|judg\w+|affect\s+this\s+contract|similar\s+cases|concern\s+management|company\s+background|publicly\s+available|benchmark|search the web|latest|recent|current|today|news/i.test(query);
 
-    // Rate & Daily AI Credit Limiting (Cost: 2 credits for web research, 1 for standard chat)
-    const creditCost = isPhase3Research ? 2 : 1;
+    // Rate & Dynamic AI Credit Consumption (Cost: 5 for Max Effort In-Depth, 2 for Medium/Web, 1 for Brief/Standard)
+    let creditCost = 1;
+    if (effort === 'Max Effort' && responseLength === 'In-Depth') {
+      creditCost = 5;
+    } else if (effort === 'Max Effort' || responseLength === 'In-Depth' || effort === 'Medium' || isPhase3Research) {
+      creditCost = 2;
+    }
+
     const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
     const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', creditCost);
 

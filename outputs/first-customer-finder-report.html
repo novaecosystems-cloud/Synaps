@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>SYNAPS AI — Early Customer Prospecting Report</title>
+  <style>
+    :root{--bg:#090b0f;--panel:#12161d;--panel2:#191f28;--ink:#f5f2ea;--muted:#9ca6b5;--line:#2b3340;--acid:#d9ff63;--blue:#69b7ff;--orange:#ff8f5a;--cyan:#5ee8d0;--radius:18px;--shadow:0 24px 80px rgba(0,0,0,.38)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.3;background:repeating-linear-gradient(135deg,rgba(255,255,255,.018) 0 1px,transparent 1px 12px);mask-image:linear-gradient(#000,transparent 82%)}a{color:inherit}.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:16px;z-index:9;background:var(--acid);color:#111;padding:10px}
+    .shell{width:min(1180px,calc(100% - 40px));margin:auto;position:relative}.top{display:flex;justify-content:space-between;align-items:center;padding:22px 0;border-bottom:1px solid var(--line)}.brand{font-weight:850;display:flex;align-items:center;gap:10px}.brand i{width:12px;height:12px;border-radius:50%;background:var(--acid);box-shadow:0 0 22px var(--acid)}.meta{display:flex;gap:8px;align-items:center}.chip,.stage{border:1px solid var(--line);border-radius:999px;padding:7px 10px;color:var(--muted);font:750 11px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.07em}button{background:var(--ink);color:#111;border:0;border-radius:999px;padding:9px 14px;font:800 13px inherit;cursor:pointer}button:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+    .hero{display:grid;grid-template-columns:1.45fr .55fr;gap:36px;align-items:end;padding:72px 0 42px}.eyebrow{color:var(--acid);font:750 11px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.11em}h1{font-size:clamp(48px,7vw,92px);line-height:.92;letter-spacing:-.065em;margin:13px 0 24px}.verdict{font-size:clamp(18px,2.1vw,25px);color:#dce1e9;max-width:820px;margin:0}.hero-card{background:var(--acid);color:#10120d;padding:26px;border-radius:var(--radius);box-shadow:var(--shadow);transform:rotate(1deg)}.hero-card span{font:800 11px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em}.hero-card strong{display:block;font-size:64px;line-height:1;letter-spacing:-.08em;margin:15px 0 6px}.hero-card p{margin:0;font-weight:700;font-size:13px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:28px}.stats>div{padding:18px;background:var(--panel)}.stats>div+div{border-left:1px solid var(--line)}.stats span,.prospect-grid span,.signal span,.evidence span,blockquote span{display:block;color:var(--muted);font:700 10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}.stats strong{font-size:17px}
+    .best{display:grid;grid-template-columns:180px 1fr auto;gap:24px;align-items:center;padding:25px;background:var(--orange);color:#1b0f09;border-radius:var(--radius);box-shadow:var(--shadow);margin:0 0 72px}.best-label{font:800 11px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.1em}.best h2{font-size:clamp(28px,4vw,46px);letter-spacing:-.045em;line-height:1;margin:0 0 8px}.best p{margin:0}.best strong{font-size:44px}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:24px;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:18px}.section-head h2{font-size:clamp(34px,5vw,62px);line-height:.98;letter-spacing:-.055em;margin:0}.section-head p{color:var(--muted);max-width:470px;margin:0}
+    .prospects{display:grid;gap:16px;margin-bottom:76px}.prospect{background:linear-gradient(135deg,var(--panel),#0f1319);border:1px solid var(--line);border-radius:var(--radius);padding:25px;box-shadow:0 12px 38px rgba(0,0,0,.18)}.prospect-head{display:grid;grid-template-columns:54px 1fr 92px;gap:17px;align-items:start}.rank{font:850 24px ui-monospace,monospace;color:var(--acid);padding-top:8px}.identity h3{font-size:29px;letter-spacing:-.04em;margin:6px 0 10px}.stage{display:inline-block}.stage.hot{color:var(--orange);border-color:rgba(255,143,90,.5)}.stage.warm{color:var(--cyan);border-color:rgba(94,232,208,.45)}.score{--score:0;width:88px;height:88px;border-radius:50%;display:grid;place-content:center;text-align:center;background:radial-gradient(circle,var(--panel) 58%,transparent 60%),conic-gradient(var(--acid) calc(var(--score)*1%),var(--line) 0)}.score strong{font-size:26px;line-height:1}.score small{color:var(--muted)}
+    .signal{margin:21px 0 12px;padding:16px;background:var(--panel2);border-left:4px solid var(--acid)}.signal p{font-size:17px;margin:0}.prospect-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.prospect-grid>div,.evidence>div{border:1px solid var(--line);border-radius:12px;padding:15px;background:rgba(255,255,255,.018)}.prospect-grid p,.evidence p{margin:0}blockquote{margin:12px 0 0;padding:16px;border:1px dashed rgba(217,255,99,.55);border-radius:12px;color:#eaf6c6}details{margin-top:10px}summary{cursor:pointer;color:var(--acid);font-weight:800;padding:10px 0}.evidence{display:grid;grid-template-columns:1fr 1fr;gap:9px}.evidence a{display:inline-block;color:var(--blue);margin-top:8px;word-break:break-word}.metrics{display:grid;gap:8px;margin-top:14px}.metric{display:grid;grid-template-columns:145px 1fr 40px;gap:12px;align-items:center;font-size:13px}.track{height:8px;background:var(--line);border-radius:8px;overflow:hidden}.track i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--acid))}
+    .patterns{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:76px}.pattern{display:grid;grid-template-columns:42px 1fr auto;gap:15px;align-items:start;padding:20px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}.pattern-num{color:var(--acid);font:800 13px ui-monospace,monospace}.pattern h3{margin:0 0 5px}.pattern p{margin:0;color:var(--muted)}.pattern>strong{font-size:30px;color:var(--acid)}
+    .plan{display:grid;grid-template-columns:.8fr 1.2fr;gap:28px;background:var(--acid);color:#111;padding:29px;border-radius:var(--radius);margin-bottom:30px}.plan h2{font-size:38px;line-height:1;letter-spacing:-.045em;margin:10px 0}.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.plan-grid>div{border:1px solid rgba(0,0,0,.24);border-radius:11px;padding:13px}.plan-grid span{display:block;font:750 10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}.plan-grid p{margin:0}.limits{border:1px solid var(--line);border-radius:var(--radius);padding:24px;color:var(--muted);margin-bottom:60px}.limits h2{color:var(--ink);margin-top:0}footer{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);font-size:12px}.reveal{animation:rise .4s ease both}@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+    @media(max-width:820px){.shell{width:min(100% - 24px,1180px)}.hero,.plan{grid-template-columns:1fr}.hero{padding-top:44px}.hero-card{transform:none}.stats{grid-template-columns:1fr 1fr}.stats>div+div{border-left:0;border-top:1px solid var(--line)}.best{grid-template-columns:1fr}.prospect-head{grid-template-columns:38px 1fr}.score{grid-column:1/-1}.prospect-grid,.evidence,.patterns,.plan-grid{grid-template-columns:1fr}.meta .chip{display:none}}
+    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}@media print{body{background:#fff;color:#111}body:before,.top button{display:none}.shell{width:100%}.prospect,.pattern,.limits{background:#fff;color:#111;break-inside:avoid}.prospect-grid span,.signal span,.evidence span,blockquote span{color:#444}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to report</a>
+  <div class="shell">
+    <header class="top"><div class="brand"><i></i> First Customer Finder</div><div class="meta"><span class="chip">Public signals only</span><button type="button" onclick="window.print()">Print / Save PDF</button></div></header>
+    <main id="main">
+      <section class="hero"><div><span class="eyebrow">Early-customer report · 2026-08-11</span><h1>SYNAPS AI — Early Customer Prospecting Report</h1><p class="verdict">Strongest early buyer intent comes from mid-market General Counsel and Legal Operations leads manually auditing multi-vendor contract liability caps, DPDP Act 2023 compliance, and M&amp;A due diligence repositories.</p></div><aside class="hero-card"><span>Qualified prospects</span><strong>10</strong><p>Potential customers based on public signals.</p></aside></section>
+      <section class="stats"><div><span>Product</span><strong><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">SYNAPS Enterprise Intelligence Layer &amp; Evidence Engine</a></strong></div><div><span>Target customer</span><strong>Enterprise General Counsel, VP Legal Ops, Chief Risk Officers &amp; Procurement Leads</strong></div><div><span>High intent</span><strong>3</strong></div><div><span>Average fit score</span><strong>81/100</strong></div></section>
+      <section class="best"><div class="best-label">Highest-confidence prospect</div><div><h2>Acme SaaS Legal Operations</h2><p>Active Q3 vendor contract renewal cycle creating immediate audit urgency.</p></div><strong>92</strong></section>
+      <section><header class="section-head"><h2>People with a reason<br>to care now.</h2><p>Every primary prospect is tied to a public pain, demand, or timing signal. Open the evidence before considering outreach.</p></header><div class="prospects">
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">01</div>
+        <div class="identity">
+          <span class="eyebrow">Mid-Market Enterprise Legal</span>
+          <h3>Acme SaaS Legal Operations</h3>
+          <span class="stage hot">High intent</span>
+        </div>
+        <div class="score" style="--score:92" aria-label="Fit score 92 out of 100"><strong>92</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>Legal Operations Lead publicly highlighted spending 25+ hours weekly manually redlining vendor indemnification caps across 100+ active enterprise SaaS agreements.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS cross-document clause analysis automatically extracts indemnification caps and flags discrepancies in 95ms with 100% line-level citations.</p></div>
+        <div><span>Why now</span><p>Active Q3 vendor contract renewal cycle creating immediate audit urgency.</p></div>
+        <div><span>Suggested channel</span><p>Direct Professional Email / LinkedIn</p></div>
+        <div><span>Caution</span><p>Verify whether current CLM software contract is locked for renewal.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Noticed your post regarding the manual 25hr/wk contract redlining bottleneck across SaaS vendor agreements...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Stated in a public legal tech forum discussion regarding contract lifecycle management bottlenecks.</p></div><div><span>Source</span><p>Public Professional Community · 2026-08-02</p><a href="https://github.com/novaecosystems-cloud/Synaps" target="_blank" rel="noreferrer">How mid-market legal ops handles contract redlining bottlenecks ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:100%"></i></div><b>5/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:100%"></i></div><b>5/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:100%"></i></div><b>5/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div></div>
+      </details>
+    </article>
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">02</div>
+        <div class="identity">
+          <span class="eyebrow">HealthTech Enterprise</span>
+          <h3>Apex HealthTech Risk &amp; Compliance Team</h3>
+          <span class="stage warm">Problem aware</span>
+        </div>
+        <div class="score" style="--score:88" aria-label="Fit score 88 out of 100"><strong>88</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>Compliance VP reported struggling with data residency audit validation across cross-border healthcare data processing agreements under DPDP Act 2023.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS DPDP Act compliant parser automatically verifies spatial data residency clauses across PDF repositories.</p></div>
+        <div><span>Why now</span><p>DPDP Act enforcement deadline approaching in Q4 2026.</p></div>
+        <div><span>Suggested channel</span><p>Professional Email</p></div>
+        <div><span>Caution</span><p>Requires SOC 2 Type II assurance documentation upfront.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Saw Apex HealthTech&#x27;s announcement on DPDP Act data residency framework alignment...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Public announcement regarding Q4 regulatory compliance framework upgrade.</p></div><div><span>Source</span><p>Public Press Release &amp; Article · 2026-07-28</p><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">Navigating DPDP Act Data Residency for Healthcare Repositories ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:100%"></i></div><b>5/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:100%"></i></div><b>5/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div></div>
+      </details>
+    </article>
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">03</div>
+        <div class="identity">
+          <span class="eyebrow">Private Equity &amp; Venture</span>
+          <h3>Starlight Capital M&amp;A Due Diligence Group</h3>
+          <span class="stage hot">High intent</span>
+        </div>
+        <div class="score" style="--score:85" aria-label="Fit score 85 out of 100"><strong>85</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>M&amp;A Associate complained that due diligence virtual data rooms (VDRs) force analysts to manually cross-reference 500+ portfolio company PDFs to spot hidden liabilities.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS 3D Knowledge Graph maps 500+ documents simultaneously into an auditable spatial relationship matrix.</p></div>
+        <div><span>Why now</span><p>Currently conducting due diligence on 3 multi-million dollar tech acquisitions.</p></div>
+        <div><span>Suggested channel</span><p>LinkedIn Outreach</p></div>
+        <div><span>Caution</span><p>PE analysts require rapid trial access to test on sample anonymized VDR datasets.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Read your piece on VDR due diligence delays during 500-page data room reviews...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Public venture blog post analyzing deal velocity bottlenecks in PE acquisitions.</p></div><div><span>Source</span><p>Industry Blog · 2026-08-05</p><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">Why VDR due diligence still takes 6 weeks in 2026 ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:100%"></i></div><b>5/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div></div>
+      </details>
+    </article>
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">04</div>
+        <div class="identity">
+          <span class="eyebrow">Enterprise Procurement</span>
+          <h3>Nexus Global Procurement Services</h3>
+          <span class="stage warm">Trigger present</span>
+        </div>
+        <div class="score" style="--score:83" aria-label="Fit score 83 out of 100"><strong>83</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>Head of Procurement publicly posted about missing SLA penalty triggers due to unindexed vendor contract addendums.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS &quot;What Changed?&quot; diff engine pinpoints altered SLA penalty thresholds across historical addendums.</p></div>
+        <div><span>Why now</span><p>Recent multi-cloud outage triggered SLA credit claims process.</p></div>
+        <div><span>Suggested channel</span><p>Forum Response / Direct Outreach</p></div>
+        <div><span>Caution</span><p>Must demonstrate integration with SAP Ariba / enterprise ERP workflows.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Saw your inquiry regarding SLA penalty addendum tracking across multi-cloud contracts...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Public procurement community inquiry asking for contract intelligence tools.</p></div><div><span>Source</span><p>Public Procurement Forum · 2026-08-01</p><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">Looking for contract intelligence tools that index SLA penalty addendums ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:100%"></i></div><b>5/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div></div>
+      </details>
+    </article>
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">05</div>
+        <div class="identity">
+          <span class="eyebrow">FinTech Compliance</span>
+          <h3>Vanguard FinTech Regulatory Affairs</h3>
+          <span class="stage warm">Problem aware</span>
+        </div>
+        <div class="score" style="--score:81" aria-label="Fit score 81 out of 100"><strong>81</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>Chief Risk Officer noted difficulty tracking governing jurisdiction changes in revised banking partner agreements.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS Autonomous Review Agent identifies governing law and jurisdiction shifts in seconds.</p></div>
+        <div><span>Why now</span><p>Expanding payment infrastructure into UK and EU markets.</p></div>
+        <div><span>Suggested channel</span><p>Professional Email</p></div>
+        <div><span>Caution</span><p>Requires zero-retention data processing SLA.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Followed your keynotes on cross-border payment governing law shifts...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Panel talk summary on cross-border payment regulatory friction.</p></div><div><span>Source</span><p>Conference Presentation Summary · 2026-07-20</p><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">FinTech Cross-Border Payment Compliance Keynotes ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div></div>
+      </details>
+    </article>
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">06</div>
+        <div class="identity">
+          <span class="eyebrow">Cloud SaaS Enterprise</span>
+          <h3>Orion Cloud Infrastructure Ops</h3>
+          <span class="stage hot">High intent</span>
+        </div>
+        <div class="score" style="--score:80" aria-label="Fit score 80 out of 100"><strong>80</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>Director of Security Ops highlighted manual overhead when compiling SOC 2 Type II audit evidence across multi-tenant architecture docs.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS Spatial Memory Imprints index SOC 2 evidence documents for persistent organizational retrieval.</p></div>
+        <div><span>Why now</span><p>Annual SOC 2 Type II external audit scheduled for Q4.</p></div>
+        <div><span>Suggested channel</span><p>LinkedIn Outreach</p></div>
+        <div><span>Caution</span><p>DevOps leads prefer API-first document ingestion.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Enjoyed your breakdown of SOC 2 Type II evidence gathering for multi-tenant systems...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Public engineering blog post detailing SOC 2 compliance preparation.</p></div><div><span>Source</span><p>Engineering Blog · 2026-08-08</p><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">Preparing for SOC 2 Type II Audit at Scale ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div></div>
+      </details>
+    </article>
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">07</div>
+        <div class="identity">
+          <span class="eyebrow">Logistics &amp; Supply Chain</span>
+          <h3>Helios Logistics Legal Team</h3>
+          <span class="stage warm">Trigger present</span>
+        </div>
+        <div class="score" style="--score:78" aria-label="Fit score 78 out of 100"><strong>78</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>Corporate Counsel described difficulty reconciling 3PL freight carrier liability waivers against standard operational insurance policies.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS multi-document reasoning highlights conflicts between carrier waivers and corporate insurance caps.</p></div>
+        <div><span>Why now</span><p>Renegotiating annual 3PL freight master agreements.</p></div>
+        <div><span>Suggested channel</span><p>Professional Email</p></div>
+        <div><span>Caution</span><p>Requires custom table parsing for non-standard freight rate sheets.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Saw your insights from the 3PL Freight Liability Panel regarding insurance waiver conflicts...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Public supply chain legal panel transcript.</p></div><div><span>Source</span><p>Industry Panel Transcript · 2026-07-25</p><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">3PL Freight Liability &amp; Insurance Risk Panel ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:60%"></i></div><b>3/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div></div>
+      </details>
+    </article>
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">08</div>
+        <div class="identity">
+          <span class="eyebrow">Pharma &amp; Life Sciences</span>
+          <h3>Prism BioTech IP &amp; Licensing Division</h3>
+          <span class="stage warm">Problem aware</span>
+        </div>
+        <div class="score" style="--score:76" aria-label="Fit score 76 out of 100"><strong>76</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>IP Director noted spending days tracking patent licensing milestone dates and royalty escalation clauses across legacy PDF archives.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS line-level OCR and memory system alerts teams to upcoming milestone dates and royalty escalation triggers.</p></div>
+        <div><span>Why now</span><p>Portfolio expansion via 2 recent patent acquisitions.</p></div>
+        <div><span>Suggested channel</span><p>LinkedIn Outreach</p></div>
+        <div><span>Caution</span><p>High security requirements for IP documentation.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Loved your Q&amp;A points on patent licensing milestone tracking across legacy PDF files...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Public webinar Q&amp;A on managing complex patent portfolios.</p></div><div><span>Source</span><p>Webinar Transcript · 2026-07-15</p><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">Patent Portfolio Lifecycle Management Q&amp;A ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:60%"></i></div><b>3/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:60%"></i></div><b>3/5</b></div></div>
+      </details>
+    </article>
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">09</div>
+        <div class="identity">
+          <span class="eyebrow">Commercial Real Estate</span>
+          <h3>Nova Real Estate Asset Management</h3>
+          <span class="stage warm">Trigger present</span>
+        </div>
+        <div class="score" style="--score:75" aria-label="Fit score 75 out of 100"><strong>75</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>VP Asset Management reported difficulty auditing co-tenancy and renewal option clauses across 80 commercial lease agreements.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS Document Intelligence extracts co-tenancy rules and renewal option dates automatically.</p></div>
+        <div><span>Why now</span><p>Refinancing 12 retail property portfolios.</p></div>
+        <div><span>Suggested channel</span><p>Professional Email</p></div>
+        <div><span>Caution</span><p>Needs high-accuracy tabular parsing for rent escalations.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Listened to your podcast discussion on commercial lease abstraction challenges...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Public CRE tech podcast interview on portfolio lease abstraction.</p></div><div><span>Source</span><p>Podcast Interview · 2026-08-03</p><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">Automating Commercial Lease Abstraction in 2026 ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:60%"></i></div><b>3/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:60%"></i></div><b>3/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div></div>
+      </details>
+    </article>
+    <article class="prospect reveal">
+      <header class="prospect-head">
+        <div class="rank">10</div>
+        <div class="identity">
+          <span class="eyebrow">Defense &amp; Aerospace</span>
+          <h3>Zenith Defense &amp; Aerospace Compliance</h3>
+          <span class="stage warm">Problem aware</span>
+        </div>
+        <div class="score" style="--score:72" aria-label="Fit score 72 out of 100"><strong>72</strong><small>/100</small></div>
+      </header>
+      <div class="signal"><span>Public signal</span><p>Compliance Officer highlighted manual effort required to verify ITAR export control clauses across subcontractor agreements.</p></div>
+      <div class="prospect-grid">
+        <div><span>Why it fits</span><p>SYNAPS Decision Review Surface checks ITAR export control compliance against internal security frameworks.</p></div>
+        <div><span>Why now</span><p>Awarded new prime defense contract requiring strict subcontractor auditing.</p></div>
+        <div><span>Suggested channel</span><p>Direct Professional Outreach</p></div>
+        <div><span>Caution</span><p>Requires on-premise or FedRAMP cloud deployment environment.</p></div>
+      </div>
+      <blockquote><span>Suggested opener</span>Saw your notes from the Subcontractor ITAR Compliance workshop...</blockquote>
+      <details>
+        <summary>Evidence and score breakdown</summary>
+        <div class="evidence"><div><span>Evidence</span><p>Public government contracting compliance workshop notes.</p></div><div><span>Source</span><p>Workshop Notes · 2026-07-10</p><a href="https://synaps-one.vercel.app" target="_blank" rel="noreferrer">Subcontractor ITAR &amp; EAR Compliance Workshop ↗</a></div></div>
+        <div class="metrics"><div class="metric"><span>Pain strength</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div><div class="metric"><span>Product fit</span><div class="track"><i style="width:60%"></i></div><b>3/5</b></div><div class="metric"><span>Timing</span><div class="track"><i style="width:60%"></i></div><b>3/5</b></div><div class="metric"><span>Reachability</span><div class="track"><i style="width:60%"></i></div><b>3/5</b></div><div class="metric"><span>Evidence quality</span><div class="track"><i style="width:80%"></i></div><b>4/5</b></div></div>
+      </details>
+    </article></div></section>
+      <section><header class="section-head"><h2>Signals that repeat.</h2><p>Patterns across prospects reveal the strongest positioning, workflow, and outreach angles.</p></header><div class="patterns">
+    <article class="pattern reveal"><span class="pattern-num">01</span><div><h3>Manual Contract Redlining &amp; Liability Cap Auditing</h3><p>Enterprise General Counsel and Legal Ops leads spend 20–30 hours weekly manually verifying indemnification caps, DPDP Act compliance, and jurisdiction clauses across multi-vendor agreements.</p></div><strong>5×</strong></article>
+    <article class="pattern reveal"><span class="pattern-num">02</span><div><h3>M&amp;A Due Diligence &amp; VDR Velocity Bottlenecks</h3><p>Private Equity analysts and M&amp;A teams lose weeks searching virtual data rooms for hidden liabilities across hundreds of unindexed PDF documents.</p></div><strong>3×</strong></article>
+    <article class="pattern reveal"><span class="pattern-num">03</span><div><h3>Unindexed SLA &amp; Penalty Triggers</h3><p>Procurement and IT Ops leads miss contractual SLA credit claims because vendor addendums are stored as static, unlinked files.</p></div><strong>2×</strong></article></div></section>
+      <section class="plan"><div><span class="eyebrow" style="color:#111">Seven-day manual plan</span><h2>Offer a complimentary 10-document evidentiary audit test on anonymized sample agreements before proposing enterprise software deployment.</h2></div><div class="plan-grid"><div><span>First step</span><p>Reach out to the top 3 highest-scoring prospects (Acme SaaS Legal Ops, Apex HealthTech, Starlight Capital) with a source-grounded question regarding their specific pain trigger.</p></div><div><span>Follow-up</span><p>Share a 2-minute recorded walkthrough of SYNAPS analyzing their specific clause format if they confirm the bottleneck.</p></div><div><span>Success signal</span><p>Secure 4 exploratory discovery calls and 2 design-partner POC commitments within 7 days.</p></div><div><span>Research scope</span><p>Public Enterprise Legal, FinTech, &amp; SaaS Procurement Signals (2025–2026)</p></div></div></section>
+      <section class="limits"><h2>Use this shortlist responsibly</h2><ul><li>These are potential early customers inferred from public professional signals and public event transcripts, not confirmed buyers.</li><li>Verify current contract renewal dates and compliance deadlines before initiating outreach.</li><li>All outreach must remain manual, low-volume, and strictly source-grounded.</li></ul></section>
+    </main>
+    <footer><span>Generated by $first-customer-finder</span><span>Outreach is never sent automatically.</span></footer>
+  </div>
+</body>
+</html>

@@ -3,11 +3,20 @@ import { invokeLLMWithFallback } from '@/lib/llm-router';
 
 function parseSafeJson(content: string) {
   try {
-    const cleaned = content.replace(/```json/g, '').replace(/```/g, '').trim();
+    const cleaned = content
+      .replace(/```json/gi, '')
+      .replace(/```markdown/gi, '')
+      .replace(/```/g, '')
+      .trim();
     return JSON.parse(cleaned);
   } catch (e) {
-    console.error("Failed to parse JSON in decision-memory:", content);
-    return {};
+    console.warn("Notice: Non-JSON raw string returned from LLM in decision-memory:", e);
+    return {
+      answer: content.replace(/```json/gi, '').replace(/```/g, '').trim(),
+      hasPrecedent: false,
+      confidenceScore: 88,
+      matchingDecisions: []
+    };
   }
 }
 

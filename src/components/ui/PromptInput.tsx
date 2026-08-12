@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { Globe, AlignLeft, Sparkles, Zap } from "lucide-react";
 
 // ----------------------------------------------------------------------
 // Transition Physics
@@ -21,6 +22,8 @@ export interface Attachment {
   width?: number;
   height?: number;
 }
+
+export type ResponseLengthOption = "Brief" | "Standard" | "In-Depth";
 
 // Models requiring user's custom BYOK API Key in Settings
 const BYOK_REQUIRED_MODELS = ["Opus 4.8", "GLM 5.2", "Composer 2.5"];
@@ -286,14 +289,10 @@ function AttachmentGalleryModal({
 // Main Component
 // ----------------------------------------------------------------------
 
-import {
-  Globe
-} from "lucide-react";
-
 export interface PromptInputProps {
   onSubmit?: (
     value: string,
-    meta: { model: string; effort: string; attachments: File[] }
+    meta: { model: string; effort: string; responseLength: ResponseLengthOption; attachments: File[] }
   ) => void;
   placeholder?: string;
   className?: string;
@@ -329,6 +328,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
     const [localValue, setLocalValue] = useState(defaultValue);
     const [selectedModel, setSelectedModel] = useState(models[0]);
     const [effortIndex, setEffortIndex] = useState(1);
+    const [responseLength, setResponseLength] = useState<ResponseLengthOption>("Standard");
     const [isModelSelectOpen, setIsModelSelectOpen] = useState(false);
 
     const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -468,7 +468,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       }
 
       setIsSmoothResize(false);
-      onSubmit?.(value, { model: selectedModel, effort: efforts[effortIndex], attachments: attachments.map((a) => a.file) });
+      onSubmit?.(value, { model: selectedModel, effort: efforts[effortIndex], responseLength, attachments: attachments.map((a) => a.file) });
       handleValueChange("");
       attachments.forEach((a) => URL.revokeObjectURL(a.url));
       setAttachments([]);
@@ -489,6 +489,15 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
     const cycleEffort = (e: React.MouseEvent) => {
       e.stopPropagation();
       setEffortIndex((prev) => (prev + 1) % efforts.length);
+    };
+
+    const cycleResponseLength = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const lengths: ResponseLengthOption[] = ["Brief", "Standard", "In-Depth"];
+      setResponseLength((prev) => {
+        const nextIndex = (lengths.indexOf(prev) + 1) % lengths.length;
+        return lengths[nextIndex];
+      });
     };
 
     const openFileChooser = (e: React.MouseEvent) => {
@@ -531,11 +540,20 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       thumbRefs.current.delete(id);
     };
 
+    // Calculate dynamic credit multiplier badge text
+    const currentEffort = efforts[effortIndex];
+    let creditBadgeText = "1 Credit";
+    if (currentEffort === "Max Effort" && responseLength === "In-Depth") {
+      creditBadgeText = "5 Credits";
+    } else if (currentEffort === "Max Effort" || responseLength === "In-Depth" || currentEffort === "Medium") {
+      creditBadgeText = "2 Credits";
+    }
+
     return (
       <>
         {/* BYOK API Key Required Banner Notice */}
         {byokNotice && (
-          <div className="w-full max-w-[560px] mx-auto mb-2 p-3 rounded-2xl bg-cyan-950/90 border border-cyan-500/50 text-cyan-200 text-xs font-mono font-semibold flex items-center justify-between shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="w-full max-w-[580px] mx-auto mb-2 p-3 rounded-2xl bg-cyan-950/90 border border-cyan-500/50 text-cyan-200 text-xs font-mono font-semibold flex items-center justify-between shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-300">
             <span>🔒 {byokNotice}</span>
             <a
               href="/dashboard/settings/api-keys"
@@ -555,9 +573,9 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
             (internalContainerRef as any).current = node;
           }}
           onBlur={handleBlur}
-          className={cn("relative flex flex-col w-full mx-auto", className)}
+          className={cn("relative flex flex-col w-full mx-auto font-sans", className)}
           style={{
-            maxWidth: expanded ? 560 : 360,
+            maxWidth: expanded ? 580 : 380,
             transition: isSmoothResize ? "max-width 0.15s ease-out" : "max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
           }}
         >
@@ -655,7 +673,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
                   : "opacity 0.3s ease-out, transform 0.3s ease-out, height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
               }}
               className={cn(
-                "prompt-scrollbar absolute top-0 inset-x-0 z-[1] w-full resize-none bg-transparent pl-4 pr-12 py-3.5 text-sm leading-[22px] text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground/80 cursor-text",
+                "prompt-scrollbar absolute top-0 inset-x-0 z-[1] w-full resize-none bg-transparent pl-4 pr-12 py-3.5 text-sm leading-[22px] text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground/80 cursor-text font-sans",
                 expanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-1 pointer-events-none",
                 isScrolling ? "overflow-y-auto" : "overflow-y-hidden"
               )}
@@ -680,7 +698,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
               onClick={expand}
               style={{ transition: isSmoothResize ? "none" : "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)" }}
               className={cn(
-                "absolute inset-x-0 top-0 z-[1] cursor-text pl-4 pr-12 py-[15px] text-left text-sm font-medium leading-[17px] text-muted-foreground/80 outline-none",
+                "absolute inset-x-0 top-0 z-[1] cursor-text pl-4 pr-12 py-[15px] text-left text-sm font-medium leading-[17px] text-muted-foreground/80 outline-none font-sans",
                 !expanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-105 translate-y-1 pointer-events-none"
               )}
               aria-label="Open prompt input"
@@ -691,7 +709,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
             {/* Bottom Actions Wrapper */}
             <div
               className={cn(
-                "absolute bottom-2 left-3 right-12 z-[10] flex items-center gap-0 transition-all duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]",
+                "absolute bottom-2 left-3 right-12 z-[10] flex items-center gap-1 transition-all duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]",
                 expanded ? "opacity-100 blur-0 translate-y-0 pointer-events-auto" : "opacity-0 blur-sm translate-y-2 pointer-events-none"
               )}
             >
@@ -772,9 +790,24 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
               <button
                 type="button" onMouseDown={(e) => e.preventDefault()} onClick={cycleEffort}
                 className="group flex items-center gap-1 rounded-full px-2 py-1 text-foreground/50 transition-all duration-200 hover:bg-accent/60 hover:text-foreground outline-none cursor-default"
+                title={`Effort: ${efforts[effortIndex]}`}
               >
                 <DynamicBarsIcon level={efforts[effortIndex]} />
                 <span className="text-xs font-semibold select-none transition-colors"><MorphingText text={efforts[effortIndex]} /></span>
+              </button>
+
+              {/* Answer Length Selector: Brief / Standard / In-Depth */}
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={cycleResponseLength}
+                className="group flex items-center gap-1 rounded-full px-2 py-1 text-foreground/50 transition-all duration-200 hover:bg-accent/60 hover:text-foreground outline-none cursor-default border border-transparent hover:border-border"
+                title={`Answer Length: ${responseLength}`}
+              >
+                <AlignLeft className="size-3.5 opacity-70 group-hover:opacity-100" />
+                <span className="text-xs font-semibold select-none transition-colors">
+                  <MorphingText text={responseLength} />
+                </span>
               </button>
 
               {/* Web Search Toggle Pill */}
@@ -787,7 +820,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
                     onToggleWebSearch();
                   }}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition-all duration-200 outline-none cursor-default select-none border",
+                    "flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition-all duration-200 outline-none cursor-default select-none border",
                     webSearch
                       ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/40 shadow-sm"
                       : "text-foreground/50 border-transparent hover:bg-accent/60 hover:text-foreground"
@@ -795,9 +828,14 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
                   aria-label={`Toggle Web Search. Current: ${webSearch ? "ON" : "OFF"}`}
                 >
                   <Globe className={cn("size-3.5", webSearch ? "text-cyan-400 animate-pulse" : "opacity-60")} />
-                  <span>Web {webSearch ? "ON" : "OFF"}</span>
+                  <span>Web</span>
                 </button>
               )}
+
+              {/* Dynamic Credit Cost Indicator */}
+              <span className="text-[10px] font-mono text-cyan-400/80 bg-cyan-950/60 px-1.5 py-0.5 rounded-full border border-cyan-500/30 hidden sm:inline-block">
+                {creditBadgeText}
+              </span>
 
               {/* Attachment Button */}
               <button

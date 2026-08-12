@@ -299,8 +299,8 @@ export default function ChatPage() {
     setActiveChatId(id);
   }, []);
 
-  const send = useCallback(async (overrideInput?: string) => {
-    const q = (overrideInput ?? input).trim();
+  const send = useCallback(async (textToSubmit?: string, meta?: { model?: string; effort?: string; responseLength?: string }) => {
+    const q = (textToSubmit ?? input).trim();
     if (!q || isLoading) return;
 
     let chatId = activeChatId;
@@ -335,7 +335,11 @@ export default function ChatPage() {
         const res = await fetch("/api/web-search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: q }),
+          body: JSON.stringify({ 
+            query: q,
+            effort: meta?.effort || "Medium",
+            responseLength: meta?.responseLength || "Standard"
+          }),
         });
         const data = await res.json();
         if (data.credits) {
@@ -612,7 +616,7 @@ export default function ChatPage() {
               value={input}
               onChange={(val) => setInput(val)}
               onSubmit={(val, meta) => {
-                send(val);
+                send(val, meta);
               }}
               webSearch={webSearch}
               onToggleWebSearch={() => setWebSearch((v) => !v)}
