@@ -190,25 +190,49 @@ export async function POST(req: NextRequest) {
       console.warn('[CHAT] Keyword fallback notice:', kwErr);
     }
 
-    // Fallback: If still no chunks, fetch most recent chunks from organization documents
-    if (filteredResults.length === 0) {
+    // Fallback: If still no chunks or general document overview query, fetch all organization documents & recent chunks
+    const isDocOverviewQuery = /document|my doc|files|uploaded|cannot see|what do i have|summary of key insights/i.test(query);
+
+    if (filteredResults.length === 0 || isDocOverviewQuery) {
       try {
+        const orgDocs = await prisma.document.findMany({
+          where: { organizationId, isDeleted: false },
+          take: 12,
+          orderBy: { createdAt: 'desc' },
+          select: { id: true, name: true, mimeType: true, sizeBytes: true, createdAt: true }
+        });
+
         const recentChunks = await prisma.documentChunk.findMany({
-          where: { document: { organizationId } },
-          take: 8,
+          where: { document: { organizationId, isDeleted: false } },
+          take: 12,
           orderBy: { createdAt: 'desc' },
           include: { document: { select: { name: true } } }
         });
-        filteredResults = recentChunks.map(rc => ({
+
+        const docListChunk = {
+          id: 'org-docs-overview',
+          documentId: 'doc-vault-summary',
+          name: 'Organization Document Index',
+          text: orgDocs.length > 0
+            ? `Your Organization Document Index (${orgDocs.length} Documents Ingested):\n` +
+              orgDocs.map((d, i) => `${i + 1}. **${d.name}** (${d.mimeType || 'PDF'}, uploaded ${new Date(d.createdAt).toLocaleDateString()})`).join('\n')
+            : `No documents have been uploaded yet to your Organization Document Vault. You can upload PDF, Word, or TXT documents using the Document Vault (/dashboard/documents) to begin querying.`
+        };
+
+        const mappedChunks = recentChunks.map(rc => ({
           id: rc.id,
           documentId: rc.documentId,
           text: rc.text,
           pageNumber: rc.pageNumber,
           section: rc.section,
-          similarity: 0.5,
+          similarity: 0.8,
           name: rc.document?.name
         }));
-      } catch (e) {}
+
+        filteredResults = [docListChunk, ...mappedChunks];
+      } catch (e) {
+        console.warn('[CHAT] Document overview fallback notice:', e);
+      }
     }
 
     // Fetch document filenames to enhance context

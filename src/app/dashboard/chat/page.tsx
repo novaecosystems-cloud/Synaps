@@ -614,6 +614,8 @@ export default function ChatPage() {
               onSubmit={(val, meta) => {
                 send(val);
               }}
+              webSearch={webSearch}
+              onToggleWebSearch={() => setWebSearch((v) => !v)}
               placeholder={webSearch ? "Search the web or ask about documents…" : "Ask about your documents…"}
               models={["Gemini 3.5 Flash", "GPT 5.5", "Opus 4.8", "Composer 2.5", "GLM 5.2"]}
               efforts={["Low", "Medium", "Max Effort"]}

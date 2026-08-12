@@ -286,6 +286,10 @@ function AttachmentGalleryModal({
 // Main Component
 // ----------------------------------------------------------------------
 
+import {
+  Globe
+} from "lucide-react";
+
 export interface PromptInputProps {
   onSubmit?: (
     value: string,
@@ -299,6 +303,8 @@ export interface PromptInputProps {
   value?: string;
   onChange?: (value: string) => void;
   maxAttachments?: number;
+  webSearch?: boolean;
+  onToggleWebSearch?: () => void;
 }
 
 export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
@@ -313,6 +319,8 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       value: controlledValue,
       onChange,
       maxAttachments = 6,
+      webSearch,
+      onToggleWebSearch,
     },
     ref
   ) => {
@@ -768,6 +776,28 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
                 <DynamicBarsIcon level={efforts[effortIndex]} />
                 <span className="text-xs font-semibold select-none transition-colors"><MorphingText text={efforts[effortIndex]} /></span>
               </button>
+
+              {/* Web Search Toggle Pill */}
+              {onToggleWebSearch && (
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleWebSearch();
+                  }}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition-all duration-200 outline-none cursor-default select-none border",
+                    webSearch
+                      ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/40 shadow-sm"
+                      : "text-foreground/50 border-transparent hover:bg-accent/60 hover:text-foreground"
+                  )}
+                  aria-label={`Toggle Web Search. Current: ${webSearch ? "ON" : "OFF"}`}
+                >
+                  <Globe className={cn("size-3.5", webSearch ? "text-cyan-400 animate-pulse" : "opacity-60")} />
+                  <span>Web {webSearch ? "ON" : "OFF"}</span>
+                </button>
+              )}
 
               {/* Attachment Button */}
               <button
