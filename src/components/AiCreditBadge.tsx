@@ -49,14 +49,21 @@ export default function AiCreditBadge() {
 
   if (!credits) return null;
 
+  const getTierLabel = () => {
+    const role = (credits.role || 'MEMBER').toUpperCase();
+    if (role === 'OWNER' || role === 'LEADER' || credits.creditLimit >= 10000) return 'ENTERPRISE MAX ENGINE';
+    if (role === 'ADMIN' || credits.creditLimit >= 500) return 'PRO AI ENGINE';
+    return 'SYNAPS AI ACTIVE';
+  };
+
   return (
     <div 
       onClick={() => window.dispatchEvent(new CustomEvent('synaps:credits_exhausted', { detail: { role: credits.role } }))}
-      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-xs font-bold shadow-inner cursor-pointer hover:bg-primary/25 transition-all"
-      title={`Daily AI Credits: ${credits.remaining} remaining out of ${credits.creditLimit} total daily credits for your role. Click to view upgrade options or discount.`}
+      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-xs font-extrabold tracking-wider shadow-inner cursor-pointer hover:bg-cyan-500/25 transition-all"
+      title="Synaps AI Executive Engine active with zero-hallucination precision RAG. Click to manage plan."
     >
-      <Zap className="h-3.5 w-3.5 fill-primary text-primary" />
-      <span>{credits.remaining} / {credits.creditLimit} AI Credits</span>
+      <Zap className="h-3.5 w-3.5 fill-cyan-400 text-cyan-400 animate-pulse" />
+      <span>{getTierLabel()}</span>
     </div>
   );
 }

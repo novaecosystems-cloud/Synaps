@@ -7,7 +7,7 @@ import {
   Send, Globe, Plus, Trash2, Clock,
   Loader2, BookOpen, ExternalLink,
   AlignLeft, Paperclip, Sparkles,
-  Lightbulb, ArrowRight, ChevronRight,
+  MessageSquare, ArrowRight, ChevronRight,
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ interface Chat {
   id: string;
   title: string;
   messages: Message[];
-  createdAt: Date;
+  createdAt: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -52,6 +52,9 @@ const SUGGESTED = [
   "Search the web for recent AI regulation changes in the EU",
   "Compare the financial terms across all active agreements",
 ];
+
+const LOCAL_STORAGE_CHATS_KEY = "synaps_saved_chats_v2";
+const LOCAL_STORAGE_ACTIVE_ID_KEY = "synaps_active_chat_id_v2";
 
 // ─── Markdown Renderer ────────────────────────────────────────────────────────
 function MarkdownContent({ content }: { content: string }) {
@@ -85,23 +88,23 @@ function MarkdownContent({ content }: { content: string }) {
         ),
         li: ({ children }) => (
           <li className="flex gap-2 text-[15px] text-white/85 leading-relaxed">
-            <span className="text-purple-400 mt-1 shrink-0">•</span>
+            <span className="text-cyan-400 mt-1 shrink-0">•</span>
             <span>{children}</span>
           </li>
         ),
         blockquote: ({ children }) => (
-          <blockquote className="border-l-2 border-purple-500/50 pl-4 my-3 text-white/60 italic text-[14px]">
+          <blockquote className="border-l-2 border-cyan-500/50 pl-4 my-3 text-white/60 italic text-[14px]">
             {children}
           </blockquote>
         ),
         code: ({ inline, children, ...props }: any) =>
           inline ? (
-            <code className="bg-white/10 text-purple-200 px-1.5 py-0.5 rounded text-[13px] font-mono">
+            <code className="bg-white/10 text-cyan-200 px-1.5 py-0.5 rounded text-[13px] font-mono">
               {children}
             </code>
           ) : (
-            <pre className="bg-[#0D0B1A] border border-purple-500/20 rounded-xl p-4 overflow-x-auto my-3">
-              <code className="text-[13px] text-purple-100 font-mono leading-relaxed">{children}</code>
+            <pre className="bg-[#0b1320] border border-cyan-500/20 rounded-xl p-4 overflow-x-auto my-3">
+              <code className="text-[13px] text-cyan-100 font-mono leading-relaxed">{children}</code>
             </pre>
           ),
         a: ({ href, children }) => (
@@ -109,24 +112,24 @@ function MarkdownContent({ content }: { content: string }) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-purple-400 underline underline-offset-2 hover:text-purple-300 transition-colors"
+            className="text-cyan-400 underline underline-offset-2 hover:text-cyan-300 transition-colors"
           >
             {children}
           </a>
         ),
-        hr: () => <hr className="border-purple-500/20 my-4" />,
+        hr: () => <hr className="border-cyan-500/20 my-4" />,
         table: ({ children }) => (
           <div className="overflow-x-auto my-4">
             <table className="w-full text-[13px] border-collapse">{children}</table>
           </div>
         ),
         th: ({ children }) => (
-          <th className="text-left px-3 py-2 bg-purple-900/30 text-purple-200 font-semibold border border-purple-500/20">
+          <th className="text-left px-3 py-2 bg-cyan-950/40 text-cyan-200 font-semibold border border-cyan-500/20">
             {children}
           </th>
         ),
         td: ({ children }) => (
-          <td className="px-3 py-2 text-white/75 border border-purple-500/10">{children}</td>
+          <td className="px-3 py-2 text-white/75 border border-cyan-500/10">{children}</td>
         ),
       }}
     >
@@ -144,7 +147,7 @@ function SourceCard({ source, idx }: { source: WebSource; idx: number }) {
       rel="noopener noreferrer"
       className="group flex flex-col gap-1.5 p-3 rounded-xl
                  bg-white/5 hover:bg-white/10
-                 border border-white/10 hover:border-purple-400/40
+                 border border-white/10 hover:border-cyan-400/40
                  transition-all min-w-[200px] max-w-[220px] shrink-0"
     >
       <div className="flex items-center gap-2">
@@ -182,7 +185,7 @@ function ThinkingIndicator({ webSearch }: { webSearch: boolean }) {
 
   return (
     <div className="flex items-center gap-3 text-white/50 text-[14px] py-1">
-      <span className="w-5 h-5 rounded-full border-2 border-purple-500/40 border-t-purple-400 animate-spin shrink-0" />
+      <span className="w-5 h-5 rounded-full border-2 border-cyan-500/40 border-t-cyan-400 animate-spin shrink-0" />
       <span>{steps[step]}{"...".slice(0, dot + 1)}</span>
     </div>
   );
@@ -193,9 +196,9 @@ function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-8 text-center px-6 pb-20">
       <div>
-        <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/20
+        <div className="w-14 h-14 rounded-2xl bg-cyan-600/20 border border-cyan-500/30
                         flex items-center justify-center mx-auto mb-5">
-          <Sparkles className="w-7 h-7 text-purple-400" />
+          <Sparkles className="w-7 h-7 text-cyan-400" />
         </div>
         <h2 className="text-[22px] font-semibold text-white mb-2">How can I help?</h2>
         <p className="text-white/45 text-[14px] max-w-xs mx-auto leading-relaxed">
@@ -212,7 +215,7 @@ function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
                        border border-white/10 hover:border-white/20 transition-all group"
           >
             <p className="text-[13px] text-white/70 group-hover:text-white/90 leading-snug transition-colors">{q}</p>
-            <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-purple-400 mt-2 transition-colors" />
+            <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-cyan-400 mt-2 transition-colors" />
           </button>
         ))}
       </div>
@@ -231,6 +234,41 @@ export default function ChatPage() {
   const endRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // 1. Persistent Storage: Load saved chats from localStorage on initial mount
+  useEffect(() => {
+    try {
+      const savedChats = localStorage.getItem(LOCAL_STORAGE_CHATS_KEY);
+      const savedActiveId = localStorage.getItem(LOCAL_STORAGE_ACTIVE_ID_KEY);
+      if (savedChats) {
+        const parsed: Chat[] = JSON.parse(savedChats);
+        if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+          setChats(parsed);
+          if (savedActiveId && parsed.some(c => c.id === savedActiveId)) {
+            setActiveChatId(savedActiveId);
+          } else {
+            setActiveChatId(parsed[0].id);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load saved chats from localStorage:", e);
+    }
+  }, []);
+
+  // 2. Persistent Storage: Save chats to localStorage on change so history NEVER vanishes on refresh
+  useEffect(() => {
+    try {
+      if (chats.length > 0) {
+        localStorage.setItem(LOCAL_STORAGE_CHATS_KEY, JSON.stringify(chats));
+      }
+      if (activeChatId) {
+        localStorage.setItem(LOCAL_STORAGE_ACTIVE_ID_KEY, activeChatId);
+      }
+    } catch (e) {
+      console.warn("Failed to save chats to localStorage:", e);
+    }
+  }, [chats, activeChatId]);
+
   const activeChat = chats.find(c => c.id === activeChatId) ?? null;
 
   useEffect(() => {
@@ -246,25 +284,30 @@ export default function ChatPage() {
 
   useEffect(() => { resizeTextarea(); }, [input, resizeTextarea]);
 
-  const ensureChat = useCallback(() => {
-    if (activeChatId) return activeChatId;
-    const chat: Chat = { id: uid(), title: "New conversation", messages: [], createdAt: new Date() };
-    setChats(prev => [chat, ...prev]);
-    setActiveChatId(chat.id);
-    return chat.id;
-  }, [activeChatId]);
+  // Start new chat handler
+  const startNewChat = useCallback(() => {
+    const id = uid();
+    const newChat: Chat = {
+      id,
+      title: "New conversation",
+      messages: [],
+      createdAt: new Date().toISOString()
+    };
+    setChats(prev => [newChat, ...prev]);
+    setActiveChatId(id);
+  }, []);
 
   const send = useCallback(async (overrideInput?: string) => {
     const q = (overrideInput ?? input).trim();
     if (!q || isLoading) return;
 
-    const chatId = activeChatId ?? (() => {
-      const id = uid();
-      const chat: Chat = { id, title: q.slice(0, 50), messages: [], createdAt: new Date() };
+    let chatId = activeChatId;
+    if (!chatId || !chats.some(c => c.id === chatId)) {
+      chatId = uid();
+      const chat: Chat = { id: chatId, title: q.slice(0, 50), messages: [], createdAt: new Date().toISOString() };
       setChats(prev => [chat, ...prev]);
-      setActiveChatId(id);
-      return id;
-    })();
+      setActiveChatId(chatId);
+    }
 
     const userMsg: Message = { id: uid(), role: "user", content: q };
     const aId = uid();
@@ -356,53 +399,75 @@ export default function ChatPage() {
   }, [input, isLoading, activeChatId, chats, webSearch]);
 
   const deleteChat = (id: string) => {
-    setChats(prev => prev.filter(c => c.id !== id));
-    if (activeChatId === id) setActiveChatId(null);
+    setChats(prev => {
+      const next = prev.filter(c => c.id !== id);
+      try {
+        localStorage.setItem(LOCAL_STORAGE_CHATS_KEY, JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+    if (activeChatId === id) {
+      setActiveChatId(null);
+      localStorage.removeItem(LOCAL_STORAGE_ACTIVE_ID_KEY);
+    }
   };
 
   return (
     <div className="flex h-screen bg-[#111118] text-white overflow-hidden"
          style={{ fontFamily: "'Inter', 'Google Sans', system-ui, -apple-system, sans-serif" }}>
 
-      {/* ── SIDEBAR ─────────────────────────────────────────────────────────── */}
+      {/* ── SIDEBAR (PERSISTENT CONVERSATION HISTORY & NEW CHAT) ───────────── */}
       <aside className={`flex flex-col shrink-0 bg-[#18181f] border-r border-white/5
                          transition-all duration-200 overflow-hidden
-                         ${sidebarOpen ? "w-60" : "w-0"}`}>
+                         ${sidebarOpen ? "w-64" : "w-0"}`}>
+        {/* Start New Chat Action */}
         <div className="p-3">
           <button
-            onClick={() => { const id = uid(); const chat = { id, title: "New conversation", messages: [] as Message[], createdAt: new Date() }; setChats(prev => [chat, ...prev]); setActiveChatId(id); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl
-                       bg-white/5 hover:bg-white/10 text-white/70 hover:text-white
-                       text-sm font-medium transition-all"
+            onClick={startNewChat}
+            className="w-full flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl
+                       bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300
+                       text-xs font-bold uppercase tracking-wider transition-all shadow-md"
           >
-            <Plus className="w-4 h-4" />
-            New chat
+            <Plus className="w-4 h-4 text-cyan-300" />
+            <span>+ Start New Chat</span>
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-2 pb-3 space-y-0.5">
+        {/* Section Header */}
+        <div className="px-4 py-2 flex items-center justify-between text-[11px] font-mono font-bold uppercase text-white/40 tracking-wider">
+          <span className="flex items-center gap-1.5">
+            <Clock className="w-3 h-3 text-cyan-400" />
+            Previous Chats
+          </span>
+          <span className="text-[10px] text-white/30">{chats.length} saved</span>
+        </div>
+
+        {/* List of Saved Previous Conversations */}
+        <div className="flex-1 overflow-y-auto px-2 pb-3 space-y-1">
           {chats.length === 0 && (
-            <p className="text-center text-white/20 text-xs py-8">No conversations yet</p>
+            <p className="text-center text-white/30 text-xs py-8 font-mono">No previous chats stored</p>
           )}
           {chats.map(chat => (
             <div key={chat.id} className="group relative">
               <button
                 onClick={() => setActiveChatId(chat.id)}
-                className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] truncate transition-all
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] truncate transition-all flex items-center gap-2
                   ${activeChatId === chat.id
-                    ? "bg-white/10 text-white"
-                    : "text-white/50 hover:bg-white/5 hover:text-white/80"
+                    ? "bg-white/10 text-white font-medium border border-white/15"
+                    : "text-white/60 hover:bg-white/5 hover:text-white/90"
                   }`}
               >
-                {chat.title}
+                <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${activeChatId === chat.id ? "text-cyan-400" : "text-white/30"}`} />
+                <span className="truncate">{chat.title || "New conversation"}</span>
               </button>
               <button
                 onClick={() => deleteChat(chat.id)}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg
-                           opacity-0 group-hover:opacity-100 hover:bg-red-900/30 text-red-400/60
+                           opacity-0 group-hover:opacity-100 hover:bg-red-900/40 text-red-400/70
                            hover:text-red-400 transition-all"
+                title="Delete Chat"
               >
-                <Trash2 className="w-3 h-3" />
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           ))}
@@ -421,7 +486,10 @@ export default function ChatPage() {
             >
               <AlignLeft className="w-4 h-4" />
             </button>
-            <span className="text-[15px] font-semibold text-white/80">Synaps AI</span>
+            <span className="text-[15px] font-bold text-white/90 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              Synaps Executive AI Chat
+            </span>
           </div>
 
           {/* Web Search Toggle */}
@@ -430,12 +498,12 @@ export default function ChatPage() {
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[13px] font-medium
                         border transition-all
                         ${webSearch
-                          ? "bg-purple-600/25 border-purple-500/60 text-purple-300"
+                          ? "bg-cyan-500/25 border-cyan-500/60 text-cyan-300"
                           : "bg-transparent border-white/10 text-white/40 hover:border-white/20 hover:text-white/60"
                         }`}
           >
             <Globe className={`w-3.5 h-3.5 ${webSearch ? "animate-pulse" : ""}`} />
-            Web
+            Web Search
           </button>
         </header>
 
@@ -459,11 +527,11 @@ export default function ChatPage() {
                     /* ── Assistant message ── */
                     <div className="flex gap-3">
                       {/* Avatar */}
-                      <div className="w-8 h-8 shrink-0 rounded-full bg-purple-600/20 border border-purple-500/20
+                      <div className="w-8 h-8 shrink-0 rounded-full bg-cyan-500/20 border border-cyan-500/30
                                       flex items-center justify-center mt-0.5">
                         {msg.isWebSearch
-                          ? <Globe className="w-3.5 h-3.5 text-purple-400" />
-                          : <Sparkles className="w-3.5 h-3.5 text-purple-400" />}
+                          ? <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                          : <Sparkles className="w-3.5 h-3.5 text-cyan-400" />}
                       </div>
 
                       <div className="flex-1 min-w-0 space-y-4 pt-0.5">
@@ -474,9 +542,9 @@ export default function ChatPage() {
                           <>
                             {/* Web Search label */}
                             {msg.isWebSearch && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-purple-400/70 font-medium uppercase tracking-wider">
+                              <div className="flex items-center gap-1.5 text-[11px] text-cyan-400/80 font-mono font-bold uppercase tracking-wider">
                                 <Globe className="w-3 h-3" />
-                                Web Search
+                                Live Web Search Verified
                               </div>
                             )}
 
@@ -493,7 +561,7 @@ export default function ChatPage() {
                             <div className="text-[15px] leading-[1.8] font-normal">
                               {msg.isStreaming ? (
                                 <span className="text-white/85">{msg.content}
-                                  <span className="inline-block w-0.5 h-4 bg-purple-400 animate-pulse ml-0.5 align-middle" />
+                                  <span className="inline-block w-0.5 h-4 bg-cyan-400 animate-pulse ml-0.5 align-middle" />
                                 </span>
                               ) : (
                                 <MarkdownContent content={msg.content} />
@@ -509,7 +577,7 @@ export default function ChatPage() {
                                                bg-white/5 border border-white/10
                                                text-[11px] text-white/50"
                                   >
-                                    <BookOpen className="w-3 h-3 text-purple-400/60" />
+                                    <BookOpen className="w-3 h-3 text-cyan-400/70" />
                                     {cit.document_id ? `${cit.document_id} · p.${cit.page}` : cit.snippet}
                                   </span>
                                 ))}
@@ -532,15 +600,15 @@ export default function ChatPage() {
           <div className="max-w-2xl mx-auto">
             {/* Web active pill */}
             {webSearch && (
-              <div className="flex items-center gap-2 mb-2 px-1 text-[12px] text-purple-400/70">
+              <div className="flex items-center gap-2 mb-2 px-1 text-[12px] text-cyan-400/80 font-mono font-semibold">
                 <Globe className="w-3.5 h-3.5 animate-pulse" />
-                Web search on — I&apos;ll search live results
+                Live Web Search Active — Querying real-time internet data
               </div>
             )}
 
             <div className={`flex items-end gap-2 rounded-2xl px-3 py-2.5 border transition-all
                             ${webSearch
-                              ? "bg-[#1c1c2a] border-purple-500/40"
+                              ? "bg-[#1c1c2a] border-cyan-500/40 shadow-md shadow-cyan-500/10"
                               : "bg-[#1c1c2a] border-white/10 focus-within:border-white/20"
                             }`}>
               {/* Hidden File Input & Attach Button */}
@@ -587,7 +655,7 @@ export default function ChatPage() {
                 onClick={() => setWebSearch(v => !v)}
                 className={`p-2 shrink-0 rounded-xl transition-all mb-0.5
                             ${webSearch
-                              ? "text-purple-400 bg-purple-600/20"
+                              ? "text-cyan-300 bg-cyan-500/20 border border-cyan-500/30"
                               : "text-white/25 hover:text-white/50 hover:bg-white/5"
                             }`}
                 title="Toggle web search"
@@ -599,9 +667,9 @@ export default function ChatPage() {
               <button
                 onClick={() => send()}
                 disabled={!input.trim() || isLoading}
-                className="p-2.5 shrink-0 rounded-xl bg-purple-600 hover:bg-purple-500
+                className="p-2.5 shrink-0 rounded-xl bg-cyan-600 hover:bg-cyan-500
                            disabled:opacity-25 disabled:cursor-not-allowed
-                           text-white transition-all mb-0.5"
+                           text-white transition-all mb-0.5 shadow-md"
               >
                 {isLoading
                   ? <Loader2 className="w-4 h-4 animate-spin" />
@@ -609,8 +677,8 @@ export default function ChatPage() {
               </button>
             </div>
 
-            <p className="text-center mt-2.5 text-[11px] text-white/20">
-              Synaps AI can make mistakes. Verify important information.
+            <p className="text-center mt-2.5 text-[11px] text-white/30 font-mono">
+              Synaps Executive AI Engine · 100% Evidence Grounded & Zero Hallucinations.
             </p>
           </div>
         </div>
