@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
+import { SkiperLoopLoader } from '@/components/ui/SkiperLoopLoader';
 
 interface ProactiveActionRecommendation {
   id: string;
@@ -123,6 +124,12 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
           </Button>
         </div>
       </div>
+
+      {loading && (
+        <div className="p-6 bg-base-100 border border-base-300 rounded-3xl flex justify-center items-center">
+          <SkiperLoopLoader preset="chief-of-staff" delay={1500} className="scale-110" />
+        </div>
+      )}
 
       {/* Active Knowledge Selector Bar */}
       <ActiveKnowledgeSelector />

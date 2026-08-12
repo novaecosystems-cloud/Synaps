@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
+import { SkiperLoopLoader } from '@/components/ui/SkiperLoopLoader';
 
 export default function BoardroomPage() {
   const [query, setQuery] = useState('');
@@ -124,8 +125,8 @@ export default function BoardroomPage() {
             <div className="absolute inset-0 rounded-full border-4 border-purple-500/20 animate-ping"></div>
             <Building2 className="w-10 h-10 text-purple-500 animate-pulse" />
           </div>
-          <div className="text-center space-y-1">
-            <h3 className="text-lg font-bold text-base-content">10 AI Executives Analyzing Question...</h3>
+          <div className="text-center space-y-3">
+            <SkiperLoopLoader preset="boardroom" delay={1500} className="scale-110" />
             <p className="text-xs text-base-content/60 max-w-sm mx-auto">
               CEO, CFO, COO, CTO, Legal Counsel, HR, Sales, Marketing, Ops, and Compliance are evaluating risks, financial impact, and strategy.
             </p>

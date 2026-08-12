@@ -10,6 +10,7 @@ import {
   MessageSquare, ArrowRight, ChevronRight,
 } from "lucide-react";
 import { PromptInput } from "@/components/ui/PromptInput";
+import { SkiperLoopLoader } from "@/components/ui/SkiperLoopLoader";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface WebSource {
@@ -172,22 +173,22 @@ function SourceCard({ source, idx }: { source: WebSource; idx: number }) {
 
 // ─── Thinking Indicator ───────────────────────────────────────────────────────
 function ThinkingIndicator({ webSearch }: { webSearch: boolean }) {
-  const [dot, setDot] = useState(0);
-  const steps = webSearch
-    ? ["Searching the web", "Reading sources", "Synthesising answer"]
-    : ["Reading documents", "Analysing evidence", "Generating response"];
-  const [step, setStep] = useState(0);
-
-  useEffect(() => {
-    const d = setInterval(() => setDot(v => (v + 1) % 3), 400);
-    const s = setInterval(() => setStep(v => (v + 1) % steps.length), 1600);
-    return () => { clearInterval(d); clearInterval(s); };
-  }, [steps.length]);
-
   return (
-    <div className="flex items-center gap-3 text-white/50 text-[14px] py-1">
-      <span className="w-5 h-5 rounded-full border-2 border-cyan-500/40 border-t-cyan-400 animate-spin shrink-0" />
-      <span>{steps[step]}{"...".slice(0, dot + 1)}</span>
+    <div className="py-1">
+      <SkiperLoopLoader
+        preset="chat"
+        messages={
+          webSearch
+            ? [
+                "Querying Live Search Index...",
+                "Retrieving Web Source Cards...",
+                "Synthesising Grounded Answer...",
+                "Formatting Citation Links...",
+              ]
+            : undefined
+        }
+        delay={1300}
+      />
     </div>
   );
 }
