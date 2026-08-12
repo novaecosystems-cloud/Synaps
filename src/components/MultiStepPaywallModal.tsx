@@ -195,7 +195,7 @@ export default function MultiStepPaywallModal({
       <div className="bg-base-100 border border-base-300 rounded-3xl max-w-2xl w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Top Progress Bar & Banner */}
-        <div className="bg-gradient-to-r from-amber-500 via-primary to-purple-600 p-3 text-white text-xs font-bold flex justify-between items-center px-6">
+        <div className="bg-gradient-to-r from-amber-500 via-primary to-rose-600 p-3 text-white text-xs font-bold flex justify-between items-center px-6">
           <span className="flex items-center gap-1.5 uppercase tracking-wider text-[10px]">
             <Sparkles className="w-3.5 h-3.5 fill-white" /> One-Time Discount & Money-Back Guarantee
           </span>
@@ -390,7 +390,7 @@ export default function MultiStepPaywallModal({
 
                   {/* IF ALREADY ON ENTERPRISE MAX */}
                   {userRole === 'OWNER' || creditLimit >= 10000 ? (
-                    <div className="p-6 bg-gradient-to-br from-purple-950 via-slate-900 to-amber-950 border border-purple-500/40 rounded-3xl text-center space-y-4 shadow-xl">
+                    <div className="p-6 bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 border border-cyan-500/40 rounded-3xl text-center space-y-4 shadow-xl">
                       <Award className="w-12 h-12 text-amber-400 mx-auto animate-pulse" />
                       <div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
@@ -411,7 +411,7 @@ export default function MultiStepPaywallModal({
                   ) : (
                     <div className="space-y-4">
                                   {/* PROMO CODE BANNER (FIRST 100 USERS ONLY & VALID UNTIL SEPT 5, 2026) */}
-                    <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-primary/20 to-purple-600/20 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+                    <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-500/20 via-primary/20 to-cyan-600/20 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
                       <div className="flex items-center gap-2 font-bold text-base-content">
                         <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
                         <span>30% OFF Code <span className="font-mono bg-amber-500 text-black px-2 py-0.5 rounded font-extrabold text-xs">LAUNCH100</span>: First 100 Users Only (Valid until Sept 5, 2026)</span>
@@ -465,30 +465,30 @@ export default function MultiStepPaywallModal({
                         className={cn(
                           "p-5 rounded-3xl border cursor-pointer transition-all space-y-3 relative",
                           selectedPlan === 'enterprise' 
-                            ? "bg-purple-500/5 border-purple-500 ring-2 ring-purple-500/30 shadow-md" 
+                            ? "bg-cyan-500/5 border-cyan-500 ring-2 ring-cyan-500/30 shadow-md" 
                             : "bg-base-100 border-base-300 hover:border-base-400"
                         )}
                       >
                         <div className="flex justify-between items-start">
                           <div>
                             <span className="font-extrabold text-base text-base-content block">Enterprise Max</span>
-                            <span className="text-[10px] text-purple-500 font-bold uppercase tracking-wider">Max Limit Cap ($14/mo)</span>
+                            <span className="text-[10px] text-cyan-500 font-bold uppercase tracking-wider">Max Limit Cap ($14/mo)</span>
                           </div>
-                          {selectedPlan === 'enterprise' && <CheckCircle2 className="w-5 h-5 text-purple-500" />}
+                          {selectedPlan === 'enterprise' && <CheckCircle2 className="w-5 h-5 text-cyan-500" />}
                         </div>
 
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-extrabold text-purple-400">$14.00</span>
+                          <span className="text-3xl font-extrabold text-cyan-400">$14.00</span>
                           <span className="text-xs text-base-content/50 line-through">$40</span>
                           <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">30% OFF</span>
                           <span className="text-xs text-base-content/60">/ month</span>
                         </div>
 
                         <ul className="space-y-1.5 text-xs text-base-content/80 font-medium">
-                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> 10,000 Daily AI Credits</li>
-                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Digital Twin Risk Simulator</li>
-                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Unlimited Workspaces</li>
-                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-purple-500" /> Permanent Audit Logs</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-cyan-500" /> 10,000 Daily AI Credits</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-cyan-500" /> Digital Twin Risk Simulator</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-cyan-500" /> Unlimited Workspaces</li>
+                          <li className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-cyan-500" /> Permanent Audit Logs</li>
                         </ul>
                       </div>
                     </div>      </div>
@@ -539,7 +539,7 @@ export default function MultiStepPaywallModal({
                     </button>
                   </div>
 
-                  <div className="p-6 bg-gradient-to-br from-amber-500/10 via-primary/5 to-purple-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
+                  <div className="p-6 bg-gradient-to-br from-amber-500/10 via-primary/5 to-cyan-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-extrabold uppercase tracking-wider text-amber-500 flex items-center gap-1.5">
                         <ShoppingBag className="w-4 h-4" /> Gumroad Merchant Checkout
@@ -555,7 +555,7 @@ export default function MultiStepPaywallModal({
 
                     <button
                       onClick={handleOpenLemonSqueezy}
-                      className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-purple-600 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
+                      className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-rose-600 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-[1.01]"
                     >
                       <CreditCard className="w-5 h-5" /> Pay Now via Gumroad Checkout
                     </button>

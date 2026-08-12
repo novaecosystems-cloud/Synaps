@@ -228,15 +228,15 @@ type Uniforms = Record<string, { value: unknown }>;
 
 const DEFAULT_DARK_PALETTE = [
   "#070709",
-  "#2a0020",
-  "#8c0f60",
+  "#031b33",
+  "#0284c7",
   "#fc4778",
   "#ff85b3",
 ];
 const DEFAULT_LIGHT_PALETTE = [
   "#ffffff",
   "#f1f1f1",
-  "#F36AC3",
+  "#38bdf8",
   "#fc4778",
   "#ff85b3",
 ];

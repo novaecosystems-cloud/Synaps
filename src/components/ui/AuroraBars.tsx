@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 export interface AuroraBarsProps {
   /** @default 32 */
   barCount?: number;
-  /** gradient color stops, bottom to top — @default ["#fc4778", "#ff7a00", "#c04aff", "#4a6fff", "#00000000"] */
+  /** gradient color stops, bottom to top — @default ["#fc4778", "#ff7a00", "#00f0ff", "#38bdf8", "#00000000"] */
   colors?: string[];
   /** max bar height as fraction of container height — @default 0.92 */
   maxHeightRatio?: number;
@@ -32,32 +32,28 @@ function barHeight(
   time: number,
   minH: number,
   maxH: number,
-  mouseXFraction: number = 0.5,
-  mouseYFraction: number = 0.5
+  mouseX: number,
+  mouseY: number
 ): number {
-  const norm = index / (total - 1);
-  const arch = Math.sin(norm * Math.PI);
+  const norm = (index / (total - 1)) * Math.PI;
+  const arch = Math.sin(norm);
 
-  // Distance from mouse position (0 to 1)
-  const distFromMouse = Math.abs(norm - mouseXFraction);
-  const mouseInfluence = Math.max(0, 1 - distFromMouse * 2.5) * (0.4 + mouseYFraction * 0.4);
+  const wave1 = Math.sin(time * 1.5 + index * 0.35) * 0.22;
+  const wave2 = Math.sin(time * 0.8 + index * 0.18 + 1.2) * 0.15;
 
-  const phase1 = (index / total) * Math.PI * 2;
-  const phase2 = (index / total) * Math.PI * 5.3;
+  const barX = index / (total - 1);
+  const distToMouse = Math.abs(barX - mouseX);
+  const mouseBoost = Math.max(0, 1 - distToMouse * 3.5) * (1 - mouseY) * 0.35;
 
-  const wave =
-    0.5 +
-    0.25 * Math.sin(time * 1.1 + phase1) +
-    0.25 * Math.sin(time * 0.7 + phase2);
+  const combined = (arch + wave1 + wave2 + mouseBoost) / 1.35;
+  const clamped = Math.max(0.08, Math.min(1.0, combined));
 
-  const blended = arch * 0.5 + wave * 0.35 + mouseInfluence;
-
-  return Math.min(1, Math.max(minH, minH + blended * (maxH - minH)));
+  return minH + clamped * (maxH - minH);
 }
 
 export function AuroraBars({
   barCount = 32,
-  colors = ["#fc4778", "#ff7a00", "#c04aff", "#4a6fff", "#00000000"],
+  colors = ["#fc4778", "#ff7a00", "#00f0ff", "#38bdf8", "#00000000"],
   maxHeightRatio = 0.92,
   minHeightRatio = 0.18,
   speed = 0.6,

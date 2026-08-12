@@ -156,7 +156,7 @@ export function ActiveKnowledgeSelector({ onScopeChange, className }: ActiveKnow
       return <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400 shrink-0" />;
     }
     if (ext === 'png' || ext === 'jpg' || ext === 'jpeg' || mimeType.startsWith('image/')) {
-      return <FileImage className="w-3.5 h-3.5 text-purple-400 shrink-0" />;
+      return <FileImage className="w-3.5 h-3.5 text-cyan-400 shrink-0" />;
     }
     return <FileCode className="w-3.5 h-3.5 text-amber-400 shrink-0" />;
   };

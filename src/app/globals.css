@@ -10,12 +10,12 @@
     --card-foreground: #09090b;
     --border: #e4e4e7;
     --input: #e4e4e7;
-    --primary: #7c3aed;
+    --primary: #fc4778;
     --primary-foreground: #f8fafc;
     --muted: #f1f5f9;
     --muted-foreground: #64748b;
     --secondary: #f1f5f9;
-    --ring: #7c3aed;
+    --ring: #fc4778;
     --destructive: #ef4444;
   }
 
@@ -26,12 +26,12 @@
     --card-foreground: #ffffff;
     --border: rgba(255, 255, 255, 0.05);
     --input: rgba(255, 255, 255, 0.05);
-    --primary: #8b5cf6;
+    --primary: #fc4778;
     --primary-foreground: #ffffff;
     --muted: rgba(255, 255, 255, 0.05);
     --muted-foreground: #a1a1aa;
     --secondary: rgba(255, 255, 255, 0.05);
-    --ring: rgba(139, 92, 246, 0.5);
+    --ring: rgba(252, 71, 120, 0.5);
     --destructive: #ef4444;
   }
 }
@@ -398,9 +398,9 @@ h1, h2, h3, h4, h5, h6, .font-headline, .font-fraunces {
   border-left: 2px solid rgba(59, 130, 246, 0.6);
 }
 
-.glow-purple {
-  box-shadow: -4px 0 15px -2px rgba(168, 85, 247, 0.4);
-  border-left: 2px solid rgba(168, 85, 247, 0.6);
+.glow-purple, .glow-cyan {
+  box-shadow: -4px 0 15px -2px rgba(0, 240, 255, 0.4);
+  border-left: 2px solid rgba(0, 240, 255, 0.6);
 }
 
 .aura-green {
@@ -411,8 +411,8 @@ h1, h2, h3, h4, h5, h6, .font-headline, .font-fraunces {
   box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.3);
 }
 
-.aura-purple {
-  box-shadow: 0 0 20px 5px rgba(168, 85, 247, 0.3);
+.aura-purple, .aura-cyan {
+  box-shadow: 0 0 20px 5px rgba(0, 240, 255, 0.3);
 }
 
 .glass-panel {
@@ -422,7 +422,7 @@ h1, h2, h3, h4, h5, h6, .font-headline, .font-fraunces {
 }
 
 .space-bg {
-  background-image: radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+  background-image: radial-gradient(circle at 50% 100%, rgba(252, 71, 120, 0.15) 0%, transparent 60%);
 }
 
 /* Custom Synaps Loader */

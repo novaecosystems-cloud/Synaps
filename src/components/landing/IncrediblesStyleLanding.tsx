@@ -213,8 +213,8 @@ export default function IncrediblesStyleLanding() {
         mouseForce={9}
         cursorSize={110}
         autoDemo={true}
-        darkPalette={["#070709", "#2a0020", "#8c0f60", "#fc4778", "#ff85b3"]}
-        lightPalette={["#ffffff", "#f1f1f1", "#ffe6ee", "#fc4778", "#ff85b3"]}
+        darkPalette={["#070709", "#031b33", "#0284c7", "#fc4778", "#ff85b3"]}
+        lightPalette={["#ffffff", "#f1f1f1", "#e0f2fe", "#fc4778", "#ff85b3"]}
       />
 
       {/* ── WEBGEL FLUID CANVAS & CUSTOM FOLLOW CURSOR ──────────────────────── */}
@@ -261,7 +261,7 @@ export default function IncrediblesStyleLanding() {
           <AuroraBars
             barCount={32}
             speed={0.6}
-            colors={["#fc4778", "#ff7a00", "#c04aff", "#4a6fff", "transparent"]}
+            colors={["#fc4778", "#ff7a00", "#00f0ff", "#38bdf8", "transparent"]}
             blur={3}
           />
         </div>

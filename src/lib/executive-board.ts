@@ -41,7 +41,7 @@ export interface BoardMeetingResult {
 }
 
 const EXECUTIVE_PROFILES = [
-  { roleId: 'CEO', roleTitle: 'Chief Executive Officer', name: 'Eleanor Vance', avatarColor: '#8b5cf6', focus: 'Overall company growth, strategic alignment, market leadership, and vision.' },
+  { roleId: 'CEO', roleTitle: 'Chief Executive Officer', name: 'Eleanor Vance', avatarColor: '#fc4778', focus: 'Overall company growth, strategic alignment, market leadership, and vision.' },
   { roleId: 'CFO', roleTitle: 'Chief Financial Officer', name: 'Marcus Sterling', avatarColor: '#10b981', focus: 'Financial ROI, capital allocation, budget constraints, and fiscal risk exposure.' },
   { roleId: 'COO', roleTitle: 'Chief Operating Officer', name: 'Sarah Chen', avatarColor: '#3b82f6', focus: 'Operational execution, process friction, resource bandwidth, and logistics.' },
   { roleId: 'CTO', roleTitle: 'Chief Technology Officer', name: 'Dr. Aris Thorne', avatarColor: '#06b6d4', focus: 'Technical architecture, scalability, engineering velocity, and cybersecurity.' },

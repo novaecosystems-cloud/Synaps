@@ -112,7 +112,7 @@ export default function AiCreditExhaustedModal({
             </div>
 
             <div className="space-y-1">
-              <span className="px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-extrabold uppercase tracking-wider">
+              <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-extrabold uppercase tracking-wider">
                 Daily AI Credits Refilling at Midnight UTC
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-base-content tracking-tight">
@@ -136,7 +136,7 @@ export default function AiCreditExhaustedModal({
           </div>
 
           {/* 24-30 Hour Flash Discount Form */}
-          <div className="mt-6 p-5 bg-gradient-to-br from-primary/10 via-base-200 to-purple-950/40 border border-primary/30 rounded-2xl space-y-4 shadow-inner relative overflow-hidden">
+          <div className="mt-6 p-5 bg-gradient-to-br from-primary/10 via-base-200 to-cyan-950/40 border border-primary/30 rounded-2xl space-y-4 shadow-inner relative overflow-hidden">
             <div className="flex justify-between items-center border-b border-primary/20 pb-3">
               <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
                 <Tag className="w-4 h-4 text-amber-400" />
@@ -188,7 +188,7 @@ export default function AiCreditExhaustedModal({
           {/* Action Buttons */}
           <div className="mt-6 space-y-2">
             <Link href="/dashboard/settings/billing" onClick={handleClose} className="w-full">
-              <Button className="w-full rounded-2xl gap-2 font-bold py-3.5 bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg hover:shadow-primary/25">
+              <Button className="w-full rounded-2xl gap-2 font-bold py-3.5 bg-gradient-to-r from-primary to-rose-600 text-white shadow-lg hover:shadow-primary/25">
                 {isFreeTier ? (
                   <>
                     <Sparkles className="w-4 h-4" /> Upgrade to Pro ($7) or Max ($20)
