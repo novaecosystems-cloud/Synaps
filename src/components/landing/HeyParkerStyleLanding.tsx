@@ -61,13 +61,6 @@ const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
     description: "Continuous C-suite operational monitoring, compliance audit & financial forecast synthesis.",
   },
   {
-    label: "Web Search & AI Chat Assistant",
-    sublabel: "MULTIMODAL RAG",
-    image: "/upscaled/02_Web_Search_AI_Chat_4K.png",
-    imageAlt: "Web Search & AI Intelligence Chat 4K Dashboard",
-    description: "Ask natural language questions across your documents and live web search with zero hallucinations.",
-  },
-  {
     label: "Boardroom Simulation Engine",
     sublabel: "DIGITAL TWINS",
     image: "/upscaled/03_Boardroom_Simulation_Engine_4K.png",

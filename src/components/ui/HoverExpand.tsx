@@ -31,8 +31,8 @@ export interface HoverExpandProps {
 
 export function HoverExpand({
   items,
-  collapsedHeight = 68,
-  expandedHeight = 360,
+  collapsedHeight = 72,
+  expandedHeight = 540,
   className,
 }: HoverExpandProps) {
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
@@ -48,16 +48,16 @@ export function HoverExpand({
         return (
           <React.Fragment key={i}>
             <motion.div
-              className="relative w-full overflow-hidden cursor-pointer group"
+              className="relative w-full overflow-hidden cursor-pointer group rounded-2xl my-1 bg-[#0a0a0d]"
               animate={{
                 height: isHovered ? expandedHeight : collapsedHeight,
-                opacity: isOtherHovered ? 0.45 : 1,
+                opacity: isOtherHovered ? 0.5 : 1,
               }}
               transition={{
                 height: {
                   type: "spring",
-                  stiffness: 280,
-                  damping: 32,
+                  stiffness: 260,
+                  damping: 30,
                   mass: 0.9,
                 },
                 opacity: { duration: 0.22, ease: "easeOut" },
@@ -67,11 +67,11 @@ export function HoverExpand({
               onClick={() => setHoveredIndex(isHovered ? null : i)}
             >
               <motion.div
-                className="absolute inset-0 w-full h-full"
+                className="absolute inset-0 w-full h-full p-2"
                 initial={false}
                 animate={{
-                  opacity: isHovered ? 1 : 0.15,
-                  scale: isHovered ? 1 : 1.05,
+                  opacity: isHovered ? 1 : 0.2,
+                  scale: isHovered ? 1 : 1.03,
                 }}
                 transition={{
                   opacity: { duration: 0.45, ease: [0.23, 1, 0.32, 1] },
@@ -81,11 +81,11 @@ export function HoverExpand({
                 <img
                   src={item.image}
                   alt={item.imageAlt ?? item.label}
-                  className="w-full h-full object-cover object-top"
+                  className="w-full h-full object-contain object-top rounded-xl shadow-2xl"
                   loading="lazy"
                   decoding="async"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-[#0c0c0e]/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-[#0c0c0e]/20 to-transparent pointer-events-none" />
               </motion.div>
 
               <div className="absolute inset-0 flex items-end px-6 pb-5 z-10">
