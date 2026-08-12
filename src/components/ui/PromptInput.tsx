@@ -22,6 +22,9 @@ export interface Attachment {
   height?: number;
 }
 
+// Models requiring user's custom BYOK API Key in Settings
+const BYOK_REQUIRED_MODELS = ["Opus 4.8", "GLM 5.2", "Composer 2.5"];
+
 // ----------------------------------------------------------------------
 // Sub-components
 // ----------------------------------------------------------------------
@@ -83,19 +86,11 @@ function ArrowUpIcon() {
   );
 }
 
-function MicIcon() {
+function LockIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <rect x="5" y="1" width="4" height="7" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M2.75 6.5V7a4.25 4.25 0 0 0 8.5 0v-.5M7 11.25V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function StopIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" fill="currentColor" />
+    <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <rect x="2.5" y="6" width="9" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M4.5 6V4a2.5 2.5 0 0 1 5 0v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -312,7 +307,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       onSubmit,
       placeholder = "Ask anything",
       className,
-      models = ["GPT 5.5", "Opus 4.8", "Gemini 3.5 Flash", "Composer 2.5", "GLM 5.2"],
+      models = ["Gemini 3.5 Flash", "GPT 5.5", "Opus 4.8", "Composer 2.5", "GLM 5.2"],
       efforts = ["Low", "Medium", "Max Effort"],
       defaultValue = "",
       value: controlledValue,
@@ -331,18 +326,22 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
     const [attachments, setAttachments] = useState<Attachment[]>([]);
     const [activeAttachment, setActiveAttachment] = useState<{ attachment: Attachment; rect: DOMRect } | null>(null);
 
-    // Audio/Voice recording states
-    const [isRecording, setIsRecording] = useState(false);
-    const [audioData, setAudioData] = useState<number[]>(new Array(5).fill(0));
-    const valueRef = useRef(controlledValue !== undefined ? controlledValue : localValue);
+    // BYOK Custom API Key State Check
+    const [hasCustomKey, setHasCustomKey] = useState(false);
+    const [byokNotice, setByokNotice] = useState<string | null>(null);
 
-    // Refs for Web Audio & Speech Recognition cleanup
-    const streamRef = useRef<MediaStream | null>(null);
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const rafRef = useRef<number | null>(null);
-    const recognitionRef = useRef<any>(null);
-    const demoIntervalRef = useRef<number | null>(null);
-    const demoTextIntervalRef = useRef<number | null>(null);
+    useEffect(() => {
+      const checkKeyStatus = async () => {
+        try {
+          const res = await fetch("/api/settings/ai/keys");
+          const data = await res.json();
+          if (data.success && data.hasKey) {
+            setHasCustomKey(true);
+          }
+        } catch (e) {}
+      };
+      checkKeyStatus();
+    }, []);
 
     const [hoverStyle, setHoverStyle] = useState({ opacity: 0, transform: "translateY(0px) scale(0.95)", transition: "none" });
     const [containerHeight, setContainerHeight] = useState(116);
@@ -360,11 +359,6 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
     const bottomFadeRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const thumbRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
-
-    // Sync value ref for audio callback closure
-    useEffect(() => {
-      valueRef.current = value;
-    }, [value]);
 
     const updateFades = () => {
       const el = textareaRef.current;
@@ -390,177 +384,15 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       setExpanded(true);
     };
 
-    // --- Voice Recording Logic ---
-    const stopRecording = useCallback(() => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-        recognitionRef.current = null;
-      }
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
-      }
-      if (demoIntervalRef.current) {
-        window.clearInterval(demoIntervalRef.current);
-        demoIntervalRef.current = null;
-      }
-      if (demoTextIntervalRef.current) {
-        window.clearInterval(demoTextIntervalRef.current);
-        demoTextIntervalRef.current = null;
-      }
-      setIsRecording(false);
-      setAudioData(new Array(5).fill(0));
-    }, []);
-
-    const startRecording = useCallback(async () => {
-      setIsSmoothResize(false);
-      setExpanded(true);
-
-      let stream: MediaStream | null = null;
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        }
-      } catch (err) {
-        console.warn("Microphone access denied or unavailable. Falling back to simulated voice mode for demo.");
-      }
-
-      setIsRecording(true);
-
-      // Simulation function for tight sandbox environments
-      function simulateText() {
-        const fakeText = "Can you build a high fidelity Framer Motion layout animation for a dark mode dashboard?";
-        const words = fakeText.split(" ");
-        let i = 0;
-        let currentBase = valueRef.current;
-        demoTextIntervalRef.current = window.setInterval(() => {
-          if (i < words.length) {
-            currentBase = (currentBase ? currentBase + " " : "") + words[i];
-            handleValueChange(currentBase);
-            i++;
-          } else {
-            stopRecording();
-          }
-        }, 300);
-      }
-
-      if (stream) {
-        streamRef.current = stream;
-        
-        // Setup Web Audio API for visualizer
-        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-        const audioCtx = new AudioCtx();
-        audioContextRef.current = audioCtx;
-
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 64; 
-        const source = audioCtx.createMediaStreamSource(stream);
-        source.connect(analyser);
-
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-        const updateVisualizer = () => {
-          analyser.getByteFrequencyData(dataArray);
-          const bands = new Array(5).fill(0);
-          const step = Math.floor(dataArray.length / 5);
-          for (let i = 0; i < 5; i++) {
-            let sum = 0;
-            for (let j = 0; j < step; j++) {
-              sum += dataArray[i * step + j];
-            }
-            bands[i] = sum / step / 255; // normalize to 0-1
-          }
-          setAudioData(bands);
-          rafRef.current = requestAnimationFrame(updateVisualizer);
-        };
-        updateVisualizer();
-
-        // Setup Speech Recognition
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (SpeechRecognition) {
-          const recognition = new SpeechRecognition();
-          recognition.continuous = true;
-          recognition.interimResults = true;
-
-          let baseline = valueRef.current;
-
-          recognition.onresult = (event: any) => {
-            let interimTranscript = "";
-            let finalTranscript = "";
-
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-              if (event.results[i].isFinal) {
-                finalTranscript += event.results[i][0].transcript;
-              } else {
-                interimTranscript += event.results[i][0].transcript;
-              }
-            }
-            
-            if (finalTranscript) {
-               baseline += (baseline ? " " : "") + finalTranscript;
-            }
-            
-            handleValueChange((baseline + (interimTranscript ? " " + interimTranscript : "")).trim());
-          };
-
-          recognition.onerror = (e: any) => {
-            console.error("Speech recognition error", e);
-            stopRecording();
-          };
-
-          recognition.onend = () => {
-             stopRecording();
-          };
-
-          recognitionRef.current = recognition;
-          recognition.start();
-        } else {
-          console.warn("Speech Recognition API not supported in this browser. Using simulated text.");
-          simulateText();
-        }
-      } else {
-        // Fallback simulated visualizer
-        demoIntervalRef.current = window.setInterval(() => {
-          setAudioData(Array.from({ length: 5 }, () => Math.random() * 0.8 + 0.1));
-        }, 100);
-        simulateText();
-      }
-    }, [handleValueChange, stopRecording]);
-
-    // Keep textarea auto-scrolled to bottom while recording
-    useEffect(() => {
-      if (isRecording && textareaRef.current) {
-        textareaRef.current.scrollTop = textareaRef.current.scrollHeight;
-      }
-    }, [value, isRecording]);
-
-    // Ensure cleanup of mic/streams on unmount
-    useEffect(() => {
-      return () => {
-        stopRecording();
-        attachments.forEach((a) => URL.revokeObjectURL(a.url)); 
-      };
-    }, [stopRecording, attachments]);
-
-
     useEffect(() => {
       if ((value.trim() !== "" || hasAttachments) && !expanded) {
         setIsSmoothResize(false);
         setExpanded(true);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value, expanded, hasAttachments]);
 
     useEffect(() => {
-      if (expanded && !isRecording) {
+      if (expanded) {
         const timer = setTimeout(() => {
           if (textareaRef.current) {
             textareaRef.current.focus();
@@ -570,9 +402,8 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
         }, 50);
         return () => clearTimeout(timer);
       }
-    }, [expanded, isRecording]);
+    }, [expanded]);
 
-    // ONLY updates height on value/text change. Adding attachments leaves this completely isolated.
     useEffect(() => {
       if (!textareaRef.current) return;
       const el = textareaRef.current;
@@ -592,7 +423,6 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       setIsScrolling(scrollHeight > 160);
       
       setTimeout(updateFades, 0);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value, expanded]); 
 
     useEffect(() => {
@@ -613,7 +443,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
 
     const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
       if (internalContainerRef.current && internalContainerRef.current.contains(e.relatedTarget as Node)) return;
-      if (value.trim() === "" && !hasAttachments && !isRecording) {
+      if (value.trim() === "" && !hasAttachments) {
         setIsSmoothResize(false);
         setExpanded(false);
         setIsModelSelectOpen(false);
@@ -622,6 +452,13 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
 
     const handleSubmit = () => {
       if (value.trim() === "" && !hasAttachments) return;
+
+      // Check if selected model requires custom BYOK API Key
+      if (BYOK_REQUIRED_MODELS.includes(selectedModel) && !hasCustomKey) {
+        setByokNotice(`To use ${selectedModel}, please add your custom API Key in Settings → API Keys.`);
+        return;
+      }
+
       setIsSmoothResize(false);
       onSubmit?.(value, { model: selectedModel, effort: efforts[effortIndex], attachments: attachments.map((a) => a.file) });
       handleValueChange("");
@@ -629,6 +466,16 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       setAttachments([]);
       setExpanded(false);
       setIsModelSelectOpen(false);
+    };
+
+    const handleSelectModel = (model: string) => {
+      if (BYOK_REQUIRED_MODELS.includes(model) && !hasCustomKey) {
+        setByokNotice(`To unlock ${model}, add your custom API key in Settings → API Keys.`);
+        return;
+      }
+      setSelectedModel(model);
+      setIsModelSelectOpen(false);
+      setByokNotice(null);
     };
 
     const cycleEffort = (e: React.MouseEvent) => {
@@ -676,24 +523,22 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
       thumbRefs.current.delete(id);
     };
 
-    // Calculate action button states
-    const showArrow = hasValue && !isRecording;
-    const showStop = isRecording;
-    const showMic = !hasValue && !isRecording;
-
-    const onActionButtonClick = (e: React.MouseEvent) => {
-      e.preventDefault();
-      if (isRecording) {
-        stopRecording();
-      } else if (hasValue) {
-        handleSubmit();
-      } else {
-        startRecording();
-      }
-    };
-
     return (
       <>
+        {/* BYOK API Key Required Banner Notice */}
+        {byokNotice && (
+          <div className="w-full max-w-[560px] mx-auto mb-2 p-3 rounded-2xl bg-cyan-950/90 border border-cyan-500/50 text-cyan-200 text-xs font-mono font-semibold flex items-center justify-between shadow-xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <span>🔒 {byokNotice}</span>
+            <a
+              href="/dashboard/settings/api-keys"
+              target="_blank"
+              className="ml-3 px-2.5 py-1 rounded-lg bg-cyan-500 text-black font-bold uppercase tracking-wider hover:bg-white transition-colors shrink-0"
+            >
+              Add Key
+            </a>
+          </div>
+        )}
+
         {/* Outer Wrapper for positioning and max-width scaling */}
         <div
           ref={(node) => {
@@ -719,7 +564,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
             aria-hidden="true"
           />
 
-          {/* Independent Attachment Tab (Slides up from behind the prompt input) */}
+          {/* Attachment Tab */}
           <div
             aria-hidden={!hasAttachments}
             style={{
@@ -762,7 +607,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             onMouseDown={(e) => {
               const isTextarea = e.target === textareaRef.current;
-              if (expanded && !isTextarea && !isRecording) {
+              if (expanded && !isTextarea) {
                 e.preventDefault();
                 textareaRef.current?.focus();
               }
@@ -778,13 +623,6 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
               expanded ? "cursor-text" : "cursor-default"
             )}
           >
-            <style dangerouslySetInnerHTML={{ __html: `
-              .prompt-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; background: transparent; }
-              .prompt-scrollbar::-webkit-scrollbar-track { background: transparent; }
-              .prompt-scrollbar::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; }
-              .prompt-scrollbar:hover::-webkit-scrollbar-thumb { background: hsl(var(--muted-foreground) / 0.3); }
-            `}} />
-
             <textarea
               ref={textareaRef}
               value={value}
@@ -803,7 +641,6 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
               }}
               placeholder={placeholder}
               aria-label="Prompt"
-              disabled={isRecording}
               style={{
                 transition: isSmoothResize
                   ? "height 0.15s ease-out"
@@ -812,8 +649,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
               className={cn(
                 "prompt-scrollbar absolute top-0 inset-x-0 z-[1] w-full resize-none bg-transparent pl-4 pr-12 py-3.5 text-sm leading-[22px] text-foreground outline-none placeholder:font-medium placeholder:text-muted-foreground/80 cursor-text",
                 expanded ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-1 pointer-events-none",
-                isScrolling ? "overflow-y-auto" : "overflow-y-hidden",
-                isRecording && "pointer-events-none"
+                isScrolling ? "overflow-y-auto" : "overflow-y-hidden"
               )}
             />
 
@@ -844,13 +680,14 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
               {placeholder}
             </button>
 
-            {/* Bottom Actions Wrapper - Hides when recording to make space for visualizer */}
+            {/* Bottom Actions Wrapper */}
             <div
               className={cn(
                 "absolute bottom-2 left-3 right-12 z-[10] flex items-center gap-0 transition-all duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]",
-                expanded && !isRecording ? "opacity-100 blur-0 translate-y-0 pointer-events-auto" : "opacity-0 blur-sm translate-y-2 pointer-events-none"
+                expanded ? "opacity-100 blur-0 translate-y-0 pointer-events-auto" : "opacity-0 blur-sm translate-y-2 pointer-events-none"
               )}
             >
+              {/* Model Selector Dropdown */}
               <div className="relative">
                 <button
                   type="button"
@@ -866,8 +703,11 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
                   aria-label={`Select model. Current: ${selectedModel}`}
                 >
                   <ModelIcon model={selectedModel} className="size-3.5 opacity-70 group-hover:opacity-100 transition-opacity" />
-                  <span className="text-xs font-semibold select-none transition-colors">
+                  <span className="text-xs font-semibold select-none transition-colors flex items-center gap-1">
                     <MorphingText text={selectedModel} />
+                    {BYOK_REQUIRED_MODELS.includes(selectedModel) && !hasCustomKey && (
+                      <span className="text-amber-400"><LockIcon /></span>
+                    )}
                   </span>
                 </button>
 
@@ -879,7 +719,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
                     }));
                   }}
                   className={cn(
-                    "absolute bottom-full left-0 mb-2.5 z-50 w-44 rounded-2xl border border-border bg-card/95 p-1 shadow-xl backdrop-blur-md flex flex-col gap-0.5 transition-all duration-400 cursor-default",
+                    "absolute bottom-full left-0 mb-2.5 z-50 w-52 rounded-2xl border border-border bg-card/95 p-1 shadow-xl backdrop-blur-md flex flex-col gap-0.5 transition-all duration-400 cursor-default",
                     isModelSelectOpen
                       ? "opacity-100 scale-100 translate-y-0 pointer-events-auto ease-[cubic-bezier(0.34,1.56,0.64,1)]"
                       : "opacity-0 scale-95 translate-y-3 pointer-events-none ease-[cubic-bezier(0.175,0.885,0.32,1.275)]"
@@ -887,30 +727,40 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
                 >
                   <div className="relative flex flex-col gap-0.5">
                     <div style={hoverStyle} className="absolute left-0 right-0 top-0 h-8 -z-10 rounded-xl bg-accent pointer-events-none" />
-                    {models.map((model, idx) => (
-                      <button
-                        key={model}
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onMouseEnter={() => {
-                          setHoverStyle((prev) => ({
-                            opacity: 1, transform: `translateY(${idx * 34}px) scale(1)`,
-                            transition: prev.opacity === 0 ? "opacity 0.15s ease-out" : "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s ease", 
-                          }));
-                        }}
-                        onClick={(e) => { e.stopPropagation(); setSelectedModel(model); setIsModelSelectOpen(false); }}
-                        className="group relative flex h-8 w-full items-center justify-between rounded-xl px-2.5 py-1.5 text-left text-xs font-medium text-foreground/80 outline-none active:scale-[0.98] cursor-default"
-                      >
-                        <span className="flex items-center gap-2">
-                          <ModelIcon model={model} className="size-3.5 opacity-85 group-hover:opacity-100 transition-opacity" />
-                          {model}
-                        </span>
-                      </button>
-                    ))}
+                    {models.map((model, idx) => {
+                      const isLocked = BYOK_REQUIRED_MODELS.includes(model) && !hasCustomKey;
+                      return (
+                        <button
+                          key={model}
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onMouseEnter={() => {
+                            setHoverStyle((prev) => ({
+                              opacity: 1, transform: `translateY(${idx * 34}px) scale(1)`,
+                              transition: prev.opacity === 0 ? "opacity 0.15s ease-out" : "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s ease", 
+                            }));
+                          }}
+                          onClick={(e) => { e.stopPropagation(); handleSelectModel(model); }}
+                          className={`group relative flex h-8 w-full items-center justify-between rounded-xl px-2.5 py-1.5 text-left text-xs font-medium outline-none active:scale-[0.98] cursor-default
+                            ${isLocked ? "text-muted-foreground/60 hover:text-foreground" : "text-foreground/80"}`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <ModelIcon model={model} className="size-3.5 opacity-85 group-hover:opacity-100 transition-opacity" />
+                            <span>{model}</span>
+                          </span>
+                          {isLocked && (
+                            <span className="text-amber-400/80 flex items-center gap-1 text-[10px] font-mono">
+                              <LockIcon /> Key
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
 
+              {/* Effort Toggler */}
               <button
                 type="button" onMouseDown={(e) => e.preventDefault()} onClick={cycleEffort}
                 className="group flex items-center gap-1 rounded-full px-2 py-1 text-foreground/50 transition-all duration-200 hover:bg-accent/60 hover:text-foreground outline-none cursor-default"
@@ -919,6 +769,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
                 <span className="text-xs font-semibold select-none transition-colors"><MorphingText text={efforts[effortIndex]} /></span>
               </button>
 
+              {/* Attachment Button */}
               <button
                 type="button" onMouseDown={(e) => e.preventDefault()} onClick={openFileChooser} disabled={attachments.length >= maxAttachments}
                 className="ml-auto flex size-7 items-center justify-center rounded-full text-foreground/50 transition-all duration-200 hover:bg-accent/60 hover:text-foreground outline-none cursor-default disabled:opacity-40 disabled:pointer-events-none"
@@ -927,41 +778,17 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
               </button>
             </div>
 
-            {/* Audio Wave Visualizer Overlay positioned precisely to the left of the mic button */}
-            <div
-              className={cn(
-                "absolute right-12 bottom-2 z-[10] flex h-8 items-center justify-end gap-[3px] transition-all duration-400 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]",
-                isRecording ? "w-16 opacity-100 translate-x-0" : "w-0 opacity-0 translate-x-4 pointer-events-none"
-              )}
-            >
-              {audioData.map((val, i) => (
-                <div
-                  key={i}
-                  className="w-1 rounded-full bg-primary transition-[height] duration-75 ease-out"
-                  style={{ height: `${Math.max(4, val * 24)}px` }}
-                />
-              ))}
-            </div>
-
+            {/* Send Button */}
             <button
               type="button"
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }} 
-              onClick={onActionButtonClick}
-              aria-label={showArrow ? "Send prompt" : showStop ? "Stop recording" : "Use voice input"}
+              onClick={handleSubmit}
+              disabled={!hasValue}
+              aria-label="Send prompt"
               style={{ borderRadius: 9999 }}
-              className="absolute right-2 bottom-2 z-[10] flex h-8 w-8 items-center justify-center bg-primary text-primary-foreground transition-all duration-300 hover:opacity-90 outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-default"
+              className="absolute right-2 bottom-2 z-[10] flex h-8 w-8 items-center justify-center bg-cyan-600 hover:bg-cyan-500 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-default shadow-md"
             >
-              <span className="relative flex h-full w-full items-center justify-center">
-                <span className={cn("absolute inset-0 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]", showArrow ? "opacity-100 scale-100 rotate-0 blur-none" : "opacity-0 scale-50 rotate-45 blur-[1px] pointer-events-none")}>
-                  <ArrowUpIcon />
-                </span>
-                <span className={cn("absolute inset-0 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]", showMic ? "opacity-100 scale-100 rotate-0 blur-none" : "opacity-0 scale-50 -rotate-45 blur-[1px] pointer-events-none")}>
-                  <MicIcon />
-                </span>
-                <span className={cn("absolute inset-0 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)]", showStop ? "opacity-100 scale-100 rotate-0 blur-none" : "opacity-0 scale-50 rotate-45 blur-[1px] pointer-events-none")}>
-                  <StopIcon />
-                </span>
-              </span>
+              <ArrowUpIcon />
             </button>
           </div>
         </div>
