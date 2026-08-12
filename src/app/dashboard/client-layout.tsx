@@ -47,6 +47,7 @@ const AiCreditExhaustedModal = dynamic(() => import('@/components/AiCreditExhaus
 const DemoHeaderBadge = dynamic(() => import('@/components/DemoHeaderBadge'), { ssr: false });
 
 const PlanAccessGate = dynamic(() => import('@/components/PlanAccessGate'), { ssr: false });
+const BottomTabBarNav = dynamic(() => import('@/components/ui/BottomTabBarNav').then(mod => mod.BottomTabBarNav), { ssr: false });
 
 type SubMenuItem = {
   name: string;
@@ -485,6 +486,9 @@ export default function ClientLayout({ children, user }: { children: React.React
           <PlanAccessGate>{children}</PlanAccessGate>
         </div>
       </main>
+
+      {/* Bottom Tab Bar Navigation UX */}
+      <BottomTabBarNav />
 
       {/* Global Modals & Hints */}
       <GlobalSearch />

@@ -5,13 +5,14 @@ import {
   Building2, Users, ShieldAlert, Sparkles, CheckCircle2, 
   AlertTriangle, Loader2, ArrowRight, MessageSquare, Scale, 
   DollarSign, Cpu, Activity, Briefcase, FileText, ChevronRight, X,
-  Compass, Flame, Zap, Award, Layers
+  Compass, Flame, Zap, Award, Layers, Download
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { SkiperLoopLoader } from '@/components/ui/SkiperLoopLoader';
+import { downloadAsPDF } from '@/lib/export-helpers';
 
 export default function BoardroomPage() {
   const [query, setQuery] = useState('');
@@ -76,9 +77,51 @@ export default function BoardroomPage() {
             <p className="text-xs text-base-content/60">Simulate a live AI Executive Board meeting. 10 domain executives independently analyze, debate & build consensus.</p>
           </div>
         </div>
-        <Link href="/dashboard/graph" className="btn btn-outline btn-sm rounded-2xl gap-2">
-          <Layers className="w-4 h-4 text-purple-500" /> Memory Graph
-        </Link>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => {
+              const execs = meetingResult?.executives || [];
+              const synth = meetingResult?.synthesis || {};
+              downloadAsPDF({
+                title: 'Executive Boardroom Simulation Report',
+                subtitle: `Strategic Question: "${query || 'SaaS EU Market Expansion'}"`,
+                organizationName: 'SYNAPS EXECUTIVE BOARDROOM',
+                filename: 'Boardroom-Simulation-Report',
+                sections: [
+                  {
+                    heading: 'Board Consensus & Final Recommendation',
+                    content: synth.finalRecommendation || 'The Board recommends execution under structured milestone reviews.',
+                    kvPairs: {
+                      'Overall Confidence': `${synth.overallConfidence || 90}%`,
+                      'Consensus Points': (synth.consensus || []).join('; ') || 'Standard Approval',
+                      'Identified Risks': (synth.risks || []).join('; ') || 'Low Risk'
+                    }
+                  },
+                  {
+                    heading: '10 C-Suite AI Executive Verdicts & Reasoning',
+                    tableData: {
+                      headers: ['Executive Role', 'Name', 'Verdict', 'Confidence', 'Reasoning'],
+                      rows: execs.map((e: any) => [
+                        e.roleTitle || e.roleId,
+                        e.name || '',
+                        e.verdict || 'SUPPORT',
+                        `${e.confidenceScore || 90}%`,
+                        e.reasoning || ''
+                      ])
+                    }
+                  }
+                ]
+              });
+            }}
+            className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider gap-2 py-2 px-4 shadow-sm"
+          >
+            <Download className="w-4 h-4" /> Export Board PDF
+          </Button>
+
+          <Link href="/dashboard/graph" className="btn btn-outline btn-sm rounded-2xl gap-2">
+            <Layers className="w-4 h-4 text-purple-500" /> Memory Graph
+          </Link>
+        </div>
       </div>
 
       {/* Active Knowledge Selector Bar */}

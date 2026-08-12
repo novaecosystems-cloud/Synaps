@@ -5,13 +5,14 @@ import {
   ShieldAlert, Sparkles, CheckCircle2, AlertTriangle, Clock, 
   TrendingUp, TrendingDown, DollarSign, FileText, Calendar, 
   Users, FolderKanban, Scale, Activity, ArrowRight, RefreshCw, 
-  Loader2, ShieldCheck, Zap, Info, Bell, Check, ChevronRight
+  Loader2, ShieldCheck, Zap, Info, Bell, Check, ChevronRight, Download
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { SkiperLoopLoader } from '@/components/ui/SkiperLoopLoader';
+import { downloadAsPDF } from '@/lib/export-helpers';
 
 interface ProactiveActionRecommendation {
   id: string;
@@ -114,14 +115,56 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
             <span className="text-[9px] text-amber-300/80 font-mono block mt-0.5">MODERATE RISK</span>
           </div>
 
-          <Button 
-            onClick={refreshBriefing} 
-            disabled={loading} 
-            className="rounded-2xl px-5 py-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider gap-2 shadow-lg"
-          >
-            <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
-            {loading ? 'Refreshing...' : 'Refresh Briefing'}
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <Button 
+              onClick={() => {
+                const recs = briefing?.proactiveRecommendations || [];
+                downloadAsPDF({
+                  title: 'Chief of Staff Daily Executive Briefing',
+                  subtitle: `Generated for Organization: Apex Global Enterprises · Risk Score: ${briefing?.riskScore || 38}/100`,
+                  organizationName: 'SYNAPS CHIEF OF STAFF',
+                  filename: 'Chief-of-Staff-Briefing-Report',
+                  sections: [
+                    {
+                      heading: 'Today Summary & Risk Assessment',
+                      content: briefing?.summary || 'Continuously monitoring enterprise channels for critical risk exposures.',
+                      kvPairs: {
+                        'Risk Score': `${briefing?.riskScore || 38}/100 (MODERATE)`,
+                        'Urgent Items': `${briefing?.urgentActionCount || 4} Critical Actions`,
+                        'Monitored Channels': 'Email, Calendar, Git, Finance, Contracts, Meetings, CRM'
+                      }
+                    },
+                    {
+                      heading: 'Proactive Action Recommendations',
+                      tableData: {
+                        headers: ['Category', 'Issue Description', 'Urgency', 'Recommended Action', 'Impact'],
+                        rows: recs.map((r: any) => [
+                          r.category || 'General',
+                          r.issue || '',
+                          r.urgency || 'HIGH',
+                          r.recommendedAction || '',
+                          r.estimatedImpact || 'High'
+                        ])
+                      }
+                    }
+                  ]
+                });
+              }}
+              className="rounded-2xl px-4 py-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider gap-2 shadow-lg"
+            >
+              <Download className="w-4 h-4" />
+              Export Brief PDF
+            </Button>
+
+            <Button 
+              onClick={refreshBriefing} 
+              disabled={loading} 
+              className="rounded-2xl px-5 py-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider gap-2 shadow-lg"
+            >
+              <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+              {loading ? 'Refreshing...' : 'Refresh Briefing'}
+            </Button>
+          </div>
         </div>
       </div>
 
