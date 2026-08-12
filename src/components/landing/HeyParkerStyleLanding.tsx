@@ -38,6 +38,8 @@ import SignInModal from '@/components/SignInModal';
 import Link from 'next/link';
 import Lenis from 'lenis';
 
+import { HoverExpand, HoverExpandItem } from '@/components/ui/HoverExpand';
+
 gsap.registerPlugin(ScrollTrigger);
 
 // ─── SAMPLE INTERACTIVE SANDBOX PROMPTS ────────────────────────────────────────
@@ -47,6 +49,59 @@ const SAMPLE_PROMPTS = [
   'Compare liability thresholds in vendor agreements between 2025 and 2026.',
   'What key risks should executive management review before signing the Supply Agreement?',
   'Draft a 1-page executive summary of the M&A data room contracts.',
+];
+
+// ─── 4K DASHBOARD SCREENSHOT GALLERY ITEMS ────────────────────────────────────
+const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
+  {
+    label: "Executive Operational Briefing",
+    sublabel: "AI COO CONSOLE",
+    image: "/upscaled/01_Executive_Operational_Briefing_4K.png",
+    imageAlt: "Executive Operational Briefing 4K Dashboard",
+    description: "Continuous C-suite operational monitoring, compliance audit & financial forecast synthesis.",
+  },
+  {
+    label: "Web Search & AI Chat Assistant",
+    sublabel: "MULTIMODAL RAG",
+    image: "/upscaled/02_Web_Search_AI_Chat_4K.png",
+    imageAlt: "Web Search & AI Intelligence Chat 4K Dashboard",
+    description: "Ask natural language questions across your documents and live web search with zero hallucinations.",
+  },
+  {
+    label: "Boardroom Simulation Engine",
+    sublabel: "DIGITAL TWINS",
+    image: "/upscaled/03_Boardroom_Simulation_Engine_4K.png",
+    imageAlt: "Boardroom Simulation Engine 4K Dashboard",
+    description: "Simulate strategic enterprise decisions across CEO, CFO, CTO, and Legal C-suite digital twins.",
+  },
+  {
+    label: "Chief of Staff Action Plan",
+    sublabel: "EXECUTIVE BRIEFING",
+    image: "/upscaled/04_Chief_Of_Staff_Briefing_4K.png",
+    imageAlt: "Chief Of Staff Briefing 4K Dashboard",
+    description: "Proactive priority action items, risk scores, and weekly strategic synthesis sorted by urgency.",
+  },
+  {
+    label: "Launch Playbook & Strategy Studio",
+    sublabel: "PLAYBOOK ENGINE",
+    image: "/upscaled/05_Launch_Playbook_Framework_4K.png",
+    imageAlt: "Launch Playbook Framework 4K Dashboard",
+    description: "Find your perfect launch playbook based on budget, speed, and distribution strength.",
+  },
+  {
+    label: "Enterprise Memory AI Assistant",
+    sublabel: "MEMORY GRAPH",
+    image: "/upscaled/06_Enterprise_Memory_AI_Assistant_4K.png",
+    imageAlt: "Enterprise Memory AI Assistant 4K Dashboard",
+    description: "Query organizational memory graphs to trace approval histories and historical precedent.",
+  },
+  {
+    label: "AI Prediction & Risk Center",
+    sublabel: "RISK SCANNER",
+    image: "/upscaled/07_AI_Prediction_Risk_Center_4K.png",
+    imageAlt: "AI Prediction Risk Center 4K Dashboard",
+    description: "Automated vulnerability scanner indexing missing signatures, policy conflicts, and financial risks.",
+  },
 ];
 
 // ─── MAIN HEYPARKER STYLE LANDING PAGE COMPONENT ─────────────────────────────
@@ -282,6 +337,23 @@ export default function HeyParkerStyleLanding() {
               Found <strong className="text-white">3 key contract discrepancies</strong> across 142 enterprise PDFs. Indemnification liability cap is <strong className="text-amber-300 font-mono">$2,500,000 USD</strong> (Section 14.2), which exceeds standard internal limits by <strong className="text-emerald-400 font-mono">+$1.5M</strong>.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* ── 4K INTERACTIVE DASHBOARD SCREENSHOT SHOWCASE ───────────────────── */}
+      <section className="py-20 px-6 sm:px-12 max-w-6xl mx-auto space-y-12" data-parker-reveal>
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <span className="font-mono text-xs text-amber-400 uppercase tracking-widest">// 4K INTERACTIVE DASHBOARD SUITE</span>
+          <h2 className="font-mono text-3xl sm:text-5xl font-bold text-white tracking-tight">
+            Explore The SYNAPS C-Suite Engine
+          </h2>
+          <p className="text-neutral-400 font-sans text-base sm:text-lg">
+            Hover over any platform module below to inspect full 4K ultra-resolution interface screenshots and live operational capabilities.
+          </p>
+        </div>
+
+        <div className="w-full rounded-3xl border border-white/10 bg-[#141418] p-4 sm:p-6 shadow-2xl">
+          <HoverExpand items={DASHBOARD_4K_ITEMS} collapsedHeight={72} expandedHeight={380} />
         </div>
       </section>
 

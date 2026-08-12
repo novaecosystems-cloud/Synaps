@@ -2,10 +2,10 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import FramerSynapsLanding from '@/components/landing/FramerSynapsLanding';
+import HeyParkerStyleLanding from '@/components/landing/HeyParkerStyleLanding';
 
 export const metadata = {
-  title: 'SYNAPS — Enterprise Intelligence Layer',
+  title: 'SYNAPS — Enterprise Intelligence Layer & 4K Evidence Engine',
   description: "SYNAPS turns your company's scattered information into usable intelligence. Evidence-grounded answers, risk detection, and organizational memory.",
 };
 
@@ -20,5 +20,5 @@ export default async function RootPage() {
     }
   }
 
-  return <FramerSynapsLanding />;
+  return <HeyParkerStyleLanding />;
 }
