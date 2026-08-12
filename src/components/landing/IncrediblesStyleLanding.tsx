@@ -28,6 +28,7 @@ import Lenis from "lenis";
 import { FluidCanvas } from "@/components/ui/FluidCanvas";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
+import { AuroraBars } from "@/components/ui/AuroraBars";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -190,6 +191,15 @@ export default function IncrediblesStyleLanding() {
 
       {/* ── HERO SECTION TAILORED TO SYNAPS ─────────────────────────────────── */}
       <section className="relative pt-40 pb-28 px-6 sm:px-12 max-w-6xl mx-auto text-center space-y-8 z-10">
+        {/* Interactive Aurora Bars Animated Background */}
+        <div className="absolute inset-0 -z-10 opacity-50 overflow-hidden pointer-events-auto rounded-3xl">
+          <AuroraBars
+            barCount={32}
+            speed={0.6}
+            colors={["#fc4778", "#ff7a00", "#c04aff", "#4a6fff", "transparent"]}
+            blur={3}
+          />
+        </div>
         {/* Badges Ticker */}
         <ul className="flex items-center justify-center flex-wrap gap-4 font-mono text-xs font-semibold uppercase tracking-wider text-[#656565]">
           <li className="flex items-center gap-2"><span>140MS QUERY SPEED</span><span className="w-1 h-1 rounded-full bg-[#fc4778]" /></li>
