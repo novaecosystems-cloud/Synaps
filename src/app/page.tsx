@@ -2,11 +2,11 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import TrionnStyleLanding from '@/components/landing/TrionnStyleLanding';
+import IncrediblesStyleLanding from '@/components/landing/IncrediblesStyleLanding';
 
 export const metadata = {
-  title: 'SYNAPS — Trionn-Grade Enterprise Intelligence Engine & 4K Suite',
-  description: "SYNAPS synthesizes enterprise documents, contract liabilities, boardroom decision simulations, and organizational memory into verifiable 4K intelligence.",
+  title: 'SYNAPS — Creative AI Development Team & 4K Suite | incredibles',
+  description: "Two senior AI systems engineers with 15+ years of experience, working seamlessly with enterprise teams and agencies worldwide on high-stakes web projects.",
 };
 
 export default async function RootPage() {
@@ -20,5 +20,5 @@ export default async function RootPage() {
     }
   }
 
-  return <TrionnStyleLanding />;
+  return <IncrediblesStyleLanding />;
 }
