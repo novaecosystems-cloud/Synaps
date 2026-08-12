@@ -32,7 +32,6 @@ import { CustomCursor } from "@/components/ui/CustomCursor";
 import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
 import { AuroraBars } from "@/components/ui/AuroraBars";
 import { PixelLiquidBg } from "@/components/ui/PixelLiquidBg";
-import { CrowdCanvas } from "@/components/ui/CrowdCanvas";
 import { getGumroadCheckoutUrl } from "@/lib/gumroad";
 import { LAUNCH_PROMO_CONFIG, getLaunchPromoBadgeInfo } from "@/lib/launch-promo";
 
@@ -192,8 +191,8 @@ export default function IncrediblesStyleLanding() {
   };
 
   // Pricing calculations
-  const baseStandard = 499;
-  const baseEnterprise = 999;
+  const baseStandard = 7;
+  const baseEnterprise = 20;
   const standardPrice = appliedDiscount.isValid
     ? Math.round(baseStandard * (1 - appliedDiscount.percentage / 100))
     : baseStandard;
@@ -300,23 +299,6 @@ export default function IncrediblesStyleLanding() {
             <span>View Platform Media (4 Screenshots)</span>
           </a>
         </div>
-      </section>
-
-      {/* ── CROWD CANVAS 100X PRODUCTIVITY ANIMATION SECTION ─────────────────── */}
-      <section className="relative py-12 px-4 max-w-7xl mx-auto overflow-hidden rounded-3xl border border-white/10 shadow-2xl my-12 bg-[#0b0c10]">
-        <div className="text-center max-w-3xl mx-auto mb-6 px-4">
-          <span className="px-3.5 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 font-mono text-xs font-bold uppercase tracking-wider">
-            Interactive Workflow Transformation
-          </span>
-          <h2 className="font-serif text-2xl sm:text-4xl font-extrabold text-white mt-3 tracking-tight">
-            Watch Traditional Work Transform into 100x Executive Speed
-          </h2>
-          <p className="text-white/60 font-sans text-sm sm:text-base mt-2 font-medium">
-            While the crowd struggles with manual tasks, one executive uses Synaps AI to complete 8 hours of work in seconds.
-          </p>
-        </div>
-
-        <CrowdCanvas className="h-[75vh] rounded-2xl border border-white/5" />
       </section>
 
       {/* ── USP CARDS SECTION TAILORED TO SYNAPS ───────────────────────────── */}
