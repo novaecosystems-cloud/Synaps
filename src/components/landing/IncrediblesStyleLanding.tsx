@@ -19,7 +19,9 @@ import {
   Search,
   Cpu,
   Activity,
-  Database
+  Database,
+  ShoppingBag,
+  Tag
 } from "lucide-react";
 import SignInModal from "@/components/SignInModal";
 import Link from "next/link";
@@ -29,6 +31,8 @@ import { FluidCanvas } from "@/components/ui/FluidCanvas";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
 import { AuroraBars } from "@/components/ui/AuroraBars";
+import { getGumroadCheckoutUrl } from "@/lib/gumroad";
+import { LAUNCH_PROMO_CONFIG, getLaunchPromoBadgeInfo } from "@/lib/launch-promo";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -88,16 +92,27 @@ const FAQ_ITEMS = [
   },
 ];
 
-// ─── INCREDIBLES.DEV STYLE LANDING TAILORED TO SYNAPS ──────────────────────────
 export default function IncrediblesStyleLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pricingTab, setPricingTab] = useState<"single" | "recurring">("recurring");
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
 
+  // Discount & Gumroad State
+  const [promoCodeInput, setPromoCodeInput] = useState("LAUNCH100");
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    percentage: number;
+    isValid: boolean;
+  }>({
+    code: "LAUNCH100",
+    percentage: 30,
+    isValid: true,
+  });
+  const [promoMessage, setPromoMessage] = useState("LAUNCH100 applied! Enjoy 30% OFF on Gumroad Checkout.");
+
   // Calculator State
   const [projectType, setProjectType] = useState("workspace");
   const [projectCreativity, setProjectCreativity] = useState("enhanced");
-  const [projectTimeline, setProjectTimeline] = useState("asap");
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -146,6 +161,43 @@ export default function IncrediblesStyleLanding() {
     },
     { scope: containerRef }
   );
+
+  const handleVerifyDiscount = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanCode = promoCodeInput.trim().toUpperCase();
+    if (cleanCode === "LAUNCH100") {
+      setAppliedDiscount({ code: "LAUNCH100", percentage: 30, isValid: true });
+      setPromoMessage("✓ LAUNCH100 applied! 30% OFF active for Gumroad Checkout.");
+    } else if (cleanCode === "SYNAPS50") {
+      setAppliedDiscount({ code: "SYNAPS50", percentage: 50, isValid: true });
+      setPromoMessage("✓ SYNAPS50 applied! 50% OFF active for Gumroad Checkout.");
+    } else if (cleanCode.length > 0) {
+      setAppliedDiscount({ code: cleanCode, percentage: 10, isValid: true });
+      setPromoMessage(`✓ ${cleanCode} applied! 10% Promo discount active.`);
+    } else {
+      setAppliedDiscount({ code: "", percentage: 0, isValid: false });
+      setPromoMessage("Please enter a valid promo code.");
+    }
+  };
+
+  const handleGumroadCheckout = (plan: "pro" | "enterprise") => {
+    const checkoutUrl = getGumroadCheckoutUrl(
+      plan,
+      undefined,
+      appliedDiscount.isValid ? appliedDiscount.code : undefined
+    );
+    window.open(checkoutUrl, "_blank", "noopener,noreferrer");
+  };
+
+  // Pricing calculations
+  const baseStandard = 499;
+  const baseEnterprise = 999;
+  const standardPrice = appliedDiscount.isValid
+    ? Math.round(baseStandard * (1 - appliedDiscount.percentage / 100))
+    : baseStandard;
+  const enterprisePrice = appliedDiscount.isValid
+    ? Math.round(baseEnterprise * (1 - appliedDiscount.percentage / 100))
+    : baseEnterprise;
 
   return (
     <div
@@ -311,37 +363,48 @@ export default function IncrediblesStyleLanding() {
         </div>
       </section>
 
-      {/* ── EXECUTIVE QUOTE CARD ────────────────────────────────────────────── */}
-      <section className="py-16 px-6 sm:px-12 max-w-5xl mx-auto z-10" data-incredibles-reveal>
-        <div className="p-12 rounded-3xl bg-[#2b2b2b] text-[#fafafa] shadow-2xl space-y-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#fc4778]/10 rounded-full blur-3xl" />
-          <blockquote className="font-serif text-2xl sm:text-4xl leading-snug font-normal relative z-10">
-            “SYNAPS provided our executive team with instant contract clarity, daily Chief of Staff briefings, and boardroom decision simulations with complete evidence traceability.”
-          </blockquote>
-          <p className="font-mono text-xs text-[#fc4778] uppercase tracking-widest relative z-10">
-            — Executive Boardroom Review | SYNAPS Enterprise Audit
-          </p>
-        </div>
-      </section>
-
-      {/* ── CATCHPHRASE FULL-SCREEN SECTION ─────────────────────────────────── */}
-      <section className="py-28 px-6 text-center space-y-4 z-10" data-incredibles-reveal>
-        <h2 className="font-serif text-4xl sm:text-8xl font-normal text-[#2b2b2b] tracking-tight leading-none">
-          Let’s talk<br />
-          about your<br />
-          documents.
-        </h2>
-      </section>
-
-      {/* ── PRICING & ENGAGEMENT CALCULATOR TAILORED TO SYNAPS ───────────────── */}
+      {/* ── PRICING & GUMROAD DISCOUNT SECTION ────────────────────────────────── */}
       <section id="pricing" className="py-24 px-6 sm:px-12 max-w-6xl mx-auto space-y-12 z-10" data-incredibles-reveal>
         <div className="flex flex-col md:flex-row items-start justify-between gap-12">
           {/* Left Column */}
           <div className="w-full md:w-1/3 space-y-4">
             <h2 className="font-serif text-3xl sm:text-5xl font-normal text-[#2b2b2b]">Simple pricing</h2>
             <p className="text-[#656565] text-base leading-relaxed">
-              Choose between single workspace audits or recurring monthly C-suite intelligence monitoring.
+              Choose between monthly engagement or single workspace compliance audits. All plans process securely via Gumroad Merchant of Record.
             </p>
+
+            {/* Discount Promo Card */}
+            <div className="p-5 rounded-2xl bg-[#2b2b2b] text-white space-y-3 shadow-lg">
+              <div className="flex items-center gap-2 font-mono text-xs text-[#fc4778] uppercase font-bold">
+                <Tag className="w-4 h-4" />
+                <span>30% OFF LAUNCH PROMO</span>
+              </div>
+              <p className="text-xs text-neutral-300 font-sans">
+                Use code <strong className="font-mono text-amber-300 bg-white/10 px-1.5 py-0.5 rounded">LAUNCH100</strong> at checkout for 30% OFF lifetime subscription.
+              </p>
+
+              {/* Promo Code Checker Form */}
+              <form onSubmit={handleVerifyDiscount} className="pt-2 flex gap-2">
+                <input
+                  type="text"
+                  value={promoCodeInput}
+                  onChange={(e) => setPromoCodeInput(e.target.value)}
+                  placeholder="Enter discount code"
+                  className="w-full px-3 py-1.5 rounded-lg border border-white/20 bg-black/40 font-mono text-xs text-white uppercase focus:outline-none focus:border-[#fc4778]"
+                />
+                <button
+                  type="submit"
+                  className="px-3 py-1.5 rounded-lg bg-[#fc4778] hover:bg-white hover:text-black font-mono text-xs font-bold uppercase transition-all shrink-0"
+                >
+                  Check
+                </button>
+              </form>
+              {promoMessage && (
+                <p className="font-mono text-[11px] text-emerald-400 leading-tight">
+                  {promoMessage}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Right Column: Pricing Switcher & Cards */}
@@ -376,8 +439,18 @@ export default function IncrediblesStyleLanding() {
                 {/* Standard Card */}
                 <div className="p-8 rounded-3xl bg-[#fafafa] border border-[#dedede] shadow-lg space-y-6 flex flex-col justify-between">
                   <div className="space-y-4">
-                    <span className="font-mono text-xs text-[#fc4778] uppercase">STANDARD WORKSPACE</span>
-                    <div className="font-serif text-4xl text-[#2b2b2b]">$499<span className="text-sm font-sans text-[#656565]">/month</span></div>
+                    <span className="font-mono text-xs text-[#fc4778] uppercase font-bold">STANDARD WORKSPACE</span>
+                    <div className="flex items-baseline gap-2">
+                      <div className="font-serif text-4xl text-[#2b2b2b]">
+                        ${standardPrice}
+                        <span className="text-sm font-sans text-[#656565]">/month</span>
+                      </div>
+                      {appliedDiscount.isValid && (
+                        <span className="font-mono text-xs text-[#fc4778] line-through font-bold">
+                          ${baseStandard}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[#656565] text-xs">Ideal for growing teams needing continuous document RAG & Chief of Staff briefings.</p>
                     <ul className="space-y-2 font-mono text-xs text-[#2b2b2b]">
                       <li>✓ Up to 500 documents parsed</li>
@@ -388,18 +461,36 @@ export default function IncrediblesStyleLanding() {
                     </ul>
                   </div>
                   <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="w-full py-3 rounded-full bg-[#2b2b2b] hover:bg-[#fc4778] text-white font-mono text-xs font-bold uppercase transition-all"
+                    onClick={() => handleGumroadCheckout("pro")}
+                    className="w-full py-3.5 rounded-full bg-[#2b2b2b] hover:bg-[#fc4778] text-white font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center justify-center gap-2"
                   >
-                    Start Workspace
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Pay with Gumroad (${standardPrice})</span>
                   </button>
                 </div>
 
                 {/* Extended Enterprise Card */}
                 <div className="p-8 rounded-3xl bg-[#2b2b2b] text-white shadow-xl space-y-6 flex flex-col justify-between relative overflow-hidden">
                   <div className="space-y-4 relative z-10">
-                    <span className="font-mono text-xs text-[#fc4778] uppercase">ENTERPRISE PRO</span>
-                    <div className="font-serif text-4xl text-white">$999<span className="text-sm font-sans text-[#a2a2a2]">/month</span></div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs text-[#fc4778] uppercase font-bold">ENTERPRISE PRO</span>
+                      {appliedDiscount.isValid && (
+                        <span className="px-2 py-0.5 rounded-full bg-[#fc4778] text-white font-mono text-[10px] font-bold uppercase">
+                          {appliedDiscount.percentage}% OFF
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <div className="font-serif text-4xl text-white">
+                        ${enterprisePrice}
+                        <span className="text-sm font-sans text-[#a2a2a2]">/month</span>
+                      </div>
+                      {appliedDiscount.isValid && (
+                        <span className="font-mono text-xs text-neutral-400 line-through">
+                          ${baseEnterprise}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[#a2a2a2] text-xs">Full C-suite suite with Boardroom Simulation Engine & risk audits.</p>
                     <ul className="space-y-2 font-mono text-xs text-white">
                       <li>✓ Unlimited documents parsed</li>
@@ -410,10 +501,11 @@ export default function IncrediblesStyleLanding() {
                     </ul>
                   </div>
                   <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="w-full py-3 rounded-full bg-[#fc4778] hover:bg-white hover:text-black text-white font-mono text-xs font-bold uppercase transition-all relative z-10"
+                    onClick={() => handleGumroadCheckout("enterprise")}
+                    className="w-full py-3.5 rounded-full bg-[#fc4778] hover:bg-white hover:text-black text-white font-mono text-xs font-bold uppercase transition-all relative z-10 shadow-md flex items-center justify-center gap-2"
                   >
-                    Start Enterprise Pro
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Pay via Gumroad (${enterprisePrice})</span>
                   </button>
                 </div>
               </div>
