@@ -25,7 +25,7 @@ export default function MasterExportButton() {
       <button
         onClick={() => setOpen(!open)}
         disabled={loading}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-emerald-500 transition-all cursor-pointer border border-emerald-400/40"
+        className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs tracking-tight transition-all cursor-pointer border border-emerald-500/30 font-sans shadow-sm"
       >
         <Sparkles className="w-3.5 h-3.5" />
         <span>{loading ? 'Generating Export...' : 'Export Master AI Reports'}</span>

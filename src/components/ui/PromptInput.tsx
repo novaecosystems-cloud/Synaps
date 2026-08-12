@@ -820,20 +820,20 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
                     onToggleWebSearch();
                   }}
                   className={cn(
-                    "flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition-all duration-200 outline-none cursor-default select-none border",
+                    "flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition-all duration-200 outline-none cursor-default select-none border font-sans",
                     webSearch
-                      ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/40 shadow-sm"
+                      ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30"
                       : "text-foreground/50 border-transparent hover:bg-accent/60 hover:text-foreground"
                   )}
                   aria-label={`Toggle Web Search. Current: ${webSearch ? "ON" : "OFF"}`}
                 >
-                  <Globe className={cn("size-3.5", webSearch ? "text-cyan-400 animate-pulse" : "opacity-60")} />
+                  <Globe className={cn("size-3.5", webSearch ? "text-cyan-400" : "opacity-60")} />
                   <span>Web</span>
                 </button>
               )}
 
               {/* Dynamic Credit Cost Indicator */}
-              <span className="text-[10px] font-mono text-cyan-400/80 bg-cyan-950/60 px-1.5 py-0.5 rounded-full border border-cyan-500/30 hidden sm:inline-block">
+              <span className="text-[10px] font-sans font-medium text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded-full border border-slate-700/50 hidden sm:inline-block">
                 {creditBadgeText}
               </span>
 
