@@ -9,6 +9,7 @@ import {
   AlignLeft, Paperclip, Sparkles,
   MessageSquare, ArrowRight, ChevronRight,
 } from "lucide-react";
+import { PromptInput } from "@/components/ui/PromptInput";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface WebSource {
@@ -597,85 +598,25 @@ export default function ChatPage() {
 
         {/* ── Input Bar ───────────────────────────────────────────────────────── */}
         <div className="shrink-0 px-4 pb-5 pt-3">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto space-y-2">
             {/* Web active pill */}
             {webSearch && (
-              <div className="flex items-center gap-2 mb-2 px-1 text-[12px] text-cyan-400/80 font-mono font-semibold">
+              <div className="flex items-center justify-center gap-2 px-1 text-[12px] text-cyan-400/80 font-mono font-semibold">
                 <Globe className="w-3.5 h-3.5 animate-pulse" />
                 Live Web Search Active — Querying real-time internet data
               </div>
             )}
 
-            <div className={`flex items-end gap-2 rounded-2xl px-3 py-2.5 border transition-all
-                            ${webSearch
-                              ? "bg-[#1c1c2a] border-cyan-500/40 shadow-md shadow-cyan-500/10"
-                              : "bg-[#1c1c2a] border-white/10 focus-within:border-white/20"
-                            }`}>
-              {/* Hidden File Input & Attach Button */}
-              <input
-                type="file"
-                id="chat-file-upload"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setInput((prev) => (prev ? `${prev} [Attached: ${file.name}]` : `Please analyze this document: ${file.name}`));
-                  }
-                }}
-              />
-              <button 
-                type="button"
-                onClick={() => document.getElementById('chat-file-upload')?.click()}
-                title="Attach Document for RAG Analysis"
-                className="p-2 shrink-0 text-white/30 hover:text-white/60 hover:bg-white/5 rounded-xl transition-colors mb-0.5"
-              >
-                <Paperclip className="w-4 h-4" />
-              </button>
-
-              {/* Textarea */}
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                placeholder={webSearch ? "Search the web or ask about documents…" : "Ask about your documents…"}
-                className="flex-1 bg-transparent resize-none py-2 px-1 outline-none
-                           text-[15px] text-white/90 placeholder-white/25
-                           min-h-[38px] max-h-[180px] leading-relaxed"
-                rows={1}
-              />
-
-              {/* Web toggle (compact) */}
-              <button
-                onClick={() => setWebSearch(v => !v)}
-                className={`p-2 shrink-0 rounded-xl transition-all mb-0.5
-                            ${webSearch
-                              ? "text-cyan-300 bg-cyan-500/20 border border-cyan-500/30"
-                              : "text-white/25 hover:text-white/50 hover:bg-white/5"
-                            }`}
-                title="Toggle web search"
-              >
-                <Globe className="w-4 h-4" />
-              </button>
-
-              {/* Send */}
-              <button
-                onClick={() => send()}
-                disabled={!input.trim() || isLoading}
-                className="p-2.5 shrink-0 rounded-xl bg-cyan-600 hover:bg-cyan-500
-                           disabled:opacity-25 disabled:cursor-not-allowed
-                           text-white transition-all mb-0.5 shadow-md"
-              >
-                {isLoading
-                  ? <Loader2 className="w-4 h-4 animate-spin" />
-                  : <Send className="w-4 h-4" />}
-              </button>
-            </div>
+            <PromptInput
+              value={input}
+              onChange={(val) => setInput(val)}
+              onSubmit={(val, meta) => {
+                send(val);
+              }}
+              placeholder={webSearch ? "Search the web or ask about documents…" : "Ask about your documents…"}
+              models={["Gemini 3.5 Flash", "GPT 5.5", "Opus 4.8", "Composer 2.5", "GLM 5.2"]}
+              efforts={["Low", "Medium", "Max Effort"]}
+            />
 
             <p className="text-center mt-2.5 text-[11px] text-white/30 font-mono">
               Synaps Executive AI Engine · 100% Evidence Grounded & Zero Hallucinations.
