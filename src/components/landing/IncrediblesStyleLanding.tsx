@@ -31,6 +31,7 @@ import { FluidCanvas } from "@/components/ui/FluidCanvas";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
 import { AuroraBars } from "@/components/ui/AuroraBars";
+import { PixelLiquidBg } from "@/components/ui/PixelLiquidBg";
 import { getGumroadCheckoutUrl } from "@/lib/gumroad";
 import { LAUNCH_PROMO_CONFIG, getLaunchPromoBadgeInfo } from "@/lib/launch-promo";
 
@@ -204,6 +205,18 @@ export default function IncrediblesStyleLanding() {
       ref={containerRef}
       className="relative min-h-screen bg-[#f1f1f1] text-[#2b2b2b] font-sans selection:bg-[#fc4778] selection:text-white antialiased overflow-x-hidden"
     >
+      {/* ── FULL-PAGE NAVIER-STOKES PIXEL LIQUID FLUID BACKGROUND ───────────── */}
+      <PixelLiquidBg
+        className="fixed inset-0 z-0 pointer-events-none opacity-40"
+        pixelSize={18}
+        resolution={0.4}
+        mouseForce={9}
+        cursorSize={110}
+        autoDemo={true}
+        darkPalette={["#070709", "#2a0020", "#8c0f60", "#fc4778", "#ff85b3"]}
+        lightPalette={["#ffffff", "#f1f1f1", "#ffe6ee", "#fc4778", "#ff85b3"]}
+      />
+
       {/* ── WEBGEL FLUID CANVAS & CUSTOM FOLLOW CURSOR ──────────────────────── */}
       <FluidCanvas />
       <CustomCursor />
