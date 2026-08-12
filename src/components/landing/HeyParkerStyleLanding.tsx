@@ -39,6 +39,8 @@ import Link from 'next/link';
 import Lenis from 'lenis';
 
 import { HoverExpand, HoverExpandItem } from '@/components/ui/HoverExpand';
+import { FluidCanvas } from '@/components/ui/FluidCanvas';
+import { CustomCursor } from '@/components/ui/CustomCursor';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -192,7 +194,11 @@ export default function HeyParkerStyleLanding() {
   };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#0c0c0e] text-[#f4f4f6] font-sans selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden antialiased">
+    <div ref={containerRef} className="relative min-h-screen bg-[#0c0c0e] text-[#f4f4f6] font-sans selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden antialiased">
+      {/* ── WEBGEL FLUID CANVAS & CUSTOM FOLLOW CURSOR (incredibles.dev style) ── */}
+      <FluidCanvas />
+      <CustomCursor />
+
       {/* ── HEYPARKER STYLE FLOATING HEADER ──────────────────────────────────── */}
       <header className="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-5xl px-6 py-3.5 rounded-full backdrop-blur-xl bg-[#141418]/80 border border-white/10 shadow-2xl flex items-center justify-between transition-all">
         <div className="flex items-center gap-3 cursor-pointer group">
