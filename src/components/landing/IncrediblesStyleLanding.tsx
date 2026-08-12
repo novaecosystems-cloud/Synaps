@@ -31,35 +31,35 @@ import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── STRICTLY FILTERED 4K SCREENSHOT SHOWCASE ITEMS (ONLY USER'S PHOTOS) ──────
+// ─── EXACT 4 USER SCREENSHOTS & TITLES DIRECTLY FROM YOUR UPLOADS ──────────────
 const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
   {
     label: "AI Executive Assistant & Document RAG",
     sublabel: "SMART DOCUMENT SEARCH",
-    image: "/upscaled/02_AI_Executive_Chat_4K.png",
-    imageAlt: "AI Executive Assistant Document Search 4K Interface",
-    description: "Ask about your documents or search the web for live compliance, contract risks, and financial terms with zero hallucinations.",
+    image: "/upscaled/01_AI_Executive_Chat.png",
+    imageAlt: "AI Executive Assistant & Document RAG Interface Screenshot",
+    description: "Ask about your documents or search the web for live information, compliance, contract risks, and financial terms.",
   },
   {
-    label: "Boardroom Simulation Engine",
-    sublabel: "EXECUTIVE DIGITAL TWINS",
-    image: "/upscaled/03_Boardroom_Simulation_Engine_4K.png",
-    imageAlt: "Executive Digital Twins & Boardroom Simulation Engine 4K Interface",
-    description: "Simulate strategic enterprise decisions across C-suite digital twins (CEO, CFO, CTO, Legal, COO) grounded in historical company memory.",
+    label: "Daily Executive Briefing & Action Plan",
+    sublabel: "AUTONOMOUS ENTERPRISE CHIEF OF STAFF",
+    image: "/upscaled/02_Chief_Of_Staff_Briefing.png",
+    imageAlt: "Daily Executive Briefing & Action Plan Interface Screenshot",
+    description: "Continuously monitors 8 enterprise channels to deliver proactive recommendations with full business impact & evidence traceability.",
   },
   {
-    label: "Autonomous Chief of Staff",
-    sublabel: "DAILY BRIEFING & ACTION PLAN",
-    image: "/upscaled/04_Chief_Of_Staff_Briefing_4K.png",
-    imageAlt: "Daily Executive Briefing & Action Plan 4K Interface",
-    description: "Continuously monitors enterprise channels to deliver daily executive briefings, weekly strategic summaries, and priority items sorted by urgency.",
+    label: "Enterprise Memory AI Assistant",
+    sublabel: "ORGANIZATIONAL MEMORY GRAPH",
+    image: "/upscaled/03_Enterprise_Memory_Assistant.png",
+    imageAlt: "Enterprise Memory AI Assistant Interface Screenshot",
+    description: "Ask natural language questions. Reasons across the Enterprise Memory Graph with zero hallucinations and full historical decision context.",
   },
   {
-    label: "Executive Operational Briefing",
-    sublabel: "RISK & COMPLIANCE CONSOLE",
-    image: "/upscaled/01_Executive_Operational_Briefing_4K.png",
-    imageAlt: "Executive Operational Briefing 4K Interface",
-    description: "Real-time compliance monitoring, risk score audits, and contract liability cap analysis for C-suite leadership.",
+    label: "Executive Digital Twins & Boardroom Simulation Engine",
+    sublabel: "EXECUTIVE DIGITAL TWIN PLATFORM",
+    image: "/upscaled/04_Boardroom_Simulation_Engine.png",
+    imageAlt: "Executive Digital Twins & Boardroom Simulation Engine Interface Screenshot",
+    description: "Simulate strategic decisions across your C-suite (CEO, CFO, CTO, COO, Legal). Every twin grounds recommendations in historical company memory.",
   },
 ];
 
@@ -252,17 +252,6 @@ export default function IncrediblesStyleLanding() {
           {/* USP Card 2 */}
           <div className="p-8 rounded-3xl bg-[#fafafa] border border-[#dedede] shadow-lg space-y-4 hover:border-[#fc4778] transition-all group">
             <div className="w-10 h-10 rounded-xl bg-[#2b2b2b] text-white flex items-center justify-center font-mono font-bold text-sm group-hover:bg-[#fc4778] transition-colors">
-              <Cpu className="w-5 h-5" />
-            </div>
-            <h3 className="font-serif text-3xl text-[#2b2b2b] group-hover:text-[#fc4778] transition-colors">Boardroom Simulator</h3>
-            <p className="text-[#656565] text-base leading-relaxed">
-              Simulate strategic corporate decisions across 10 autonomous C-suite digital twins (CEO, CFO, CTO, Legal, COO) grounded in company memory.
-            </p>
-          </div>
-
-          {/* USP Card 3 */}
-          <div className="p-8 rounded-3xl bg-[#fafafa] border border-[#dedede] shadow-lg space-y-4 hover:border-[#fc4778] transition-all group">
-            <div className="w-10 h-10 rounded-xl bg-[#2b2b2b] text-white flex items-center justify-center font-mono font-bold text-sm group-hover:bg-[#fc4778] transition-colors">
               <Activity className="w-5 h-5" />
             </div>
             <h3 className="font-serif text-3xl text-[#2b2b2b] group-hover:text-[#fc4778] transition-colors">Chief of Staff Briefings</h3>
@@ -271,20 +260,31 @@ export default function IncrediblesStyleLanding() {
             </p>
           </div>
 
+          {/* USP Card 3 */}
+          <div className="p-8 rounded-3xl bg-[#fafafa] border border-[#dedede] shadow-lg space-y-4 hover:border-[#fc4778] transition-all group">
+            <div className="w-10 h-10 rounded-xl bg-[#2b2b2b] text-white flex items-center justify-center font-mono font-bold text-sm group-hover:bg-[#fc4778] transition-colors">
+              <Database className="w-5 h-5" />
+            </div>
+            <h3 className="font-serif text-3xl text-[#2b2b2b] group-hover:text-[#fc4778] transition-colors">Enterprise Memory Graph</h3>
+            <p className="text-[#656565] text-base leading-relaxed">
+              Ask natural language questions across the Enterprise Memory Graph to retrieve historical decision context with zero hallucinations.
+            </p>
+          </div>
+
           {/* USP Card 4 */}
           <div className="p-8 rounded-3xl bg-[#fafafa] border border-[#dedede] shadow-lg space-y-4 hover:border-[#fc4778] transition-all group">
             <div className="w-10 h-10 rounded-xl bg-[#2b2b2b] text-white flex items-center justify-center font-mono font-bold text-sm group-hover:bg-[#fc4778] transition-colors">
-              <ShieldCheck className="w-5 h-5" />
+              <Cpu className="w-5 h-5" />
             </div>
-            <h3 className="font-serif text-3xl text-[#2b2b2b] group-hover:text-[#fc4778] transition-colors">Risk & Compliance Audit</h3>
+            <h3 className="font-serif text-3xl text-[#2b2b2b] group-hover:text-[#fc4778] transition-colors">Boardroom Simulator</h3>
             <p className="text-[#656565] text-base leading-relaxed">
-              Automated risk scanner indexing indemnification caps, missing signatures, DPDP data residency rules, and financial liabilities.
+              Simulate strategic corporate decisions across 10 autonomous C-suite digital twins (CEO, CFO, CTO, Legal, COO) grounded in company memory.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── 4K SHOWCASE ACCORDION (ONLY THE 4 UPLOADED APP PHOTOS) ───────────── */}
+      {/* ── 4K SHOWCASE ACCORDION (EXACTLY YOUR 4 UPLOADED SCREENSHOTS) ──────── */}
       <section id="showcase" className="py-20 px-6 sm:px-12 max-w-6xl mx-auto space-y-12 z-10" data-incredibles-reveal>
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <span className="font-mono text-xs text-[#fc4778] uppercase tracking-widest">// SYNAPS PLATFORM MEDIA</span>
@@ -306,7 +306,7 @@ export default function IncrediblesStyleLanding() {
         <div className="p-12 rounded-3xl bg-[#2b2b2b] text-[#fafafa] shadow-2xl space-y-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#fc4778]/10 rounded-full blur-3xl" />
           <blockquote className="font-serif text-2xl sm:text-4xl leading-snug font-normal relative z-10">
-            “SYNAPS provided our executive team with instant contract clarity and boardroom decision simulations with complete evidence traceability.”
+            “SYNAPS provided our executive team with instant contract clarity, daily Chief of Staff briefings, and boardroom decision simulations with complete evidence traceability.”
           </blockquote>
           <p className="font-mono text-xs text-[#fc4778] uppercase tracking-widest relative z-10">
             — Executive Boardroom Review | SYNAPS Enterprise Audit
