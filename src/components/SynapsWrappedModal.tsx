@@ -174,10 +174,10 @@ export default function SynapsWrappedModal({
     {
       title: "YOUR EXECUTIVE WRAPPED",
       subtitle: "Weekly Intelligence & Impact Report",
-      bgGradient: "from-purple-950 via-base-100 to-indigo-950",
+      bgGradient: "from-slate-950 via-base-100 to-indigo-950",
       content: (
         <div className="text-center space-y-6 py-6 animate-in zoom-in-90 duration-300">
-          <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 via-primary to-purple-600 p-1 shadow-2xl aura-purple">
+          <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 via-primary to-rose-600 p-1 shadow-2xl aura-cyan">
             <div className="w-full h-full bg-base-100 rounded-[22px] flex items-center justify-center">
               <Trophy className="w-12 h-12 text-amber-400 animate-bounce" />
             </div>
@@ -229,7 +229,7 @@ export default function SynapsWrappedModal({
     {
       title: "BOARDROOM CONSENSUS",
       subtitle: "Calculated 3D Memory Impact",
-      bgGradient: "from-indigo-950 via-base-100 to-purple-950",
+      bgGradient: "from-indigo-950 via-base-100 to-cyan-950",
       content: (
         <div className="text-center space-y-6 py-6 animate-in slide-in-from-right-4 duration-300">
           <div className="w-20 h-20 mx-auto rounded-2xl bg-primary/20 border border-primary/40 text-primary flex items-center justify-center shadow-xl">
@@ -243,7 +243,7 @@ export default function SynapsWrappedModal({
             </div>
 
             <div className="p-3 bg-base-200/80 border border-base-300 rounded-2xl">
-              <span className="text-2xl font-black text-purple-400 block">{userStats.nodesDiscovered}</span>
+              <span className="text-2xl font-black text-cyan-400 block">{userStats.nodesDiscovered}</span>
               <span className="text-[10px] font-bold text-base-content/60 uppercase">3D Nodes Linked</span>
             </div>
           </div>
@@ -349,7 +349,7 @@ export default function SynapsWrappedModal({
               {/* Instagram Story Download */}
               <button
                 onClick={handleDownloadInstagramCard}
-                className="p-2 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex flex-col items-center gap-0.5 transition-all hover:scale-105 shadow-md"
+                className="p-2 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white flex flex-col items-center gap-0.5 transition-all hover:scale-105 shadow-md"
                 title="Download Instagram Story Image (.PNG)"
               >
                 <Camera className="w-4 h-4" />

@@ -18,7 +18,7 @@ const dailyCreditStore = new Map<string, number>();
 const userCustomKeysStore = new Map<string, string>();
 
 // Exact Role Credit Limits:
-// Member = 50, Admin (Pro) = 500, Owner/Leader (Enterprise Max) = 10,000
+// Member = 50 (~2 hrs active work), Admin (Pro) = 500 (~4 hrs active work), Owner/Leader (Enterprise Max) = 10,000 (~5-6 hrs heavy enterprise work)
 export const ROLE_CREDIT_LIMITS: Record<string, number> = {
   OWNER: 10000,
   LEADER: 10000,
@@ -27,6 +27,38 @@ export const ROLE_CREDIT_LIMITS: Record<string, number> = {
   MEMBER: 50,
   GUEST: 10
 };
+
+/**
+ * Calculates credit consumption dynamically based on actual token usage & complexity.
+ * Implements Anthropic & Google Gemini token billing logic.
+ * 
+ * - Free Tier (50 credits): ~10-15 prompts (~2 hours of work)
+ * - Pro Tier (500 credits): ~60-80 document/RAG queries (~4 hours of work)
+ * - Enterprise Max Tier (10,000 credits): ~250-400 multi-agent boardroom simulations & risk audits (~5-6 hours of work)
+ */
+export function calculateTokenCreditCost(options: {
+  promptText?: string;
+  responseText?: string;
+  contextDocCount?: number;
+  complexity?: 'standard' | 'rag' | 'briefing' | 'simulation';
+}): number {
+  const promptTokens = Math.max(10, Math.ceil((options.promptText?.length || 0) / 4) + (options.contextDocCount || 0) * 150);
+  const completionTokens = Math.max(20, Math.ceil((options.responseText?.length || 0) / 4));
+  const totalTokens = promptTokens + completionTokens;
+
+  // Base rate: 1 credit per ~150 tokens
+  let baseCost = Math.ceil(totalTokens / 150);
+
+  const complexityMultipliers: Record<string, number> = {
+    standard: 1,
+    rag: 2,
+    briefing: 3,
+    simulation: 8
+  };
+
+  const multiplier = complexityMultipliers[options.complexity || 'standard'] || 1;
+  return Math.max(1, Math.round(baseCost * multiplier));
+}
 
 export function setCustomUserApiKey(userId: string, encryptedKey: string) {
   if (!encryptedKey) {

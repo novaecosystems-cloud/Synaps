@@ -109,7 +109,7 @@ export default function PlanAccessGate({ children }: { children: React.ReactNode
         
         {/* Glow Aura */}
         <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative">
           <div className="w-16 h-16 rounded-3xl bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto mb-4 text-primary shadow-inner">
@@ -146,7 +146,7 @@ export default function PlanAccessGate({ children }: { children: React.ReactNode
         <div className="space-y-3 pt-2">
           <button
             onClick={() => setIsPaywallOpen(true)}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-purple-600 hover:from-amber-600 hover:to-purple-700 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl hover:scale-[1.02] transition-all"
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-cyan-600 hover:from-amber-600 hover:to-cyan-700 text-white font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl hover:scale-[1.02] transition-all"
           >
             <Zap className="w-4 h-4 fill-white animate-pulse" />
             Upgrade to {gateRequirement.requiredPlan} to Unlock

@@ -129,7 +129,7 @@ export async function generateMultiLLMResponse(
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const modelName = config.model || 'gemini-1.5-pro';
+  const modelName = config.model || 'gemini-2.5-flash';
   const model = genAI.getGenerativeModel({ model: modelName });
 
   const finalPrompt = systemPrompt ? `${systemPrompt}\n\nTask: ${prompt}` : prompt;

@@ -94,7 +94,7 @@ export default function NotificationDropdown({ userId = 'guest', organizationId 
   const getIcon = (type: string) => {
     switch (type) {
       case 'DOCUMENT_PROCESSED': return <FileText className="w-4 h-4 text-blue-500" />;
-      case 'AI_COMPLETED': return <BrainCircuit className="w-4 h-4 text-purple-500" />;
+      case 'AI_COMPLETED': return <BrainCircuit className="w-4 h-4 text-cyan-500" />;
       case 'APPROVAL_REQUIRED': return <Activity className="w-4 h-4 text-amber-500" />;
       case 'REVIEW_COMPLETED': return <CheckCircle className="w-4 h-4 text-emerald-500" />;
       case 'PROJECT_UPDATE': return <FolderKanban className="w-4 h-4 text-slate-500" />;

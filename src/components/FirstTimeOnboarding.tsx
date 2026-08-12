@@ -53,7 +53,7 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     title: "AI Intelligence Suite",
     subtitle: "Multi-Agent Executive Boardroom & Digital Twin OS",
     icon: Sparkles,
-    color: "from-purple-500 to-pink-600",
+    color: "from-cyan-500 to-rose-600",
     badge: "STEP 3 OF 6",
     description: "Convene 10 AI Executive Agents (CEO, CFO, CTO, Legal, HR, Sales, etc.) to debate strategic business questions and run company disruption simulations.",
     highlights: [

@@ -333,7 +333,7 @@ export default function MultiStepPaywallModal({
                     </div>
 
                     <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-1.5">
-                      <div className="flex items-center gap-2 text-purple-500 font-bold text-sm">
+                      <div className="flex items-center gap-2 text-cyan-500 font-bold text-sm">
                         <Award className="w-4 h-4" /> Zero-Hallucination Guarantee
                       </div>
                       <p className="text-xs text-base-content/70">

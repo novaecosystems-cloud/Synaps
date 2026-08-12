@@ -44,13 +44,13 @@ const geminiKeys = geminiKeyEnvVars
 if (geminiKeys.length > 0) {
   geminiKeys.forEach((key, index) => {
     providers.push({
-      name: `Google Gemini (Key ${index + 1} - 2.0 Flash)`,
+      name: `Google Gemini (Key ${index + 1} - 2.5 Flash)`,
       invoke: async (messages, options) => {
         const promptText = messages.map((m: any) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
         
         // Retry up to 3 times with exponential backoff for rate limit errors
         for (let attempt = 0; attempt < 3; attempt++) {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

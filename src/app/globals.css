@@ -398,7 +398,7 @@ h1, h2, h3, h4, h5, h6, .font-headline, .font-fraunces {
   border-left: 2px solid rgba(59, 130, 246, 0.6);
 }
 
-.glow-purple, .glow-cyan {
+.glow-cyan {
   box-shadow: -4px 0 15px -2px rgba(0, 240, 255, 0.4);
   border-left: 2px solid rgba(0, 240, 255, 0.6);
 }
@@ -411,7 +411,7 @@ h1, h2, h3, h4, h5, h6, .font-headline, .font-fraunces {
   box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.3);
 }
 
-.aura-purple, .aura-cyan {
+.aura-cyan {
   box-shadow: 0 0 20px 5px rgba(0, 240, 255, 0.3);
 }
 
