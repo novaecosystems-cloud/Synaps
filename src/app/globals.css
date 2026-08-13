@@ -710,3 +710,23 @@ h1, h2, h3, h4, h5, h6, .font-headline, .font-fraunces {
   }
 }
 
+/* ── CONTRA LABS FRAMER ANIMATIONS & SPRING TILT ── */
+.framer-spring-tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+}
+.framer-spring-tilt:hover {
+  transform: perspective(1000px) rotateX(6deg) rotateY(-6deg) translateY(-8px) scale(1.03);
+  box-shadow: 0 25px 65px -12px rgba(4, 150, 255, 0.35);
+}
+
+@keyframes framerFloat3D {
+  0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+  50% { transform: translateY(-12px) rotateZ(1deg); }
+}
+
+.framer-float-3d {
+  animation: framerFloat3D 8s ease-in-out infinite;
+}
+

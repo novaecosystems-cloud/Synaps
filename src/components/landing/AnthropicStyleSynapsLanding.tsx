@@ -1813,7 +1813,7 @@ export default function SynapsLanding() {
               </div>
 
               {/* Pagebuddy Interactive Document Canvas Card */}
-              <div className="relative rounded-2xl border border-white/20 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-6 sm:p-10 shadow-2xl backdrop-blur-xl" data-slide-up>
+              <div className="relative rounded-2xl border border-white/20 bg-gradient-to-b from-slate-900/90 to-slate-950/90 p-6 sm:p-10 shadow-2xl backdrop-blur-xl framer-spring-tilt" data-slide-up>
                 
                 {/* Pagebuddy Inline Text Formatting Controls Bar */}
                 <div className="pagebuddy-inline-controls pagebuddy-drag-label-add mb-6 mx-auto w-fit px-4 py-2 flex items-center gap-4 text-xs text-white/90">
