@@ -466,6 +466,10 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                 {loading ? 'Sending 2FA Code...' : 'Send Email 2FA Code →'}
               </button>
             </form>
+
+            <p className="text-[10px] text-center text-slate-400 mt-2 font-sans leading-normal">
+              By signing in, you agree to Synaps Enterprise <span className="text-cyan-400 font-bold underline cursor-pointer">Terms of Service</span>, <span className="text-cyan-400 font-bold underline cursor-pointer">Privacy Policy</span>, &amp; <span className="text-cyan-400 font-bold underline cursor-pointer">DPDP Act Compliance SLA</span>.
+            </p>
           </>
         )}
       </div>

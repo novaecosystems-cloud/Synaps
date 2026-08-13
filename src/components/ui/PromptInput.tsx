@@ -861,6 +861,10 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           </div>
         </div>
 
+        <p className="text-[10px] text-center text-muted-foreground/60 mt-1.5 font-sans">
+          Synaps AI provides grounded corporate intelligence for decision support. Verify critical financial and legal decisions with certified counsel.
+        </p>
+
         {activeAttachment && (
           <AttachmentGalleryModal
             attachment={activeAttachment.attachment} originRect={activeAttachment.rect} onClose={() => setActiveAttachment(null)}

@@ -432,6 +432,10 @@ export default function SignInCardInline() {
                 {loading ? 'Sending 2FA Code...' : 'Send Email 2FA Code →'}
               </button>
             </form>
+
+            <p className="text-[10px] text-center text-[#4C0016]/70 mt-2 font-sans leading-normal">
+              By signing in, you agree to Synaps Enterprise <span className="font-bold underline cursor-pointer">Terms of Service</span>, <span className="font-bold underline cursor-pointer">Privacy Policy</span>, &amp; <span className="font-bold underline cursor-pointer">DPDP Compliance SLA</span>.
+            </p>
           </>
         )}
       </div>
