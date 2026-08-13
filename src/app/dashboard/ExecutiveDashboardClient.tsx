@@ -593,6 +593,8 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             </Link>
           </div>
         </div>
+      )}
+
       {/* Mandatory Legal Agreement Modal on Dashboard Load */}
       <LegalDialogModal
         type={mandatoryLegalDoc}
