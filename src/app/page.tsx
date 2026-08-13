@@ -2,11 +2,11 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import AnthropicStyleSynapsLanding from '@/components/landing/AnthropicStyleSynapsLanding';
+import IncrediblesStyleLanding from '@/components/landing/IncrediblesStyleLanding';
 
 export const metadata = {
-  title: "Synaps AI — Enterprise Intelligence Layer & Evidence Engine",
-  description: "Synaps AI transforms complex document libraries into an interactive 3D Knowledge Graph and a 10-Agent AI Boardroom.",
+  title: 'SYNAPS — Creative AI Development Team & Enterprise Suite | incredibles',
+  description: "Two senior AI systems engineers with 15+ years of experience, working seamlessly with enterprise teams and agencies worldwide on high-stakes web projects.",
 };
 
 export default async function RootPage() {
@@ -20,5 +20,5 @@ export default async function RootPage() {
     }
   }
 
-  return <AnthropicStyleSynapsLanding />;
+  return <IncrediblesStyleLanding />;
 }
