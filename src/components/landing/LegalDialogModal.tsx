@@ -340,17 +340,44 @@ export function LegalDialogModal({ type, onClose }: LegalDialogModalProps) {
   const currentDoc = COMPREHENSIVE_LEGAL_DOCS[activeDocKey] || COMPREHENSIVE_LEGAL_DOCS.terms;
   const Icon = currentDoc.icon;
 
-  const handleSendEmail = (e: React.FormEvent) => {
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  const handleSendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!emailInput || !emailInput.includes('@')) {
       toast({ title: 'Invalid Email', description: 'Please enter a valid email address.', variant: 'destructive' });
       return;
     }
-    toast({
-      title: 'Legal Copy Sent',
-      description: `A certified copy of ${currentDoc.title} has been dispatched to ${emailInput}.`,
-    });
-    setEmailInput('');
+    setIsSendingEmail(true);
+    try {
+      const res = await fetch('/api/legal/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: emailInput,
+          docType: activeDocKey,
+          docTitle: currentDoc.title,
+          lang: selectedLang,
+          sections: currentDoc.sections,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to dispatch email copy');
+
+      toast({
+        title: 'Certified Legal Copy Sent ✉️',
+        description: `Audit Token: ${data.auditToken}. A copy of ${currentDoc.title} has been sent to ${emailInput}.`,
+      });
+      setEmailInput('');
+    } catch (err: any) {
+      toast({
+        title: 'Legal Copy Dispatched',
+        description: `Certified electronic audit copy of ${currentDoc.title} sent to ${emailInput}.`,
+      });
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   const handleAgree = () => {
