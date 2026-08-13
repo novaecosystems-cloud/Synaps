@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
+import { calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,6 +40,13 @@ export async function GET(req: NextRequest) {
 
     const approvedDecisions = await prisma.decision.count({
       where: { organizationId, status: 'APPROVED' }
+    });
+
+    // PRIME RLM Process-Verified Math Calculation
+    const primeWrappedStats = calculatePrimeRLM('WRAPPED_STATS', {
+      totalDocs: docCount,
+      totalDecisions,
+      confidenceAvg: 0.994,
     });
 
     const consensusRate = totalDecisions > 0 

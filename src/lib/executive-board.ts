@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { memPalaceEngine } from '@/lib/mempalace-engine';
+import { enrichAgentWithPrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {
@@ -95,8 +96,12 @@ Known Graph Entities: ${graphEntities.map(g => `${g.name} [${g.type}]`).join(', 
 
   // 2. Concurrently execute independent analyses for all 10 AI Executives
   const executivePromises = EXECUTIVE_PROFILES.map(async (profile) => {
+    const rlmEnrichment = enrichAgentWithPrimeRLM(profile.roleId, query);
+
     const systemPrompt = `You are ${profile.name}, the ${profile.roleTitle} (${profile.roleId}) at Synaps.
 Your functional focus is: ${profile.focus}
+
+${rlmEnrichment.systemPromptAddon}
 
 Independently analyze the user's strategic question strictly through the lens of your executive domain.
 
