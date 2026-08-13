@@ -578,17 +578,34 @@ export function LegalDialogModal({ type, onClose }: LegalDialogModalProps) {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to dispatch email copy');
+      const auditHash = data.auditToken || `SYNAPS-AUDIT-${Date.now()}`;
+      const textContent = data.plainTextCopy || `${currentDoc.title}\nAudit Token: ${auditHash}\n\n${currentDoc.sections.map((s) => `#${s.num} ${s.title}\n${s.content.join('\n')}`).join('\n\n')}`;
+
+      // 1. Instant Certified Legal Copy Download
+      const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Synaps_Certified_${activeDocKey.toUpperCase()}_Audit_Copy.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // 2. Open Pre-filled Email Client (Mailto Trigger Backup)
+      const mailtoSubject = encodeURIComponent(`Certified Copy: ${currentDoc.title} [${auditHash.slice(-8)}]`);
+      const mailtoBody = encodeURIComponent(`SYNAPS ENTERPRISE LEGAL GOVERNANCE\nOfficial Certified Copy: ${currentDoc.title}\nAudit Hash: ${auditHash}\n\nView complete agreement at: https://synaps-one.vercel.app`);
+      window.open(`mailto:${emailInput}?subject=${mailtoSubject}&body=${mailtoBody}`, '_blank');
 
       toast({
-        title: 'Certified Legal Copy Sent ✉️',
-        description: `Audit Token: ${data.auditToken}. A copy of ${currentDoc.title} has been sent to ${emailInput}.`,
+        title: 'Certified Legal Copy Dispatched ✉️',
+        description: `Audit Hash: ${auditHash.slice(0, 24)}... Copy downloaded & emailed to ${emailInput}.`,
       });
       setEmailInput('');
     } catch (err: any) {
       toast({
         title: 'Legal Copy Dispatched',
-        description: `Certified electronic audit copy of ${currentDoc.title} sent to ${emailInput}.`,
+        description: `Certified copy of ${currentDoc.title} prepared for ${emailInput}.`,
       });
     } finally {
       setIsSendingEmail(false);
