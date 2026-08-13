@@ -9,9 +9,10 @@ import { useToast } from '@/hooks/use-toast';
 interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenLegalDoc?: (type: 'terms' | 'privacy' | 'security') => void;
 }
 
-export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
+export default function SignInModal({ isOpen, onClose, onOpenLegalDoc }: SignInModalProps) {
   const [email, setEmail] = useState('');
   const [activeEmail, setActiveEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -468,7 +469,19 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             </form>
 
             <p className="text-[10px] text-center text-slate-400 mt-2 font-sans leading-normal">
-              By signing in, you agree to Synaps Enterprise <span className="text-cyan-400 font-bold underline cursor-pointer">Terms of Service</span>, <span className="text-cyan-400 font-bold underline cursor-pointer">Privacy Policy</span>, &amp; <span className="text-cyan-400 font-bold underline cursor-pointer">DPDP Act Compliance SLA</span>.
+              By signing in, you agree to Synaps Enterprise{' '}
+              <span onClick={() => onOpenLegalDoc?.('terms')} className="text-[#FFD750] font-bold underline cursor-pointer hover:text-white transition-colors">
+                Terms of Service
+              </span>
+              ,{' '}
+              <span onClick={() => onOpenLegalDoc?.('privacy')} className="text-[#FFD750] font-bold underline cursor-pointer hover:text-white transition-colors">
+                Privacy Policy
+              </span>
+              , &amp;{' '}
+              <span onClick={() => onOpenLegalDoc?.('security')} className="text-[#FFD750] font-bold underline cursor-pointer hover:text-white transition-colors">
+                DPDP Act Compliance SLA
+              </span>
+              .
             </p>
           </>
         )}

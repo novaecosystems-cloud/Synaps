@@ -24,6 +24,7 @@ import {
   Tag
 } from "lucide-react";
 import SignInModal from "@/components/SignInModal";
+import { LegalDialogModal, LegalDocType } from "@/components/landing/LegalDialogModal";
 import Link from "next/link";
 import Lenis from "lenis";
 
@@ -97,6 +98,7 @@ export default function IncrediblesStyleLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pricingTab, setPricingTab] = useState<"single" | "recurring">("recurring");
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
+  const [legalDoc, setLegalDoc] = useState<LegalDocType | null>(null);
 
   // Discount & Gumroad State
   const [promoCodeInput, setPromoCodeInput] = useState("LAUNCH100");
@@ -618,17 +620,24 @@ export default function IncrediblesStyleLanding() {
 
       {/* ── SITE FOOTER ─────────────────────────────────────────────────────── */}
       <footer className="py-12 border-t border-[#cecece] text-center font-mono text-xs text-[#18181b] font-bold z-10 bg-white/60 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <span>© 2026 SYNAPS INTELLIGENCE INC. ALL RIGHTS RESERVED.</span>
-          <div className="flex items-center gap-6 text-[#0f0f11] font-bold">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-[#0f0f11] font-bold">
             <a href="#pricing" className="hover:text-[#fc4778] transition-colors">PRICING</a>
             <button onClick={() => setIsModalOpen(true)} className="hover:text-[#fc4778] transition-colors">CONTACT</button>
+            <span className="text-[#cecece]">·</span>
+            <button onClick={() => setLegalDoc('terms')} className="hover:text-[#fc4778] transition-colors uppercase">Terms of Service</button>
+            <button onClick={() => setLegalDoc('privacy')} className="hover:text-[#fc4778] transition-colors uppercase">Privacy Policy</button>
+            <button onClick={() => setLegalDoc('security')} className="hover:text-[#fc4778] transition-colors uppercase">DPDP Act Compliance SLA</button>
           </div>
         </div>
       </footer>
 
       {/* Sign-in Modal */}
-      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onOpenLegalDoc={(type) => setLegalDoc(type)} />
+
+      {/* Legal Dialog Modal Popup */}
+      <LegalDialogModal type={legalDoc} onClose={() => setLegalDoc(null)} />
     </div>
   );
 }

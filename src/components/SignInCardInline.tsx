@@ -6,7 +6,11 @@ import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 
-export default function SignInCardInline() {
+interface SignInCardInlineProps {
+  onOpenLegalDoc?: (type: 'terms' | 'privacy' | 'security') => void;
+}
+
+export default function SignInCardInline({ onOpenLegalDoc }: SignInCardInlineProps) {
   const [email, setEmail] = useState('');
   const [activeEmail, setActiveEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -433,8 +437,20 @@ export default function SignInCardInline() {
               </button>
             </form>
 
-            <p className="text-[10px] text-center text-[#4C0016]/70 mt-2 font-sans leading-normal">
-              By signing in, you agree to Synaps Enterprise <span className="font-bold underline cursor-pointer">Terms of Service</span>, <span className="font-bold underline cursor-pointer">Privacy Policy</span>, &amp; <span className="font-bold underline cursor-pointer">DPDP Compliance SLA</span>.
+            <p className="text-[10px] text-center text-[#4C0016]/90 mt-2 font-sans leading-normal">
+              By signing in, you agree to Synaps Enterprise{' '}
+              <span onClick={() => onOpenLegalDoc?.('terms')} className="font-bold underline cursor-pointer hover:text-[#FFD750] transition-colors">
+                Terms of Service
+              </span>
+              ,{' '}
+              <span onClick={() => onOpenLegalDoc?.('privacy')} className="font-bold underline cursor-pointer hover:text-[#FFD750] transition-colors">
+                Privacy Policy
+              </span>
+              , &amp;{' '}
+              <span onClick={() => onOpenLegalDoc?.('security')} className="font-bold underline cursor-pointer hover:text-[#FFD750] transition-colors">
+                DPDP Compliance SLA
+              </span>
+              .
             </p>
           </>
         )}
