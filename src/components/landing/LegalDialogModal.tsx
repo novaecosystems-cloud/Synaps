@@ -720,7 +720,7 @@ export function LegalDialogModal({
             <div class="sig-field"><strong>AUTHENTICATED NAME:</strong> <span class="sig-[#0f172a]">${userName || userEmail || 'Enterprise Subscriber'}</span></div>
             <div class="sig-field"><strong>AUDIT HASH:</strong> <span class="sig-[#0f172a]">${auditHash}</span></div>
             <div class="sig-field"><strong>ACCEPTANCE TIMESTAMP:</strong> <span class="sig-[#0f172a]">${timestampStr}</span></div>
-            <div class="sig-field"><strong>PLATFORM SLA:</strong> <span class="sig-[#0f172a]">SYNAPS ZERO-HALLUCINATION ENTERPRISE SLA</span></div>
+            <div class="sig-field"><strong>PLATFORM SLA:</strong> <span class="sig-[#0f172a]">SYNAPS ENTERPRISE GROUNDED INTELLIGENCE SLA</span></div>
           </div>
         </div>
 
