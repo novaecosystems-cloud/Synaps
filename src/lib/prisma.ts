@@ -23,9 +23,8 @@ export const prisma = globalForPrisma.prisma || new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-}
+// Always retain global Prisma instance in serverless environments to prevent connection pool exhaustion during peak traffic
+globalForPrisma.prisma = prisma;
 
 export const getOrgId = async () => {
   try {
