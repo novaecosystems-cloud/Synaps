@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
+import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
 
 interface Citation {
   documentId?: string;
@@ -94,6 +95,25 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
   // Active modal inspection states
   const [activeAnswer, setActiveAnswer] = useState<ExecutiveAnswer | null>(null);
   const [activeCitation, setActiveCitation] = useState<Citation | null>(null);
+
+  // Mandatory Legal Acceptance Modal on Dashboard Load
+  const [mandatoryLegalDoc, setMandatoryLegalDoc] = useState<LegalDocType | null>(null);
+
+  useEffect(() => {
+    try {
+      const accepted = localStorage.getItem('synaps_legal_accepted_v1');
+      if (!accepted) {
+        setMandatoryLegalDoc('terms');
+      }
+    } catch (e) {}
+  }, []);
+
+  const handleLegalAcceptance = () => {
+    try {
+      localStorage.setItem('synaps_legal_accepted_v1', 'true');
+    } catch (e) {}
+    setMandatoryLegalDoc(null);
+  };
 
   // Custom AI COO question
   const [customQuestion, setCustomQuestion] = useState('');
@@ -371,11 +391,13 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
                 className="bg-base-100 border border-base-300 hover:border-primary/40 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="font-bold text-base text-base-content group-hover:text-primary transition-colors leading-snug">
+                  <div className="flex justify-between items-start mb-3 gap-3">
+                    <h3 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug break-words flex-1 min-w-0 pr-1">
                       {item.question}
                     </h3>
-                    {getStatusBadge(item.status)}
+                    <div className="shrink-0">
+                      {getStatusBadge(item.status)}
+                    </div>
                   </div>
                   <p className="text-xs text-base-content/70 line-clamp-3 leading-relaxed mb-4">
                     {item.answer}
@@ -571,7 +593,14 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             </Link>
           </div>
         </div>
-      )}
+      {/* Mandatory Legal Agreement Modal on Dashboard Load */}
+      <LegalDialogModal
+        type={mandatoryLegalDoc}
+        onClose={handleLegalAcceptance}
+        isLoggedIn={true}
+        userEmail={userName}
+        userName={userName}
+      />
 
     </div>
   );
