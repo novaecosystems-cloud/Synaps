@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Fraunces, Sora, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Sora, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 
 import { AuthProvider } from "@/context/AuthContext";
@@ -14,6 +14,12 @@ import { getSoftwareApplicationJsonLd } from "@/lib/openseo";
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-fraunces",
+  display: "swap",
+});
+
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-source-serif",
   display: "swap",
 });
 
@@ -48,13 +54,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${sora.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${fraunces.variable} ${sourceSerif.variable} ${sora.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
-        {/* Load Fraunces & Sora via direct Google Fonts link fallback */}
+        {/* Load Fraunces, Source Serif 4 & Sora via direct Google Fonts link fallback */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Sora:wght@100..800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Sora:wght@100..800&family=JetBrains+Mono:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
         {/* Microsoft Clarity Analytics Script */}

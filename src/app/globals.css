@@ -46,6 +46,11 @@ h1, h2, h3, h4, h5, h6, .font-headline, .font-fraunces {
   font-family: 'Fraunces', var(--font-fraunces), serif;
 }
 
+.font-source-serif, .font-editorial {
+  font-family: 'Source Serif 4', var(--font-source-serif), 'Fraunces', serif;
+  letter-spacing: -0.04em;
+}
+
 /* From Uiverse.io by D3OXY */
 /* DEOXY Was Here */
 .form {
