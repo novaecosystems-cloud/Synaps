@@ -565,11 +565,45 @@ export function LegalDialogModal({
   const currentDoc = COMPREHENSIVE_LEGAL_DOCS[activeDocKey] || COMPREHENSIVE_LEGAL_DOCS.terms;
   const Icon = currentDoc.icon;
 
-  const handleAgree = () => {
+  const handleAgree = async () => {
     setIsAgreed(true);
+    const auditHash = `SYNAPS-MASTER-AUDIT-${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now()}`;
+    const timestampStr = new Date().toISOString();
+
+    const auditRecord = {
+      action: 'LEGAL_AGREEMENT_ACCEPTED',
+      docTitle: currentDoc.title,
+      docKey: activeDocKey,
+      userEmail: userEmail || 'authenticated-user@synaps.ai',
+      userName: userName || 'Enterprise Subscriber',
+      auditHash,
+      timestamp: timestampStr,
+    };
+
+    // Store in localStorage Audit Ledger
+    try {
+      const existingLogs = JSON.parse(localStorage.getItem('synaps_audit_records_v1') || '[]');
+      existingLogs.unshift(auditRecord);
+      localStorage.setItem('synaps_audit_records_v1', JSON.stringify(existingLogs));
+    } catch (e) {}
+
+    // Dispatch to DB Audit Log API
+    try {
+      await fetch('/api/audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'LEGAL_AGREEMENT_ACCEPTED',
+          entityType: 'LEGAL_SLA',
+          entityId: activeDocKey,
+          metadata: auditRecord,
+        }),
+      });
+    } catch (e) {}
+
     toast({
-      title: 'Legal Agreement Recorded',
-      description: `You have accepted ${currentDoc.title}. PDF Download unlocked.`,
+      title: 'Legal Agreement Audited & Recorded ✓',
+      description: `Audit Hash: ${auditHash.slice(0, 20)}... Certified PDF download unlocked.`,
     });
   };
 

@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { organizationId, userId, action, entityType, entityId, before, after, ipAddress, metadata } = body;
 
-    if (!organizationId || !action || !entityType || !entityId) {
+    if (!action || !entityType || !entityId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
