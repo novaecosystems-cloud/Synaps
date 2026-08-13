@@ -9,8 +9,13 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 export default function AgentManagementPage() {
-  const [activeTab, setActiveTab] = useState<'agents' | 'reach'>('reach');
+  const [activeTab, setActiveTab] = useState<'agents' | 'reach' | 'prime'>('prime');
   
+  // Prime Agent RLM Console State
+  const [primeTaskInput, setPrimeTaskInput] = useState('Audit all Q3 hotel supply contracts, calculate financial exposure in Python, and output board verdict');
+  const [primeLoading, setPrimeLoading] = useState(false);
+  const [primeResult, setPrimeResult] = useState<any | null>(null);
+
   // AgentReach Console State
   const [searchQuery, setSearchQuery] = useState('');
   const [targetUrl, setTargetUrl] = useState('');
@@ -19,6 +24,25 @@ export default function AgentManagementPage() {
   const [reachAction, setReachAction] = useState<'search' | 'read' | 'contacts'>('search');
   const [loading, setLoading] = useState(false);
   const [resultData, setResultData] = useState<any | null>(null);
+
+  const handleExecutePrimeAgent = async () => {
+    setPrimeLoading(true);
+    setPrimeResult(null);
+
+    try {
+      const res = await fetch('/api/agents/prime-orchestrate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task: primeTaskInput, model: 'gemini-1.5-pro' }),
+      });
+      const json = await res.json();
+      setPrimeResult(json);
+    } catch (e: any) {
+      setPrimeResult({ error: e.message || 'Failed to execute Prime Agent RLM Orchestrator' });
+    } finally {
+      setPrimeLoading(false);
+    }
+  };
 
   const handleExecuteReach = async () => {
     setLoading(true);
@@ -59,15 +83,21 @@ export default function AgentManagementPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-base-content">AgentReach & Web Connectivity Console</h1>
-              <span className="badge badge-primary badge-sm font-mono text-[10px]">Panniantong/agent-reach Engine</span>
+              <h1 className="text-2xl font-bold tracking-tight text-base-content">Agent Suite &amp; RLM Orchestrator</h1>
+              <span className="badge badge-primary badge-sm font-mono text-[10px]">Prime Agent RLM Engine</span>
             </div>
-            <p className="text-xs text-base-content/60 mt-0.5">Equip your 10 AI Agents with live web search, webpage scraping, and B2B company contact discovery.</p>
+            <p className="text-xs text-base-content/60 mt-0.5">Equip your 10 AI Agents with Prime Agent persistent Python RLM loops and AgentReach web search.</p>
           </div>
         </div>
 
         {/* Tab Toggle */}
         <div className="flex items-center gap-1 bg-base-200 p-1 rounded-2xl border border-base-300 text-xs font-bold">
+          <button
+            onClick={() => setActiveTab('prime')}
+            className={cn("px-4 py-2 rounded-xl transition-all flex items-center gap-1.5", activeTab === 'prime' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#0496ff]" /> Prime Agent RLM
+          </button>
           <button
             onClick={() => setActiveTab('reach')}
             className={cn("px-4 py-2 rounded-xl transition-all flex items-center gap-1.5", activeTab === 'reach' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
@@ -83,7 +113,69 @@ export default function AgentManagementPage() {
         </div>
       </div>
 
-      {activeTab === 'reach' ? (
+      {activeTab === 'prime' ? (
+        <div className="space-y-6">
+          <div className="bg-base-100 p-6 rounded-3xl border border-base-300 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-sky-500" />
+              <h2 className="font-bold text-lg text-base-content">Prime Agent Recursive RLM Task Runner</h2>
+            </div>
+            <p className="text-xs text-base-content/60">
+              Run autonomous multi-step tasks powered by Prime Agent&apos;s Recursive Language Model architecture &amp; persistent IPython environment.
+            </p>
+
+            <div className="space-y-2">
+              <label className="text-xs font-mono font-bold text-base-content/70">Task Objective / Prompt:</label>
+              <textarea
+                rows={3}
+                value={primeTaskInput}
+                onChange={(e) => setPrimeTaskInput(e.target.value)}
+                placeholder="Enter complex multi-step objective..."
+                className="textarea textarea-bordered w-full text-xs font-mono"
+              />
+            </div>
+
+            <Button
+              onClick={handleExecutePrimeAgent}
+              disabled={primeLoading}
+              className="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs uppercase tracking-wider"
+            >
+              {primeLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
+              {primeLoading ? 'Spawning RLM Sub-Agents...' : 'Launch Prime Agent RLM Orchestration'}
+            </Button>
+          </div>
+
+          {primeResult && (
+            <div className="bg-base-100 p-6 rounded-3xl border border-base-300 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-sky-500">{primeResult.sessionId}</span>
+                <span className="badge badge-success text-[10px] font-mono">{primeResult.auditHash}</span>
+              </div>
+
+              {primeResult.subAgents && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-bold font-mono text-base-content/70 uppercase">Spawned RLM Sub-Agents:</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {primeResult.subAgents.map((sa: any) => (
+                      <div key={sa.id} className="p-4 bg-base-200 rounded-2xl border border-base-300 space-y-2">
+                        <div className="flex justify-between items-center text-xs font-bold text-base-content">
+                          <span>{sa.role}</span>
+                          <span className="badge badge-sm badge-info text-[9px]">{sa.iterations} Loops</span>
+                        </div>
+                        <p className="text-[11px] text-base-content/70">{sa.findings}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="p-4 bg-sky-500/10 border border-sky-500/30 rounded-2xl">
+                <pre className="text-xs font-mono text-base-content whitespace-pre-wrap">{primeResult.masterVerdict || JSON.stringify(primeResult, null, 2)}</pre>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : activeTab === 'reach' ? (
         <div className="space-y-6">
           
           {/* Action Selector */}
