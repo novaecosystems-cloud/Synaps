@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { AlertTriangle } from 'lucide-react';
+import PasswordStrengthInput from '@/components/ui/PasswordStrengthInput';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ import {
 
 export default function SecuritySettings() {
   const { user } = useAuth();
+  const [newPassword, setNewPassword] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -47,6 +49,23 @@ export default function SecuritySettings() {
         <h1 className="text-2xl font-bold tracking-tight">Security & Sessions</h1>
         <p className="text-muted-foreground">Manage your authentication methods and destructive actions.</p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Create &amp; Update Password</CardTitle>
+          <CardDescription>Configure a resilient master key for direct password sign-in.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="py-2">
+            <PasswordStrengthInput
+              value={newPassword}
+              onChange={setNewPassword}
+              placeholder="Type a password"
+              label="New password"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
