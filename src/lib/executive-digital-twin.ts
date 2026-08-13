@@ -1,5 +1,6 @@
-import prisma from '@/lib/prisma';
+﻿import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {
@@ -318,7 +319,7 @@ export async function runExecutiveBoardroomSimulation(
     executiveConsensus = 'MODERATE_CONSENSUS';
   }
 
-  const synthesizedRecommendation = `### Executive Boardroom Simulation Verdict:\n**Scenario:** "${scenarioPrompt}"\n\n**Consensus Verdict:** ${executiveConsensus.replace(/_/g, ' ')} (${avgConfidence}% Panel Alignment).\n• **Strategic View (CEO & Sales):** High expansion potential with competitive moat.\n• **Financial & Legal View (CFO & Legal):** Proceed conditional on notice period extension and cash runway buffer.\n• **Engineering & Ops View (CTO & COO):** Architecture endpoints meet latency and zero-data training standards.`;
+  const synthesizedRecommendation = `### Executive Boardroom Simulation Verdict:\n**Scenario:** "${scenarioPrompt}"\n\n**Consensus Verdict:** ${executiveConsensus.replace(/_/g, ' ')} (${avgConfidence}% Panel Alignment).\nâ€¢ **Strategic View (CEO & Sales):** High expansion potential with competitive moat.\nâ€¢ **Financial & Legal View (CFO & Legal):** Proceed conditional on notice period extension and cash runway buffer.\nâ€¢ **Engineering & Ops View (CTO & COO):** Architecture endpoints meet latency and zero-data training standards.`;
 
   return {
     simulationId,

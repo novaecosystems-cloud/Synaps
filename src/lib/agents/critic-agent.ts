@@ -1,4 +1,5 @@
-import { invokeLLMWithFallback } from '@/lib/llm-router';
+﻿import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export interface CritiqueResult {
   approved: boolean;

@@ -1,6 +1,7 @@
 import { runDocumentAgent, AgentResponse as DocAgentResponse } from '@/lib/agents/document-agent';
 import { runWebResearchAgent } from '@/lib/agents/web-research-agent';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { enrichAgentWithPrimeRLM } from '@/lib/prime-rlm';
 
 export interface HybridResearchResponse {
   query: string;
@@ -37,7 +38,8 @@ export async function runReasoningAgent(
   organizationId: string,
   documentId?: string
 ): Promise<HybridResearchResponse> {
-  const executionSteps: any[] = [];
+  const { systemPromptAddon: rlmAddon } = enrichAgentWithPrimeRLM('REASONING_AGENT', query);
+  const executionSteps: any[] = [{ step: 'PRIME_RLM_INIT', rlmAddon }];
 
   // Determine intent routing
   const isWebOnly = /research\s+([A-Z0-9\s]+v\s+[A-Z0-9\s]+)|what\s+happened\s+in\s+case|court\s+ruling/i.test(query) && !documentId;

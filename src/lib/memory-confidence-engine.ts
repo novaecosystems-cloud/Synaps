@@ -1,5 +1,6 @@
-import prisma from '@/lib/prisma';
+﻿import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {
@@ -265,7 +266,7 @@ ${meetingContext}`;
   let groundedAnswer = result.groundedAnswer || `Based on verified vault context for "${query}", SYNAPS identified key precedents across document records and Knowledge Graph relationships.`;
 
   if (isBelowThreshold) {
-    groundedAnswer = `⚠️ **Low Confidence Warning (${confidenceScore}% < ${minConfidenceThreshold}% Mathematical Threshold)**:\nExisting organizational evidence is mathematically insufficient to answer "${query}" with high certainty (Semantic Similarity: ${scoreBreakdown.semanticSimilarityScore}%, Entity Coverage: ${scoreBreakdown.entityCoverageScore}%). Rather than guessing, SYNAPS recommends uploading missing documentation: ${result.suggestedSourcesToImprove?.join(', ') || 'Updated Agreement Specs'}.`;
+    groundedAnswer = `âš ï¸ **Low Confidence Warning (${confidenceScore}% < ${minConfidenceThreshold}% Mathematical Threshold)**:\nExisting organizational evidence is mathematically insufficient to answer "${query}" with high certainty (Semantic Similarity: ${scoreBreakdown.semanticSimilarityScore}%, Entity Coverage: ${scoreBreakdown.entityCoverageScore}%). Rather than guessing, SYNAPS recommends uploading missing documentation: ${result.suggestedSourcesToImprove?.join(', ') || 'Updated Agreement Specs'}.`;
   }
 
   const citations: ClaimCitation[] = Array.isArray(result.citations) && result.citations.length > 0 ? result.citations : [

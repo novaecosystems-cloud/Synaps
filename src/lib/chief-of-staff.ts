@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { enrichAgentWithPrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {

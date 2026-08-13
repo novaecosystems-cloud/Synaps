@@ -1,7 +1,8 @@
-import prisma from '@/lib/prisma';
+﻿import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { memPalaceEngine } from '@/lib/mempalace-engine';
 import { NOVA_DEMO_DOCUMENTS } from '@/lib/demo-data';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {
@@ -135,23 +136,23 @@ export async function generateExecutiveBriefData(organizationId: string): Promis
 
   // Construct Data Summary context for AI COO
   const docsSummary = documents.map(d => 
-    `• Document "${d.name}" (Type: ${d.mimeType}, Size: ${(d.sizeBytes / 1024 / 1024).toFixed(2)}MB, Updated: ${d.updatedAt ? new Date(d.updatedAt).toISOString().slice(0,10) : ''}): ${d.processedDoc?.textContent?.slice(0, 300) || 'No text'}`
+    `â€¢ Document "${d.name}" (Type: ${d.mimeType}, Size: ${(d.sizeBytes / 1024 / 1024).toFixed(2)}MB, Updated: ${d.updatedAt ? new Date(d.updatedAt).toISOString().slice(0,10) : ''}): ${d.processedDoc?.textContent?.slice(0, 300) || 'No text'}`
   ).join('\n');
 
   const projectsSummary = projects.map(p => 
-    `• Project "${p.name}" (Status: ${p.status}, Members: ${p.members?.length || 0}, Tasks: ${p.tasks?.length || 0}, Updated: ${p.updatedAt ? new Date(p.updatedAt).toISOString().slice(0,10) : ''})`
+    `â€¢ Project "${p.name}" (Status: ${p.status}, Members: ${p.members?.length || 0}, Tasks: ${p.tasks?.length || 0}, Updated: ${p.updatedAt ? new Date(p.updatedAt).toISOString().slice(0,10) : ''})`
   ).join('\n');
 
   const decisionsSummary = decisions.map(d => 
-    `• Decision Recommendation: ${d.recommendation} (Status: ${d.status}, Confidence: ${d.confidence || 90}%): ${d.executiveSummary?.slice(0, 200) || ''}`
+    `â€¢ Decision Recommendation: ${d.recommendation} (Status: ${d.status}, Confidence: ${d.confidence || 90}%): ${d.executiveSummary?.slice(0, 200) || ''}`
   ).join('\n');
 
   const gapsSummary = gaps.map(g => 
-    `• Gap [${g.severity}]: "${g.title}" (${g.category}) - ${g.description?.slice(0, 150) || ''}`
+    `â€¢ Gap [${g.severity}]: "${g.title}" (${g.category}) - ${g.description?.slice(0, 150) || ''}`
   ).join('\n');
 
   const graphSummary = relationships.map(r => 
-    `• Connection: ${r.sourceEntity?.name || ''} (${r.sourceEntity?.type || ''}) ${r.relationType} ${r.targetEntity?.name || ''} (${r.targetEntity?.type || ''}) | ${r.description || ''}`
+    `â€¢ Connection: ${r.sourceEntity?.name || ''} (${r.sourceEntity?.type || ''}) ${r.relationType} ${r.targetEntity?.name || ''} (${r.targetEntity?.type || ''}) | ${r.description || ''}`
   ).join('\n');
 
   const memPalaceContext = memPalaceEngine.buildMemPalacePromptContext(organizationId, "COO Operational Executive Briefing");
@@ -455,7 +456,7 @@ function getFallbackRecommendations(): AIRecommendationItem[] {
       priority: 'HIGH',
       title: 'Serve F&B Vendor Notice Before Oct 15',
       recommendation: 'Send formal written notice to Royal Agri Supplies to lock in bulk pricing and prevent the 14% annual cost escalation.',
-      rationale: 'Avoids ₹38.4 Lakh quarterly cost overrun identified in F&B_Vendor_Supply_Contracts_2026.pdf.',
+      rationale: 'Avoids â‚¹38.4 Lakh quarterly cost overrun identified in F&B_Vendor_Supply_Contracts_2026.pdf.',
       citations: [{ documentName: 'F&B_Vendor_Supply_Contracts_2026.pdf', snippet: 'Section 8.4 Auto-Renewal' }]
     }
   ];

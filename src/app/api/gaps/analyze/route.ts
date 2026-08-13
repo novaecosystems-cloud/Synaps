@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -7,6 +7,7 @@ import { analyzeGaps } from '@/lib/embeddings';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export async function POST(req: NextRequest) {
   try {
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
       where: { documentId }
     });
 
-    // Whitelist valid enum values — guards against AI hallucinations and stale Prisma client bundles
+    // Whitelist valid enum values â€” guards against AI hallucinations and stale Prisma client bundles
     const VALID_GAP_CATEGORIES = ['CAPABILITY', 'CERTIFICATION', 'DOCUMENT', 'EXPERIENCE', 'COMPLIANCE', 'TEAM', 'TECHNICAL', 'OTHER'] as const;
     const VALID_GAP_SEVERITIES  = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
     type GapCategory = typeof VALID_GAP_CATEGORIES[number];

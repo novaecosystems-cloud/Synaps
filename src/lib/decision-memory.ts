@@ -1,5 +1,6 @@
-import prisma from '@/lib/prisma';
+﻿import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {
@@ -65,7 +66,7 @@ export async function queryDecisionMemory(
   });
 
   const decisionContext = pastDecisions.map(d => 
-    `• Decision ID [${d.id}]: "${d.title}" (Status: ${d.status}, Recommendation: ${d.recommendation})
+    `â€¢ Decision ID [${d.id}]: "${d.title}" (Status: ${d.status}, Recommendation: ${d.recommendation})
       Date: ${new Date(d.createdAt).toISOString().split('T')[0]}
       Problem: ${d.problem || 'N/A'}
       Context: ${d.context || 'N/A'}

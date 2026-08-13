@@ -1,6 +1,7 @@
-import prisma from '@/lib/prisma';
+﻿import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import crypto from 'crypto';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {
@@ -97,18 +98,18 @@ export async function generateEnterpriseStrategy(
   const docSummaries = docs.length > 0 
     ? docs.map(d => {
         const text = d.processedDoc?.textContent?.slice(0, 800) || d.chunks?.map((c: any) => c.text).join(' ') || 'Nova Industries Business Document.';
-        return `• Document [${d.name}]: ${text}`;
+        return `â€¢ Document [${d.name}]: ${text}`;
       }).join('\n\n')
-    : `• Document [Q3 Supply Chain Risk Report.pdf]: Risk score 78/100. Taiwan single-source MCU dependency on Apex Microelectronics (68% volume). $14.2M Q4 revenue exposure.
-• Document [Vendor Contract Analysis.pdf]: GlobalFreight Logistics MSA-2026-884 caps delay liability at $50,000 against $1.2M/day plant stoppage loss.
-• Document [Q3-Q4 Financial Forecast.pdf]: Q3 Revenue $148.5M, Gross Margin 43.3%. $4.8M ocean freight cost overrun. $12.5M capital budget allocated for Quantum Semi dual-sourcing.
-• Document [Board Meeting Minutes Q3 2026.pdf]: Board Resolution RES-2026-41 approved $12.5M Quantum Semi European dual-sourcing expansion.`;
+    : `â€¢ Document [Q3 Supply Chain Risk Report.pdf]: Risk score 78/100. Taiwan single-source MCU dependency on Apex Microelectronics (68% volume). $14.2M Q4 revenue exposure.
+â€¢ Document [Vendor Contract Analysis.pdf]: GlobalFreight Logistics MSA-2026-884 caps delay liability at $50,000 against $1.2M/day plant stoppage loss.
+â€¢ Document [Q3-Q4 Financial Forecast.pdf]: Q3 Revenue $148.5M, Gross Margin 43.3%. $4.8M ocean freight cost overrun. $12.5M capital budget allocated for Quantum Semi dual-sourcing.
+â€¢ Document [Board Meeting Minutes Q3 2026.pdf]: Board Resolution RES-2026-41 approved $12.5M Quantum Semi European dual-sourcing expansion.`;
 
   const contextText = `NOVA INDUSTRIES INGESTED ENTERPRISE DATA & DOCUMENTS:
 ${docSummaries}
 
 Past Corporate Decisions:
-${decisions.map(d => `• ${d.title}: ${d.status} (${d.recommendation}) — ${d.executiveSummary || ''}`).join('\n') || 'Resolution RES-2026-41: Approved $12.5M budget for European dual-sourcing.'}`;
+${decisions.map(d => `â€¢ ${d.title}: ${d.status} (${d.recommendation}) â€” ${d.executiveSummary || ''}`).join('\n') || 'Resolution RES-2026-41: Approved $12.5M budget for European dual-sourcing.'}`;
 
   const systemPrompt = `You are the AI Strategy Studio Engine for Synaps.
 Generate a comprehensive, end-to-end strategic document for the user's business objective, strictly grounded in Nova Industries' ingested enterprise documents and financial data.

@@ -1,4 +1,5 @@
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { enrichAgentWithPrimeRLM } from '@/lib/prime-rlm';
 
 export interface AgentTool {
   name: string;
@@ -37,7 +38,11 @@ export class ReActAgent {
       .map(t => `- ${t.name}: ${t.description} | Arguments Schema: ${JSON.stringify(t.parameters)}`)
       .join('\n');
 
+    const { systemPromptAddon } = enrichAgentWithPrimeRLM(this.name, goal);
+
     const promptHeader = `${this.systemPrompt}
+
+${systemPromptAddon}
 
 You operate in a ReAct loop (Reasoning and Acting).
 Available Tools:
@@ -47,6 +52,7 @@ Goal: ${goal}
 
 Instruction:
 For each step, output your thought process starting with "Thought:".
+Verify every numerical figure with explicit PRIME proof steps.
 If you need to use a tool, output:
 Action: <tool_name>
 Action Input: <valid_json_object>

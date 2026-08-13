@@ -1,4 +1,5 @@
-import { invokeLLMWithFallback } from './llm-router';
+﻿import { invokeLLMWithFallback } from './llm-router';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 const DEFAULT_SECTIONS = [
   "Executive Summary",

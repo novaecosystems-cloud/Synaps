@@ -1,5 +1,6 @@
-import prisma from '@/lib/prisma';
+﻿import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {
@@ -89,19 +90,19 @@ export async function askEnterpriseAssistant(
   // Construct Graph RAG Context
   const graphContext = `ENTERPRISE MEMORY GRAPH & KNOWLEDGE BASE:
 Graph Entities & Relationships:
-${graphEntities.map(g => `• Entity: "${g.name}" [${g.type}] — ${g.description || 'No description'} (Connected to: ${g.sourceRelations ? g.sourceRelations.map((r: any) => r.targetEntity?.name).filter(Boolean).join(', ') : 'None'})`).join('\n') || 'No entities stored.'}
+${graphEntities.map(g => `â€¢ Entity: "${g.name}" [${g.type}] â€” ${g.description || 'No description'} (Connected to: ${g.sourceRelations ? g.sourceRelations.map((r: any) => r.targetEntity?.name).filter(Boolean).join(', ') : 'None'})`).join('\n') || 'No entities stored.'}
 
 Uploaded Documents:
-${docs.map(d => `• Doc ID [${d.id}]: "${d.name}"`).join('\n') || 'No documents uploaded.'}
+${docs.map(d => `â€¢ Doc ID [${d.id}]: "${d.name}"`).join('\n') || 'No documents uploaded.'}
 
 Corporate Decisions:
-${decisions.map(d => `• Decision: "${d.title}" (Status: ${d.status}, Rec: ${d.recommendation}, Summary: ${d.executiveSummary || 'N/A'})`).join('\n') || 'No decisions.'}
+${decisions.map(d => `â€¢ Decision: "${d.title}" (Status: ${d.status}, Rec: ${d.recommendation}, Summary: ${d.executiveSummary || 'N/A'})`).join('\n') || 'No decisions.'}
 
 Projects:
-${projects.map(p => `• Project: "${p.name}" (Status: ${p.status})`).join('\n') || 'No projects.'}
+${projects.map(p => `â€¢ Project: "${p.name}" (Status: ${p.status})`).join('\n') || 'No projects.'}
 
 Timeline Log:
-${timelineEvents.map(t => `• [Commit ${t.commitHash || 'c8f2a'}] ${t.eventDate ? new Date(t.eventDate).toISOString().slice(0,10) : ''}: "${t.title}" — ${t.description}`).join('\n') || 'No timeline commits.'}`;
+${timelineEvents.map(t => `â€¢ [Commit ${t.commitHash || 'c8f2a'}] ${t.eventDate ? new Date(t.eventDate).toISOString().slice(0,10) : ''}: "${t.title}" â€” ${t.description}`).join('\n') || 'No timeline commits.'}`;
 
   const systemPrompt = `You are the Enterprise Memory AI Assistant for Synaps.
 Your job is to answer employee queries using ONLY factual knowledge from the Enterprise Memory Graph and corporate data.
@@ -152,7 +153,7 @@ You MUST return valid JSON with:
     console.error("Error in askEnterpriseAssistant:", error);
     return {
       query,
-      answer: `**Enterprise Assistant Insight:**\n\n• **Grounded Analysis:** Scanned Nova Industries organizational memory for "${query}".\n• **Core Finding:** Active project and knowledge base documents confirm ongoing operational alignment.\n• **Memory Graph Connection:** Grounded across 10 ingested corporate files and executive decision records.`,
+      answer: `**Enterprise Assistant Insight:**\n\nâ€¢ **Grounded Analysis:** Scanned Nova Industries organizational memory for "${query}".\nâ€¢ **Core Finding:** Active project and knowledge base documents confirm ongoing operational alignment.\nâ€¢ **Memory Graph Connection:** Grounded across 10 ingested corporate files and executive decision records.`,
       isKnowledgeMissing: false,
       confidenceScore: 92,
       sourceDocuments: [{ name: 'Q3 Supply Chain Risk Report.pdf' }, { name: 'Vendor Contract Analysis.pdf' }],

@@ -1,8 +1,9 @@
-import prisma from '@/lib/prisma';
+﻿import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { generateEmbedding } from '@/lib/embeddings';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { ReActAgent, AgentTool } from '@/lib/agents/react-engine';
+import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export interface DocumentCitation {
   documentId: string;
@@ -28,9 +29,9 @@ export interface AgentResponse {
 }
 
 /**
- * ─────────────────────────────────────────────────────────────────────────────
- * PHASE 2 — DOCUMENT AGENT TOOLKIT IMPLEMENTATION
- * ─────────────────────────────────────────────────────────────────────────────
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * PHASE 2 â€” DOCUMENT AGENT TOOLKIT IMPLEMENTATION
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  */
 
 export function buildDocumentAgentTools(organizationId: string, currentDocumentId?: string): AgentTool[] {
@@ -476,9 +477,9 @@ Analyze:
 }
 
 /**
- * ─────────────────────────────────────────────────────────────────────────────
- * PHASE 2 — SYNAPS DOCUMENT AGENT ENGINE
- * ─────────────────────────────────────────────────────────────────────────────
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * PHASE 2 â€” SYNAPS DOCUMENT AGENT ENGINE
+ * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  */
 
 export async function runDocumentAgent(
@@ -553,7 +554,7 @@ function extractRisksFromAnswer(text: string): Array<{ title: string; severity: 
     if (line.toLowerCase().includes('risk') || line.toLowerCase().includes('liability') || line.toLowerCase().includes('penalty')) {
       const severity = line.toLowerCase().includes('high') || line.toLowerCase().includes('severe') ? 'HIGH' : line.toLowerCase().includes('medium') ? 'MEDIUM' : 'LOW';
       risks.push({
-        title: line.replace(/^[-*•\d.\s]+/, '').substring(0, 60),
+        title: line.replace(/^[-*â€¢\d.\s]+/, '').substring(0, 60),
         severity,
         explanation: line
       });
