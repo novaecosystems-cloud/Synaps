@@ -2,11 +2,11 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import ContraLabsStyleSynapsLanding from '@/components/landing/ContraLabsStyleSynapsLanding';
+import AnthropicStyleSynapsLanding from '@/components/landing/AnthropicStyleSynapsLanding';
 
 export const metadata = {
-  title: 'SYNAPS LABS — Enterprise Memory OS & 3D Knowledge Graph',
-  description: "The frontier enterprise data and intelligence OS. 100% grounded decision-making, interactive 3D Knowledge Graph, and autonomous AI Boardroom.",
+  title: "Synaps AI — Enterprise Intelligence Layer & Evidence Engine",
+  description: "Synaps AI transforms complex document libraries into an interactive 3D Knowledge Graph and a 10-Agent AI Boardroom.",
 };
 
 export default async function RootPage() {
@@ -20,5 +20,5 @@ export default async function RootPage() {
     }
   }
 
-  return <ContraLabsStyleSynapsLanding />;
+  return <AnthropicStyleSynapsLanding />;
 }
