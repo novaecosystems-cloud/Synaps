@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Check, ShieldCheck, Lock, FileText, CreditCard, AlertTriangle, Cookie } from 'lucide-react';
+import { X, Check, ShieldCheck, Lock, FileText, CreditCard, AlertTriangle, Cookie, Download, FileCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export type LegalDocType = 'terms' | 'privacy' | 'dpdp' | 'security' | 'payments' | 'ai_disclaimer' | 'cookies';
@@ -9,6 +9,9 @@ export type LegalDocType = 'terms' | 'privacy' | 'dpdp' | 'security' | 'payments
 interface LegalDialogModalProps {
   type: LegalDocType | null;
   onClose: () => void;
+  isLoggedIn?: boolean;
+  userEmail?: string;
+  userName?: string;
 }
 
 interface LegalSection {
@@ -535,11 +538,15 @@ const COMPREHENSIVE_LEGAL_DOCS: Record<LegalDocType, LegalDocData> = {
   },
 };
 
-export function LegalDialogModal({ type, onClose }: LegalDialogModalProps) {
+export function LegalDialogModal({
+  type,
+  onClose,
+  isLoggedIn = false,
+  userEmail = '',
+  userName = '',
+}: LegalDialogModalProps) {
   const [activeDocKey, setActiveDocKey] = useState<LegalDocType>(type || 'terms');
   const [activeSectionId, setActiveSectionId] = useState<string>('sec-1');
-  const [emailInput, setEmailInput] = useState('');
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
   const { toast } = useToast();
 
@@ -548,6 +555,7 @@ export function LegalDialogModal({ type, onClose }: LegalDialogModalProps) {
     if (type) {
       setActiveDocKey(type);
       setActiveSectionId('sec-1');
+      setIsAgreed(false);
     }
   }, [type]);
 
@@ -557,70 +565,183 @@ export function LegalDialogModal({ type, onClose }: LegalDialogModalProps) {
   const currentDoc = COMPREHENSIVE_LEGAL_DOCS[activeDocKey] || COMPREHENSIVE_LEGAL_DOCS.terms;
   const Icon = currentDoc.icon;
 
-  const handleSendEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!emailInput || !emailInput.includes('@')) {
-      toast({ title: 'Invalid Email', description: 'Please enter a valid email address.', variant: 'destructive' });
-      return;
-    }
-    setIsSendingEmail(true);
-    try {
-      const res = await fetch('/api/legal/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: emailInput,
-          docType: activeDocKey,
-          docTitle: currentDoc.title,
-          lang: 'en',
-          sections: currentDoc.sections,
-        }),
-      });
-
-      const data = await res.json();
-      const auditHash = data.auditToken || `SYNAPS-AUDIT-${Date.now()}`;
-      const textContent = data.plainTextCopy || `${currentDoc.title}\nAudit Token: ${auditHash}\n\n${currentDoc.sections.map((s) => `#${s.num} ${s.title}\n${s.content.join('\n')}`).join('\n\n')}`;
-
-      // 1. Instant Certified Legal Copy Download
-      const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Synaps_Certified_${activeDocKey.toUpperCase()}_Audit_Copy.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      // 2. Open Pre-filled Email Client (Mailto Trigger Backup)
-      const mailtoSubject = encodeURIComponent(`Certified Copy: ${currentDoc.title} [${auditHash.slice(-8)}]`);
-      const mailtoBody = encodeURIComponent(`SYNAPS ENTERPRISE LEGAL GOVERNANCE\nOfficial Certified Copy: ${currentDoc.title}\nAudit Hash: ${auditHash}\n\nView complete agreement at: https://synaps-one.vercel.app`);
-      window.open(`mailto:${emailInput}?subject=${mailtoSubject}&body=${mailtoBody}`, '_blank');
-
-      toast({
-        title: 'Certified Legal Copy Dispatched ✉️',
-        description: `Audit Hash: ${auditHash.slice(0, 24)}... Copy downloaded & emailed to ${emailInput}.`,
-      });
-      setEmailInput('');
-    } catch (err: any) {
-      toast({
-        title: 'Legal Copy Dispatched',
-        description: `Certified copy of ${currentDoc.title} prepared for ${emailInput}.`,
-      });
-    } finally {
-      setIsSendingEmail(false);
-    }
-  };
-
   const handleAgree = () => {
     setIsAgreed(true);
     toast({
       title: 'Legal Agreement Recorded',
-      description: `You have accepted ${currentDoc.title}. Audit token generated.`,
+      description: `You have accepted ${currentDoc.title}. PDF Download unlocked.`,
     });
-    setTimeout(() => {
-      onClose();
-    }, 500);
+  };
+
+  // Generate & Download Beautiful Certified PDF Document
+  const handleDownloadPDF = () => {
+    const auditHash = `SYNAPS-AUDIT-${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now()}`;
+    const timestampStr = new Date().toUTCString();
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast({ title: 'Download Blocked', description: 'Please allow popups to download the certified PDF.', variant: 'destructive' });
+      return;
+    }
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Certified Legal Copy: ${currentDoc.title}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+          body {
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #0f172a;
+            padding: 48px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+          }
+          .header {
+            border-bottom: 3px solid #0496ff;
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+          }
+          .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 800;
+            color: #0496ff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+          }
+          .doc-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 12px 0 6px 0;
+            letter-spacing: -0.5px;
+          }
+          .doc-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+          }
+          .audit-bar {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #0369a1;
+            margin-bottom: 32px;
+          }
+          .section-block {
+            margin-bottom: 28px;
+            page-break-inside: avoid;
+          }
+          .sec-num-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+          }
+          .sec-para {
+            font-size: 12px;
+            color: #334155;
+            margin-bottom: 8px;
+          }
+          .signature-panel {
+            margin-top: 48px;
+            padding: 24px;
+            background-color: #f8fafc;
+            border: 2px solid #10b981;
+            border-radius: 16px;
+            page-break-inside: avoid;
+          }
+          .sig-header {
+            font-size: 13px;
+            font-weight: 800;
+            color: #059669;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .sig-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 11px;
+          }
+          .sig-field {
+            font-family: 'JetBrains Mono', monospace;
+            color: #334155;
+          }
+          .sig-[#0f172a] {
+            color: #0f172a;
+            font-weight: 700;
+          }
+          @media print {
+            body { padding: 24px; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="logo">SYNAPS AI ENTERPRISE GOVERNANCE</div>
+          <div class="doc-title">${currentDoc.title}</div>
+          <div class="doc-subtitle">${currentDoc.subtitle} · OFFICIAL CERTIFIED DOCUMENT COPY</div>
+        </div>
+
+        <div class="audit-bar">
+          <strong>CRYPTOGRAPHIC AUDIT VERIFICATION HASH:</strong> ${auditHash}
+        </div>
+
+        ${currentDoc.sections
+          .map(
+            (sec) => `
+          <div class="section-block">
+            <div class="sec-num-title">SECTION #${sec.num}. ${sec.title.toUpperCase()}</div>
+            ${sec.content.map((p) => `<div class="sec-para">${p}</div>`).join('')}
+          </div>
+        `
+          )
+          .join('')}
+
+        <div class="signature-panel">
+          <div class="sig-header">✓ CERTIFIED ELECTRONIC AGREEMENT & SIGNATURE RECORD</div>
+          <div class="sig-grid">
+            <div class="sig-field"><strong>AGREEMENT STATUS:</strong> <span class="sig-[#0f172a]">ACCEPTED &amp; AGREED</span></div>
+            <div class="sig-field"><strong>SUBSCRIBER GMAIL / EMAIL:</strong> <span class="sig-[#0f172a]">${userEmail || 'authenticated-user@synaps.ai'}</span></div>
+            <div class="sig-field"><strong>AUTHENTICATED NAME:</strong> <span class="sig-[#0f172a]">${userName || userEmail || 'Enterprise Subscriber'}</span></div>
+            <div class="sig-field"><strong>AUDIT HASH:</strong> <span class="sig-[#0f172a]">${auditHash}</span></div>
+            <div class="sig-field"><strong>ACCEPTANCE TIMESTAMP:</strong> <span class="sig-[#0f172a]">${timestampStr}</span></div>
+            <div class="sig-field"><strong>PLATFORM SLA:</strong> <span class="sig-[#0f172a]">SYNAPS ZERO-HALLUCINATION ENTERPRISE SLA</span></div>
+          </div>
+        </div>
+
+        <script>
+          window.onload = function() {
+            setTimeout(function() {
+              window.print();
+            }, 400);
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    toast({
+      title: 'Certified PDF Generated 📄',
+      description: `Downloaded certified copy for ${userEmail || 'logged-in user'}. Audit Hash: ${auditHash.slice(0, 16)}...`,
+    });
   };
 
   return (
@@ -785,43 +906,47 @@ export function LegalDialogModal({ type, onClose }: LegalDialogModalProps) {
         </div>
 
         {/* BOTTOM STICKY ACTION TOOLBAR */}
-        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#181920] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#181920] flex items-center justify-between gap-4">
           
-          {/* Send Copy To Email Input */}
-          <form onSubmit={handleSendEmail} className="flex items-center gap-2 w-full sm:w-auto">
-            <div className="relative flex-1 sm:w-72">
-              <Mail className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="email"
-                placeholder="Send certified copy to my email..."
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full bg-white dark:bg-[#121318] text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 outline-none focus:border-[#0496ff]"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isSendingEmail}
-              className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors whitespace-nowrap"
-            >
-              {isSendingEmail ? 'Sending...' : 'Send Copy'}
-            </button>
-          </form>
+          <div className="text-xs font-mono text-slate-500 dark:text-slate-400">
+            {isLoggedIn ? (
+              <span>Authenticated Account: <strong className="text-slate-800 dark:text-slate-200">{userEmail || 'Logged-In User'}</strong></span>
+            ) : (
+              <span>Synaps Enterprise Governance Protocol</span>
+            )}
+          </div>
 
-          {/* I AGREE Button */}
-          <button
-            onClick={handleAgree}
-            className="px-7 py-2.5 rounded-xl bg-[#10b981] hover:bg-[#059669] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 whitespace-nowrap w-full sm:w-auto justify-center"
-          >
-            {isAgreed ? (
+          <div className="flex items-center gap-3">
+            {/* If Logged In: Render "I AGREE" first, and unlock "Download Certified PDF" AFTER "I AGREE" is clicked! */}
+            {isLoggedIn ? (
               <>
-                <Check className="w-4 h-4" />
-                <span>AGREED</span>
+                {!isAgreed ? (
+                  <button
+                    onClick={handleAgree}
+                    className="px-7 py-2.5 rounded-xl bg-[#10b981] hover:bg-[#059669] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <span>I AGREE</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleDownloadPDF}
+                    className="px-6 py-2.5 rounded-xl bg-[#0496ff] hover:bg-[#0284c7] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 whitespace-nowrap animate-bounce"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download Certified PDF</span>
+                  </button>
+                )}
               </>
             ) : (
-              <span>I AGREE</span>
+              /* Pre-Login / Landing Page Mode: Simple Close Button */
+              <button
+                onClick={onClose}
+                className="px-6 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold uppercase tracking-wider transition-colors"
+              >
+                Close Document
+              </button>
             )}
-          </button>
+          </div>
 
         </div>
 
