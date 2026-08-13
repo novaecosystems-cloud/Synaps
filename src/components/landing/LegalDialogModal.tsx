@@ -573,9 +573,9 @@ export function LegalDialogModal({
     });
   };
 
-  // Generate & Download Beautiful Certified PDF Document
-  const handleDownloadPDF = () => {
-    const auditHash = `SYNAPS-AUDIT-${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now()}`;
+  // Generate & Download Certified PDF (Supports All-in-One Master Legal Packet)
+  const handleDownloadPDF = (downloadAll: boolean = true) => {
+    const auditHash = `SYNAPS-MASTER-AUDIT-${Math.random().toString(36).substring(2, 10).toUpperCase()}-${Date.now()}`;
     const timestampStr = new Date().toUTCString();
 
     const printWindow = window.open('', '_blank');
@@ -584,18 +584,58 @@ export function LegalDialogModal({
       return;
     }
 
+    const docsToInclude = downloadAll
+      ? (Object.keys(COMPREHENSIVE_LEGAL_DOCS) as LegalDocType[]).map((k) => COMPREHENSIVE_LEGAL_DOCS[k])
+      : [currentDoc];
+
+    const masterTitle = downloadAll
+      ? 'Synaps Enterprise Master Legal & Governance Compliance Packet'
+      : currentDoc.title;
+
+    const masterSubtitle = downloadAll
+      ? 'Comprehensive SLA Packet: Terms, Privacy, DPDP Act, Security, Payments, AI Disclaimer & Cookie Policy'
+      : currentDoc.subtitle;
+
+    const documentsHtml = docsToInclude
+      .map(
+        (doc, docIdx) => `
+        <div style="page-break-before: ${docIdx > 0 ? 'always' : 'auto'}; margin-bottom: 40px;">
+          <div style="border-left: 4px solid #0496ff; padding-left: 14px; margin-bottom: 24px;">
+            <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0;">
+              ${docIdx + 1}. ${doc.title}
+            </h2>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748b;">
+              ${doc.subtitle}
+            </div>
+          </div>
+
+          ${doc.sections
+            .map(
+              (sec) => `
+            <div class="section-block">
+              <div class="sec-num-title">SECTION #${sec.num}. ${sec.title.toUpperCase()}</div>
+              ${sec.content.map((p) => `<div class="sec-para">${p}</div>`).join('')}
+            </div>
+          `
+            )
+            .join('')}
+        </div>
+      `
+      )
+      .join('');
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Certified Legal Copy: ${currentDoc.title}</title>
+        <title>Certified Legal Copy: ${masterTitle}</title>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
           body {
             font-family: 'Inter', system-ui, sans-serif;
             color: #0f172a;
             padding: 48px;
-            max-width: 800px;
+            max-width: 840px;
             margin: 0 auto;
             line-height: 1.6;
           }
@@ -613,7 +653,7 @@ export function LegalDialogModal({
             text-transform: uppercase;
           }
           .doc-title {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
             color: #0f172a;
             margin: 12px 0 6px 0;
@@ -636,21 +676,21 @@ export function LegalDialogModal({
             margin-bottom: 32px;
           }
           .section-block {
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             page-break-inside: avoid;
           }
           .sec-num-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: #0f172a;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 4px;
           }
           .sec-para {
             font-size: 12px;
             color: #334155;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
           }
           .signature-panel {
             margin-top: 48px;
@@ -693,32 +733,23 @@ export function LegalDialogModal({
       <body>
         <div class="header">
           <div class="logo">SYNAPS AI ENTERPRISE GOVERNANCE</div>
-          <div class="doc-title">${currentDoc.title}</div>
-          <div class="doc-subtitle">${currentDoc.subtitle} · OFFICIAL CERTIFIED DOCUMENT COPY</div>
+          <div class="doc-title">${masterTitle}</div>
+          <div class="doc-subtitle">${masterSubtitle} · OFFICIAL CERTIFIED DOCUMENT PACKET</div>
         </div>
 
         <div class="audit-bar">
-          <strong>CRYPTOGRAPHIC AUDIT VERIFICATION HASH:</strong> ${auditHash}
+          <strong>MASTER CRYPTOGRAPHIC AUDIT VERIFICATION HASH:</strong> ${auditHash}
         </div>
 
-        ${currentDoc.sections
-          .map(
-            (sec) => `
-          <div class="section-block">
-            <div class="sec-num-title">SECTION #${sec.num}. ${sec.title.toUpperCase()}</div>
-            ${sec.content.map((p) => `<div class="sec-para">${p}</div>`).join('')}
-          </div>
-        `
-          )
-          .join('')}
+        ${documentsHtml}
 
         <div class="signature-panel">
-          <div class="sig-header">✓ CERTIFIED ELECTRONIC AGREEMENT & SIGNATURE RECORD</div>
+          <div class="sig-header">✓ CERTIFIED MASTER ELECTRONIC AGREEMENT & SIGNATURE RECORD</div>
           <div class="sig-grid">
-            <div class="sig-field"><strong>AGREEMENT STATUS:</strong> <span class="sig-[#0f172a]">ACCEPTED &amp; AGREED</span></div>
+            <div class="sig-field"><strong>AGREEMENT STATUS:</strong> <span class="sig-[#0f172a]">ACCEPTED &amp; AGREED TO ALL 7 LEGAL DOCUMENTS</span></div>
             <div class="sig-field"><strong>SUBSCRIBER GMAIL / EMAIL:</strong> <span class="sig-[#0f172a]">${userEmail || 'authenticated-user@synaps.ai'}</span></div>
             <div class="sig-field"><strong>AUTHENTICATED NAME:</strong> <span class="sig-[#0f172a]">${userName || userEmail || 'Enterprise Subscriber'}</span></div>
-            <div class="sig-field"><strong>AUDIT HASH:</strong> <span class="sig-[#0f172a]">${auditHash}</span></div>
+            <div class="sig-field"><strong>MASTER AUDIT HASH:</strong> <span class="sig-[#0f172a]">${auditHash}</span></div>
             <div class="sig-field"><strong>ACCEPTANCE TIMESTAMP:</strong> <span class="sig-[#0f172a]">${timestampStr}</span></div>
             <div class="sig-field"><strong>PLATFORM SLA:</strong> <span class="sig-[#0f172a]">SYNAPS ENTERPRISE GROUNDED INTELLIGENCE SLA</span></div>
           </div>
@@ -739,8 +770,8 @@ export function LegalDialogModal({
     printWindow.document.close();
 
     toast({
-      title: 'Certified PDF Generated 📄',
-      description: `Downloaded certified copy for ${userEmail || 'logged-in user'}. Audit Hash: ${auditHash.slice(0, 16)}...`,
+      title: 'Master Certified Legal Packet PDF Generated 📄',
+      description: `Downloaded complete 7-document legal packet for ${userEmail || 'logged-in user'}. Audit Hash: ${auditHash.slice(0, 18)}...`,
     });
   };
 
@@ -928,13 +959,21 @@ export function LegalDialogModal({
                     <span>I AGREE</span>
                   </button>
                 ) : (
-                  <button
-                    onClick={handleDownloadPDF}
-                    className="px-6 py-2.5 rounded-xl bg-[#0496ff] hover:bg-[#0284c7] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 whitespace-nowrap animate-bounce"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Download Certified PDF</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleDownloadPDF(false)}
+                      className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold uppercase tracking-wider transition-colors whitespace-nowrap"
+                    >
+                      <span>Active Doc Only</span>
+                    </button>
+                    <button
+                      onClick={() => handleDownloadPDF(true)}
+                      className="px-6 py-2.5 rounded-xl bg-[#0496ff] hover:bg-[#0284c7] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 whitespace-nowrap animate-bounce"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Download Complete Legal Packet (PDF)</span>
+                    </button>
+                  </div>
                 )}
               </>
             ) : (
