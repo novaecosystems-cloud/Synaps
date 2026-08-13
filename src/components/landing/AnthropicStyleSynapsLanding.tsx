@@ -979,6 +979,29 @@ export default function SynapsLanding() {
           transform: scale(0.97);
         }
 
+        /* ── 9:16 PORTRAIT MOBILE ASPECT RATIO ENGINE ── */
+        @media (max-aspect-ratio: 1/1), (max-width: 768px) {
+          .title-main-poly {
+            font-size: clamp(32px, 8vw, 48px) !important;
+            line-height: 1.08em !important;
+          }
+          .title-sub-poly {
+            font-size: clamp(28px, 7vw, 42px) !important;
+          }
+          .poly-scatter-card {
+            width: 100% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+          }
+          .hero-canvas-wrapper {
+            height: 60vh !important;
+            min-height: 380px !important;
+          }
+          .measured-3d-item {
+            transform: none !important;
+          }
+        }
+
         .poly-btn-black {
           background: linear-gradient(100.81deg, #292930 7.89%, #19191d 91.16%);
           box-shadow: 2px 2px 5px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(0,0,0,0.15), inset 2px 2px 4px rgba(255,255,255,0.25);
