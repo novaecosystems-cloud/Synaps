@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
+import { DribbbleDashboardView } from '@/components/DribbbleDashboardView';
 
 interface Citation {
   documentId?: string;
@@ -243,6 +244,9 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
   return (
     <div className="w-full space-y-8 font-sans pb-16">
       
+      {/* 🚀 DRIBBBLE/MOBBIN HIGH-END CARD GRID & SEARCH UI */}
+      <DribbbleDashboardView />
+
       {/* 1. HERO AI COO BRIEFING BANNER */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/20 text-white p-8 shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
