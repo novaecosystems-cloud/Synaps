@@ -203,7 +203,7 @@ export class DPDPUserRightsEngine {
       }),
       prisma.document.findMany({
         where: { ownerId: userId },
-        select: { id: true, name: true, fileSize: true, createdAt: true },
+        select: { id: true, name: true, createdAt: true },
       }),
     ]);
 
