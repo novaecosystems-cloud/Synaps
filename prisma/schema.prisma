@@ -1199,3 +1199,91 @@ model EnterprisePrediction {
   @@index([organizationId])
   @@index([targetMetric])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA AS A MOAT (DAAM) MODELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Pillar 1: Anonymized Cross-Org Clause Benchmarking
+// Stores PII-stripped clause text, risk scores, and industry benchmarks
+// These are cross-org and anonymized – no org FK to preserve privacy across tenants
+model AnonymizedClause {
+  id               String   @id @default(uuid())
+  hash             String   @unique // SHA-256 of cleaned text
+  clauseType       String   // INDEMNITY | LIABILITY_CAP | TERMINATION | GOVERNING_LAW | DATA_PRIVACY
+  textSnippet      String   @db.Text // PII-stripped text (max 500 chars)
+  riskScore        Float    // 0-100 numeric risk score (Prime RLM verified)
+  industryCategory String   @default("GENERAL_ENTERPRISE")
+  benchmarkP50     Float?   // Median risk score across same clause type
+  benchmarkP90     Float?   // 90th percentile risk score – "red flag" threshold
+  occurrenceCount  Int      @default(1) // How many orgs have this clause pattern
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([clauseType])
+  @@index([industryCategory])
+  @@index([riskScore])
+}
+
+// Pillar 2: Executive Decision Memory Loop
+// Stores accept/reject/modify feedback per org and agent role for Prime RLM fine-tuning
+model DecisionMemoryEntry {
+  id                  String   @id @default(uuid())
+  organizationId      String
+  agentRole           String   // CEO | CFO | CTO | LEGAL | COMPLIANCE | RISK
+  recommendationHash  String   // SHA-256 of the recommendation text
+  recommendationText  String   @db.Text
+  userAction          String   // ACCEPTED | REJECTED | MODIFIED
+  userOverrideReason  String?  @db.Text // Optional reason when MODIFIED or REJECTED
+  rlmIterationId      String?  // Links to Prime RLM agent memory iteration
+  contextDocumentIds  String[] // IDs of documents that were referenced
+  confidenceScore     Float    @default(0.994) // Prime RLM score at time of decision
+  createdAt           DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([agentRole])
+  @@index([userAction])
+  @@index([organizationId, agentRole])
+}
+
+// Pillar 3: Immutable Cryptographic Audit Ledger
+// Each entry chains to the previous via previousHash (blockchain-style)
+model AuditLedgerEntry {
+  id            String   @id @default(uuid())
+  organizationId String
+  eventType     String   // DOCUMENT_INGESTED | DECISION_MADE | CLAUSE_FLAGGED | USER_ACTION | EXPORT
+  actorId       String?  // User ID who triggered the event (nullable for system events)
+  payload       Json     // Structured event data (sanitized, no secrets)
+  previousHash  String   // SHA-256 of previous ledger entry (or 'GENESIS_HASH' for first)
+  currentHash   String   @unique // SHA-256 of (orgId + eventType + payload + timestamp + previousHash)
+  timestamp     DateTime @default(now())
+  isVerified    Boolean  @default(true)
+  primeRlmScore Float    @default(0.994) // Prime RLM process verification score
+
+  @@index([organizationId])
+  @@index([eventType])
+  @@index([organizationId, timestamp])
+}
+
+// Pillar 4: Proprietary Domain Risk Profile
+// Per-org risk knowledge that grows over time – the core "moat" accumulation
+model DomainRiskProfile {
+  id                  String   @id @default(uuid())
+  organizationId      String   @unique // One profile per org, grows continuously
+  industryVertical    String   @default("GENERAL_ENTERPRISE")
+  totalClausesIndexed Int      @default(0)
+  totalDecisionsLogged Int     @default(0)
+  avgRiskTolerance    Float    @default(50.0) // 0-100 risk tolerance score
+  preferredGoverningLaw String? // e.g. "Indian Companies Act 2013", "GDPR"
+  complianceFlags     String[] // Active compliance requirements e.g. ["DPDP", "FSSAI", "SOC2"]
+  topRiskCategories   Json     @default("[]") // [{ category, count, avgScore }]
+  rlmAgentPreferences Json     @default("{}") // Per-agent accepted/rejected ratio
+  moatScore           Float    @default(0.0) // 0-100 composite score of data depth/richness
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([industryVertical])
+  @@index([moatScore])
+}
+
