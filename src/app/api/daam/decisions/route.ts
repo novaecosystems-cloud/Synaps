@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DataMoatEngine, DecisionMemoryLoop } from '@/lib/data-moat-engine';
+import { requireAuth, assertOrgAccess } from '@/lib/api-security';
 
 // GET /api/daam/decisions?orgId=xxx&agentRole=CFO
-// Returns decision memory summary for an org (optionally filtered by agent role)
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
   const { searchParams } = new URL(req.url);
-  const orgId = searchParams.get('orgId');
+  const orgId = searchParams.get('orgId') ?? auth.organizationId;
+  // IDOR Guard: only allow access to caller's own org
+  const idorCheck = assertOrgAccess(auth.organizationId, orgId ?? undefined);
+  if (idorCheck) return idorCheck;
   const agentRole = searchParams.get('agentRole') ?? undefined;
 
   if (!orgId) {
@@ -28,8 +33,9 @@ export async function GET(req: NextRequest) {
 }
 
 // POST /api/daam/decisions
-// Record an agent recommendation accept/reject/modify action
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
   try {
     const body = await req.json();
     const { orgId, agentRole, recommendationText, userAction, userOverrideReason, contextDocumentIds } = body;

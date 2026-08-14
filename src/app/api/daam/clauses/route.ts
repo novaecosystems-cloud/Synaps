@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DataMoatEngine, ClauseBenchmarker } from '@/lib/data-moat-engine';
+import { requireAuth } from '@/lib/api-security';
 
-// GET /api/daam/clauses?clauseType=INDEMNITY&orgId=xxx
-// Returns benchmark stats for a clause type
+// GET /api/daam/clauses?clauseType=INDEMNITY
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
   const { searchParams } = new URL(req.url);
   const clauseType = searchParams.get('clauseType') as any ?? 'INDEMNITY';
   const orgId = searchParams.get('orgId');
@@ -28,9 +30,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/daam/clauses
-// Ingest a new clause for PII stripping, benchmarking, and moat profile update
+// POST /api/daam/clauses — ingest a new clause
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
   try {
     const body = await req.json();
     const { orgId, clauseType, rawText, riskScore, industryCategory } = body;

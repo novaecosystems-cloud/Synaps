@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AuditLedger } from '@/lib/data-moat-engine';
+import { requireAuth, assertOrgAccess } from '@/lib/api-security';
 
 // GET /api/daam/audit-ledger?orgId=xxx&limit=20
-// Returns recent immutable ledger entries and chain verification status
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
   const { searchParams } = new URL(req.url);
-  const orgId = searchParams.get('orgId');
+  const orgId = searchParams.get('orgId') ?? auth.organizationId;
+  const idorCheck = assertOrgAccess(auth.organizationId, orgId ?? undefined);
+  if (idorCheck) return idorCheck;
   const limit = Math.min(100, parseInt(searchParams.get('limit') ?? '20'));
   const verify = searchParams.get('verify') === 'true';
 
@@ -37,9 +41,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/daam/audit-ledger
-// Append a new immutable event to the ledger
+// POST /api/daam/audit-ledger — append a new immutable event
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
   try {
     const body = await req.json();
     const { orgId, eventType, payload, actorId } = body;

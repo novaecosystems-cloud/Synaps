@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DPDPUserRightsEngine } from '@/lib/dpdp-compliance';
+import { requireAuth } from '@/lib/api-security';
 
-// GET /api/dpdp/rights?userId=xxx
-// Right to Information: Returns data summary held about the user
+// GET /api/dpdp/rights — Right to Information
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get('userId');
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
+  // Use authenticated user's actual ID — never trust client-supplied userId
+  const userId = auth.userId;
 
   if (!userId) {
     return NextResponse.json({ error: 'Missing required param: userId' }, { status: 400 });
@@ -26,15 +28,14 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/dpdp/rights
-// Handles Right to Erasure and Right to Nominate
+// POST /api/dpdp/rights — Erasure & Nomination
 export async function POST(req: NextRequest) {
+  const auth = await requireAuth(req);
+  if (auth instanceof NextResponse) return auth;
   try {
     const body = await req.json();
-    const { action, userId } = body;
-
-    if (!userId || !action) {
-      return NextResponse.json({ error: 'Missing required fields: userId, action' }, { status: 400 });
+    const { action } = body;
+    const userId = auth.userId; // Always use session-verified userId
     }
 
     // 1. Right to Erasure (Data Deletion)

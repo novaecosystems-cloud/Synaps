@@ -1,8 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import nodemailer from 'nodemailer';
+import { requireOwner } from '@/lib/api-security';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  // 🔒 SECURITY: Owner-only route — requires valid session + OWNER role
+  const auth = await requireOwner(req);
+  if (auth instanceof NextResponse) return auth;
   try {
     const { subject, message } = await req.json();
 
