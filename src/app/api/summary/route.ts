@@ -4,8 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
+import { requireAuth } from '@/lib/api-security';
 
 export async function GET(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const searchParams = req.nextUrl.searchParams;
     const documentId = searchParams.get('documentId');

@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DPDP_GRIEVANCE_OFFICER, logDataInput } from '@/lib/dpdp-compliance';
 import { createHash } from 'crypto';
+import { requireAuth } from '@/lib/api-security';
 
 // GET /api/dpdp/grievance
 // Returns the public Grievance Officer details and statutory SLA
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   return NextResponse.json({
     success: true,
     data: {
@@ -18,6 +21,8 @@ export async function GET() {
 // POST /api/dpdp/grievance
 // File a formal DPDP data protection grievance
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await req.json();
     const { complainantName, complainantEmail, natureOfComplaint, userId } = body;

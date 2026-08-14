@@ -4,8 +4,11 @@ import { generateEmbedding } from '@/lib/embeddings';
 import { logDataInput } from '@/lib/dpdp-compliance';
 
 import prisma from '@/lib/prisma';
+import { requireAuth } from '@/lib/api-security';
 
 export async function GET(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   const { searchParams } = new URL(req.url);
   const q = searchParams.get('q');
   const userId = searchParams.get('userId');

@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { logDataInput } from '@/lib/dpdp-compliance';
+import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const _auth = await requireAuthForLLM(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const { documentId, content, title } = await req.json();
 

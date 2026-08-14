@@ -4,8 +4,11 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
+import { requireAuth } from '@/lib/api-security';
 
 export async function GET(request: Request) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
 
@@ -32,6 +35,8 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await request.json();
     const { userId, inAppEnabled, emailEnabled, disabledTypes } = body;

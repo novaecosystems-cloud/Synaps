@@ -4,8 +4,11 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
+import { requireAuth } from '@/lib/api-security';
 
 export async function POST(request: Request) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await request.json();
     const { requestId, userId, content, organizationId, proposalId } = body;

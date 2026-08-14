@@ -5,8 +5,11 @@ import { PrismaClient } from '@prisma/client';
 import { regenerateSection } from '@/lib/proposal-engine';
 
 import prisma from '@/lib/prisma';
+import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
 
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuthForLLM(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const { sectionId, instructions } = await req.json();
     if (!sectionId || !instructions) {

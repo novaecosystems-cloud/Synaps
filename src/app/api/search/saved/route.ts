@@ -4,8 +4,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
+import { requireAuth } from '@/lib/api-security';
 
 export async function GET(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get('userId');
   const organizationId = searchParams.get('organizationId');
@@ -28,6 +31,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await req.json();
     const { userId, organizationId, name, query, filters } = body;
@@ -54,6 +59,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
 

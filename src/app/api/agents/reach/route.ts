@@ -2,8 +2,11 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { agentWebSearch, agentReadWebPage, agentDiscoverContacts } from '@/lib/agent-reach';
+import { requireAuth } from '@/lib/api-security';
 
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const { action, query, url, domain, maxResults } = await req.json();
 

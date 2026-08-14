@@ -6,10 +6,13 @@ import { PrismaClient } from '@prisma/client';
 import { generateEmbedding, evaluateCoverageBatch } from '@/lib/embeddings';
 
 import prisma from '@/lib/prisma';
+import { requireAuth } from '@/lib/api-security';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const { documentId } = await req.json();
 

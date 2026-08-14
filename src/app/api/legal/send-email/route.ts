@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import { requireAuth } from '@/lib/api-security';
 
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const { email, docType, docTitle, lang, sections } = await req.json();
 

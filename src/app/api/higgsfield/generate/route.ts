@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { HiggsfieldMCPEngine } from '@/lib/services/higgsfield-mcp';
+import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
 
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuthForLLM(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await req.json();
     const { prompt, model, aspectRatio, durationSeconds, cameraMotion } = body;

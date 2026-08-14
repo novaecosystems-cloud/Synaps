@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DataMoatEngine, DomainRiskProfile } from '@/lib/data-moat-engine';
+import { requireAuth } from '@/lib/api-security';
 
 // GET /api/daam/profile?orgId=xxx
 // Returns the full Domain Risk Profile (Moat Score, Agent Preferences, etc.)
 export async function GET(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   const { searchParams } = new URL(req.url);
   const orgId = searchParams.get('orgId');
   const status = searchParams.get('status') === 'true';
@@ -37,6 +40,8 @@ export async function GET(req: NextRequest) {
 // POST /api/daam/profile
 // Initialize or update compliance flags and industry vertical for an org
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await req.json();
     const { orgId, industryVertical, complianceFlags, preferredGoverningLaw } = body;

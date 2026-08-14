@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ClauseBenchmarker, DecisionMemoryLoop } from '@/lib/data-moat-engine';
+import { requireAuth } from '@/lib/api-security';
 
 // GET /api/analytics/benchmarks?clauseType=INDEMNITY
 // Returns cross-org benchmark analytics for a given clause type
 export async function GET(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   const { searchParams } = new URL(req.url);
   const clauseType = searchParams.get('clauseType') as any ?? 'INDEMNITY';
 
@@ -32,6 +35,8 @@ export async function GET(req: NextRequest) {
 // POST /api/analytics/benchmarks
 // Record DECISION_FEEDBACK or ANONYMOUS_CLAUSE events
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await req.json();
 

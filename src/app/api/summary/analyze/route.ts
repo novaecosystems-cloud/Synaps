@@ -6,8 +6,11 @@ import { PrismaClient } from '@prisma/client';
 import { generateExecutiveSummary } from '@/lib/embeddings';
 
 import prisma from '@/lib/prisma';
+import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
 
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuthForLLM(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const { documentId } = await req.json();
 

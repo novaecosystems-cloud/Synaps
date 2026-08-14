@@ -2,8 +2,11 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auditOpenSEO, getSoftwareApplicationJsonLd, getOpenSEOMetadata } from '@/lib/openseo';
+import { requireAuth } from '@/lib/api-security';
 
 export async function GET(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const { searchParams } = new URL(req.url);
     const urlParam = searchParams.get('url') || process.env.NEXT_PUBLIC_APP_URL || 'https://synaps.ai';
@@ -31,6 +34,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await req.json();
     const { title, description, keywords } = body;

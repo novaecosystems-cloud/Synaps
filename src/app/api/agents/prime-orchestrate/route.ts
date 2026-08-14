@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
 
 export async function POST(req: NextRequest) {
+  const _auth = await requireAuthForLLM(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const { task, model = 'gemini-1.5-pro', maxDepth = 3, autoExecute = true } = await req.json();
 

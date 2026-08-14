@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
 
 // Organizational policy & decision memory profile state
 let founderCloneProfile = {
@@ -16,14 +17,18 @@ let founderCloneProfile = {
   customDirectives: 'Provide recommendations strictly consistent with documented policies, historical decisions, and risk management guidelines.'
 };
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const _auth = await requireAuthForLLM(req);
+  if (_auth instanceof NextResponse) return _auth;
   return NextResponse.json({
     success: true,
     profile: founderCloneProfile
   });
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const _auth = await requireAuthForLLM(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await req.json();
 

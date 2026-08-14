@@ -1,9 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import nodemailer from 'nodemailer';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { requireAuth } from '@/lib/api-security';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const _auth = await requireAuth(req);
+  if (_auth instanceof NextResponse) return _auth;
   try {
     const { role = 'CEO', digestType = 'DAILY', webhookUrl, emailOverride } = await req.json();
 
