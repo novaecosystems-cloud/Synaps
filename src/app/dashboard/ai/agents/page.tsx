@@ -203,8 +203,8 @@ export default function AgentManagementPage() {
               )}
             >
               <div className="flex justify-between items-start">
-                <ExternalLink className="w-5 h-5 text-purple-500" />
-                {reachAction === 'read' && <CheckCircle2 className="w-4 h-4 text-purple-500" />}
+                <ExternalLink className="w-5 h-5 text-cyan-500" />
+                {reachAction === 'read' && <CheckCircle2 className="w-4 h-4 text-cyan-500" />}
               </div>
               <h3 className="font-bold text-sm text-base-content">2. Webpage Scraper & Reader</h3>
               <p className="text-xs text-base-content/60">Fetch and convert any target URL webpage into clean structured markdown.</p>
@@ -262,7 +262,7 @@ export default function AgentManagementPage() {
                   placeholder="e.g. https://github.com/Panniantong/agent-reach..."
                   className="flex-1 bg-base-200 border border-base-300 rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
-                <Button onClick={handleExecuteReach} disabled={loading || !targetUrl.trim()} className="rounded-2xl gap-2 py-3 px-6 bg-purple-600 hover:bg-purple-700 text-white font-bold">
+                <Button onClick={handleExecuteReach} disabled={loading || !targetUrl.trim()} className="rounded-2xl gap-2 py-3 px-6 bg-cyan-600 hover:bg-cyan-700 text-white font-bold">
                   {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
                   {loading ? 'Scraping URL...' : 'Scrape Webpage'}
                 </Button>
@@ -338,7 +338,7 @@ export default function AgentManagementPage() {
                     </div>
 
                     <div className="p-4 bg-base-200/70 border border-base-300 rounded-2xl space-y-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-purple-500 flex items-center gap-1.5">
+                      <span className="text-xs font-bold uppercase tracking-wider text-cyan-500 flex items-center gap-1.5">
                         <Phone className="w-4 h-4" /> Discovered Phone & Socials:
                       </span>
                       <ul className="space-y-1 text-xs font-mono text-base-content/90">
@@ -349,7 +349,7 @@ export default function AgentManagementPage() {
                         ))}
                         {resultData.data?.socialLinks?.map((soc: any, idx: number) => (
                           <li key={idx} className="flex items-center gap-1.5">
-                            <CheckCircle2 className="w-3 h-3 text-purple-500" /> {soc.platform}: <a href={soc.url} target="_blank" rel="noreferrer" className="text-primary hover:underline">{soc.url}</a>
+                            <CheckCircle2 className="w-3 h-3 text-cyan-500" /> {soc.platform}: <a href={soc.url} target="_blank" rel="noreferrer" className="text-primary hover:underline">{soc.url}</a>
                           </li>
                         ))}
                       </ul>

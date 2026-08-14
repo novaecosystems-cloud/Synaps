@@ -54,7 +54,7 @@ export function ProjectDashboardClient({ project }: { project: any }) {
       case 'DRAFT': return 'bg-gray-500/10 text-gray-500 border-gray-500/30';
       case 'ACTIVE': return 'bg-green-500/10 text-green-500 border-green-500/30 glow-green';
       case 'COMPLETED': return 'bg-blue-500/10 text-blue-500 border-blue-500/30 glow-blue';
-      case 'ARCHIVED': return 'bg-purple-500/10 text-purple-500 border-purple-500/30 glow-purple';
+      case 'ARCHIVED': return 'bg-cyan-500/10 text-cyan-500 border-cyan-500/30 glow-cyan';
     }
   };
 
@@ -95,7 +95,7 @@ export function ProjectDashboardClient({ project }: { project: any }) {
         
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setIsEditModalOpen(true)} className="border-white/10 hover:bg-white/5">Edit Project</Button>
-          <Button onClick={() => setIsTaskModalOpen(true)} className="bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 glow-purple">Create Task</Button>
+          <Button onClick={() => setIsTaskModalOpen(true)} className="bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50 glow-cyan">Create Task</Button>
         </div>
       </div>
 

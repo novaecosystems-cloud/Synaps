@@ -63,7 +63,7 @@ export default function SimulationsPage() {
       case 'Cashflow': return <TrendingUp className="w-4 h-4 text-emerald-400" />;
       case 'Employees': return <Users className="w-4 h-4 text-blue-400" />;
       case 'Customers': return <Users className="w-4 h-4 text-indigo-400" />;
-      case 'Operations': return <Activity className="w-4 h-4 text-purple-400" />;
+      case 'Operations': return <Activity className="w-4 h-4 text-cyan-400" />;
       case 'Support': return <HelpCircle className="w-4 h-4 text-amber-400" />;
       case 'Inventory': return <Layers className="w-4 h-4 text-cyan-400" />;
       case 'Marketing': return <Rocket className="w-4 h-4 text-pink-400" />;
@@ -299,10 +299,10 @@ export default function SimulationsPage() {
             {/* Uncertainty Bounds */}
             <div className="p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-3">
               <h4 className="font-bold text-sm text-base-content uppercase tracking-wider flex items-center gap-2">
-                <Gauge className="w-4 h-4 text-purple-500" /> Uncertainty Ranges & Risk Bounds
+                <Gauge className="w-4 h-4 text-cyan-500" /> Uncertainty Ranges & Risk Bounds
               </h4>
               
-              <div className="p-4 bg-purple-500/5 border border-purple-500/20 rounded-2xl space-y-3 text-xs">
+              <div className="p-4 bg-cyan-500/5 border border-cyan-500/20 rounded-2xl space-y-3 text-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-base-content/60 font-semibold">Min Downside Estimate:</span>
                   <span className="font-bold text-red-500">{simulationResult.uncertaintyRange?.minEstimate}</span>
@@ -311,7 +311,7 @@ export default function SimulationsPage() {
                   <span className="text-base-content/60 font-semibold">Max Upside Estimate:</span>
                   <span className="font-bold text-emerald-500">{simulationResult.uncertaintyRange?.maxEstimate}</span>
                 </div>
-                <div className="pt-2 border-t border-purple-500/10 text-purple-400 font-medium">
+                <div className="pt-2 border-t border-cyan-500/10 text-cyan-400 font-medium">
                   {simulationResult.uncertaintyRange?.confidenceBounds}
                 </div>
               </div>

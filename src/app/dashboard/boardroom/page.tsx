@@ -69,7 +69,7 @@ export default function BoardroomPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-base-100 p-6 rounded-3xl border border-base-300 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-500 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 flex items-center justify-center">
             <Building2 className="w-6 h-6" />
           </div>
           <div>
@@ -119,7 +119,7 @@ export default function BoardroomPage() {
           </Button>
 
           <Link href="/dashboard/graph" className="btn btn-outline btn-sm rounded-2xl gap-2">
-            <Layers className="w-4 h-4 text-purple-500" /> Memory Graph
+            <Layers className="w-4 h-4 text-cyan-500" /> Memory Graph
           </Link>
         </div>
       </div>
@@ -138,9 +138,9 @@ export default function BoardroomPage() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleRunBoardMeeting()}
             placeholder="e.g. Should we pivot our pricing model to usage-based billing starting next quarter?"
-            className="flex-1 bg-base-200 border border-base-300 rounded-2xl px-4 py-3 text-sm text-base-content outline-none focus:ring-2 focus:ring-purple-500/20"
+            className="flex-1 bg-base-200 border border-base-300 rounded-2xl px-4 py-3 text-sm text-base-content outline-none focus:ring-2 focus:ring-cyan-500/20"
           />
-          <Button onClick={() => handleRunBoardMeeting()} disabled={analyzing || !query.trim()} className="rounded-2xl gap-2 py-3 px-6 bg-purple-600 hover:bg-purple-700 text-white">
+          <Button onClick={() => handleRunBoardMeeting()} disabled={analyzing || !query.trim()} className="rounded-2xl gap-2 py-3 px-6 bg-cyan-600 hover:bg-purple-700 text-white">
             {analyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             {analyzing ? 'Boardroom Debating...' : 'Convene Board Meeting'}
           </Button>
@@ -153,7 +153,7 @@ export default function BoardroomPage() {
             <button
               key={idx}
               onClick={() => { setQuery(q); handleRunBoardMeeting(q); }}
-              className="text-xs px-3 py-1 rounded-full bg-base-200 hover:bg-purple-500/10 border border-base-300 hover:border-purple-500/30 text-base-content/70 hover:text-purple-400 transition-all text-left"
+              className="text-xs px-3 py-1 rounded-full bg-base-200 hover:bg-cyan-500/10 border border-base-300 hover:border-cyan-500/30 text-base-content/70 hover:text-cyan-400 transition-all text-left"
             >
               &ldquo;{q.slice(0, 38)}...&rdquo;
             </button>
@@ -165,8 +165,8 @@ export default function BoardroomPage() {
       {analyzing ? (
         <div className="w-full py-20 bg-base-100 border border-base-300 rounded-3xl flex flex-col items-center justify-center space-y-4">
           <div className="relative w-20 h-20 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border-4 border-purple-500/20 animate-ping"></div>
-            <Building2 className="w-10 h-10 text-purple-500 animate-pulse" />
+            <div className="absolute inset-0 rounded-full border-4 border-cyan-500/20 animate-ping"></div>
+            <Building2 className="w-10 h-10 text-cyan-500 animate-pulse" />
           </div>
           <div className="text-center space-y-3">
             <SkiperLoopLoader preset="boardroom" delay={1500} className="scale-110" />
@@ -179,10 +179,10 @@ export default function BoardroomPage() {
         <div className="space-y-8">
           
           {/* BOARD DEBATE SYNTHESIS HERO BANNER */}
-          <div className="p-8 bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 border border-purple-500/30 text-white rounded-3xl shadow-2xl space-y-6">
+          <div className="p-8 bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 border border-cyan-500/30 text-white rounded-3xl shadow-2xl space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/10 pb-4">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 bg-purple-500/20 border border-purple-500/30 px-3 py-1 rounded-full">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 bg-cyan-500/20 border border-cyan-500/30 px-3 py-1 rounded-full">
                   Board Consensus & Executive Debate Synthesis
                 </span>
                 <h2 className="text-xl sm:text-2xl font-bold text-white mt-2 leading-snug">
@@ -198,7 +198,7 @@ export default function BoardroomPage() {
             {/* Final Board Recommendation */}
             <div className="p-5 bg-white/5 border border-white/10 rounded-2xl space-y-2">
               <h4 className="font-bold text-xs uppercase tracking-wider text-purple-300 flex items-center gap-2">
-                <Award className="w-4 h-4 text-purple-400" /> Final Board Recommendation
+                <Award className="w-4 h-4 text-cyan-400" /> Final Board Recommendation
               </h4>
               <p className="text-sm text-slate-200 leading-relaxed font-medium">
                 {meetingResult.synthesis.finalRecommendation}
@@ -238,7 +238,7 @@ export default function BoardroomPage() {
           {/* INDEPENDENT EXECUTIVE AGENTS GRID */}
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-base-content flex items-center gap-2">
-              <Users className="w-5 h-5 text-purple-500" /> Independent AI Executive Perspectives (10 Agents)
+              <Users className="w-5 h-5 text-cyan-500" /> Independent AI Executive Perspectives (10 Agents)
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -246,7 +246,7 @@ export default function BoardroomPage() {
                 <div
                   key={exec.roleId}
                   onClick={() => setSelectedExecutive(exec)}
-                  className="bg-base-100 border border-base-300 hover:border-purple-500/40 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+                  className="bg-base-100 border border-base-300 hover:border-cyan-500/40 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
                 >
                   <div className="space-y-3">
                     <div className="flex justify-between items-start">
@@ -258,7 +258,7 @@ export default function BoardroomPage() {
                           {exec.roleId}
                         </div>
                         <div>
-                          <h4 className="font-bold text-sm text-base-content group-hover:text-purple-500 transition-colors leading-tight">{exec.name}</h4>
+                          <h4 className="font-bold text-sm text-base-content group-hover:text-cyan-500 transition-colors leading-tight">{exec.name}</h4>
                           <span className="text-[11px] text-base-content/50 font-medium block">{exec.roleTitle}</span>
                         </div>
                       </div>
@@ -271,13 +271,13 @@ export default function BoardroomPage() {
 
                     {exec.keyConcerns?.length > 0 && (
                       <div className="p-2.5 bg-base-200 border border-base-300 rounded-xl text-[11px] text-base-content/60 space-y-1">
-                        <span className="font-bold uppercase tracking-wider text-purple-500 block text-[10px]">Top Concern</span>
+                        <span className="font-bold uppercase tracking-wider text-cyan-500 block text-[10px]">Top Concern</span>
                         <p className="line-clamp-1 italic">⚠️ {exec.keyConcerns[0]}</p>
                       </div>
                     )}
                   </div>
 
-                  <div className="pt-3 border-t border-base-200 mt-4 flex items-center justify-between text-xs text-purple-500 font-bold">
+                  <div className="pt-3 border-t border-base-200 mt-4 flex items-center justify-between text-xs text-cyan-500 font-bold">
                     <span>Inspect Reasoning ({exec.confidenceScore}% Conf)</span>
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -325,7 +325,7 @@ export default function BoardroomPage() {
 
             {/* Reasoning Process */}
             <div className="p-4 bg-base-200 border border-base-300 rounded-2xl text-xs space-y-2">
-              <h4 className="font-bold text-purple-500 uppercase tracking-wider">Independent Domain Reasoning Process</h4>
+              <h4 className="font-bold text-cyan-500 uppercase tracking-wider">Independent Domain Reasoning Process</h4>
               <p className="text-base-content/90 leading-relaxed font-mono">{selectedExecutive.reasoning}</p>
             </div>
 
@@ -349,11 +349,11 @@ export default function BoardroomPage() {
             {selectedExecutive.dataEvidence?.length > 0 && (
               <div>
                 <h4 className="font-bold text-xs uppercase tracking-wider text-base-content/60 mb-2 flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-purple-500" /> Grounded Corporate Data Evidence
+                  <FileText className="w-4 h-4 text-cyan-500" /> Grounded Corporate Data Evidence
                 </h4>
                 <div className="space-y-1.5">
                   {selectedExecutive.dataEvidence.map((ev: string, idx: number) => (
-                    <div key={idx} className="p-2.5 bg-purple-500/10 border border-purple-500/20 rounded-xl text-xs text-purple-300">
+                    <div key={idx} className="p-2.5 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-xs text-purple-300">
                       📄 {ev}
                     </div>
                   ))}
@@ -362,7 +362,7 @@ export default function BoardroomPage() {
             )}
 
             <div className="pt-2 border-t border-base-300 flex justify-between items-center">
-              <Link href="/dashboard/graph" className="text-xs text-purple-500 font-bold hover:underline flex items-center gap-1">
+              <Link href="/dashboard/graph" className="text-xs text-cyan-500 font-bold hover:underline flex items-center gap-1">
                 Explore Executive Entities in Memory Graph →
               </Link>
               <Button onClick={() => setSelectedExecutive(null)} className="rounded-xl">Close Thought Inspector</Button>

@@ -139,7 +139,7 @@ export default function BillingPage() {
       badge: 'Max Limit Cap',
       description: 'Unlimited AI capabilities for power users & large teams.',
       icon: Crown,
-      color: 'border-purple-500/50 ring-2 ring-purple-500/20 shadow-md',
+      color: 'border-cyan-500/50 ring-2 ring-cyan-500/20 shadow-md',
       features: [
         '10,000 AI Credits / Day (Unlimited)',
         'Custom Fine-Tuned AI Models',
@@ -373,7 +373,7 @@ export default function BillingPage() {
                       "w-full rounded-2xl py-3.5 px-4 font-extrabold text-xs uppercase tracking-wider text-center transition-all flex items-center justify-center gap-2 shadow-lg",
                       isCurrent
                         ? "border border-emerald-500/60 text-emerald-400 bg-emerald-500/10 cursor-not-allowed opacity-90"
-                        : "bg-gradient-to-r from-purple-600 via-primary to-amber-500 hover:from-purple-700 hover:to-amber-600 text-white hover:scale-[1.02]"
+                        : "bg-gradient-to-r from-cyan-600 via-primary to-amber-500 hover:from-cyan-700 hover:to-amber-600 text-white hover:scale-[1.02]"
                     )}
                   >
                     {isCurrent ? '✓ Current Active Plan (Enterprise Max)' : `Upgrade to Enterprise (${activeCurrency.symbol}${price})`}

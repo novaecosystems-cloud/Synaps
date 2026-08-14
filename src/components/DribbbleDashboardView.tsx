@@ -280,7 +280,7 @@ export function DribbbleDashboardView() {
                 <span className={cn(
                   "px-2.5 py-1 rounded-full text-[10px] font-mono font-black uppercase tracking-wider shadow-md backdrop-blur-md",
                   card.authorBadge === 'PRIME RLM' ? "bg-amber-500 text-black border border-amber-300" :
-                  card.authorBadge === 'MAX' ? "bg-purple-600 text-white border border-purple-400" :
+                  card.authorBadge === 'MAX' ? "bg-cyan-600 text-white border border-cyan-400" :
                   card.authorBadge === 'PRO' ? "bg-cyan-600 text-white border border-cyan-400" :
                   "bg-emerald-600 text-white border border-emerald-400"
                 )}>

@@ -1328,12 +1328,12 @@ function EntityGroup({
   if (!items.length) return null;
 
   const colorMap: Record<string, string> = {
-    blue: 'text-blue-400', purple: 'text-purple-400', green: 'text-green-400',
+    blue: 'text-blue-400', purple: 'text-cyan-400', green: 'text-green-400',
     amber: 'text-amber-400', red: 'text-red-400', cyan: 'text-cyan-400'
   };
   const bgMap: Record<string, string> = {
     blue: 'bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20',
-    purple: 'bg-purple-500/10 border-purple-500/20 hover:bg-purple-500/20',
+    purple: 'bg-cyan-500/10 border-cyan-500/20 hover:bg-cyan-500/20',
     green: 'bg-green-500/10 border-green-500/20 hover:bg-green-500/20',
     amber: 'bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20',
     red: 'bg-red-500/10 border-red-500/20 hover:bg-red-500/20',

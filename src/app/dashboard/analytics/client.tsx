@@ -126,7 +126,7 @@ export default function AnalyticsClient({ organizationId }: { organizationId: st
                 onClick={() => setDays(d)}
                 className={cn(
                   "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
-                  days === d ? "bg-primary/10 text-primary glow-purple" : "text-muted-foreground hover:text-foreground"
+                  days === d ? "bg-primary/10 text-primary glow-cyan" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {d === 365 ? '1Y' : `${d}D`}
@@ -136,7 +136,7 @@ export default function AnalyticsClient({ organizationId }: { organizationId: st
               onClick={() => setShowCalendar(!showCalendar)}
               className={cn(
                 "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
-                showCalendar ? "bg-primary/10 text-primary glow-purple" : "text-muted-foreground hover:text-foreground"
+                showCalendar ? "bg-primary/10 text-primary glow-cyan" : "text-muted-foreground hover:text-foreground"
               )}
             >
               Custom
@@ -190,7 +190,7 @@ export default function AnalyticsClient({ organizationId }: { organizationId: st
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <KpiCard title="Active Projects" value={data.kpis.activeProjects} icon={FolderKanban} colorClass={{bg:'bg-blue-500/20', text:'text-blue-500'}} />
             <KpiCard title="Documents Processed" value={data.kpis.documentsProcessed} icon={FileText} colorClass={{bg:'bg-indigo-500/20', text:'text-indigo-500'}} />
-            <KpiCard title="AI Decisions" value={data.kpis.aiDecisions} icon={BrainCircuit} colorClass={{bg:'bg-purple-500/20', text:'text-purple-500'}} />
+            <KpiCard title="AI Decisions" value={data.kpis.aiDecisions} icon={BrainCircuit} colorClass={{bg:'bg-cyan-500/20', text:'text-cyan-500'}} />
             <KpiCard title="Proposal Success" value={data.kpis.proposalSuccess} suffix="%" progress={data.kpis.proposalSuccess} progressColor="success" icon={CheckSquare} colorClass={{bg:'bg-emerald-500/20', text:'text-emerald-500'}} />
             
             <KpiCard title="Compliance Score" value={data.kpis.complianceScore} suffix="%" progress={data.kpis.complianceScore} progressColor={data.kpis.complianceScore > 80 ? "success" : data.kpis.complianceScore > 50 ? "warning" : "danger"} icon={ShieldCheck} colorClass={{bg:'bg-green-500/20', text:'text-green-500'}} />

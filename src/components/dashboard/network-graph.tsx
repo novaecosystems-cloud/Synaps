@@ -379,7 +379,7 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
               {/* Relationship Type Badge */}
               <div>
                 <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block mb-1">Relationship Predicate</span>
-                <span className="px-3 py-1 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-mono font-bold inline-block">
+                <span className="px-3 py-1 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-purple-300 text-xs font-mono font-bold inline-block">
                   {selectedLink.type || 'CONNECTED_TO'}
                 </span>
               </div>

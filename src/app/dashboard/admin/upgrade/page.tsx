@@ -163,8 +163,8 @@ export default function AdminUpgradePage() {
       {/* Header */}
       <div className="p-6 bg-base-100 rounded-3xl border border-base-300 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-            <ShieldCheck className="w-6 h-6 text-purple-500" />
+          <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+            <ShieldCheck className="w-6 h-6 text-cyan-500" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-base-content">Owner Admin — User Upgrades & Automated Broadcasts</h1>
@@ -186,7 +186,7 @@ export default function AdminUpgradePage() {
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {/* AUTOMATED EMAIL BROADCAST ENGINE SECTION */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <div className="p-6 bg-gradient-to-br from-amber-500/10 via-primary/5 to-purple-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
+      <div className="p-6 bg-gradient-to-br from-amber-500/10 via-primary/5 to-cyan-600/10 border-2 border-amber-500/40 rounded-3xl space-y-4 shadow-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-amber-500 font-extrabold text-base">
             <Mail className="w-5 h-5" /> 📢 Automated Broadcast to All Signed-Up Users ({users.length} Users)

@@ -181,7 +181,7 @@ function SidebarItem({ item, pathname, closeMobileMenu }: { item: MenuItem, path
           {item.badge && (
             <span className={cn(
               "px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider",
-              item.badge === 'PRO' ? "bg-amber-500/15 text-amber-500 border border-amber-500/30" : "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+              item.badge === 'PRO' ? "bg-amber-500/15 text-amber-500 border border-amber-500/30" : "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
             )}>
               {item.badge}
             </span>
@@ -233,7 +233,7 @@ function SidebarItem({ item, pathname, closeMobileMenu }: { item: MenuItem, path
                     {child.badge && (
                       <span className={cn(
                         "px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider shrink-0",
-                        child.badge === 'PRO' ? "bg-amber-500/15 text-amber-500 border border-amber-500/30" : "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+                        child.badge === 'PRO' ? "bg-amber-500/15 text-amber-500 border border-amber-500/30" : "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
                       )}>
                         {child.badge}
                       </span>
@@ -317,7 +317,7 @@ export default function ClientLayout({ children, user }: { children: React.React
             className="flex items-center gap-3 mb-6 px-2 mt-2 w-full hover:bg-base-200/60 p-2 rounded-2xl transition-all text-left border border-transparent hover:border-base-300 group"
             title="Open Organization Switcher & Member Management"
           >
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold aura-purple border border-primary/50 shadow-md">
+            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold aura-cyan border border-primary/50 shadow-md">
               S
             </div>
             <div className="flex flex-col flex-1">
@@ -385,7 +385,7 @@ export default function ClientLayout({ children, user }: { children: React.React
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 pathname.startsWith('/dashboard/settings')
-                  ? "bg-primary/5 text-primary glow-purple font-semibold" 
+                  ? "bg-primary/5 text-primary glow-cyan font-semibold" 
                   : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
               )}
             >
@@ -461,7 +461,7 @@ export default function ClientLayout({ children, user }: { children: React.React
                 "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1 transition-all shadow-md hover:scale-[1.03]",
                 user.isPremium 
                   ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/20" 
-                  : "bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-600 hover:to-purple-700 text-white aura-purple"
+                  : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-amber-600 hover:to-blue-700 text-white aura-cyan"
               )}
               title="View Plan & AI Credit Limits"
             >

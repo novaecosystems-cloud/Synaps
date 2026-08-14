@@ -75,7 +75,7 @@ export default function DeveloperClient({ initialStats }: { initialStats: any })
       
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="relative group rounded-2xl p-[1px] overflow-hidden bg-gradient-to-br from-blue-500/30 to-purple-500/10">
+        <div className="relative group rounded-2xl p-[1px] overflow-hidden bg-gradient-to-br from-blue-500/30 to-cyan-500/10">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="relative h-full bg-black/60 backdrop-blur-xl rounded-2xl p-6 flex flex-col justify-between border border-white/5">
             <div className="flex justify-between items-start mb-4">
@@ -159,7 +159,7 @@ export default function DeveloperClient({ initialStats }: { initialStats: any })
         
         <div className="p-6">
           <form onSubmit={handleSearch} className="relative group mb-8">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur-md opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-xl blur-md opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
             <div className="relative flex gap-3">
               <div className="relative flex-1">
                 <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-400" />
