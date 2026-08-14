@@ -51,19 +51,19 @@ export default function AiCreditBadge() {
 
   const getTierLabel = () => {
     const role = (credits.role || 'MEMBER').toUpperCase();
-    if (role === 'OWNER' || role === 'LEADER' || credits.creditLimit >= 10000) return 'ENTERPRISE MAX ENGINE';
-    if (role === 'ADMIN' || credits.creditLimit >= 500) return 'PRO AI ENGINE';
-    return 'SYNAPS AI ACTIVE';
+    if (role === 'OWNER' || role === 'LEADER' || credits.creditLimit >= 10000) return 'ENTERPRISE MAX';
+    if (role === 'ADMIN' || credits.creditLimit >= 500) return 'PRO AI';
+    return 'SYNAPS AI';
   };
 
   return (
     <div 
       onClick={() => window.dispatchEvent(new CustomEvent('synaps:credits_exhausted', { detail: { role: credits.role } }))}
-      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-xs font-extrabold tracking-wider shadow-inner cursor-pointer hover:bg-cyan-500/25 transition-all"
+      className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-xs font-extrabold tracking-wider shadow-inner cursor-pointer hover:bg-cyan-500/25 transition-all shrink-0 whitespace-nowrap"
       title="Synaps AI Executive Engine active with zero-hallucination precision RAG. Click to manage plan."
     >
-      <Zap className="h-3.5 w-3.5 fill-cyan-400 text-cyan-400 animate-pulse" />
-      <span>{getTierLabel()}</span>
+      <Zap className="h-3.5 w-3.5 fill-cyan-400 text-cyan-400 animate-pulse shrink-0" />
+      <span className="truncate">{getTierLabel()}</span>
     </div>
   );
 }

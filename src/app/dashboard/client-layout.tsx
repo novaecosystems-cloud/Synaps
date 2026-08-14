@@ -436,7 +436,7 @@ export default function ClientLayout({ children, user }: { children: React.React
           </div>
 
           {/* Top Actions (Responsive 9:16 Action Bar) */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 max-w-full overflow-x-auto scrollbar-none">
             
             {/* Background Task Indicator Widget */}
             <BackgroundTaskWidget />
