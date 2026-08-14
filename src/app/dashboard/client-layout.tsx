@@ -32,6 +32,7 @@ import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
 import LaunchPromoModal from '@/components/LaunchPromoModal';
 import SynapsWrappedModal from '@/components/SynapsWrappedModal';
 import { BackgroundTaskProvider } from '@/context/BackgroundTaskContext';
+import { SynapsVectorLogo } from '@/components/SynapsVectorLogo';
 
 const MasterExportButton = dynamic(() => import('@/components/MasterExportButton'), { ssr: false });
 const BackgroundTaskWidget = dynamic(() => import('@/components/BackgroundTaskWidget'), { ssr: false });
@@ -317,9 +318,7 @@ export default function ClientLayout({ children, user }: { children: React.React
             className="flex items-center gap-3 mb-6 px-2 mt-2 w-full hover:bg-base-200/60 p-2 rounded-2xl transition-all text-left border border-transparent hover:border-base-300 group"
             title="Open Organization Switcher & Member Management"
           >
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold aura-cyan border border-primary/50 shadow-md">
-              S
-            </div>
+            <SynapsVectorLogo variant="icon" size="sm" className="shrink-0" />
             <div className="flex flex-col flex-1">
               <span className="font-bold text-sm tracking-tight leading-none uppercase flex items-center justify-between">
                 Synaps
