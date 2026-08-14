@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DataMoatEngine, ClauseBenchmarker } from '@/lib/data-moat-engine';
-import { getAuthenticatedUser } from '@/lib/auth-server';
 
 // GET /api/daam/clauses?clauseType=INDEMNITY&orgId=xxx
 // Returns benchmark stats for a clause type

@@ -325,7 +325,7 @@ export class AuditLedger {
           organizationId: orgId,
           eventType,
           actorId: actorId ?? null,
-          payload,
+          payload: payload as any,
           previousHash,
           currentHash,
           timestamp: new Date(timestamp),
