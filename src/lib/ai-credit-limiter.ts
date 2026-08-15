@@ -18,7 +18,7 @@ const dailyCreditStore = new Map<string, number>();
 // In-memory BYOK (Bring Your Own Key) cache: Map<userId, encryptedKey>
 const userCustomKeysStore = new Map<string, string>();
 
-// In-memory Demo Feature Trial Tracker (Exactly 2 uses per Pro & Max feature)
+// In-memory IP & Session Demo Feature Trial Tracker (Exactly 2 uses per IP per Pro & Max feature)
 const demoFeatureUsesStore = new Map<string, number>();
 
 export const DEMO_FEATURE_LIMIT = 2;
@@ -32,6 +32,21 @@ export const ROLE_CREDIT_LIMITS: Record<string, number> = {
   MEMBER: 50,
   GUEST: 10
 };
+
+/**
+ * Extracts real client IP address across Vercel, Cloudflare, and local environments.
+ */
+export function extractClientIp(headers: Headers | { get: (header: string) => string | null }): string {
+  try {
+    const forwarded = headers.get('x-forwarded-for');
+    if (forwarded) {
+      return forwarded.split(',')[0].trim();
+    }
+    const realIp = headers.get('x-real-ip') || headers.get('cf-connecting-ip');
+    if (realIp) return realIp.trim();
+  } catch (e) {}
+  return '127.0.0.1';
+}
 
 /**
  * Calculates credit consumption dynamically based on actual token usage & complexity.
@@ -74,36 +89,43 @@ export function getCustomUserApiKey(userId: string): string {
 }
 
 /**
- * Checks and enforces the exact 2-use trial quota for Pro & Max features on Demo sessions.
+ * Checks and enforces the exact 2-use trial quota per IP address for Pro & Max features on Demo sessions.
  */
 export function checkAndConsumeDemoFeature(
   userId: string,
-  featureName: string = 'general_feature'
+  featureName: string = 'general_feature',
+  clientIp?: string
 ): { allowed: boolean; used: number; limit: number; remaining: number; error?: string } {
   const cleanId = (userId || 'demo-user').trim().toLowerCase();
   const isDemo = cleanId.includes('demo') || cleanId.startsWith('test_token');
 
-  // Non-demo users have standard account quotas
-  if (!isDemo) {
+  // Non-demo authenticated users with paid/workspace accounts are governed by standard account quotas
+  if (!isDemo && !cleanId.startsWith('ip:')) {
     return { allowed: true, used: 0, limit: 9999, remaining: 9999 };
   }
 
-  const key = `${cleanId}:${featureName.toLowerCase()}`;
-  const used = demoFeatureUsesStore.get(key) || 0;
+  const effectiveIp = clientIp || (cleanId.startsWith('ip:') ? cleanId.replace('ip:', '') : '127.0.0.1');
+  const ipKey = `ip:${effectiveIp}:${featureName.toLowerCase()}`;
+  const userKey = `user:${cleanId}:${featureName.toLowerCase()}`;
 
-  if (used >= DEMO_FEATURE_LIMIT) {
+  const ipUsed = demoFeatureUsesStore.get(ipKey) || 0;
+  const userUsed = demoFeatureUsesStore.get(userKey) || 0;
+  const maxUsed = Math.max(ipUsed, userUsed);
+
+  if (maxUsed >= DEMO_FEATURE_LIMIT) {
     const formattedName = featureName.replace(/_/g, ' ').toUpperCase();
     return {
       allowed: false,
-      used,
+      used: maxUsed,
       limit: DEMO_FEATURE_LIMIT,
       remaining: 0,
-      error: `Demo limit reached: You have used all 2 free trials for ${formattedName}. Upgrade to Pro or Max to unlock unlimited usage!`
+      error: `IP Trial Quota Reached: Your IP (${effectiveIp}) has completed all 2 free trials for ${formattedName}. Upgrade to Pro or Max to unlock unlimited usage!`
     };
   }
 
-  const newUsed = used + 1;
-  demoFeatureUsesStore.set(key, newUsed);
+  const newUsed = maxUsed + 1;
+  demoFeatureUsesStore.set(ipKey, newUsed);
+  demoFeatureUsesStore.set(userKey, newUsed);
 
   return {
     allowed: true,
@@ -113,10 +135,13 @@ export function checkAndConsumeDemoFeature(
   };
 }
 
-export function getDemoFeatureUsage(userId: string, featureName: string) {
+export function getDemoFeatureUsage(userId: string, featureName: string, clientIp?: string) {
   const cleanId = (userId || 'demo-user').trim().toLowerCase();
-  const key = `${cleanId}:${featureName.toLowerCase()}`;
-  const used = demoFeatureUsesStore.get(key) || 0;
+  const effectiveIp = clientIp || (cleanId.startsWith('ip:') ? cleanId.replace('ip:', '') : '127.0.0.1');
+  const ipKey = `ip:${effectiveIp}:${featureName.toLowerCase()}`;
+  const userKey = `user:${cleanId}:${featureName.toLowerCase()}`;
+  const used = Math.max(demoFeatureUsesStore.get(ipKey) || 0, demoFeatureUsesStore.get(userKey) || 0);
+
   return {
     used,
     limit: DEMO_FEATURE_LIMIT,
@@ -128,7 +153,8 @@ export async function checkAndConsumeAiCredits(
   userId: string,
   role: string = 'MEMBER',
   cost: number = 1,
-  featureName?: string
+  featureName?: string,
+  clientIp?: string
 ): Promise<CreditLimitResult> {
 
   const cleanUserId = (userId || 'demo-user').trim().toLowerCase();
@@ -146,16 +172,16 @@ export async function checkAndConsumeAiCredits(
     };
   }
 
-  // 2. If this is a demo session and a feature is specified, enforce the strict 2-use trial per feature
-  if (featureName && (cleanUserId.includes('demo') || cleanUserId.startsWith('test_token'))) {
-    const demoCheck = checkAndConsumeDemoFeature(cleanUserId, featureName);
+  // 2. If this is a demo session and a feature is specified, enforce the strict 2-use trial per IP address
+  if (featureName && (cleanUserId.includes('demo') || cleanUserId.startsWith('test_token') || cleanUserId.startsWith('ip:'))) {
+    const demoCheck = checkAndConsumeDemoFeature(cleanUserId, featureName, clientIp);
     if (!demoCheck.allowed) {
       return {
         success: false,
         creditsUsed: demoCheck.used,
         creditLimit: DEMO_FEATURE_LIMIT,
         remaining: 0,
-        resetAt: 'Demo Limit Reached',
+        resetAt: 'Demo IP Quota Reached',
         isByokActive: false,
         featureRemaining: 0,
         error: demoCheck.error

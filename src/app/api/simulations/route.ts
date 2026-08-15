@@ -24,9 +24,10 @@ export async function POST(req: NextRequest) {
       });
     } catch (e) {}
 
-    // Enforce Daily AI Credit & 2-Use Demo Feature Limit
-    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
-    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1, 'digital_twin_simulation');
+    // Enforce 2-Use IP Trial Quota for Digital Twin Simulations
+    const { checkAndConsumeAiCredits, extractClientIp } = await import('@/lib/ai-credit-limiter');
+    const clientIp = extractClientIp(req.headers);
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1, 'digital_twin_simulation', clientIp);
 
     if (!creditCheck.success) {
       return NextResponse.json({ 

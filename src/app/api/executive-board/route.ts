@@ -23,9 +23,10 @@ export async function POST(req: NextRequest) {
       });
     } catch (e) {}
 
-    // Daily AI Credit & 2-Use Demo Feature Limit Check
-    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
-    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1, 'boardroom_consensus');
+    // Enforce 2-Use IP Trial Quota for Boardroom
+    const { checkAndConsumeAiCredits, extractClientIp } = await import('@/lib/ai-credit-limiter');
+    const clientIp = extractClientIp(req.headers);
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1, 'boardroom_consensus', clientIp);
     if (!creditCheck.success) {
       return NextResponse.json({ success: false, error: creditCheck.error, creditCheck }, { status: 429 });
     }

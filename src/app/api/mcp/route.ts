@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SYNAPS_MCP_TOOLS, executeMcpTool } from '@/lib/mcp-server';
 import { verifySessionCookie } from '@/lib/auth-server';
-import { checkAndConsumeDemoFeature } from '@/lib/ai-credit-limiter';
+import { checkAndConsumeDemoFeature, extractClientIp } from '@/lib/ai-credit-limiter';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 
@@ -125,16 +125,17 @@ export async function POST(req: NextRequest) {
           );
         }
 
-        // Demo Quota Enforcement (2 uses limit on demo sessions)
+        // Demo Quota Enforcement (2 uses limit per IP address on demo sessions)
         if (organizationId.includes('demo')) {
-          const demoCheck = checkAndConsumeDemoFeature(organizationId, 'mcp_tool_execution');
+          const clientIp = extractClientIp(req.headers);
+          const demoCheck = checkAndConsumeDemoFeature(organizationId, 'mcp_tool_execution', clientIp);
           if (!demoCheck.allowed) {
             return NextResponse.json({
               jsonrpc: '2.0',
               id,
               error: {
                 code: -32002,
-                message: demoCheck.error || 'Demo limit reached: 2 free executions completed for MCP tools. Upgrade to Pro/Max for unlimited executions.'
+                message: demoCheck.error || 'Demo IP limit reached: 2 free executions completed for MCP tools. Upgrade to Pro/Max for unlimited executions.'
               }
             }, { status: 429 });
           }

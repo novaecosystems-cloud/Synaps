@@ -51,8 +51,9 @@ export async function POST(req: NextRequest) {
       creditCost = 2;
     }
 
-    const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
-    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', creditCost, 'cowork_matter_vault');
+    const { checkAndConsumeAiCredits, extractClientIp } = await import('@/lib/ai-credit-limiter');
+    const clientIp = extractClientIp(req.headers);
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', creditCost, 'cowork_matter_vault', clientIp);
 
     if (!creditCheck.success) {
       return NextResponse.json({
