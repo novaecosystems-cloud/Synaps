@@ -21,7 +21,18 @@ import {
   Activity,
   Database,
   ShoppingBag,
-  Tag
+  Tag,
+  XCircle,
+  CheckCircle2,
+  Scale,
+  FileText,
+  Layers,
+  ShieldAlert,
+  ArrowRight,
+  Eye,
+  Lock,
+  AlertTriangle,
+  CheckCheck
 } from "lucide-react";
 import SignInModal from "@/components/SignInModal";
 import { LegalDialogModal, LegalDocType } from "@/components/landing/LegalDialogModal";
@@ -70,6 +81,90 @@ const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
   },
 ];
 
+// ─── WITH VS WITHOUT SYNAPS COMPARISON DATA ──────────────────────────────────
+const COMPARISON_DIMENSIONS = [
+  {
+    id: "redlines",
+    title: "Contract Redlines & M&A Diligence",
+    category: "SPEED & ACCURACY",
+    stat: "95% Faster Review",
+    withoutText: "3–4 weeks of manual lawyer reviews ($1,200/hr). Hidden liability caps and unvetted indemnities slip through unnoticed.",
+    withText: "60-Second automated redlining. Identifies uncapped liability and delivers instant verified counter-clauses.",
+  },
+  {
+    id: "boardroom",
+    title: "C-Suite Decision Making",
+    category: "GOVERNANCE",
+    stat: "10-Agent Consensus",
+    withoutText: "Fragmented department silos. The CEO acts on optimism, CFO sees costs too late, and Legal halts deployment.",
+    withText: "10-Agent AI Boardroom. CEO, CFO, CTO, Legal, and Risk agents debate and vote in synchronous consensus.",
+  },
+  {
+    id: "evidence",
+    title: "Factual Truth & Auditability",
+    category: "EVIDENTIARY AUDIT",
+    stat: "Zero Hallucinations",
+    withoutText: "Generic AI chatbots (ChatGPT) hallucinate liability terms and invent figures with zero verifiable citations.",
+    withText: "100% Evidentiary Grounding. Every claim is mathematically linked to [Page X, Line Y, SHA-256 Hash] source proof.",
+  },
+  {
+    id: "market_context",
+    title: "Market Risk Context",
+    category: "COMPETITIVE MOAT",
+    stat: "P50/P90 Risk Curves",
+    withoutText: "Negotiating completely blind. No empirical data on whether your termination clause is standard or predatory.",
+    withText: "Data-As-A-Moat (DAAM). Real-time P50/P90 cross-industry risk curves benchmarking against thousands of contracts.",
+  },
+  {
+    id: "crisis",
+    title: "Crisis Simulation & Stress Testing",
+    category: "PREDICTIVE INTELLIGENCE",
+    stat: "10,000 Scenario Runs",
+    withoutText: "Reactive panic during supplier failure or cash crunch. Critical enterprise decisions made on gut instinct.",
+    withText: "Digital Twin & Monte Carlo Engine. Runs 10,000 probabilistic scenarios stress-testing cash burn and margin risk.",
+  },
+  {
+    id: "ocr",
+    title: "Scanned Documents & Edge Resilience",
+    category: "OFFLINE RESILIENCE",
+    stat: "< 1.8s 1-Shot OCR",
+    withoutText: "Complete paralysis when internet drops or paper scans are uploaded. Manual data entry bottlenecks.",
+    withText: "Dual-Core 1-Shot OCR & Offline Guardian. Sub-2s visual OCR with local IndexedDB & Ollama offline fallback.",
+  },
+];
+
+// ─── PROPRIETARY ENGINES DATA ────────────────────────────────────────────────
+const PROPRIETARY_ENGINES = [
+  {
+    tag: "ENGINE 01",
+    title: "10-Agent Autonomous Boardroom",
+    description: "Simulates parallel C-Suite deliberations across CEO, CFO, CTO, General Counsel, and Risk Officer twins with real-time dialectic consensus voting.",
+    color: "#fc4778",
+    specs: ["CEO Strategic Vision", "CFO Cash Flow Audits", "Legal Liability Caps", "CRO Risk Scenarios"],
+  },
+  {
+    tag: "ENGINE 02",
+    title: "100% Evidentiary Grounding & Prime RLM",
+    description: "Mathematically anchors every summary and financial ratio to exact [Page, Line, SHA-256 Checksum] coordinates with 99.4% precision.",
+    color: "#00f0ff",
+    specs: ["Line-Level Citation Vectors", "SHA-256 Checksums", "Zero Guesswork Fallback", "99.4% Verification"],
+  },
+  {
+    tag: "ENGINE 03",
+    title: "Data-As-A-Moat (DAAM) & Cryptographic Ledger",
+    description: "Converts every decision and anonymized clause into compounding organizational memory and SHA-256 hash-chained proof records.",
+    color: "#ff7a00",
+    specs: ["P50/P90 Percentile Curves", "PII-Stripped Sanitization", "Decision Memory Tuning", "Immutable Audit Chain"],
+  },
+  {
+    tag: "ENGINE 04",
+    title: "Dual-Core 1-Shot Lightning OCR",
+    description: "Sub-2-second end-to-end visual OCR and table reconstruction (PP-OCRv4 & Vision VLM) with automated scanned-PDF augmentation.",
+    color: "#10b981",
+    specs: ["Sub-2s 1-Shot Inference", "Visual Table Reconstruction", "Auto Scanned-PDF Detection", "Offline Edge Enclave"],
+  },
+];
+
 // ─── FAQ ITEMS TAILORED TO SYNAPS ─────────────────────────────────────────────
 const FAQ_ITEMS = [
   {
@@ -97,6 +192,7 @@ const FAQ_ITEMS = [
 export default function IncrediblesStyleLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pricingTab, setPricingTab] = useState<"single" | "recurring">("recurring");
+  const [comparisonView, setComparisonView] = useState<"both" | "without" | "with">("both");
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
   const [legalDoc, setLegalDoc] = useState<LegalDocType | null>(null);
 
@@ -357,6 +453,161 @@ export default function IncrediblesStyleLanding() {
             <p className="text-[#18181b] text-base font-medium leading-relaxed">
               Simulate strategic corporate decisions across 10 autonomous C-suite digital twins (CEO, CFO, CTO, Legal, COO) grounded in company memory.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── THE PROBLEM & WITH VS WITHOUT SYNAPS PARADIGM SECTION ───────────── */}
+      <section id="problem-solution" className="py-24 px-6 sm:px-12 max-w-6xl mx-auto space-y-16 z-10" data-incredibles-reveal>
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <span className="font-mono text-xs text-[#fc4778] uppercase font-bold tracking-widest">// THE PARADIGM SHIFT</span>
+          <h2 className="font-serif text-3xl sm:text-6xl font-extrabold text-[#0f0f11] tracking-tight leading-tight">
+            What problem does SYNAPS solve?
+          </h2>
+          <p className="text-[#18181b] font-sans text-lg sm:text-xl font-semibold leading-relaxed">
+            Enterprises lose millions to 3-week legal bottlenecks, unvetted indemnity traps, and AI chatbots that hallucinate liability numbers. SYNAPS replaces guesswork with 4 proprietary evidentiary engines.
+          </p>
+
+          {/* Interactive View Toggle */}
+          <div className="pt-4 inline-flex items-center p-1.5 rounded-full bg-white border border-[#cecece] shadow-sm font-mono text-xs">
+            <button
+              onClick={() => setComparisonView("both")}
+              className={`px-5 py-2 rounded-full transition-all ${
+                comparisonView === "both"
+                  ? "bg-[#0f0f11] text-white font-bold shadow-md"
+                  : "text-[#18181b] hover:text-[#0f0f11] font-bold"
+              }`}
+            >
+              Side-by-Side Comparison
+            </button>
+            <button
+              onClick={() => setComparisonView("without")}
+              className={`px-5 py-2 rounded-full transition-all ${
+                comparisonView === "without"
+                  ? "bg-rose-600 text-white font-bold shadow-md"
+                  : "text-rose-600 hover:text-rose-700 font-bold"
+              }`}
+            >
+              ❌ Without SYNAPS
+            </button>
+            <button
+              onClick={() => setComparisonView("with")}
+              className={`px-5 py-2 rounded-full transition-all ${
+                comparisonView === "with"
+                  ? "bg-emerald-600 text-white font-bold shadow-md"
+                  : "text-emerald-700 hover:text-emerald-800 font-bold"
+              }`}
+            >
+              ✅ With SYNAPS
+            </button>
+          </div>
+        </div>
+
+        {/* 6-Card Comparison Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {COMPARISON_DIMENSIONS.map((item) => (
+            <motion.div
+              key={item.id}
+              layout
+              className="p-6 rounded-3xl bg-white/95 border border-[#cecece] shadow-xl flex flex-col justify-between space-y-6 hover:border-[#fc4778] transition-all group backdrop-blur-md"
+            >
+              <div className="space-y-4">
+                {/* Header Pill & Stat */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md bg-[#0f0f11]/5 text-[#0f0f11]">
+                    {item.category}
+                  </span>
+                  <span className="font-mono text-xs font-bold text-[#fc4778] bg-[#fc4778]/10 px-2.5 py-1 rounded-full">
+                    {item.stat}
+                  </span>
+                </div>
+
+                <h3 className="font-serif text-2xl font-bold text-[#0f0f11] group-hover:text-[#fc4778] transition-colors leading-snug">
+                  {item.title}
+                </h3>
+
+                {/* Without Synaps Block */}
+                {(comparisonView === "both" || comparisonView === "without") && (
+                  <div className="p-4 rounded-2xl bg-rose-50/80 border border-rose-200/80 space-y-1.5 transition-all">
+                    <div className="flex items-center gap-1.5 text-rose-700 font-mono text-xs font-extrabold uppercase">
+                      <XCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                      <span>WITHOUT SYNAPS</span>
+                    </div>
+                    <p className="text-xs text-rose-950 font-sans font-medium leading-relaxed">
+                      {item.withoutText}
+                    </p>
+                  </div>
+                )}
+
+                {/* With Synaps Block */}
+                {(comparisonView === "both" || comparisonView === "with") && (
+                  <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 space-y-1.5 transition-all">
+                    <div className="flex items-center gap-1.5 text-emerald-800 font-mono text-xs font-extrabold uppercase">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                      <span>WITH SYNAPS</span>
+                    </div>
+                    <p className="text-xs text-emerald-950 font-sans font-medium leading-relaxed">
+                      {item.withText}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* The 4 Proprietary Core Engines Grid */}
+        <div className="space-y-8 pt-8">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="font-mono text-xs text-[#0f0f11] uppercase font-bold tracking-widest">// THE TECHNOLOGY MATRIX</span>
+            <h3 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#0f0f11] tracking-tight">
+              The 4 Core Engines That Solve It
+            </h3>
+            <p className="text-[#18181b] font-sans text-base sm:text-lg font-semibold">
+              Deep sovereign architectures engineered for zero enterprise guesswork and compounding data moat.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {PROPRIETARY_ENGINES.map((engine, idx) => (
+              <div
+                key={idx}
+                className="p-6 rounded-3xl bg-[#0f0f11] text-white flex flex-col justify-between space-y-6 shadow-2xl border border-neutral-800 hover:border-neutral-600 transition-all group"
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span
+                      className="font-mono text-xs font-extrabold uppercase px-2.5 py-1 rounded-md"
+                      style={{ backgroundColor: `${engine.color}20`, color: engine.color }}
+                    >
+                      {engine.tag}
+                    </span>
+                    <span
+                      className="w-2.5 h-2.5 rounded-full animate-pulse"
+                      style={{ backgroundColor: engine.color }}
+                    />
+                  </div>
+
+                  <h4 className="font-serif text-2xl font-bold text-white group-hover:text-amber-200 transition-colors leading-snug">
+                    {engine.title}
+                  </h4>
+
+                  <p className="text-xs text-neutral-300 font-sans font-normal leading-relaxed">
+                    {engine.description}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-neutral-800 space-y-2">
+                  {engine.specs.map((spec, sIdx) => (
+                    <div key={sIdx} className="flex items-center gap-2 font-mono text-[11px] text-neutral-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-neutral-600" />
+                      <span>{spec}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
