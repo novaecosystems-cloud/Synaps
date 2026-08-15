@@ -245,15 +245,17 @@ function createTray() {
 }
 
 let spotlightWindow = null;
+let lastSpotlightOpenTime = 0;
 
 function createSpotlightWindow() {
-  if (spotlightWindow) return;
+  if (spotlightWindow && !spotlightWindow.isDestroyed()) return;
 
   spotlightWindow = new BrowserWindow({
-    width: 700,
-    height: 400,
+    width: 720,
+    height: 380,
     frame: false,
-    transparent: true,
+    transparent: false,
+    backgroundColor: '#070c18',
     alwaysOnTop: true,
     show: false,
     resizable: false,
@@ -265,20 +267,31 @@ function createSpotlightWindow() {
     },
   });
 
-  spotlightWindow.loadFile(path.join(__dirname, 'spotlight.html'));
+  const spotlightFile = path.join(__dirname, 'spotlight.html');
+  spotlightWindow.loadFile(spotlightFile).catch(err => {
+    console.error('[Spotlight] Failed to load HTML:', err);
+  });
 
+  // Prevent premature hide on blur right after opening
   spotlightWindow.on('blur', () => {
-    if (spotlightWindow && spotlightWindow.isVisible()) {
-      spotlightWindow.hide();
+    if (Date.now() - lastSpotlightOpenTime > 600) {
+      if (spotlightWindow && !spotlightWindow.isDestroyed() && spotlightWindow.isVisible()) {
+        spotlightWindow.hide();
+      }
     }
   });
 }
 
 function toggleSpotlight() {
-  if (!spotlightWindow) createSpotlightWindow();
+  console.log('[Synaps Desktop] toggleSpotlight triggered!');
+  if (!spotlightWindow || spotlightWindow.isDestroyed()) {
+    createSpotlightWindow();
+  }
+
   if (spotlightWindow.isVisible()) {
     spotlightWindow.hide();
   } else {
+    lastSpotlightOpenTime = Date.now();
     spotlightWindow.setAlwaysOnTop(true, 'screen-saver');
     spotlightWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     spotlightWindow.center();
