@@ -4,8 +4,15 @@ const path = require('path');
 const rootDir = path.resolve(__dirname, '..');
 // Electron loads resources/app/ BEFORE app.asar — no integrity check applies
 const appDir = path.join(rootDir, 'node_modules', 'electron', 'dist', 'resources', 'app');
+const oldAsar = path.join(rootDir, 'node_modules', 'electron', 'dist', 'resources', 'app.asar');
 
-// Clean and recreate
+// Always delete stale app.asar — Electron validates its hash even when resources/app/ exists
+if (fs.existsSync(oldAsar)) {
+  fs.rmSync(oldAsar, { force: true });
+  console.log('[Desktop Build] Removed stale app.asar.');
+}
+
+// Clean and recreate resources/app/
 if (fs.existsSync(appDir)) {
   fs.rmSync(appDir, { recursive: true, force: true });
 }
