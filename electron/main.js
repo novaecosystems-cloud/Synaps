@@ -38,6 +38,12 @@ function createApplicationMenu(startBaseUrl) {
       label: 'Executive Suite',
       submenu: [
         {
+          label: '⚡ Summon Spotlight Companion',
+          accelerator: 'CmdOrCtrl+Space',
+          click: () => toggleSpotlight(),
+        },
+        { type: 'separator' },
+        {
           label: 'Executive Dashboard',
           accelerator: 'CmdOrCtrl+1',
           click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard`),
@@ -216,6 +222,8 @@ function createTray() {
   const startBaseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
 
   const contextMenu = Menu.buildFromTemplate([
+    { label: '⚡ Summon Spotlight (Ctrl+Space)', click: () => toggleSpotlight() },
+    { type: 'separator' },
     { label: 'Open Synaps OS', click: () => { mainWindow.show(); mainWindow.focus(); } },
     { label: '10-Agent Boardroom', click: () => { mainWindow.show(); mainWindow.loadURL(`${startBaseUrl}/dashboard/boardroom`); } },
     { label: 'Matter Notebooks', click: () => { mainWindow.show(); mainWindow.loadURL(`${startBaseUrl}/dashboard/notebooks`); } },
@@ -271,9 +279,11 @@ function toggleSpotlight() {
   if (spotlightWindow.isVisible()) {
     spotlightWindow.hide();
   } else {
+    spotlightWindow.setAlwaysOnTop(true, 'screen-saver');
+    spotlightWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     spotlightWindow.center();
     const [x, y] = spotlightWindow.getPosition();
-    spotlightWindow.setPosition(x, Math.max(80, Math.floor(y * 0.4)));
+    spotlightWindow.setPosition(x, Math.max(80, Math.floor(y * 0.35)));
     spotlightWindow.show();
     spotlightWindow.focus();
   }
@@ -284,9 +294,16 @@ app.whenReady().then(() => {
   createSpotlightWindow();
   try { createTray(); } catch (e) { console.log('Tray setup note:', e.message); }
 
-  // 1. ChatGPT-style Floating Spotlight Bar (Alt+Space / Option+Space)
-  globalShortcut.register('Alt+Space', () => {
-    toggleSpotlight();
+  // 1. Register multiple global shortcuts for maximum OS compatibility
+  ['Control+Space', 'Alt+Space', 'CommandOrControl+Shift+Space', 'Alt+Shift+S'].forEach(key => {
+    try {
+      const ok = globalShortcut.register(key, () => {
+        toggleSpotlight();
+      });
+      console.log(`[Synaps Desktop] Hotkey ${key} registered:`, ok);
+    } catch (e) {
+      console.warn(`[Synaps Desktop] Failed to register ${key}:`, e.message);
+    }
   });
 
   // 2. Full OS Summon Hotkey (CmdOrCtrl+Shift+S)
