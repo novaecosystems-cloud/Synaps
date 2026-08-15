@@ -20,7 +20,8 @@ import {
   Sparkles,
   ShieldCheck,
   Zap,
-  Trophy
+  Trophy,
+  Laptop
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { logoutAction } from '@/app/actions/auth';
@@ -31,6 +32,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
 import LaunchPromoModal from '@/components/LaunchPromoModal';
 import SynapsWrappedModal from '@/components/SynapsWrappedModal';
+import DownloadDesktopModal from '@/components/DownloadDesktopModal';
 import { BackgroundTaskProvider } from '@/context/BackgroundTaskContext';
 import { SynapsVectorLogo } from '@/components/SynapsVectorLogo';
 
@@ -264,6 +266,7 @@ export default function ClientLayout({ children, user }: { children: React.React
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
   const [isWrappedModalOpen, setIsWrappedModalOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
   const handleLogout = async () => {
     await logoutAction();
@@ -441,6 +444,16 @@ export default function ClientLayout({ children, user }: { children: React.React
 
             {/* Master Export Reports Dropdown */}
             <MasterExportButton />
+
+            {/* Desktop App Download Button */}
+            <button
+              onClick={() => setIsDownloadModalOpen(true)}
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20 font-bold text-[11px] sm:text-xs flex items-center gap-1.5 transition-all hover:scale-[1.03]"
+              title="Download Native Desktop App for Windows, macOS & Linux"
+            >
+              <Laptop className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <span className="hidden sm:inline">Desktop App</span>
+            </button>
             
             {/* Spotify-Wrapped Style Executive Progress Card Button */}
             <button
@@ -495,6 +508,10 @@ export default function ClientLayout({ children, user }: { children: React.React
       <SynapsWrappedModal
         isOpen={isWrappedModalOpen}
         onClose={() => setIsWrappedModalOpen(false)}
+      />
+      <DownloadDesktopModal
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
       />
       {pathname !== '/demo' && (
         <>

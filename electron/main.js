@@ -3,8 +3,14 @@ const path = require('path');
 const fs = require('fs');
 
 app.setName('Synaps AI');
+app.commandLine.appendSwitch('disable-gpu-shader-disk-cache');
+
 try {
-  app.setPath('userData', path.join(app.getPath('appData'), 'SynapsDesktopApp'));
+  const userDataDir = path.join(app.getPath('appData'), 'synaps-app-data');
+  if (!fs.existsSync(userDataDir)) {
+    fs.mkdirSync(userDataDir, { recursive: true });
+  }
+  app.setPath('userData', userDataDir);
 } catch (e) {}
 
 let mainWindow = null;
