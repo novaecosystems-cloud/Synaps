@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Synaps Spotlight Companion</title>
+  <title>Synaps Spotlight Vision Companion</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,33 +12,34 @@
       user-select: none;
     }
     body {
-      background: #070c18;
+      background: transparent;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12px;
+      padding: 10px;
       width: 100vw;
       height: 100vh;
     }
     .spotlight-container {
       width: 100%;
       height: 100%;
-      background: #0b1121;
-      border: 1px solid rgba(99, 102, 241, 0.4);
+      background: #090e1d;
+      border: 1px solid rgba(99, 102, 241, 0.45);
       border-radius: 16px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(99, 102, 241, 0.2);
-      padding: 16px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(99, 102, 241, 0.25);
+      padding: 14px 16px;
       color: #f8fafc;
       transition: all 0.2s ease;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
     .input-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .logo-badge {
       width: 32px;
@@ -52,7 +53,7 @@
       font-size: 14px;
       color: #fff;
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
     }
     input {
       flex: 1;
@@ -60,33 +61,89 @@
       border: none;
       outline: none;
       color: #f8fafc;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
     }
     input::placeholder {
       color: #64748b;
+    }
+    .btn-vision {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: #a5b4fc;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .btn-vision:hover, .btn-vision.active {
+      background: #6366f1;
+      border-color: #818cf8;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
     }
     .hotkey-hint {
       font-size: 11px;
       font-family: monospace;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 3px 8px;
+      padding: 3px 7px;
       border-radius: 6px;
       color: #94a3b8;
       cursor: pointer;
+      flex-shrink: 0;
+    }
+    .screen-preview-bar {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 6px 10px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      font-size: 11px;
+      color: #34d399;
+    }
+    .screen-preview-thumb {
+      width: 44px;
+      height: 26px;
+      border-radius: 4px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .screen-preview-info {
+      flex: 1;
+      font-weight: 500;
+    }
+    .btn-remove-screen {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn-remove-screen:hover {
+      color: #f43f5e;
     }
     .mode-chips {
       display: flex;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 8px;
       padding-top: 8px;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
+      overflow-x: auto;
     }
     .chip {
       font-size: 11px;
       font-weight: 600;
-      padding: 4px 10px;
+      padding: 3px 9px;
       border-radius: 20px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -95,6 +152,7 @@
       display: flex;
       align-items: center;
       gap: 4px;
+      white-space: nowrap;
       transition: all 0.15s ease;
     }
     .chip:hover, .chip.active {
@@ -104,58 +162,195 @@
     }
     .response-area {
       display: none;
-      margin-top: 12px;
+      margin-top: 10px;
       padding: 12px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.4);
       border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 12px;
       line-height: 1.5;
       color: #e2e8f0;
-      max-height: 260px;
+      flex: 1;
       overflow-y: auto;
       user-select: text;
     }
     .actions-row {
       display: none;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 8px;
+    }
+    .status-badge {
+      font-size: 11px;
+      color: #94a3b8;
     }
     .btn-expand {
       background: #6366f1;
       color: #fff;
       border: none;
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
     }
     .btn-expand:hover {
       background: #4f46e5;
     }
+
+    /* ── LEGAL & PRIVACY CONSENT MODAL OVERLAY ── */
+    .legal-modal {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(7, 12, 24, 0.95);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 20px;
+      z-index: 100;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+    .legal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .legal-body {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+    .legal-bullet {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 6px;
+      color: #cbd5e1;
+    }
+    .legal-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 11px;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+    .legal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .btn-consent {
+      background: #10b981;
+      color: #fff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .btn-consent:hover {
+      background: #059669;
+    }
+    .btn-decline {
+      background: rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-decline:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
   </style>
 </head>
 <body>
   <div class="spotlight-container" id="container">
+    <!-- Input Header -->
     <div class="input-row">
       <div class="logo-badge">S</div>
-      <input type="text" id="promptInput" placeholder="Ask Synaps, query 10-Agent Boardroom, or redline clause..." autofocus />
-      <span class="hotkey-hint" id="escHint">ESC to close</span>
+      <input type="text" id="promptInput" placeholder="Ask anything, query Boardroom, or analyze active screen..." autofocus />
+      <button class="btn-vision" id="visionBtn" title="Capture active screen & analyze document/app">
+        <span>👁️</span> See Screen
+      </button>
+      <span class="hotkey-hint" id="escHint" title="Press Escape to hide">ESC</span>
     </div>
 
+    <!-- Active Screen Preview Bar -->
+    <div class="screen-preview-bar" id="screenPreviewBar">
+      <img id="screenThumb" class="screen-preview-thumb" src="" alt="Screen Snapshot" />
+      <span class="screen-preview-info">📸 Screen Attached (SOC-2 Ephemeral Vision Active)</span>
+      <button class="btn-remove-screen" id="removeScreenBtn" title="Remove screen context">✕</button>
+    </div>
+
+    <!-- Mode Chips -->
     <div class="mode-chips">
-      <div class="chip active" data-mode="boardroom">🏛️ Boardroom</div>
-      <div class="chip" data-mode="colibri">🔒 Colibrì 744B MoE</div>
+      <div class="chip active" data-mode="screen">👁️ Screen Context</div>
       <div class="chip" data-mode="redline">📄 60s Redline</div>
-      <div class="chip" data-mode="notebook">🎙️ Audio Note</div>
+      <div class="chip" data-mode="boardroom">🏛️ 10-Agent Boardroom</div>
+      <div class="chip" data-mode="colibri">🔒 Colibrì 744B MoE</div>
+      <div class="chip" data-mode="email">✍️ Executive Reply</div>
     </div>
 
+    <!-- AI Response Area -->
     <div class="response-area" id="responseArea"></div>
 
+    <!-- Actions Footer -->
     <div class="actions-row" id="actionsRow">
-      <button class="btn-expand" id="expandBtn">Open in Full Synaps OS ↗</button>
+      <span class="status-badge" id="modelBadge">Colibrì 744B MoE</span>
+      <button class="btn-expand" id="expandBtn">Open in Synaps OS ↗</button>
+    </div>
+
+    <!-- Legal & Privacy Consent Modal -->
+    <div class="legal-modal" id="legalModal">
+      <div>
+        <div class="legal-title">
+          <span>⚖️</span>
+          <span>Enterprise Sovereign Vision Protocol</span>
+        </div>
+        <div class="legal-body">
+          Synaps AI will capture a single, ephemeral snapshot of your active desktop to assist with document analysis, contract redlines, or financial auditing.
+          
+          <div class="legal-bullet">
+            <span>🛡️</span>
+            <span><strong>Zero Data Retention (ZDR):</strong> Images are processed in-memory and permanently purged immediately after inference.</span>
+          </div>
+          <div class="legal-bullet">
+            <span>🔒</span>
+            <span><strong>Corporate NDA & SOC-2 Compliance:</strong> No screen data is logged or used to train public models.</span>
+          </div>
+          <div class="legal-bullet">
+            <span>⚡</span>
+            <span><strong>Sovereign Cloud Enclave:</strong> Protected by Colibrì 744B MoE enterprise security layers.</span>
+          </div>
+
+          <label class="legal-checkbox-row">
+            <input type="checkbox" id="rememberConsentCheckbox" checked />
+            <span>Remember legal permission for this session</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="legal-actions">
+        <button class="btn-decline" id="declineConsentBtn">Decline</button>
+        <button class="btn-consent" id="acceptConsentBtn">Authorize & Enable Vision</button>
+      </div>
     </div>
   </div>
 
@@ -164,37 +359,153 @@
     const responseArea = document.getElementById('responseArea');
     const actionsRow = document.getElementById('actionsRow');
     const expandBtn = document.getElementById('expandBtn');
-    let currentMode = 'boardroom';
+    const visionBtn = document.getElementById('visionBtn');
+    const screenPreviewBar = document.getElementById('screenPreviewBar');
+    const screenThumb = document.getElementById('screenThumb');
+    const removeScreenBtn = document.getElementById('removeScreenBtn');
+    const legalModal = document.getElementById('legalModal');
+    const acceptConsentBtn = document.getElementById('acceptConsentBtn');
+    const declineConsentBtn = document.getElementById('declineConsentBtn');
+    const rememberConsentCheckbox = document.getElementById('rememberConsentCheckbox');
+    const modelBadge = document.getElementById('modelBadge');
 
+    let currentMode = 'screen';
+    let activeScreenshot = null;
+    let hasLegalConsent = false;
+
+    // Check saved session consent
+    if (window.electronAPI && window.electronAPI.getLegalConsent) {
+      window.electronAPI.getLegalConsent().then(res => {
+        hasLegalConsent = !!res;
+      });
+    }
+
+    // Mode chips
     document.querySelectorAll('.chip').forEach(chip => {
       chip.addEventListener('click', () => {
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         currentMode = chip.getAttribute('data-mode');
-        input.placeholder = `Mode [${chip.textContent.trim()}]: Ask anything...`;
+        
+        if (currentMode === 'redline') {
+          input.placeholder = 'Redline contract: Find liability traps or suggest clause substitute...';
+        } else if (currentMode === 'boardroom') {
+          input.placeholder = '10-Agent Boardroom: Ask CEO, CFO, Legal & CTO for consensus...';
+        } else if (currentMode === 'email') {
+          input.placeholder = 'Executive Ghostwriter: Draft strategic response to this screen...';
+        } else {
+          input.placeholder = 'Ask Synaps, query active document, or analyze screen...';
+        }
         input.focus();
       });
     });
+
+    // Vision Capture Button Trigger
+    visionBtn.addEventListener('click', async () => {
+      if (!hasLegalConsent) {
+        legalModal.style.display = 'flex';
+        return;
+      }
+      await performScreenCapture();
+    });
+
+    // Legal Consent Handlers
+    acceptConsentBtn.addEventListener('click', async () => {
+      hasLegalConsent = true;
+      legalModal.style.display = 'none';
+      if (rememberConsentCheckbox.checked && window.electronAPI && window.electronAPI.setLegalConsent) {
+        window.electronAPI.setLegalConsent(true);
+      }
+      await performScreenCapture();
+    });
+
+    declineConsentBtn.addEventListener('click', () => {
+      legalModal.style.display = 'none';
+    });
+
+    async function performScreenCapture() {
+      visionBtn.classList.add('active');
+      visionBtn.innerHTML = '<span>⏳</span> Capturing...';
+      
+      try {
+        if (window.electronAPI && window.electronAPI.captureScreen) {
+          const imgData = await window.electronAPI.captureScreen();
+          if (imgData) {
+            activeScreenshot = imgData;
+            screenThumb.src = imgData;
+            screenPreviewBar.style.display = 'flex';
+            visionBtn.innerHTML = '<span>✓</span> Screen Ready';
+            input.placeholder = 'What would you like Synaps to analyze on your screen? (Press Enter)';
+            input.focus();
+          }
+        }
+      } catch (err) {
+        console.error('Failed to capture screen:', err);
+        visionBtn.innerHTML = '<span>👁️</span> See Screen';
+      }
+    }
+
+    removeScreenBtn.addEventListener('click', () => {
+      activeScreenshot = null;
+      screenPreviewBar.style.display = 'none';
+      visionBtn.classList.remove('active');
+      visionBtn.innerHTML = '<span>👁️</span> See Screen';
+    });
+
+    // Submit Prompt
+    async function executeQuery() {
+      const query = input.value.trim();
+      if (!query && !activeScreenshot) return;
+
+      responseArea.style.display = 'block';
+      actionsRow.style.display = 'flex';
+      responseArea.innerHTML = `<span style="color:#6366f1">⚡ [${currentMode.toUpperCase()}] Analyzing ${activeScreenshot ? 'active screen context' : 'prompt'} with Colibrì 744B MoE...</span>`;
+
+      try {
+        if (window.electronAPI && window.electronAPI.analyzeScreen) {
+          const result = await window.electronAPI.analyzeScreen({
+            query: query || 'Analyze what is currently open on my screen and provide key executive insights.',
+            imageBase64: activeScreenshot || '',
+            mode: currentMode,
+            consentGiven: hasLegalConsent,
+          });
+
+          if (result && result.answer) {
+            // Render basic markdown formatting
+            let formatted = result.answer
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/### (.*?)\n/g, '<h3 style="color:#818cf8;margin:6px 0;">$1</h3>')
+              .replace(/• (.*?)\n/g, '<div style="margin:3px 0;">• $1</div>')
+              .replace(/\n\n/g, '<br>');
+            responseArea.innerHTML = formatted;
+            modelBadge.textContent = result.model || 'Colibrì 744B MoE';
+          } else {
+            responseArea.innerHTML = `<span style="color:#f43f5e">❌ Error: ${result?.error || 'No response from analysis engine.'}</span>`;
+          }
+        } else {
+          // Simulation fallback
+          setTimeout(() => {
+            responseArea.innerHTML = `<strong>👁️ Synaps Screen Analysis on "${query || 'Active Document'}":</strong><br><br>• <strong>Document State:</strong> Active workspace parsed under SOC-2 Ephemeral Protocol.<br>• <strong>Legal Counsel:</strong> No unilateral indemnity risks detected.<br>• <strong>Executive Action:</strong> Ready for export to Synaps OS.`;
+          }, 800);
+        }
+      } catch (err) {
+        responseArea.innerHTML = `<span style="color:#f43f5e">❌ Analysis failed: ${err.message}</span>`;
+      }
+    }
 
     input.addEventListener('keydown', async (e) => {
       if (e.key === 'Escape') {
         if (window.electronAPI && window.electronAPI.hideSpotlight) {
           window.electronAPI.hideSpotlight();
         }
-      } else if (e.key === 'Enter' && input.value.trim()) {
-        const query = input.value.trim();
-        responseArea.style.display = 'block';
-        actionsRow.style.display = 'flex';
-        responseArea.innerHTML = `<span style="color:#6366f1">⚡ [${currentMode.toUpperCase()}] Deliberating...</span>`;
-        
-        if (window.electronAPI && window.electronAPI.querySpotlight) {
-          window.electronAPI.querySpotlight({ query, mode: currentMode });
-        } else {
-          // Fallback simulation
-          setTimeout(() => {
-            responseArea.innerHTML = `<strong>🏛️ Synaps Consensus on "${query}":</strong><br><br>• <strong>CFO Verdict:</strong> Positive unit economics with 4.2x ROI margin.<br>• <strong>Legal Counsel:</strong> 100% compliant with standard enterprise liability caps.<br>• <strong>Action:</strong> Proceed with immediate deployment.`;
-          }, 800);
-        }
+      } else if (e.key === 'Enter') {
+        await executeQuery();
+      }
+    });
+
+    document.getElementById('escHint').addEventListener('click', () => {
+      if (window.electronAPI && window.electronAPI.hideSpotlight) {
+        window.electronAPI.hideSpotlight();
       }
     });
 

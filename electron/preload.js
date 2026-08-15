@@ -9,6 +9,10 @@ contextBridge.exposeInMainWorld('electron', {
 contextBridge.exposeInMainWorld('electronAPI', {
   hideSpotlight: () => ipcRenderer.send('hide-spotlight'),
   expandToFullApp: (query) => ipcRenderer.send('expand-to-full-app', query),
-  querySpotlight: (data) => ipcRenderer.send('query-spotlight', data),
+  querySpotlight: (data) => ipcRenderer.invoke('query-spotlight', data),
+  captureScreen: () => ipcRenderer.invoke('capture-screen'),
+  analyzeScreen: (data) => ipcRenderer.invoke('analyze-screen', data),
+  getLegalConsent: () => ipcRenderer.invoke('get-legal-consent'),
+  setLegalConsent: (granted) => ipcRenderer.invoke('set-legal-consent', granted),
   onSpotlightResult: (callback) => ipcRenderer.on('spotlight-result', (event, val) => callback(val)),
 });
