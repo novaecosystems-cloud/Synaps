@@ -264,32 +264,32 @@ async function createWindow() {
     }
   }
 
-  // Hook cookie persistence so all future logins/refreshes are instantly saved to disk vault
+  let lastSavedCookieValue = null;
+  // Hook cookie persistence so all future logins/refreshes are saved cleanly without disk flooding
   session.defaultSession.cookies.on('changed', async (event, cookie, cause, removed) => {
-    if (cookie.name === 'synaps-session' && !removed && cookie.value) {
+    if (cookie.name === 'synaps-session' && !removed && cookie.value && cookie.value !== lastSavedCookieValue) {
+      lastSavedCookieValue = cookie.value;
       persistSession(cookie.value);
+      try {
+        await session.defaultSession.cookies.flushStore();
+      } catch (e) {}
     }
-    try {
-      await session.defaultSession.cookies.flushStore();
-    } catch (e) {}
   });
 
   mainWindow.webContents.on('did-finish-load', async () => {
     try {
       const cookies = await session.defaultSession.cookies.get({ name: 'synaps-session' });
-      if (cookies && cookies.length > 0 && cookies[0].value) {
+      if (cookies && cookies.length > 0 && cookies[0].value && cookies[0].value !== lastSavedCookieValue) {
+        lastSavedCookieValue = cookies[0].value;
         persistSession(cookies[0].value);
       }
     } catch (e) {}
   });
 
+  // CRITICAL FIX: Ignore code -3 (ERR_ABORTED) which is normal during HTTP redirects/navigations!
   mainWindow.webContents.on('did-fail-load', (e, code, desc, url) => {
-    console.warn('[Synaps Desktop] Load retry:', code, desc, url);
-    setTimeout(() => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.loadURL(startUrl);
-      }
-    }, 1500);
+    if (code === -3) return; // Ignore ERR_ABORTED from redirects!
+    console.warn('[Synaps Desktop] Network connection note:', code, desc, url);
   });
 
   mainWindow.webContents.on('render-process-gone', (e, details) => {
