@@ -30,8 +30,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   let userId = decoded.uid;
   let organizationId = user?.organizationId || 'demo_apex_org_id';
-  const userEmail = user?.email || decoded.email || 'admin@apex-global.com';
-  const isPremium = user?.role === 'ADMIN' || user?.role === 'OWNER';
+  const userEmail = user?.email || decoded.email || 'user@synaps.ai';
+  const isSuperAdmin = userEmail.toLowerCase() === 'novaecosystems@gmail.com';
+  const isPremium = isSuperAdmin || user?.role === 'ADMIN' || user?.role === 'OWNER';
 
   return (
     <ClientLayout user={{ id: userId, organizationId, email: userEmail, isPremium }}>

@@ -1,4 +1,4 @@
-﻿export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -16,13 +16,17 @@ export async function GET(req: NextRequest) {
     const decoded = await verifySessionCookie(sessionCookie);
     if (!decoded || !decoded.uid) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    let userRole = 'OWNER';
+    let userRole = 'MEMBER';
     try {
       const dbUser = await prisma.user.findUnique({
         where: { id: decoded.uid },
-        select: { role: true }
+        select: { role: true, email: true }
       });
-      if (dbUser?.role) userRole = dbUser.role;
+      if ((dbUser?.email || decoded.email || '').toLowerCase() === 'novaecosystems@gmail.com') {
+        userRole = 'OWNER';
+      } else if (dbUser?.role) {
+        userRole = dbUser.role;
+      }
     } catch (e) {}
 
     const credits = getUserDailyAiCredits(decoded.uid, userRole);

@@ -98,7 +98,8 @@ export async function syncUserAction(idToken: string) {
 
         return { success: true, organizationId: pendingInvite.organizationId };
       } else {
-        // Create organization and user as OWNER
+        // Create organization and user as MEMBER (Free Starter tier) or OWNER for platform admin
+        const isSuperAdmin = (email || '').toLowerCase() === 'novaecosystems@gmail.com';
         const orgName = name ? `${name}'s Organization` : 'My Organization';
         
         const newOrg = await prisma.organization.create({
@@ -110,7 +111,7 @@ export async function syncUserAction(idToken: string) {
                 email: email,
                 name: name || null,
                 avatarUrl: picture || null,
-                role: 'OWNER'
+                role: isSuperAdmin ? 'OWNER' : 'MEMBER'
               }
             }
           }
