@@ -208,11 +208,12 @@ export async function checkOmniRouteStatus(): Promise<{
 }
 
 import { ANTI_SLOP_SYSTEM_DIRECTIVE, cleanAISlop } from '@/lib/de-slop';
+import { EXECUTIVE_FOCUS_DIRECTIVE } from '@/lib/focus-mode';
 
 /**
  * Executes LLM requests across an ultra-resilient multi-provider failover chain.
  * Prioritizes OmniRoute 1.51B free token gateway -> Groq -> Gemini -> OpenRouter -> Mistral.
- * Automatically enforces Peter Yang No-AI-Slop standards across all generated responses.
+ * Automatically enforces Peter Yang No-AI-Slop and Executive Focus (Action-First) standards.
  */
 export async function invokeLLMWithFallback(
   input: { systemPrompt?: string; userPrompt: string; temperature?: number } | any[],
@@ -222,7 +223,12 @@ export async function invokeLLMWithFallback(
   if (Array.isArray(input)) {
     messages = input;
   } else {
-    const combinedSystemPrompt = (input.systemPrompt || '') + '\n' + ANTI_SLOP_SYSTEM_DIRECTIVE;
+    const combinedSystemPrompt = [
+      input.systemPrompt || '',
+      ANTI_SLOP_SYSTEM_DIRECTIVE,
+      EXECUTIVE_FOCUS_DIRECTIVE
+    ].filter(Boolean).join('\n\n');
+
     messages = [
       { role: 'system', content: combinedSystemPrompt.trim() },
       { role: 'user', content: input.userPrompt },
