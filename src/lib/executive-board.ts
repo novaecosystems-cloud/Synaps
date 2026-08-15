@@ -42,16 +42,16 @@ export interface BoardMeetingResult {
 }
 
 const EXECUTIVE_PROFILES = [
-  { roleId: 'CEO', roleTitle: 'Chief Executive Officer', name: 'Eleanor Vance', avatarColor: '#fc4778', focus: 'Overall company growth, strategic alignment, market leadership, and vision.' },
-  { roleId: 'CFO', roleTitle: 'Chief Financial Officer', name: 'Marcus Sterling', avatarColor: '#10b981', focus: 'Financial ROI, capital allocation, budget constraints, and fiscal risk exposure.' },
-  { roleId: 'COO', roleTitle: 'Chief Operating Officer', name: 'Sarah Chen', avatarColor: '#3b82f6', focus: 'Operational execution, process friction, resource bandwidth, and logistics.' },
-  { roleId: 'CTO', roleTitle: 'Chief Technology Officer', name: 'Dr. Aris Thorne', avatarColor: '#06b6d4', focus: 'Technical architecture, scalability, engineering velocity, and cybersecurity.' },
-  { roleId: 'LEGAL', roleTitle: 'General Counsel', name: 'Victoria Hayes', avatarColor: '#f59e0b', focus: 'Contractual liability, IP protection, litigation exposure, and legal risks.' },
-  { roleId: 'HR', roleTitle: 'Chief People Officer', name: 'David Miller', avatarColor: '#ec4899', focus: 'Headcount capacity, talent retention, organizational culture, and change management.' },
-  { roleId: 'SALES', roleTitle: 'VP of Global Sales', name: 'Rachel Ross', avatarColor: '#ef4444', focus: 'Revenue impact, GTM pipeline, sales cycle friction, and customer conversion.' },
-  { roleId: 'MARKETING', roleTitle: 'Chief Marketing Officer', name: 'Julian Mercer', avatarColor: '#eab308', focus: 'Brand positioning, market sentiment, customer acquisition cost, and demand generation.' },
-  { roleId: 'OPS', roleTitle: 'Director of Operations', name: 'Kevin Durant', avatarColor: '#6366f1', focus: 'Supply chain stability, vendor SLAs, workflow bottlenecks, and delivery timelines.' },
-  { roleId: 'COMPLIANCE', roleTitle: 'Chief Compliance Officer', name: 'Elena Rostova', avatarColor: '#14b8a6', focus: 'Regulatory compliance (GDPR/HIPAA/SOC2), audit trails, and policy enforcement.' }
+  { roleId: 'CEO', roleTitle: 'Chief Executive Officer', name: 'Eleanor Vance', avatarColor: '#fc4778', focus: 'Overall company growth, strategic alignment, market leadership, and vision.', skillStandard: 'Executive Strategy & Capital Governance' },
+  { roleId: 'CFO', roleTitle: 'Chief Financial Officer', name: 'Marcus Sterling', avatarColor: '#10b981', focus: 'Financial ROI, capital allocation, budget constraints, and fiscal risk exposure.', skillStandard: 'Pro-Forma Valuation & Runway Modeling' },
+  { roleId: 'COO', roleTitle: 'Chief Operating Officer', name: 'Sarah Chen', avatarColor: '#3b82f6', focus: 'Operational execution, process friction, resource bandwidth, and logistics.', skillStandard: 'Enterprise SOP & Process Optimization' },
+  { roleId: 'CTO', roleTitle: 'Chief Technology Officer', name: 'Dr. Aris Thorne', avatarColor: '#06b6d4', focus: 'Technical architecture, scalability, engineering velocity, and cybersecurity.', skillStandard: 'Google Cloud Well-Architected Framework (Security & Reliability)' },
+  { roleId: 'LEGAL', roleTitle: 'General Counsel', name: 'Victoria Hayes', avatarColor: '#f59e0b', focus: 'Contractual liability, IP protection, litigation exposure, and legal risks.', skillStandard: 'M&A Diligence & Statutory Indemnity Standards' },
+  { roleId: 'HR', roleTitle: 'Chief People Officer', name: 'David Miller', avatarColor: '#ec4899', focus: 'Headcount capacity, talent retention, organizational culture, and change management.', skillStandard: 'Talent Architecture & Retention Benchmarks' },
+  { roleId: 'SALES', roleTitle: 'VP of Global Sales', name: 'Rachel Ross', avatarColor: '#ef4444', focus: 'Revenue impact, GTM pipeline, sales cycle friction, and customer conversion.', skillStandard: 'Enterprise B2B Pipeline & Deal Velocity' },
+  { roleId: 'MARKETING', roleTitle: 'Chief Marketing Officer', name: 'Julian Mercer', avatarColor: '#eab308', focus: 'Brand positioning, market sentiment, customer acquisition cost, and demand generation.', skillStandard: 'Google Analytics 4 & Attribution Telemetry' },
+  { roleId: 'OPS', roleTitle: 'Director of Operations', name: 'Kevin Durant', avatarColor: '#6366f1', focus: 'Supply chain stability, vendor SLAs, workflow bottlenecks, and delivery timelines.', skillStandard: 'Vendor SLA & Critical Path Management' },
+  { roleId: 'COMPLIANCE', roleTitle: 'Chief Compliance Officer', name: 'Elena Rostova', avatarColor: '#14b8a6', focus: 'Regulatory compliance (DPDP/GDPR/SOC2), audit trails, and policy enforcement.', skillStandard: 'DPDP Act 2023 & SecOps Incident Standards' }
 ];
 
 export async function runExecutiveBoardMeeting(
@@ -100,10 +100,11 @@ Known Graph Entities: ${graphEntities.map(g => `${g.name} [${g.type}]`).join(', 
 
     const systemPrompt = `You are ${profile.name}, the ${profile.roleTitle} (${profile.roleId}) at Synaps.
 Your functional focus is: ${profile.focus}
+Domain Skill Standard: ${profile.skillStandard}
 
 ${rlmEnrichment.systemPromptAddon}
 
-Independently analyze the user's strategic question strictly through the lens of your executive domain.
+Independently analyze the user's strategic question strictly through the lens of your executive domain and certified skill standard.
 
 You MUST return valid JSON with:
 {

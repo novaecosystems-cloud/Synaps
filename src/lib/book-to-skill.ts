@@ -201,4 +201,122 @@ tokensBudget: 1420
       },
     ],
   },
+  {
+    id: 'skill_google_cloud_waf',
+    name: 'google-cloud-waf-security',
+    displayName: 'Google Cloud Well-Architected Security & Reliability',
+    version: '3.1.0',
+    category: 'TECH',
+    description: 'Official Google Cloud WAF Security pillar: Zero-Trust IAM, KMS envelope encryption, multi-region failover, and DDoS mitigation.',
+    author: 'Google Agent Skills Standard',
+    createdAt: new Date().toISOString(),
+    sourceDocTitle: 'Google Cloud Architecture Framework: Security & Reliability (142 Pages).pdf',
+    sourceTokensRaw: 62400,
+    distilledTokens: 1650,
+    compressionRatio: '37.8x',
+    skillMdContent: `---
+name: google-cloud-waf-security
+version: 3.1.0
+description: "Google Cloud Well-Architected Framework: Security, Reliability, and Zero-Trust architecture standards."
+tags: ["GoogleCloud", "Security", "WAF", "ZeroTrust", "KMS"]
+tokensBudget: 1650
+---
+
+# Google Cloud Well-Architected Security Skill
+
+## Core Mandates
+1. Principle of Least Privilege: Never assign primitive Owner/Editor roles in production. Use granular predefined IAM roles with Workload Identity Federation.
+2. Encryption Everywhere: Enforce customer-managed encryption keys (CMEK) with Cloud KMS envelope encryption.
+3. Resilience & Multi-Region: Production workloads must maintain active-passive or active-active failover with < 15 min RTO.
+`,
+    decisionRules: [
+      {
+        id: 'gcp_rule_1',
+        ruleTitle: 'Zero-Trust IAM Privilege Boundary',
+        condition: 'Configuring service accounts or user permissions in enterprise production projects.',
+        actionRequired: 'Enforce Workload Identity Federation with short-lived OAuth tokens. Eliminate long-lived downloadable service account JSON keys.',
+        riskIfIgnored: 'Hardcoded key leaks causing unauthorized data exfiltration.',
+      },
+      {
+        id: 'gcp_rule_2',
+        ruleTitle: 'CMEK Envelope Encryption at Rest',
+        condition: 'Storing enterprise customer PII, corporate memory graphs, or financial ledger data.',
+        actionRequired: 'Encrypt database storage and GCS buckets using Cloud KMS Customer-Managed Encryption Keys with 90-day automatic key rotation.',
+        riskIfIgnored: 'Failure of SOC2 Type II and ISO 27001 regulatory compliance audits.',
+      },
+    ],
+    antiPatterns: [
+      {
+        id: 'gcp_anti_1',
+        trap: 'Using single-zone compute or database instances for mission-critical enterprise production.',
+        whyItFails: 'Zonal maintenance or unexpected regional outages cause immediate application downtime.',
+        correctApproach: 'Deploy regional high-availability clusters with automated multi-zone failovers.',
+      },
+    ],
+    chapters: [
+      {
+        id: 'gcp_ch_1',
+        chapterNumber: 1,
+        title: 'Zero-Trust Security & Network Segmentation',
+        summary: 'VPC Service Controls, Cloud Armor DDoS policies, and Identity-Aware Proxy.',
+        content: 'VPC Service Controls create cryptographic perimeters around Google Cloud resources, preventing data exfiltration even if IAM credentials are compromised.',
+        tokenCount: 480,
+      },
+    ],
+  },
+  {
+    id: 'skill_google_analytics_api',
+    name: 'google-analytics-data-api',
+    displayName: 'Google Analytics 4 & Performance Telemetry',
+    version: '2.4.0',
+    category: 'OPERATIONS',
+    description: 'Automated executive KPI tracking, conversion rate funnel analytics, and multi-channel attribution query generation.',
+    author: 'Google Agent Skills Standard',
+    createdAt: new Date().toISOString(),
+    sourceDocTitle: 'Google Analytics Data API (GA4) Architecture & Reporting Guide.pdf',
+    sourceTokensRaw: 38200,
+    distilledTokens: 1100,
+    compressionRatio: '34.7x',
+    skillMdContent: `---
+name: google-analytics-data-api
+version: 2.4.0
+description: "GA4 Data API dimensions, metrics, and automated executive cohort retention query generator."
+tags: ["GoogleAnalytics", "GA4", "Telemetry", "Growth", "Marketing"]
+tokensBudget: 1100
+---
+
+# Google Analytics 4 Performance Skill
+
+## Executive Reporting Standards
+- Always pair User Acquisition Cost (CAC) with 30-day and 90-day LTV Cohort Retention.
+- Conversion events must be registered with exact transaction value currency parameters.
+`,
+    decisionRules: [
+      {
+        id: 'ga4_rule_1',
+        ruleTitle: 'Event-Driven Conversion Attribution',
+        condition: 'Measuring marketing pipeline ROI and subscription upgrades.',
+        actionRequired: 'Query GA4 Data API using session-scoped and user-scoped dimension combinations to avoid double-counting.',
+        riskIfIgnored: 'Distorted conversion attribution leading to misallocated marketing capital.',
+      },
+    ],
+    antiPatterns: [
+      {
+        id: 'ga4_anti_1',
+        trap: 'Aggregating distinct user counts across date ranges using simple addition.',
+        whyItFails: 'Double counts returning users across day boundaries; overstates unique active users.',
+        correctApproach: 'Query the distinct activeUsers metric across the full composite date range directly.',
+      },
+    ],
+    chapters: [
+      {
+        id: 'ga4_ch_1',
+        chapterNumber: 1,
+        title: 'Executive Funnel Telemetry & Real-Time Monitoring',
+        summary: 'Real-time telemetry, session engagement durations, and churn alerts.',
+        content: 'Realtime reporting queries allow Chief of Staff to monitor spike anomalies and API latency degradation within 60 seconds of deployment.',
+        tokenCount: 390,
+      },
+    ],
+  },
 ];
