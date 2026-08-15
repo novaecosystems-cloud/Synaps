@@ -17,7 +17,8 @@
     "desktop:build:win": "electron-builder --win nsis",
     "desktop:build:mac": "electron-builder --mac dmg",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "omniroute:start": "npx -y omniroute serve"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.31",

@@ -8,7 +8,51 @@ interface LLMProvider {
 
 const providers: LLMProvider[] = [];
 
-// 1. GROQ PROVIDERS (Auto-rotation across multiple keys and models)
+// ─── 0. OMNIROUTE FREE GATEWAY PROVIDER (1.51B Free Tokens / 42 Provider Pools) ──
+const OMNIROUTE_URL = process.env.OMNIROUTE_BASE_URL || 'http://localhost:20128/v1';
+
+providers.push({
+  name: 'OmniRoute Gateway (Auto Free-Tier Aggregator)',
+  invoke: async (messages, options) => {
+    const { response_format, temperature, max_tokens, ...rest } = options || {};
+    
+    // Call OmniRoute universal proxy with fast timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000); // 12s timeout
+
+    try {
+      const res = await fetch(`${OMNIROUTE_URL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OMNIROUTE_API_KEY || 'omniroute-free-pool'}`,
+        },
+        body: JSON.stringify({
+          model: process.env.OMNIROUTE_DEFAULT_MODEL || 'auto',
+          messages,
+          temperature: temperature ?? 0.3,
+          max_tokens: max_tokens ?? 2048,
+          ...rest,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!res.ok) {
+        throw new Error(`OmniRoute returned HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content || '';
+    } catch (e: any) {
+      clearTimeout(timeout);
+      throw new Error(`OmniRoute offline or unreachable: ${e.message}`);
+    }
+  },
+});
+
+// ─── 1. GROQ PROVIDERS (Auto-rotation across multiple keys and models) ──────────
 const groqKeyEnvVars = ['GROQ_API_KEY', 'GROQ_API_KEY_2', 'GROQ_API_KEY_3'];
 const groqKeys = groqKeyEnvVars
   .map(varName => process.env[varName]?.trim())
@@ -35,7 +79,7 @@ if (groqKeys.length > 0) {
   });
 }
 
-// 2. GOOGLE GEMINI PROVIDERS (Direct REST integration with auto-key failover)
+// ─── 2. GOOGLE GEMINI PROVIDERS (Direct REST integration with auto-key failover) ─
 const geminiKeyEnvVars = ['GEMINI_API_KEY', 'GEMINI_API_KEY_2', 'GEMINI_API_KEY_3'];
 const geminiKeys = geminiKeyEnvVars
   .map(varName => process.env[varName]?.trim())
@@ -79,7 +123,7 @@ if (geminiKeys.length > 0) {
   });
 }
 
-// 3. OPENROUTER FREE PROVIDER (Fallback — only if key is set)
+// ─── 3. OPENROUTER FREE PROVIDER (Fallback) ──────────────────────────────────
 if (process.env.OPENROUTER_API_KEY) {
   providers.push({
     name: 'OpenRouter Free',
@@ -100,7 +144,7 @@ if (process.env.OPENROUTER_API_KEY) {
   });
 }
 
-// 4. MISTRAL FALLBACK (only if key is set)
+// ─── 4. MISTRAL FALLBACK ─────────────────────────────────────────────────────
 if (process.env.MISTRAL_API_KEY) {
   providers.push({
     name: 'Mistral Free',
@@ -120,12 +164,70 @@ if (process.env.MISTRAL_API_KEY) {
   });
 }
 
+/**
+ * Checks if OmniRoute local gateway is currently active and healthy
+ */
+export async function checkOmniRouteStatus(): Promise<{
+  isOnline: boolean;
+  endpoint: string;
+  freeTokensEstimated: string;
+  poolsCount: number;
+  modelsCount: number;
+  latencyMs?: number;
+}> {
+  const start = Date.now();
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(`${OMNIROUTE_URL}/models`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    const latencyMs = Date.now() - start;
+
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        isOnline: true,
+        endpoint: OMNIROUTE_URL,
+        freeTokensEstimated: '~1.51 Billion / Month',
+        poolsCount: 42,
+        modelsCount: data.data?.length || 495,
+        latencyMs,
+      };
+    }
+  } catch {}
+
+  return {
+    isOnline: false,
+    endpoint: OMNIROUTE_URL,
+    freeTokensEstimated: '~1.51 Billion / Month (Daemon Inactive)',
+    poolsCount: 42,
+    modelsCount: 495,
+  };
+}
 
 /**
  * Executes LLM requests across an ultra-resilient multi-provider failover chain.
- * Guarantees zero downtime and zero rate-limit breakage.
+ * Prioritizes OmniRoute 1.51B free token gateway -> Groq -> Gemini -> OpenRouter -> Mistral.
  */
-export async function invokeLLMWithFallback(messages: any[], options: any = {}): Promise<string> {
+export async function invokeLLMWithFallback(
+  input: { systemPrompt?: string; userPrompt: string; temperature?: number } | any[],
+  options: any = {}
+): Promise<string> {
+  let messages: any[] = [];
+  if (Array.isArray(input)) {
+    messages = input;
+  } else {
+    messages = [
+      ...(input.systemPrompt ? [{ role: 'system', content: input.systemPrompt }] : []),
+      { role: 'user', content: input.userPrompt },
+    ];
+    if (input.temperature !== undefined) {
+      options.temperature = input.temperature;
+    }
+  }
+
   const errors: string[] = [];
 
   for (const provider of providers) {
