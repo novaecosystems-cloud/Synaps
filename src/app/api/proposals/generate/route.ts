@@ -19,9 +19,9 @@ export async function POST(req: NextRequest) {
     const user = await prisma.user.findUnique({ where: { id: decodedToken.uid } });
     if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    // Enforce Daily AI Credit Limit
+    // Enforce Daily AI Credit & 2-Use Demo Feature Limit
     const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
-    const creditCheck = await checkAndConsumeAiCredits(user.id, user.role || 'MEMBER', 1);
+    const creditCheck = await checkAndConsumeAiCredits(user.id, user.role || 'MEMBER', 1, 'proposals_generator');
 
     if (!creditCheck.success) {
       return NextResponse.json({ 
@@ -48,58 +48,76 @@ export async function POST(req: NextRequest) {
     const gapsText = gaps.map(g => `${g.title}: ${g.description}`).join('\n');
     const decText = decision ? `Recommendation: ${decision.recommendation}\nSummary: ${decision.executiveSummary}` : '';
 
-    // Generate sections via AI
-    const sectionsData = await generateProposalSections(documentId, reqText, gapsText, decText, mode);
+    // Fetch chunks for deep context
+    const chunks = await prisma.documentChunk.findMany({
+      where: { documentId },
+      take: 10,
+      orderBy: { pageNumber: 'asc' }
+    });
+    const docSummary = chunks.map(c => c.text).join('\n---\n').slice(0, 4000);
 
-    // Upsert Proposal
-    let proposal = await prisma.proposal.findUnique({ where: { documentId } });
-    
-    if (proposal) {
-      // Delete existing sections to overwrite
-      await prisma.proposalSection.deleteMany({ where: { proposalId: proposal.id } });
-    } else {
+    const generatedSections = await generateProposalSections({
+      documentTitle: doc.name,
+      documentSummary: docSummary,
+      requirementsSummary: reqText || 'No specific requirements extracted.',
+      gapsSummary: gapsText || 'No major gaps flagged.',
+      decisionSummary: decText || 'Standard proposal approval workflow.',
+      mode: mode as any
+    });
+
+    // Check if a proposal already exists for this document or create a new one
+    let proposal = await prisma.proposal.findFirst({
+      where: { documentId }
+    });
+
+    if (!proposal) {
       proposal = await prisma.proposal.create({
         data: {
-          documentId,
-          organizationId: doc.organizationId,
-          projectId: doc.projectId,
-          title: `Proposal Draft: ${doc.name}`,
+          title: `Proposal: ${doc.name}`,
+          content: 'Generated Proposal via Synaps Multi-Agent Engine',
+          status: 'DRAFT',
+          organizationId: user.organizationId,
+          documentId: doc.id,
+          authorId: user.id
         }
       });
     }
 
-    // Insert new sections
-    await prisma.proposalSection.createMany({
-      data: sectionsData.map(s => ({
-        proposalId: proposal!.id,
-        title: s.title,
-        content: s.content,
-        order: s.order
-      })) as any
+    // Delete existing sections if any, and insert new ones
+    await prisma.proposalSection.deleteMany({
+      where: { proposalId: proposal.id }
     });
 
-    const finalProposal = await prisma.proposal.findUnique({
+    for (const sec of generatedSections) {
+      await prisma.proposalSection.create({
+        data: {
+          proposalId: proposal.id,
+          organizationId: user.organizationId,
+          sectionType: sec.sectionType,
+          title: sec.title,
+          content: sec.content,
+          order: sec.order,
+          confidenceScore: sec.confidenceScore
+        }
+      });
+    }
+
+    const fullProposal = await prisma.proposal.findUnique({
       where: { id: proposal.id },
-      include: { sections: { orderBy: { order: 'asc' } } }
-    });
-
-    await prisma.notification.create({
-      data: {
-        userId: doc.ownerId,
-        organizationId: doc.organizationId,
-        type: 'AI_COMPLETED',
-        title: 'Proposal Generation Complete',
-        message: `Your AI-generated proposal draft for ${doc.name} is ready for review.`,
-        link: `/dashboard/proposals/edit/${proposal.id}`
+      include: {
+        sections: {
+          orderBy: { order: 'asc' }
+        }
       }
     });
 
-    return NextResponse.json({ success: true, proposal: finalProposal });
+    return NextResponse.json({
+      success: true,
+      proposal: fullProposal
+    });
+
   } catch (error: any) {
-    console.error('Proposals Generate API Error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
+    console.error('Error generating proposal:', error);
+    return NextResponse.json({ success: false, error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
-

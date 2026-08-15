@@ -9,6 +9,7 @@ interface CreditLimitResult {
   resetAt: string;
   isByokActive?: boolean;
   error?: string;
+  featureRemaining?: number;
 }
 
 // In-memory daily credit tracking: Map<"userId:YYYY-MM-DD", count>
@@ -17,8 +18,12 @@ const dailyCreditStore = new Map<string, number>();
 // In-memory BYOK (Bring Your Own Key) cache: Map<userId, encryptedKey>
 const userCustomKeysStore = new Map<string, string>();
 
+// In-memory Demo Feature Trial Tracker (Exactly 2 uses per Pro & Max feature)
+const demoFeatureUsesStore = new Map<string, number>();
+
+export const DEMO_FEATURE_LIMIT = 2;
+
 // Exact Role Credit Limits:
-// Member = 50 (~2 hrs active work), Admin (Pro) = 500 (~4 hrs active work), Owner/Leader (Enterprise Max) = 10,000 (~5-6 hrs heavy enterprise work)
 export const ROLE_CREDIT_LIMITS: Record<string, number> = {
   OWNER: 10000,
   LEADER: 10000,
@@ -30,11 +35,6 @@ export const ROLE_CREDIT_LIMITS: Record<string, number> = {
 
 /**
  * Calculates credit consumption dynamically based on actual token usage & complexity.
- * Implements Anthropic & Google Gemini token billing logic.
- * 
- * - Free Tier (50 credits): ~10-15 prompts (~2 hours of work)
- * - Pro Tier (500 credits): ~60-80 document/RAG queries (~4 hours of work)
- * - Enterprise Max Tier (10,000 credits): ~250-400 multi-agent boardroom simulations & risk audits (~5-6 hours of work)
  */
 export function calculateTokenCreditCost(options: {
   promptText?: string;
@@ -46,7 +46,6 @@ export function calculateTokenCreditCost(options: {
   const completionTokens = Math.max(20, Math.ceil((options.responseText?.length || 0) / 4));
   const totalTokens = promptTokens + completionTokens;
 
-  // Base rate: 1 credit per ~150 tokens
   let baseCost = Math.ceil(totalTokens / 150);
 
   const complexityMultipliers: Record<string, number> = {
@@ -74,15 +73,67 @@ export function getCustomUserApiKey(userId: string): string {
   return decryptApiKey(encryptedKey);
 }
 
+/**
+ * Checks and enforces the exact 2-use trial quota for Pro & Max features on Demo sessions.
+ */
+export function checkAndConsumeDemoFeature(
+  userId: string,
+  featureName: string = 'general_feature'
+): { allowed: boolean; used: number; limit: number; remaining: number; error?: string } {
+  const cleanId = (userId || 'demo-user').trim().toLowerCase();
+  const isDemo = cleanId.includes('demo') || cleanId.startsWith('test_token');
+
+  // Non-demo users have standard account quotas
+  if (!isDemo) {
+    return { allowed: true, used: 0, limit: 9999, remaining: 9999 };
+  }
+
+  const key = `${cleanId}:${featureName.toLowerCase()}`;
+  const used = demoFeatureUsesStore.get(key) || 0;
+
+  if (used >= DEMO_FEATURE_LIMIT) {
+    const formattedName = featureName.replace(/_/g, ' ').toUpperCase();
+    return {
+      allowed: false,
+      used,
+      limit: DEMO_FEATURE_LIMIT,
+      remaining: 0,
+      error: `Demo limit reached: You have used all 2 free trials for ${formattedName}. Upgrade to Pro or Max to unlock unlimited usage!`
+    };
+  }
+
+  const newUsed = used + 1;
+  demoFeatureUsesStore.set(key, newUsed);
+
+  return {
+    allowed: true,
+    used: newUsed,
+    limit: DEMO_FEATURE_LIMIT,
+    remaining: DEMO_FEATURE_LIMIT - newUsed
+  };
+}
+
+export function getDemoFeatureUsage(userId: string, featureName: string) {
+  const cleanId = (userId || 'demo-user').trim().toLowerCase();
+  const key = `${cleanId}:${featureName.toLowerCase()}`;
+  const used = demoFeatureUsesStore.get(key) || 0;
+  return {
+    used,
+    limit: DEMO_FEATURE_LIMIT,
+    remaining: Math.max(0, DEMO_FEATURE_LIMIT - used)
+  };
+}
+
 export async function checkAndConsumeAiCredits(
   userId: string,
   role: string = 'MEMBER',
-  cost: number = 1
+  cost: number = 1,
+  featureName?: string
 ): Promise<CreditLimitResult> {
 
   const cleanUserId = (userId || 'demo-user').trim().toLowerCase();
 
-  // 1. If user has supplied their own custom API key (BYOK), daily credit limits are UNLIMITED!
+  // 1. If user has BYOK, credit limits are UNLIMITED
   const customKey = getCustomUserApiKey(cleanUserId);
   if (customKey) {
     return {
@@ -95,7 +146,24 @@ export async function checkAndConsumeAiCredits(
     };
   }
 
-  // 2. Otherwise enforce system daily credit quota
+  // 2. If this is a demo session and a feature is specified, enforce the strict 2-use trial per feature
+  if (featureName && (cleanUserId.includes('demo') || cleanUserId.startsWith('test_token'))) {
+    const demoCheck = checkAndConsumeDemoFeature(cleanUserId, featureName);
+    if (!demoCheck.allowed) {
+      return {
+        success: false,
+        creditsUsed: demoCheck.used,
+        creditLimit: DEMO_FEATURE_LIMIT,
+        remaining: 0,
+        resetAt: 'Demo Limit Reached',
+        isByokActive: false,
+        featureRemaining: 0,
+        error: demoCheck.error
+      };
+    }
+  }
+
+  // 3. Otherwise enforce standard daily credit quota
   const today = new Date().toISOString().slice(0, 10);
   const storeKey = `${cleanUserId}:${today}`;
   const creditLimit = ROLE_CREDIT_LIMITS[role.toUpperCase()] || 50;
@@ -110,7 +178,7 @@ export async function checkAndConsumeAiCredits(
       remaining: Math.max(0, creditLimit - currentUsed),
       resetAt: 'Midnight UTC',
       isByokActive: false,
-      error: `Daily AI credit limit reached (${currentUsed}/${creditLimit} credits used today). Add your own API key in Settings → Developer API for unlimited credits or upgrade your plan!`
+      error: `Daily AI credit limit reached (${currentUsed}/${creditLimit} credits used today). Upgrade your plan or add your API key for unlimited access!`
     };
   }
 

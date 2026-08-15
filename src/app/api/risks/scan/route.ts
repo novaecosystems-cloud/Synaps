@@ -1,4 +1,4 @@
-﻿export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -24,9 +24,9 @@ export async function POST(req: NextRequest) {
       });
     } catch (e) {}
 
-    // Enforce Daily AI Credit Limit
+    // Enforce Daily AI Credit & 2-Use Demo Feature Limit
     const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
-    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1);
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1, 'contract_redline');
 
     if (!creditCheck.success) {
       return NextResponse.json({ 

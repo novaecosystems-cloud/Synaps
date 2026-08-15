@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
-    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', creditCost);
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', creditCost, 'cowork_matter_vault');
 
     if (!creditCheck.success) {
       return NextResponse.json({

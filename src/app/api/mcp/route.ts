@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SYNAPS_MCP_TOOLS, executeMcpTool } from '@/lib/mcp-server';
 import { verifySessionCookie } from '@/lib/auth-server';
+import { checkAndConsumeDemoFeature } from '@/lib/ai-credit-limiter';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 
@@ -122,6 +123,21 @@ export async function POST(req: NextRequest) {
             { jsonrpc: '2.0', id, error: { code: -32602, message: `Unknown tool: ${name}` } },
             { status: 400 }
           );
+        }
+
+        // Demo Quota Enforcement (2 uses limit on demo sessions)
+        if (organizationId.includes('demo')) {
+          const demoCheck = checkAndConsumeDemoFeature(organizationId, 'mcp_tool_execution');
+          if (!demoCheck.allowed) {
+            return NextResponse.json({
+              jsonrpc: '2.0',
+              id,
+              error: {
+                code: -32002,
+                message: demoCheck.error || 'Demo limit reached: 2 free executions completed for MCP tools. Upgrade to Pro/Max for unlimited executions.'
+              }
+            }, { status: 429 });
+          }
         }
 
         // Sanitize all string args to prevent prompt injection via MCP

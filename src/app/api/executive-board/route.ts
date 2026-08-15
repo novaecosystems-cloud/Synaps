@@ -19,13 +19,13 @@ export async function POST(req: NextRequest) {
     try {
       dbUser = await prisma.user.findUnique({
         where: { id: decoded.uid },
-        select: { organizationId: true }
+        select: { organizationId: true, role: true }
       });
     } catch (e) {}
 
-    // Daily AI Credit Limit Check
+    // Daily AI Credit & 2-Use Demo Feature Limit Check
     const { checkAndConsumeAiCredits } = await import('@/lib/ai-credit-limiter');
-    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1);
+    const creditCheck = await checkAndConsumeAiCredits(decoded.uid, dbUser?.role || 'MEMBER', 1, 'boardroom_consensus');
     if (!creditCheck.success) {
       return NextResponse.json({ success: false, error: creditCheck.error, creditCheck }, { status: 429 });
     }
@@ -58,9 +58,7 @@ export async function POST(req: NextRequest) {
           risks: [],
           opportunities: [],
           overallConfidence: 90,
-          finalRecommendation: 'The Board recommends execution under structured milestones.'
-        },
-        timestamp: new Date().toISOString()
+        }
       }
     });
   }
