@@ -13,11 +13,49 @@ const ALLOWED_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/msword',
+  'application/vnd.ms-excel',
+  'application/vnd.ms-powerpoint',
+  'text/markdown',
+  'text/x-markdown',
+  'text/plain',
+  'text/csv',
+  'application/csv',
+  'application/json',
+  'text/json',
+  'text/yaml',
+  'application/x-yaml',
+  'text/tab-separated-values',
   'image/jpeg',
   'image/png',
   'image/gif',
-  'image/webp'
+  'image/webp',
+  'image/tiff'
 ];
+
+const EXTENSION_MIME_MAP: Record<string, string> = {
+  '.pdf': 'application/pdf',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.doc': 'application/msword',
+  '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  '.xls': 'application/vnd.ms-excel',
+  '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  '.ppt': 'application/vnd.ms-powerpoint',
+  '.md': 'text/markdown',
+  '.markdown': 'text/markdown',
+  '.txt': 'text/plain',
+  '.csv': 'text/csv',
+  '.json': 'application/json',
+  '.yaml': 'text/yaml',
+  '.yml': 'text/yaml',
+  '.tsv': 'text/tab-separated-values',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.tiff': 'image/tiff'
+};
 
 async function authenticate() {
   const cookieStore = await cookies();
@@ -37,13 +75,25 @@ export async function requestUploadUrl(name: string, mimeType: string, sizeBytes
 
   // 1. Validation: Max size
   if (sizeBytes > MAX_FILE_SIZE) {
-    return { success: false, error: 'File size exceeds 50MB limit.' };
+    return { success: false, error: 'File size exceeds 10GB limit.' };
+  }
+
+  // Resolve MIME type from extension if browser sent generic or empty type
+  let resolvedMimeType = mimeType;
+  const ext = name.includes('.') ? `.${name.split('.').pop()?.toLowerCase()}` : '';
+  if ((!resolvedMimeType || resolvedMimeType === 'application/octet-stream') && ext && EXTENSION_MIME_MAP[ext]) {
+    resolvedMimeType = EXTENSION_MIME_MAP[ext];
   }
 
   // 2. Validation: Type Check
-  if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
-    return { success: false, error: 'Unsupported file type. Only PDF, DOCX, XLSX, PPTX, and Images are allowed.' };
+  const isAllowedMime = ALLOWED_MIME_TYPES.includes(resolvedMimeType);
+  const isAllowedExt = ext && !!EXTENSION_MIME_MAP[ext];
+
+  if (!isAllowedMime && !isAllowedExt) {
+    return { success: false, error: 'Unsupported file type. Supported formats: PDF, DOCX, XLSX, PPTX, Markdown (.md), TXT, CSV, JSON, and Images.' };
   }
+
+  const finalMimeType = resolvedMimeType || (ext && EXTENSION_MIME_MAP[ext]) || 'application/octet-stream';
 
   // 3. Validation: Duplicate detection
   const existing = await prisma.document.findFirst({

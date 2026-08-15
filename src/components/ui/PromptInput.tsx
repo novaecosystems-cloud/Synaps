@@ -582,7 +582,7 @@ export const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept=".pdf,.docx,.doc,.xlsx,.pptx,.md,.markdown,.txt,.csv,.json,image/*"
             multiple
             onChange={handleFilesChosen}
             className="hidden"

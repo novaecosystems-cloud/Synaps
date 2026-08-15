@@ -147,6 +147,7 @@ export function DocumentUploadDropzone({ organizationId, projectId, onUploadSucc
         <input 
           type="file" 
           multiple 
+          accept=".pdf,.docx,.doc,.xlsx,.xls,.pptx,.ppt,.md,.markdown,.txt,.csv,.json,.yaml,.yml,.tsv,image/*"
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
           onChange={handleFileInput}
         />
@@ -159,7 +160,7 @@ export function DocumentUploadDropzone({ organizationId, projectId, onUploadSucc
         </div>
         <p className="text-sm font-medium text-white mb-1">Click or drag files to upload</p>
         <p className="text-xs text-muted-foreground max-w-sm text-center">
-          Support for PDF, DOCX, XLSX, PPTX, and Images up to 10GB.
+          Support for PDF, DOCX, XLSX, Markdown (.md), TXT, CSV, JSON, and Images up to 10GB.
         </p>
       </div>
 

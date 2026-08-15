@@ -223,8 +223,61 @@ export async function GET(request: NextRequest) {
           confidence: String(ocrResult.confidence),
           latencyMs: String(ocrResult.latencyMs),
         };
+      } else if (
+        mimeType.includes('markdown') ||
+        mimeType.includes('text/plain') ||
+        mimeType.includes('text/csv') ||
+        mimeType.includes('application/csv') ||
+        mimeType.includes('application/json') ||
+        mimeType.includes('text/json') ||
+        mimeType.includes('yaml') ||
+        mimeType.includes('tab-separated-values') ||
+        doc.name.endsWith('.md') ||
+        doc.name.endsWith('.markdown') ||
+        doc.name.endsWith('.txt') ||
+        doc.name.endsWith('.csv') ||
+        doc.name.endsWith('.json') ||
+        doc.name.endsWith('.yaml') ||
+        doc.name.endsWith('.yml') ||
+        doc.name.endsWith('.tsv')
+      ) {
+        // Native Text & Markdown Parsing (.md, .txt, .csv, .json, .yaml)
+        const rawContent = buffer.toString('utf-8');
+        extractedText = rawContent;
+        
+        if (doc.name.endsWith('.md') || mimeType.includes('markdown')) {
+          detectedType = 'MARKDOWN';
+        } else if (doc.name.endsWith('.csv') || mimeType.includes('csv')) {
+          detectedType = 'CSV';
+        } else if (doc.name.endsWith('.json') || mimeType.includes('json')) {
+          detectedType = 'JSON';
+        } else if (doc.name.endsWith('.yaml') || doc.name.endsWith('.yml') || mimeType.includes('yaml')) {
+          detectedType = 'YAML';
+        } else {
+          detectedType = 'TXT';
+        }
+
+        const lines = rawContent.split('\n').length;
+        pageCount = Math.max(1, Math.ceil(lines / 45)); // ~45 lines per standard document page
+        metadata = {
+          lineCount: String(lines),
+          charCount: String(rawContent.length),
+          encoding: 'utf-8',
+        };
       } else {
-        throw new Error(`Unsupported file type for extraction: ${mimeType}`);
+        // Fallback for generic text files
+        try {
+          const rawContent = buffer.toString('utf-8');
+          if (rawContent && rawContent.length > 0) {
+            extractedText = rawContent;
+            detectedType = 'TEXT_FALLBACK';
+            pageCount = Math.max(1, Math.ceil(rawContent.split('\n').length / 45));
+          } else {
+            throw new Error(`Unsupported or empty file type for extraction: ${mimeType}`);
+          }
+        } catch {
+          throw new Error(`Unsupported file type for extraction: ${mimeType}`);
+        }
       }
 
       await updateProgress(job.id, 90);
