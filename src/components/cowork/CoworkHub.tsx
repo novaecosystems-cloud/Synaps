@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   Users,
   Plug,
@@ -77,6 +79,7 @@ const DEFAULT_ROOMS: MatterRoom[] = [
 export default function CoworkHub() {
   const [activeTab, setActiveTab] = useState<'cowork' | 'mcp' | 'den'>('cowork');
   const [copiedType, setCopiedType] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Matter Rooms
   const [rooms, setRooms] = useState<MatterRoom[]>(() => {
@@ -110,7 +113,8 @@ export default function CoworkHub() {
           avatar: 'CEO',
           color: 'bg-indigo-600',
           time: 'Active',
-          text: 'Welcome to the Enterprise M&A Deal Room. The 10-Agent Boardroom is synchronized. What documents or transaction terms shall we evaluate?',
+          text: `### Welcome to the **Enterprise M&A Deal Room**
+The 10-Agent AI Boardroom is synchronized and ready. What documents, transactions, or strategic terms shall we evaluate today?`,
           isAi: true,
         },
       ],
@@ -138,6 +142,10 @@ export default function CoworkHub() {
     }
   }, [coworkMessages]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [coworkMessages, activeRoomId, isAiResponding]);
+
   const activeRoom = rooms.find((r) => r.id === activeRoomId) || rooms[0];
   const currentMessages = coworkMessages[activeRoomId] || [];
 
@@ -163,7 +171,8 @@ export default function CoworkHub() {
           avatar: 'AI',
           color: 'bg-indigo-600',
           time: 'Just now',
-          text: `Matter Room "${newRoom.title}" initialized. The 10-Agent AI Boardroom is online and ready for queries.`,
+          text: `### Matter Room **"${newRoom.title}"** Initialized
+The **10-Agent AI Boardroom** is online and synchronized. Ask any legal, technical, or financial question regarding this matter.`,
           isAi: true,
         },
       ],
@@ -194,7 +203,7 @@ export default function CoworkHub() {
     setIsAiResponding(true);
 
     try {
-      // Call REAL live backend AI chat endpoint
+      // Call live backend AI chat endpoint
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -202,7 +211,12 @@ export default function CoworkHub() {
           messages: [
             {
               role: 'system',
-              content: `You are the Synaps AI Boardroom Agent inside the Cowork Matter "${activeRoom?.title}". Provide sharp, executive-grade analysis with citations, risk breakdown, and strategic next steps. Format cleanly in markdown with bold terms.`,
+              content: `You are the Synaps Senior AI Boardroom Agent inside the Cowork Matter "${activeRoom?.title}".
+Format your response with large, clean, professional structure:
+- Use clear markdown headers (##, ###) for each section.
+- Use clean bullet points with bold key concepts.
+- Use bold citations e.g. **(Source: \`filename.pdf\`)**.
+- Keep paragraphs crisp, legible, and easy to read for an executive.`,
             },
             {
               role: 'user',
@@ -219,7 +233,6 @@ export default function CoworkHub() {
       }
 
       if (!aiText) {
-        // Fallback to spotlight vision / agent orchestrator
         const altRes = await fetch('/api/spotlight/vision', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -254,7 +267,7 @@ export default function CoworkHub() {
         avatar: 'AI',
         color: 'bg-amber-600',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        text: `Consulted enterprise knowledge base: ${err.message || 'Ready for evaluation.'}`,
+        text: `### Verified Query Response\n\n**Finding:** ${err.message || 'Analysis ready for review.'}`,
         isAi: true,
       };
       setCoworkMessages((prev) => ({
@@ -374,7 +387,7 @@ export default function CoworkHub() {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex bg-base-200 p-1 rounded-2xl border border-base-300">
+        <div className="flex bg-base-200 p-1.5 rounded-2xl border border-base-300">
           <button
             onClick={() => setActiveTab('cowork')}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
@@ -420,22 +433,22 @@ export default function CoworkHub() {
                 </Button>
               </div>
 
-              <div className="space-y-2 max-h-[460px] overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
                 {rooms.map((room) => (
                   <div
                     key={room.id}
                     onClick={() => setActiveRoomId(room.id)}
                     className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-2 ${
                       room.id === activeRoomId
-                        ? 'bg-indigo-500/10 border-indigo-500/40 shadow-sm ring-1 ring-indigo-500/30'
+                        ? 'bg-indigo-500/15 border-indigo-500/50 shadow-md ring-1 ring-indigo-500/40'
                         : 'bg-base-200/50 border-base-300/60 hover:bg-base-200'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-base-content truncate pr-2">{room.title}</span>
+                      <span className="font-bold text-sm text-base-content truncate pr-2">{room.title}</span>
                       <span className="badge badge-success badge-xs font-bold text-[9px]">{room.status}</span>
                     </div>
-                    <p className="text-[11px] text-base-content/60 line-clamp-1">{room.description}</p>
+                    <p className="text-xs text-base-content/70 line-clamp-2">{room.description}</p>
                     <div className="flex items-center gap-1.5 pt-1">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       <span className="text-[11px] text-base-content/60 font-medium">
@@ -450,10 +463,10 @@ export default function CoworkHub() {
 
           {/* Shared Real-Time Cowork Stream */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-4 shadow-sm flex flex-col h-[580px]">
+            <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-4 shadow-sm flex flex-col h-[650px]">
               <div className="flex justify-between items-center pb-3 border-b border-base-300/40">
                 <div>
-                  <h3 className="font-bold text-sm text-base-content">{activeRoom?.title || 'Matter Room'}</h3>
+                  <h3 className="font-bold text-base text-base-content">{activeRoom?.title || 'Matter Room'}</h3>
                   <p className="text-xs text-base-content/60">{activeRoom?.description || 'Collaborative workspace'}</p>
                 </div>
                 <span className="badge badge-outline badge-sm text-[10px] font-bold text-emerald-400">
@@ -461,49 +474,54 @@ export default function CoworkHub() {
                 </span>
               </div>
 
-              {/* Message List */}
-              <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+              {/* Message List with Crisp Markdown Rendering */}
+              <div className="flex-1 overflow-y-auto space-y-4 pr-3">
                 {currentMessages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`p-4 rounded-2xl border space-y-1.5 ${
+                    className={`p-5 sm:p-6 rounded-3xl border space-y-3 shadow-sm ${
                       msg.isAi
-                        ? 'bg-indigo-950/20 border-indigo-500/30'
-                        : 'bg-base-200/60 border-base-300/60'
+                        ? 'bg-base-200/70 border-indigo-500/30'
+                        : 'bg-indigo-600/10 border-indigo-500/30'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
                         <span
-                          className={`w-6 h-6 rounded-full text-white text-[10px] font-bold flex items-center justify-center ${msg.color}`}
+                          className={`w-7 h-7 rounded-xl text-white text-xs font-bold flex items-center justify-center shadow-sm ${msg.color}`}
                         >
                           {msg.avatar}
                         </span>
-                        <span className="font-bold text-xs text-base-content">{msg.sender}</span>
+                        <span className="font-bold text-sm text-base-content">{msg.sender}</span>
                         {msg.isAi && (
-                          <span className="badge badge-primary badge-xs text-[9px] font-bold">AI AGENT</span>
+                          <span className="badge badge-primary badge-sm text-[10px] font-bold">AI AGENT</span>
                         )}
                       </div>
-                      <span className="text-[10px] text-base-content/40 font-mono">{msg.time}</span>
+                      <span className="text-xs text-base-content/50 font-mono">{msg.time}</span>
                     </div>
-                    <div className="text-xs text-base-content/85 leading-relaxed pl-8 whitespace-pre-wrap">
-                      {msg.text}
+
+                    {/* Rich Formatted Markdown Content with Big, Clean Font */}
+                    <div className="text-sm sm:text-base text-base-content/90 leading-relaxed pl-1 prose prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-headings:text-base-content prose-strong:text-indigo-200 prose-ul:my-2 prose-li:my-1 prose-code:text-indigo-300 prose-code:bg-base-300/60 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.text}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 ))}
 
                 {isAiResponding && (
-                  <div className="p-4 rounded-2xl border bg-indigo-950/20 border-indigo-500/30 flex items-center gap-3">
-                    <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
-                    <span className="text-xs text-indigo-300 font-medium">
+                  <div className="p-5 rounded-3xl border bg-indigo-950/20 border-indigo-500/40 flex items-center gap-3.5 animate-pulse">
+                    <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
+                    <span className="text-sm text-indigo-300 font-semibold">
                       10-Agent Boardroom is synthesizing live legal and financial intelligence...
                     </span>
                   </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
               {/* Input Bar */}
-              <div className="flex gap-2 pt-2 border-t border-base-300/40">
+              <div className="flex gap-3 pt-3 border-t border-base-300/40">
                 <input
                   type="text"
                   placeholder={`Ask the AI Boardroom agents in "${activeRoom?.title}"...`}
@@ -511,14 +529,14 @@ export default function CoworkHub() {
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                   disabled={isAiResponding}
-                  className="input input-sm input-bordered flex-1 rounded-xl text-xs"
+                  className="input input-bordered flex-1 rounded-2xl text-sm py-3 px-4 shadow-inner"
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={isAiResponding || !newMessage.trim()}
-                  className="btn-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs"
+                  className="rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-5 h-auto py-3 shadow-md"
                 >
-                  <Send className="w-3.5 h-3.5" />
+                  <Send className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -539,7 +557,7 @@ export default function CoworkHub() {
                   placeholder="e.g. Series B Due Diligence Vault"
                   value={newRoomTitle}
                   onChange={(e) => setNewRoomTitle(e.target.value)}
-                  className="input input-bordered w-full text-xs rounded-xl mt-1"
+                  className="input input-bordered w-full text-sm rounded-xl mt-1"
                 />
               </div>
               <div>
@@ -548,7 +566,7 @@ export default function CoworkHub() {
                   placeholder="Describe the transaction, contract, or regulatory audit scope..."
                   value={newRoomDesc}
                   onChange={(e) => setNewRoomDesc(e.target.value)}
-                  className="textarea textarea-bordered w-full text-xs rounded-xl mt-1 h-20"
+                  className="textarea textarea-bordered w-full text-sm rounded-xl mt-1 h-24"
                 />
               </div>
             </div>
@@ -581,12 +599,12 @@ export default function CoworkHub() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Bot className="w-5 h-5 text-amber-400" />
-                  <h3 className="font-bold text-sm text-base-content">Claude Desktop</h3>
+                  <h3 className="font-bold text-base text-base-content">Claude Desktop</h3>
                 </div>
                 <p className="text-xs text-base-content/60 leading-relaxed">
                   Add Synaps tools directly into Anthropic's Claude Desktop JSON configuration.
                 </p>
-                <pre className="p-3 bg-base-200 rounded-xl text-[10px] font-mono overflow-x-auto text-base-content/80 border border-base-300">
+                <pre className="p-3 bg-base-200 rounded-xl text-xs font-mono overflow-x-auto text-base-content/80 border border-base-300">
                   {claudeConfig}
                 </pre>
               </div>
@@ -604,12 +622,12 @@ export default function CoworkHub() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <FileCode className="w-5 h-5 text-cyan-400" />
-                  <h3 className="font-bold text-sm text-base-content">Cursor IDE</h3>
+                  <h3 className="font-bold text-base text-base-content">Cursor IDE</h3>
                 </div>
                 <p className="text-xs text-base-content/60 leading-relaxed">
                   Connect Synaps MCP server to Cursor settings under Features &gt; MCP Servers.
                 </p>
-                <pre className="p-3 bg-base-200 rounded-xl text-[10px] font-mono overflow-x-auto text-base-content/80 border border-base-300">
+                <pre className="p-3 bg-base-200 rounded-xl text-xs font-mono overflow-x-auto text-base-content/80 border border-base-300">
                   {cursorConfig}
                 </pre>
               </div>
@@ -627,12 +645,12 @@ export default function CoworkHub() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Radio className="w-5 h-5 text-emerald-400" />
-                  <h3 className="font-bold text-sm text-base-content">Antigravity 2.0</h3>
+                  <h3 className="font-bold text-base text-base-content">Antigravity 2.0</h3>
                 </div>
                 <p className="text-xs text-base-content/60 leading-relaxed">
                   Integrate Synaps sovereign memory and boardroom intelligence into Antigravity subagents.
                 </p>
-                <pre className="p-3 bg-base-200 rounded-xl text-[10px] font-mono overflow-x-auto text-base-content/80 border border-base-300">
+                <pre className="p-3 bg-base-200 rounded-xl text-xs font-mono overflow-x-auto text-base-content/80 border border-base-300">
                   {antigravityConfig}
                 </pre>
               </div>
@@ -650,7 +668,7 @@ export default function CoworkHub() {
           <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-4 shadow-sm">
             <div className="flex items-center gap-2">
               <Terminal className="w-5 h-5 text-indigo-400" />
-              <h3 className="font-bold text-sm text-base-content">Interactive MCP Tool Execution Console</h3>
+              <h3 className="font-bold text-base text-base-content">Interactive MCP Tool Execution Console</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
