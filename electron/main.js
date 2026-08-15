@@ -162,6 +162,11 @@ function createWindow() {
 
   createApplicationMenu(startBaseUrl);
 
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
   // Set session cookie for native desktop auto-login
   const domain = isDev ? 'localhost' : 'synaps-one.vercel.app';
   mainWindow.webContents.session.cookies.set({
@@ -175,9 +180,11 @@ function createWindow() {
   }).then(() => {
     console.log(`[Synaps Desktop] Session initialized. Loading ${startUrl}`);
     mainWindow.loadURL(startUrl);
+    mainWindow.show();
   }).catch((err) => {
     console.warn(`[Synaps Desktop] Session cookie warning:`, err.message);
     mainWindow.loadURL(startUrl);
+    mainWindow.show();
   });
 
   // Handle window close -> minimize to system tray instead of terminating
