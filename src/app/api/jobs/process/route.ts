@@ -279,7 +279,7 @@ export async function GET(request: NextRequest) {
         where: { id: job.id },
         data: {
           status: 'FAILED',
-          error: processError.message || 'Unknown error',
+          error: 'An internal processing error occurred',
           completedAt: new Date()
         }
       });

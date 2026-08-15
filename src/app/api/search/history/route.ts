@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ history: history.map(h => h.query) });
   } catch (error: any) {
     console.error('History API Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'An internal error occurred. Please try again.' }, { status: 500 });
   }
 }
 

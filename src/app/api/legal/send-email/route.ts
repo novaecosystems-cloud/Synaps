@@ -76,6 +76,6 @@ Certified Electronic Audit Token: ${auditToken}
     });
   } catch (error: any) {
     console.error('Error in send-email API:', error);
-    return NextResponse.json({ error: error.message || 'Failed to dispatch email copy' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to dispatch email copy' }, { status: 500 });
   }
 }

@@ -57,6 +57,6 @@ Key Result: Grounded analysis completed with 99.4% confidence score. All documen
     });
   } catch (error: any) {
     console.error('Error executing Prime Agent Orchestration:', error);
-    return NextResponse.json({ error: error.message || 'Failed to execute Prime Agent task' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to execute Prime Agent task' }, { status: 500 });
   }
 }

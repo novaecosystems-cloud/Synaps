@@ -160,7 +160,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results });
   } catch (error: any) {
     console.error('Search API Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'An internal error occurred. Please try again.' }, { status: 500 });
   }
 }
 

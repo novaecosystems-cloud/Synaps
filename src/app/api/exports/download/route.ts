@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error: any) {
-    return new NextResponse(error.message, { status: 500 });
+    return new NextResponse('An internal error occurred.', { status: 500 });
   }
 }
 

@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
     console.error('GET /api/documents/all error:', error);
     return NextResponse.json({
       success: false,
-      error: error.message || 'Failed to fetch documents'
+      error: 'Failed to fetch documents'
     }, { status: 500 });
   }
 }

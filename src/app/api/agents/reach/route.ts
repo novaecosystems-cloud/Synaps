@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     console.error('POST /api/agents/reach error:', error);
     return NextResponse.json({
       success: false,
-      error: error.message || 'Failed to execute AgentReach web connector action.'
+      error: 'Failed to execute AgentReach web connector action.'
     }, { status: 500 });
   }
 }

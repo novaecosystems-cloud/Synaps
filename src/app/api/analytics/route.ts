@@ -1,4 +1,4 @@
-﻿export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, ProjectStatus, CoverageStatus, GapSeverity } from '@prisma/client';
@@ -166,7 +166,7 @@ export async function GET(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Analytics API Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'An internal error occurred. Please try again.' }, { status: 500 });
   }
 }
 
