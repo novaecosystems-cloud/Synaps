@@ -5,22 +5,30 @@ import { checkAndConsumeDemoFeature, extractClientIp } from '@/lib/ai-credit-lim
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 
-// ─── Auth: resolve organizationId or return null (never throws) ──────────────
-async function resolveOrganizationId(req: NextRequest): Promise<string | null> {
+// ─── Auth: resolve organizationId or return demo fallback ──────────────────
+async function resolveOrganizationId(req: NextRequest): Promise<string> {
   const authHeader = req.headers.get('authorization') || '';
 
   if (authHeader.startsWith('Bearer ')) {
     const token = authHeader.replace('Bearer ', '').trim();
-    // Only accept properly prefixed Synaps API keys
-    if (!token.startsWith('synaps_live_') || token.length < 20) return null;
+    
+    // Enterprise demo token or demo prefix
+    if (
+      token === 'synaps_live_enterprise_key' ||
+      token === 'synaps_demo_access' ||
+      token.startsWith('synaps_demo_')
+    ) {
+      return 'demo-org-synaps';
+    }
 
-    try {
-      const org = await prisma.organization
-        .findFirst({ where: { apiKey: token }, select: { id: true } })
-        .catch(() => null);
-      return org?.id ?? null;
-    } catch {
-      return null;
+    // Live organization API key lookup
+    if (token.startsWith('synaps_live_') && token.length >= 20) {
+      try {
+        const org = await prisma.organization
+          .findFirst({ where: { apiKey: token }, select: { id: true } })
+          .catch(() => null);
+        if (org?.id) return org.id;
+      } catch {}
     }
   }
 
@@ -28,44 +36,45 @@ async function resolveOrganizationId(req: NextRequest): Promise<string | null> {
   try {
     const cookieStore = await cookies();
     const session = cookieStore.get('synaps-session')?.value;
-    if (!session) return null;
-    const decoded = await verifySessionCookie(session);
-    if (!decoded?.uid) return null;
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.uid },
-      select: { organizationId: true },
-    });
-    return user?.organizationId ?? null;
-  } catch {
-    return null;
-  }
+    if (session) {
+      const decoded = await verifySessionCookie(session);
+      if (decoded?.uid) {
+        const user = await prisma.user.findUnique({
+          where: { id: decoded.uid },
+          select: { organizationId: true },
+        });
+        if (user?.organizationId) return user.organizationId;
+      }
+    }
+  } catch {}
+
+  // Fallback to demo organization context for browser / public demo callers
+  return 'demo-org-synaps';
 }
 
-// ─── GET: capability discovery — requires valid auth ─────────────────────────
+// ─── GET: capability discovery — returns MCP server capabilities ─────────────
 export async function GET(req: NextRequest) {
   const orgId = await resolveOrganizationId(req);
-  if (!orgId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   return NextResponse.json({
     name: 'synaps-mcp-bridge',
     version: '1.0.0',
     protocolVersion: '2024-11-05',
     status: 'online',
     description: 'Synaps Universal MCP Server Bridge — Claude Desktop, Cursor, Antigravity, VS Code.',
+    organizationContext: orgId.includes('demo') ? 'demo-sandbox' : 'enterprise-live',
     toolsCount: SYNAPS_MCP_TOOLS.length,
     tools: SYNAPS_MCP_TOOLS.map((t) => ({ name: t.name, description: t.description })),
   });
 }
 
 // ─── Handshake methods that don't need org-level auth ────────────────────────
-const UNAUTHENTICATED_METHODS = new Set(['initialize', 'ping']);
+const UNAUTHENTICATED_METHODS = new Set(['initialize', 'ping', 'tools/list']);
 
 // ─── POST: main JSON-RPC 2.0 dispatcher ──────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { id, method } = body;
+    const { id, method, params } = body;
 
     // Validate envelope
     if (!method || typeof method !== 'string') {
@@ -75,7 +84,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Handshake methods pass through without auth
+    // Handshake and discovery methods pass through directly
     if (UNAUTHENTICATED_METHODS.has(method)) {
       if (method === 'initialize') {
         return NextResponse.json({
@@ -87,26 +96,17 @@ export async function POST(req: NextRequest) {
           },
         });
       }
+      if (method === 'tools/list') {
+        return NextResponse.json({ jsonrpc: '2.0', id, result: { tools: SYNAPS_MCP_TOOLS } });
+      }
       // ping
       return NextResponse.json({ jsonrpc: '2.0', id, result: {} });
     }
 
-    // All other methods require a valid organizationId
+    // Resolve organization context (live org or demo sandbox)
     const organizationId = await resolveOrganizationId(req);
-    if (!organizationId) {
-      return NextResponse.json(
-        { jsonrpc: '2.0', id, error: { code: -32001, message: 'Unauthorized — valid synaps_live_ API key or session required' } },
-        { status: 401 }
-      );
-    }
-
-    // ─── Authenticated method dispatch ────────────────────────────────────
-    const { params } = body;
 
     switch (method) {
-      case 'tools/list':
-        return NextResponse.json({ jsonrpc: '2.0', id, result: { tools: SYNAPS_MCP_TOOLS } });
-
       case 'tools/call': {
         const { name, arguments: args = {} } = params || {};
 
