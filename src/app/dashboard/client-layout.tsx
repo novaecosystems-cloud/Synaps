@@ -91,6 +91,7 @@ const sidebarSections: MenuSection[] = [
           { name: 'Strategy Studio', href: '/dashboard/strategy', badge: 'PRO' },
           { name: 'Chart Studio (ARLM)', href: '/dashboard/charts', badge: 'PRO' },
           { name: 'Matter Notebooks & Audio', href: '/dashboard/notebooks', badge: 'PRO' },
+          { name: 'Playbook to Skill (24x RAG)', href: '/dashboard/skills', badge: 'PRO' },
           { name: 'Enterprise Assistant', href: '/dashboard/assistant' },
           { name: 'AI Workflows', href: '/dashboard/workspace' },
         ]
