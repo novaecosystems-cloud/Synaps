@@ -5,9 +5,9 @@ import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 
 /**
- * GET /demo
- * Instant Demo Route Handler for Hackathon & Live Showcase.
- * Grants instant 100% zero-login access to every feature in Synaps.
+ * GET /demo & GET /demo/
+ * Zero-Login Instant Interactive Demo Route.
+ * Grants instant 100% unrestricted access to every Pro & Max feature in Synaps.
  * Sets the demo session cookie, seeds demo org + user + documents, and redirects to /dashboard.
  */
 export async function GET(req: NextRequest) {
@@ -15,19 +15,33 @@ export async function GET(req: NextRequest) {
   const demoUserId = 'demo-user';
   const demoOrgId = 'demo_apex_org_id';
 
-  // 1. Ensure Demo Organization exists in Database
+  // 1. Ensure Demo Organization exists in Database with Enterprise Max settings
   try {
     await prisma.organization.upsert({
       where: { id: demoOrgId },
-      update: { name: 'Apex Global Hospitality & Hotel Operations' },
+      update: { 
+        name: 'Apex Global Hospitality & Hotel Operations',
+        settings: {
+          plan: 'ENTERPRISE',
+          tier: 'MAX',
+          unlockedFeatures: ['boardroom', 'redline', 'digital_twin', 'graph', 'mcp', 'proposals'],
+          dailyCredits: 10000,
+        }
+      },
       create: {
         id: demoOrgId,
         name: 'Apex Global Hospitality & Hotel Operations',
-        description: 'Hospitality & Luxury Hotels Enterprise Demo'
+        description: 'Hospitality & Luxury Hotels Enterprise Demo',
+        settings: {
+          plan: 'ENTERPRISE',
+          tier: 'MAX',
+          unlockedFeatures: ['boardroom', 'redline', 'digital_twin', 'graph', 'mcp', 'proposals'],
+          dailyCredits: 10000,
+        }
       }
     });
 
-    // 2. Ensure Demo User exists in Database
+    // 2. Ensure Demo User exists with OWNER / MAX role
     let demoUser = await prisma.user.findFirst({
       where: { OR: [{ id: demoUserId }, { email: 'admin@apex-global.com' }] }
     });
@@ -37,15 +51,18 @@ export async function GET(req: NextRequest) {
         data: {
           id: demoUserId,
           email: 'admin@apex-global.com',
-          name: 'Demo Administrator',
+          name: 'Demo Administrator (Executive)',
           organizationId: demoOrgId,
-          role: 'ADMIN'
+          role: 'OWNER'
         }
       });
-    } else if (demoUser.organizationId !== demoOrgId) {
+    } else {
       await prisma.user.update({
         where: { id: demoUser.id },
-        data: { organizationId: demoOrgId }
+        data: { 
+          organizationId: demoOrgId,
+          role: 'OWNER'
+        }
       });
     }
 
@@ -201,16 +218,16 @@ Page 3: Risk Assessment for Jaipur and Delhi Hotel Property Renovations.`
     console.warn('[GET /demo] Non-fatal seeding warning:', seedErr);
   }
 
-  // 4. Set Session Cookie for instant access
+  // 4. Set Session Cookie for instant zero-login access
   const sessionToken = `DEMO_SESSION_${demoUserId}`;
   cookieStore.set('synaps-session', sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: 7 * 24 * 60 * 60 // 7 days
+    maxAge: 30 * 24 * 60 * 60 // 30 days
   });
 
-  // 5. Redirect to Dashboard
+  // 5. Redirect to Dashboard with active demo session
   return NextResponse.redirect(new URL('/dashboard', req.url));
 }
