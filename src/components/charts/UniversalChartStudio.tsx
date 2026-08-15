@@ -41,8 +41,7 @@ import {
   Check,
   Layers,
   Activity,
-  Maximize2,
-  Sliders,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,6 +52,19 @@ import {
   PRESET_CHARTS,
   validateChartARLM,
 } from '@/lib/chart-generator';
+
+function escapeXml(unsafe: string): string {
+  return (unsafe || '').replace(/[<>&'"]/g, (c) => {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+      default: return c;
+    }
+  });
+}
 
 export default function UniversalChartStudio() {
   const [chart, setChart] = useState<ChartDefinition>(PRESET_CHARTS.legal_risk_matrix);
@@ -140,6 +152,110 @@ export default function UniversalChartStudio() {
     setChart({ ...chart, data: newData });
   };
 
+  // Generate self-contained standalone SVG with embedded themes, card background, typography & dimensions
+  const generateStandaloneSvgString = (): string | null => {
+    if (!chartRef.current) return null;
+    const svgElem = chartRef.current.querySelector('svg.recharts-surface') || chartRef.current.querySelector('svg');
+    if (!svgElem) return null;
+
+    const width = 960;
+    const height = 560;
+    const chartWidth = 900;
+    const chartHeight = 400;
+
+    // Clone the inner recharts svg
+    const clonedSvg = svgElem.cloneNode(true) as SVGElement;
+    clonedSvg.setAttribute('width', `${chartWidth}`);
+    clonedSvg.setAttribute('height', `${chartHeight}`);
+    clonedSvg.removeAttribute('style');
+
+    // Ensure all text elements have computed colors
+    const textNodes = clonedSvg.querySelectorAll('text, tspan');
+    textNodes.forEach((node) => {
+      const currentFill = (node as SVGTextElement).getAttribute('fill');
+      if (!currentFill || currentFill === 'currentColor') {
+        (node as SVGTextElement).setAttribute('fill', currentPalette.text);
+      }
+      (node as SVGTextElement).setAttribute('font-family', 'Inter, system-ui, -apple-system, sans-serif');
+    });
+
+    const innerContent = clonedSvg.innerHTML;
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap');
+    text { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  </style>
+  
+  <!-- Background Card -->
+  <rect width="100%" height="100%" rx="24" fill="${currentPalette.bg}" stroke="#334155" stroke-width="1.5"/>
+  
+  <!-- Header Title -->
+  <text x="36" y="48" fill="${currentPalette.text}" font-size="20" font-weight="700" letter-spacing="-0.02em">${escapeXml(chart.title)}</text>
+  
+  <!-- Subtitle -->
+  ${chart.subtitle ? `<text x="36" y="74" fill="${currentPalette.text}" opacity="0.65" font-size="12">${escapeXml(chart.subtitle)}</text>` : ''}
+  
+  <!-- ARLM Badge -->
+  <g transform="translate(${width - 170}, 28)">
+    <rect width="134" height="28" rx="14" fill="#10b98122" stroke="#10b981" stroke-width="1"/>
+    <text x="67" y="18" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">ARLM ${(chart.meta.arlmScore * 100).toFixed(1)}%</text>
+  </g>
+  
+  <!-- Chart Viewport -->
+  <g transform="translate(30, 100)">
+    ${innerContent}
+  </g>
+</svg>`;
+  };
+
+  // Export Vector SVG (Self-Contained Standalone XML)
+  const handleExportSVG = () => {
+    const fullSvg = generateStandaloneSvgString();
+    if (!fullSvg) return;
+    const blob = new Blob([fullSvg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${chart.title.toLowerCase().replace(/\s+/g, '_')}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Export High-Res 2x PNG (Presentation & Slide Ready)
+  const handleExportPNG = () => {
+    const svgStr = generateStandaloneSvgString();
+    if (!svgStr) return;
+
+    const img = new Image();
+    const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+    const blobURL = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const scale = 2; // 2x Retina resolution (1920x1120)
+      canvas.width = 960 * scale;
+      canvas.height = 560 * scale;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0);
+
+      const pngUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = pngUrl;
+      link.download = `${chart.title.toLowerCase().replace(/\s+/g, '_')}_2x.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobURL);
+    };
+    img.src = blobURL;
+  };
+
   // Export CSV
   const handleExportCSV = () => {
     const headers = [chart.xAxisKey, ...chart.series.map((s) => s.key)];
@@ -163,22 +279,6 @@ export default function UniversalChartStudio() {
     const link = document.createElement('a');
     link.setAttribute('href', dataStr);
     link.setAttribute('download', `${chart.title.toLowerCase().replace(/\s+/g, '_')}_spec.json`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Export Vector SVG
-  const handleExportSVG = () => {
-    if (!chartRef.current) return;
-    const svgElem = chartRef.current.querySelector('svg');
-    if (!svgElem) return;
-    const svgData = new XMLSerializer().serializeToString(svgElem);
-    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${chart.title.toLowerCase().replace(/\s+/g, '_')}.svg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -212,11 +312,14 @@ export default function UniversalChartStudio() {
 
         {/* Quick Export Actions */}
         <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={handleExportCSV} variant="outline" className="rounded-2xl gap-1.5 text-xs font-bold">
-            <Download className="w-3.5 h-3.5" /> CSV (Excel)
+          <Button onClick={handleExportPNG} variant="outline" className="rounded-2xl gap-1.5 text-xs font-bold bg-indigo-500/10 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20">
+            <ImageIcon className="w-3.5 h-3.5" /> High-Res PNG (2x)
           </Button>
           <Button onClick={handleExportSVG} variant="outline" className="rounded-2xl gap-1.5 text-xs font-bold">
-            <Download className="w-3.5 h-3.5" /> Vector SVG
+            <Download className="w-3.5 h-3.5" /> Standalone SVG
+          </Button>
+          <Button onClick={handleExportCSV} variant="outline" className="rounded-2xl gap-1.5 text-xs font-bold">
+            <Download className="w-3.5 h-3.5" /> CSV (Excel)
           </Button>
           <Button onClick={handleExportJSON} variant="outline" className="rounded-2xl gap-1.5 text-xs font-bold">
             <FileCode className="w-3.5 h-3.5" /> JSON Spec
@@ -391,15 +494,20 @@ export default function UniversalChartStudio() {
               style={{ backgroundColor: currentPalette.bg }}
             >
               {/* Chart Header */}
-              <div className="mb-6">
-                <h2 className="text-lg font-bold" style={{ color: currentPalette.text }}>
-                  {chart.title}
-                </h2>
-                {chart.subtitle && (
-                  <p className="text-xs opacity-70 mt-0.5" style={{ color: currentPalette.text }}>
-                    {chart.subtitle}
-                  </p>
-                )}
+              <div className="mb-6 flex justify-between items-start">
+                <div>
+                  <h2 className="text-lg font-bold" style={{ color: currentPalette.text }}>
+                    {chart.title}
+                  </h2>
+                  {chart.subtitle && (
+                    <p className="text-xs opacity-70 mt-0.5" style={{ color: currentPalette.text }}>
+                      {chart.subtitle}
+                    </p>
+                  )}
+                </div>
+                <span className="badge badge-success badge-sm font-mono text-[10px] font-bold">
+                  ARLM {(chart.meta.arlmScore * 100).toFixed(1)}%
+                </span>
               </div>
 
               {/* Chart Body */}
