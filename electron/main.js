@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, nativeImage, session, desktopCapturer } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, nativeImage, session, desktopCapturer, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -171,9 +171,9 @@ function createApplicationMenu(startBaseUrl) {
     {
       label: 'View',
       submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
+        { role: 'reload', accelerator: 'CmdOrCtrl+R' },
+        { role: 'forceReload', accelerator: 'CmdOrCtrl+Shift+R' },
+        { role: 'toggleDevTools', accelerator: 'F12' },
         { type: 'separator' },
         { role: 'resetZoom' },
         { role: 'zoomIn' },
@@ -219,6 +219,7 @@ async function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      webSecurity: false,
     },
   });
 
@@ -289,6 +290,11 @@ async function createWindow() {
         mainWindow.loadURL(startUrl);
       }
     }, 1500);
+  });
+
+  mainWindow.webContents.on('render-process-gone', (e, details) => {
+    console.error('[Synaps Desktop] Renderer crashed, reloading:', details);
+    mainWindow.reload();
   });
 
   mainWindow.once('ready-to-show', () => {
