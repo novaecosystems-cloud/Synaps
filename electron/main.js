@@ -7,19 +7,16 @@ const http = require('http');
 
 app.setName('Synaps AI');
 
+// Prevent GPU crashes and renderer exit loops on Windows
+app.commandLine.appendSwitch('disable-gpu-sandbox');
+app.commandLine.appendSwitch('no-sandbox');
+
 // ── ENFORCE SINGLE INSTANCE LOCK ──
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
 if (!gotSingleInstanceLock) {
   console.log('[Synaps Desktop] Another instance is already running. Quitting duplicate.');
   app.quit();
 }
-
-// Ensure persistent user data directory
-const userDataDir = path.join(app.getPath('appData'), 'SynapsAI-App');
-if (!fs.existsSync(userDataDir)) {
-  fs.mkdirSync(userDataDir, { recursive: true });
-}
-app.setPath('userData', userDataDir);
 
 // ── BULLETPROOF LOCAL SESSION VAULT ──
 const VAULT_DIR = path.join(os.homedir(), '.synaps');
@@ -66,6 +63,7 @@ function setStoredLegalConsent(granted) {
 let mainWindow = null;
 let spotlightWindow = null;
 let tray = null;
+let lastSavedCookieValue = null;
 
 function getAppIcon() {
   const candidates = [
@@ -219,11 +217,10 @@ async function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: false,
     },
   });
 
-  // Set modern Chrome User-Agent to ensure Google OAuth & Next.js WebGL render smoothly
+  // Set modern Chrome User-Agent
   const chromeUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 SynapsDesktop/1.0';
   mainWindow.webContents.setUserAgent(chromeUserAgent);
 
@@ -264,8 +261,7 @@ async function createWindow() {
     }
   }
 
-  let lastSavedCookieValue = null;
-  // Hook cookie persistence so all future logins/refreshes are saved cleanly without disk flooding
+  // Hook cookie persistence cleanly (NO loops)
   session.defaultSession.cookies.on('changed', async (event, cookie, cause, removed) => {
     if (cookie.name === 'synaps-session' && !removed && cookie.value && cookie.value !== lastSavedCookieValue) {
       lastSavedCookieValue = cookie.value;
@@ -286,15 +282,10 @@ async function createWindow() {
     } catch (e) {}
   });
 
-  // CRITICAL FIX: Ignore code -3 (ERR_ABORTED) which is normal during HTTP redirects/navigations!
+  // Ignore code -3 (ERR_ABORTED) from redirects!
   mainWindow.webContents.on('did-fail-load', (e, code, desc, url) => {
-    if (code === -3) return; // Ignore ERR_ABORTED from redirects!
+    if (code === -3) return;
     console.warn('[Synaps Desktop] Network connection note:', code, desc, url);
-  });
-
-  mainWindow.webContents.on('render-process-gone', (e, details) => {
-    console.error('[Synaps Desktop] Renderer crashed, reloading:', details);
-    mainWindow.reload();
   });
 
   mainWindow.once('ready-to-show', () => {
@@ -468,31 +459,29 @@ ipcMain.on('expand-to-full-app', (event, query) => {
 // 1. Capture screen snapshot (ephemeral)
 ipcMain.handle('capture-screen', async () => {
   try {
-    // Hide spotlight for 90ms so it doesn't block the screen capture
-    if (spotlightWindow && spotlightWindow.isVisible()) {
+    if (spotlightWindow && !spotlightWindow.isDestroyed() && spotlightWindow.isVisible()) {
       spotlightWindow.hide();
-      await new Promise(r => setTimeout(r, 90));
+      await new Promise(r => setTimeout(r, 120));
     }
 
     const sources = await desktopCapturer.getSources({
-      types: ['screen'],
+      types: ['screen', 'window'],
       thumbnailSize: { width: 1920, height: 1080 }
     });
 
-    // Re-show spotlight
-    if (spotlightWindow) {
+    if (spotlightWindow && !spotlightWindow.isDestroyed()) {
       spotlightWindow.show();
       spotlightWindow.focus();
     }
 
     if (sources && sources.length > 0) {
-      const primary = sources[0];
-      return primary.thumbnail.toDataURL();
+      const screenSource = sources.find(s => s.name === 'Entire Screen' || s.name.toLowerCase().includes('screen') || s.id.startsWith('screen:')) || sources[0];
+      return screenSource.thumbnail.toDataURL();
     }
     return null;
   } catch (err) {
     console.error('[Capture Screen Error]', err.message);
-    if (spotlightWindow) spotlightWindow.show();
+    if (spotlightWindow && !spotlightWindow.isDestroyed()) spotlightWindow.show();
     return null;
   }
 });
