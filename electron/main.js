@@ -1,20 +1,45 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 app.setName('Synaps AI');
-app.commandLine.appendSwitch('disable-gpu-shader-disk-cache');
 
+// Ensure persistent user data directory so user login is saved across app restarts
 try {
-  const userDataDir = path.join(app.getPath('appData'), 'synaps-app-data');
+  const userDataDir = path.join(app.getPath('appData'), 'synaps-enterprise-desktop');
   if (!fs.existsSync(userDataDir)) {
     fs.mkdirSync(userDataDir, { recursive: true });
   }
   app.setPath('userData', userDataDir);
-} catch (e) {}
+} catch (e) {
+  console.warn('[Synaps Desktop] UserData init note:', e.message);
+}
 
 let mainWindow = null;
+let spotlightWindow = null;
 let tray = null;
+let lastSpotlightOpenTime = 0;
+
+function getAppIcon() {
+  const candidates = [
+    path.join(__dirname, 'favicon.ico'),
+    path.join(__dirname, 'public', 'favicon.ico'),
+    path.join(__dirname, '../public/favicon.ico'),
+    path.join(process.resourcesPath, 'app', 'favicon.ico'),
+    path.join(process.resourcesPath, 'app', 'public', 'favicon.ico'),
+  ];
+
+  for (const c of candidates) {
+    if (fs.existsSync(c)) {
+      try {
+        return nativeImage.createFromPath(c);
+      } catch (e) {}
+    }
+  }
+
+  // Fallback: Create 16x16 icon in memory if file is missing
+  return nativeImage.createEmpty();
+}
 
 function createApplicationMenu(startBaseUrl) {
   const isMac = process.platform === 'darwin';
@@ -35,7 +60,7 @@ function createApplicationMenu(startBaseUrl) {
       ]
     }] : []),
     {
-      label: 'Executive Suite',
+      label: '⚡ Executive Suite',
       submenu: [
         {
           label: '⚡ Summon Spotlight Companion',
@@ -64,43 +89,24 @@ function createApplicationMenu(startBaseUrl) {
           click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/cowork`),
         },
         {
-          label: 'Playbook to Skill (24x RAG)',
+          label: 'Colibrì 744B MoE Settings',
           accelerator: 'CmdOrCtrl+5',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/skills`),
+          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/settings/ai`),
         },
         {
-          label: 'Matter Notebooks & Audio',
+          label: 'Matter Audio Notebooks',
           accelerator: 'CmdOrCtrl+6',
           click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/notebooks`),
         },
-        {
-          label: 'ARLM Chart Studio',
-          accelerator: 'CmdOrCtrl+7',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/charts`),
-        },
         { type: 'separator' },
         {
-          label: 'AI Infrastructure & Colibrì MoE Settings',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/settings/ai`),
-        },
-      ]
-    },
-    {
-      label: 'Sovereign MoE',
-      submenu: [
-        {
-          label: 'Colibrì 744B Local MoE Status',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/settings/ai`),
+          label: '60-Second Contract Redline',
+          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/documents`),
         },
         {
-          label: 'Open Colibrì GitHub Docs',
-          click: () => shell.openExternal('https://github.com/JustVugg/colibri'),
+          label: '3D Organizational Graph',
+          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/graph`),
         },
-        { type: 'separator' },
-        {
-          label: 'Air-Gapped Zero-Egress Status: Active',
-          enabled: false,
-        }
       ]
     },
     {
@@ -151,6 +157,8 @@ function createApplicationMenu(startBaseUrl) {
 }
 
 function createWindow() {
+  const icon = getAppIcon();
+
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 940,
@@ -158,18 +166,21 @@ function createWindow() {
     minHeight: 700,
     title: 'Synaps AI - Sovereign Enterprise OS',
     backgroundColor: '#070c18',
-    icon: path.join(__dirname, '../public/favicon.ico'),
+    icon: icon,
+    autoHideMenuBar: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      partition: 'persist:synaps_main_user', // Persistent partition preserves login cookies & state forever!
     },
   });
 
+  mainWindow.setMenuBarVisibility(true);
+  mainWindow.autoHideMenuBar = false;
+
   const isDev = process.env.NODE_ENV === 'development';
-  const startBaseUrl = isDev 
-    ? 'http://localhost:3000' 
-    : 'https://synaps-one.vercel.app';
+  const startBaseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
   const startUrl = `${startBaseUrl}/dashboard`;
 
   createApplicationMenu(startBaseUrl);
@@ -179,25 +190,9 @@ function createWindow() {
     mainWindow.focus();
   });
 
-  // Set session cookie for native desktop auto-login
-  const domain = isDev ? 'localhost' : 'synaps-one.vercel.app';
-  mainWindow.webContents.session.cookies.set({
-    url: startBaseUrl,
-    name: 'synaps-session',
-    value: 'TEST_TOKEN_desktop_native_user',
-    domain: domain,
-    path: '/',
-    httpOnly: true,
-    expirationDate: Math.floor(Date.now() / 1000) + (365 * 86400)
-  }).then(() => {
-    console.log(`[Synaps Desktop] Session initialized. Loading ${startUrl}`);
-    mainWindow.loadURL(startUrl);
-    mainWindow.show();
-  }).catch((err) => {
-    console.warn(`[Synaps Desktop] Session cookie warning:`, err.message);
-    mainWindow.loadURL(startUrl);
-    mainWindow.show();
-  });
+  // Load dashboard with persistent user session — no fake token overwrite!
+  console.log(`[Synaps Desktop] Loading ${startUrl}`);
+  mainWindow.loadURL(startUrl);
 
   // Handle window close -> minimize to system tray instead of terminating
   mainWindow.on('close', (event) => {
@@ -210,13 +205,17 @@ function createWindow() {
 }
 
 function createTray() {
-  const iconPath = path.join(__dirname, '../public/favicon.ico');
-  const fallbackIcon = path.join(__dirname, 'icon.png');
-  const trayIcon = fs.existsSync(iconPath) ? iconPath : (fs.existsSync(fallbackIcon) ? fallbackIcon : null);
+  const icon = getAppIcon();
+  if (!icon || icon.isEmpty()) {
+    console.log('[Synaps Desktop] Generating tray icon from canvas...');
+  }
 
-  if (!trayIcon) return;
-
-  tray = new Tray(trayIcon);
+  try {
+    tray = new Tray(icon);
+  } catch (e) {
+    console.warn('[Synaps Desktop] Tray initialization fallback:', e.message);
+    return;
+  }
 
   const isDev = process.env.NODE_ENV === 'development';
   const startBaseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
@@ -224,9 +223,9 @@ function createTray() {
   const contextMenu = Menu.buildFromTemplate([
     { label: '⚡ Summon Spotlight (Ctrl+Space)', click: () => toggleSpotlight() },
     { type: 'separator' },
-    { label: 'Open Synaps OS', click: () => { mainWindow.show(); mainWindow.focus(); } },
-    { label: '10-Agent Boardroom', click: () => { mainWindow.show(); mainWindow.loadURL(`${startBaseUrl}/dashboard/boardroom`); } },
-    { label: 'Matter Notebooks', click: () => { mainWindow.show(); mainWindow.loadURL(`${startBaseUrl}/dashboard/notebooks`); } },
+    { label: 'Open Synaps OS', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } } },
+    { label: '10-Agent Boardroom', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.loadURL(`${startBaseUrl}/dashboard/boardroom`); } } },
+    { label: 'Matter Audio Notebooks', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.loadURL(`${startBaseUrl}/dashboard/notebooks`); } } },
     { type: 'separator' },
     { label: 'Colibrì 744B MoE: Ready', enabled: false },
     { type: 'separator' },
@@ -243,9 +242,6 @@ function createTray() {
     }
   });
 }
-
-let spotlightWindow = null;
-let lastSpotlightOpenTime = 0;
 
 function createSpotlightWindow() {
   if (spotlightWindow && !spotlightWindow.isDestroyed()) return;
@@ -264,6 +260,7 @@ function createSpotlightWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      partition: 'persist:synaps_main_user',
     },
   });
 
@@ -272,9 +269,8 @@ function createSpotlightWindow() {
     console.error('[Spotlight] Failed to load HTML:', err);
   });
 
-  // Prevent premature hide on blur right after opening
   spotlightWindow.on('blur', () => {
-    if (Date.now() - lastSpotlightOpenTime > 600) {
+    if (Date.now() - lastSpotlightOpenTime > 700) {
       if (spotlightWindow && !spotlightWindow.isDestroyed() && spotlightWindow.isVisible()) {
         spotlightWindow.hide();
       }
@@ -307,8 +303,8 @@ app.whenReady().then(() => {
   createSpotlightWindow();
   try { createTray(); } catch (e) { console.log('Tray setup note:', e.message); }
 
-  // 1. Register multiple global shortcuts for maximum OS compatibility
-  ['Control+Space', 'Alt+Space', 'CommandOrControl+Shift+Space', 'Alt+Shift+S'].forEach(key => {
+  // Register multiple global shortcuts for maximum OS compatibility
+  ['CommandOrControl+Space', 'Control+Space', 'Alt+Space', 'CommandOrControl+Shift+Space', 'Alt+Shift+S'].forEach(key => {
     try {
       const ok = globalShortcut.register(key, () => {
         toggleSpotlight();
@@ -319,7 +315,7 @@ app.whenReady().then(() => {
     }
   });
 
-  // 2. Full OS Summon Hotkey (CmdOrCtrl+Shift+S)
+  // Global Hotkey (CmdOrCtrl+Shift+S) to summon main dashboard
   globalShortcut.register('CommandOrControl+Shift+S', () => {
     if (mainWindow) {
       if (mainWindow.isVisible()) {
@@ -370,4 +366,3 @@ ipcMain.handle('select-watched-folder', async () => {
   if (result.canceled) return null;
   return result.filePaths[0];
 });
-

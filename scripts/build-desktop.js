@@ -37,12 +37,13 @@ if (fs.existsSync(path.join(rootDir, 'electron', 'spotlight.html'))) {
   fs.copyFileSync(path.join(rootDir, 'electron', 'spotlight.html'), path.join(appDir, 'spotlight.html'));
 }
 
-// 3. Copy favicon if available
+// 3. Copy favicon to root and public folder for tray & window icons
 const publicDir = path.join(appDir, 'public');
 fs.mkdirSync(publicDir, { recursive: true });
 const iconSrc = path.join(rootDir, 'public', 'favicon.ico');
 if (fs.existsSync(iconSrc)) {
   fs.copyFileSync(iconSrc, path.join(publicDir, 'favicon.ico'));
+  fs.copyFileSync(iconSrc, path.join(appDir, 'favicon.ico'));
 }
 
 console.log('[Desktop Build] Synaps Desktop app deployed to resources/app/ →', appDir);
