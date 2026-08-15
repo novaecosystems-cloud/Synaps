@@ -89,6 +89,27 @@ SYNAPS is engineered as an **Evidentiary Decision Intelligence Operating System*
 
 ---
 
+### 2.5 Model Context Protocol (MCP) JSON-RPC Server
+* **Endpoint File:** [`src/app/api/mcp/route.ts`](file:///D:/Synaps/src/app/api/mcp/route.ts)
+* **Server Implementation:** [`src/lib/mcp-server.ts`](file:///D:/Synaps/src/lib/mcp-server.ts)
+* **Protocol Compliance:** Standardized Model Context Protocol (MCP) JSON-RPC 2.0 interface.
+* **Exposed Tools:**
+  * `query_evidence`: Natural language search across tenant document vector indexes with line-level citations.
+  * `consult_boardroom`: Real-time 10-Agent dialectic deliberation on complex corporate dilemmas.
+  * `benchmark_clause`: Submits contract clauses against cross-industry P50/P90 percentile risk curves.
+  * `simulate_digital_twin`: Executes 10,000-iteration Monte Carlo stress tests for supply chain and financial disruptions.
+* **Client Compatibility:** Out-of-the-box integration with Claude Desktop, Cursor IDE, Antigravity, and autonomous agent loops.
+
+---
+
+### 2.6 Offline Network Guardian & Local Edge Resiliency
+* **Component File:** [`src/components/OfflineNetworkGuardian.tsx`](file:///D:/Synaps/src/components/OfflineNetworkGuardian.tsx)
+* **Local Ingestion Cache:** IndexedDB vector caching with automatic network dropout detection.
+* **Edge Failover:** Standalone Electron desktop runtime with seamless fallback to local Ollama LLMs when offline.
+* **Auto-Reconnection Chime:** Proactive health pinging with ascending audio feedback and state synchronization upon link re-establishment.
+
+---
+
 ## 3. Database Schema & Data Models (Prisma / NeonDB)
 
 ```

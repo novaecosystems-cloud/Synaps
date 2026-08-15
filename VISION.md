@@ -46,7 +46,19 @@ Enterprise legal teams, finance offices, and executives are drowning in thousand
 
 ---
 
-## 4. Five-Year Strategic Roadmap
+## 4. Omnichannel Distribution Flywheel & Commercial Scalability
+
+Synaps does not rely on single-channel marketing; it deploys an **omnichannel, product-led distribution model**:
+
+1. **Zero-Login Interactive Sandbox (`/demo`)**: Eliminates signup friction. Users experience the 10-Agent Boardroom in <15 seconds, converting directly into self-serve paying accounts.
+2. **Model Context Protocol (MCP) Server**: Exposes Synaps directly into developer and analyst workflows (Claude Desktop, Cursor, Antigravity) via standardized JSON-RPC tools.
+3. **Accio Chrome Extension Sidecar**: Instant 1-click capture of live vendor portals, SaaS pricing grids, and web regulations into the enterprise vault.
+4. **Offline Native Desktop Runtime**: Distributes enterprise-grade resilience for Windows/macOS/Linux with local IndexedDB caching and local LLM fallbacks.
+5. **Viral Artifact Sharing**: Boardroom PDF briefings, 2x canvas charts, and executive progress cards act as organic referral vehicles across boardrooms and external legal counsels.
+
+---
+
+## 5. Five-Year Strategic Roadmap
 
 ### Phase 1: Evidentiary Grounding & Boardroom Suite (Current — Q3 2026)
 * 10-Agent Boardroom Engine with live dialectic consensus.
