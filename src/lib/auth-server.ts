@@ -49,11 +49,11 @@ export async function verifySessionCookie(sessionCookie: string) {
   }
   
   try {
-    const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+    const decodedClaims = await auth.verifySessionCookie(sessionCookie, false);
     return decodedClaims;
   } catch (error) {
     try {
-      const decodedIdToken = await auth.verifyIdToken(sessionCookie);
+      const decodedIdToken = await auth.verifyIdToken(sessionCookie, false);
       return decodedIdToken;
     } catch (e) {
       return null;

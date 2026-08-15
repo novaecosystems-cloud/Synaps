@@ -23,7 +23,7 @@ export async function loginAction(idToken: string) {
 
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, sessionCookie, {
-    maxAge: 60 * 60 * 24 * 5, // 5 days
+    maxAge: 60 * 60 * 24 * 30, // 30 days
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     path: '/',
