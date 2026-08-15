@@ -199,6 +199,18 @@ async function createWindow() {
     },
   });
 
+  // Set modern Chrome User-Agent to ensure Google OAuth & Next.js WebGL render smoothly
+  const chromeUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 SynapsDesktop/1.0';
+  mainWindow.webContents.setUserAgent(chromeUserAgent);
+
+  // Allow Google Auth & external OAuth popups
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https://accounts.google.com') || url.includes('google') || url.includes('github') || url.includes('firebaseapp')) {
+      return { action: 'allow' };
+    }
+    return { action: 'allow' };
+  });
+
   mainWindow.setMenuBarVisibility(true);
   mainWindow.autoHideMenuBar = false;
 
@@ -248,6 +260,15 @@ async function createWindow() {
         persistSession(cookies[0].value);
       }
     } catch (e) {}
+  });
+
+  mainWindow.webContents.on('did-fail-load', (e, code, desc, url) => {
+    console.warn('[Synaps Desktop] Load retry:', code, desc, url);
+    setTimeout(() => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.loadURL(startUrl);
+      }
+    }, 1500);
   });
 
   mainWindow.once('ready-to-show', () => {
