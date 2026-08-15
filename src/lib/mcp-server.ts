@@ -9,6 +9,7 @@
 import prisma from '@/lib/prisma';
 import { runExecutiveBoardMeeting } from '@/lib/executive-board';
 import { PRESET_SKILLS } from '@/lib/book-to-skill';
+import { performOneShotOcr } from '@/lib/ocr-engine';
 
 export interface McpToolDefinition {
   name: string;
@@ -82,6 +83,28 @@ export const SYNAPS_MCP_TOOLS: McpToolDefinition[] = [
           description: 'Whether to include full sub-processor and statutory clause audit breakdown.',
         },
       },
+    },
+  },
+  {
+    name: 'extract_one_shot_ocr',
+    description: 'Execute sub-2-second 1-Shot Lightning OCR (PP-OCRv4 / Multimodal Vision) to extract clean text and markdown tables from document images or scanned contracts.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        imageBase64: {
+          type: 'string',
+          description: 'Base64 encoded string of the document image or scanned PDF page.',
+        },
+        mimeType: {
+          type: 'string',
+          description: 'MIME type of the image (default: "image/png").',
+        },
+        mode: {
+          type: 'string',
+          description: 'OCR mode ("general", "contract_redline", "financial_table").',
+        },
+      },
+      required: ['imageBase64'],
     },
   },
 ];
@@ -228,6 +251,27 @@ export async function executeMcpTool(
           `• **Data Protection Officer:** Designated & Audited\n` +
           `• **72-Hour Breach Escalation:** Automated SLA Protocol Enabled\n` +
           `• **Active Sub-processors:** 4 Verified DPAs Countersigned`;
+
+        return {
+          content: [{ type: 'text', text }],
+        };
+      }
+
+      case 'extract_one_shot_ocr': {
+        const imageBase64 = String(args.imageBase64 || '').trim();
+        const mimeType = String(args.mimeType || 'image/png').trim();
+        const mode = (args.mode as any) || 'general';
+
+        if (!imageBase64) {
+          return { isError: true, content: [{ type: 'text', text: 'imageBase64 parameter is required' }] };
+        }
+
+        const ocrResult = await performOneShotOcr(imageBase64, mimeType, { mode });
+        const text = `### ⚡ Synaps 1-Shot Lightning OCR Result\n\n` +
+          `• **Engine:** ${ocrResult.engine}\n` +
+          `• **Confidence:** ${(ocrResult.confidence * 100).toFixed(1)}%\n` +
+          `• **Latency:** ${ocrResult.latencyMs}ms\n\n` +
+          `#### Extracted Content:\n\n${ocrResult.text}`;
 
         return {
           content: [{ type: 'text', text }],

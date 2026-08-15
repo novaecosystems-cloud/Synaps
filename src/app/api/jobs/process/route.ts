@@ -14,6 +14,7 @@ import { verifySessionCookie } from '@/lib/auth-server';
 import { rawPrisma as prisma } from '@/lib/prisma';
 import { extractGraphFromDocument } from '@/lib/memory-graph';
 import pdfParse from 'pdf-parse';
+import { performOneShotOcr, augmentScannedPdfIfRequired } from '@/lib/ocr-engine';
 
 const renderPdfPage = async (pageData: any) => {
   const renderOptions = { normalizeWhitespace: false, disableCombineTextItems: false };
@@ -177,6 +178,14 @@ export async function GET(request: NextRequest) {
             metadata: JSON.stringify(parsed.metadata || {})
           };
         }
+
+        // Auto-Detect & Augment Scanned/Image-Only PDFs via 1-Shot OCR Engine
+        if (!extractedText || extractedText.trim().length < 50) {
+          const augmented = await augmentScannedPdfIfRequired(buffer, extractedText);
+          extractedText = augmented.text;
+          metadata.ocrEngine = augmented.engine;
+          metadata.isScannedPdf = 'true';
+        }
       } else if (
         mimeType.includes('wordprocessingml') || 
         mimeType.includes('spreadsheetml') || 
@@ -197,6 +206,23 @@ export async function GET(request: NextRequest) {
         } finally {
           if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
         }
+      } else if (
+        mimeType.startsWith('image/') ||
+        mimeType === 'image/png' ||
+        mimeType === 'image/jpeg' ||
+        mimeType === 'image/webp' ||
+        mimeType === 'image/tiff'
+      ) {
+        // 1-Shot Lightning OCR for uploaded images / scanned contracts
+        detectedType = 'IMAGE_OCR';
+        pageCount = 1;
+        const ocrResult = await performOneShotOcr(buffer, mimeType, { mode: 'contract_redline' });
+        extractedText = ocrResult.text;
+        metadata = {
+          ocrEngine: ocrResult.engine,
+          confidence: String(ocrResult.confidence),
+          latencyMs: String(ocrResult.latencyMs),
+        };
       } else {
         throw new Error(`Unsupported file type for extraction: ${mimeType}`);
       }
