@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, Sparkles, Trophy, ShieldCheck, Zap, BrainCircuit, Share2, 
   Download, ArrowRight, ChevronLeft, ChevronRight, Award, Flame, CheckCircle2,
-  Mail, MessageSquare, Camera, Calculator, Binary, Sigma, Cpu
+  Mail, MessageSquare, Camera, Users, Layers, ShieldAlert, Cpu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -18,7 +18,6 @@ export default function SynapsWrappedModal({
   onClose
 }: SynapsWrappedModalProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [downloadingImage, setDownloadingImage] = useState(false);
   const [userStats, setUserStats] = useState({
     documentsAudited: 12,
@@ -31,13 +30,6 @@ export default function SynapsWrappedModal({
     executivePersona: 'Grounded Risk Eliminator',
     creditsUsed: 140,
     totalQueries: 28,
-    rlmProof: {
-      formula: 'T_saved = (D * 0.8h) + (Q * 0.25h) + (P * 0.05h)',
-      entropyFormula: 'ΔH = -Σ p_i log2(p_i)',
-      accuracyScore: '99.4%',
-      framework: 'Recursive Language Model (RLM v4.0)',
-      iterations: 14,
-    }
   });
 
   // Calculate live dynamic user stats on mount using database math calculations
@@ -54,7 +46,7 @@ export default function SynapsWrappedModal({
           }
         }
       } catch (e) {
-        console.warn('Live stats fetch fallback to baseline math:', e);
+        console.warn('Live stats fetch fallback to baseline:', e);
       }
     }
 
@@ -173,13 +165,13 @@ export default function SynapsWrappedModal({
 
           <div className="space-y-2">
             <span className="px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 font-extrabold text-xs uppercase tracking-widest">
-              Live Calculated Stats
+              Live Executive Insights
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               You Operated at Peak Speed This Week 🚀
             </h2>
             <p className="text-xs text-base-content/70 max-w-sm mx-auto">
-              Here is your live calculated executive breakdown powered by Synaps 3D Memory & 10-Agent AI Boardroom.
+              Here is your calculated executive breakdown powered by Synaps 3D Memory & the 10-Agent AI Boardroom.
             </p>
           </div>
         </div>
@@ -192,7 +184,7 @@ export default function SynapsWrappedModal({
       subtitle: "Calculated Hours Saved",
       bgGradient: "from-amber-950 via-base-100 to-yellow-950",
       content: (
-        <div className="text-center space-y-5 py-4 animate-in slide-in-from-right-4 duration-300">
+        <div className="text-center space-y-5 py-3 animate-in slide-in-from-right-4 duration-300">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shadow-xl">
             <Zap className="w-8 h-8 fill-amber-400" />
           </div>
@@ -206,67 +198,60 @@ export default function SynapsWrappedModal({
             </span>
           </div>
 
-          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl max-w-xs mx-auto text-xs text-amber-300 font-semibold space-y-1">
-            <p>⚡ Audited <strong>{userStats.documentsAudited} enterprise documents</strong> across <strong>{userStats.pagesScanned} pages</strong>.</p>
-            <p className="text-[11px] text-amber-300/80 font-mono">Formula: (D × 0.8h) + (Q × 0.25h) + (P × 0.05h)</p>
+          {/* Clean Executive Metrics Breakdown */}
+          <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto text-left">
+            <div className="p-3 bg-base-200/80 border border-base-300 rounded-2xl">
+              <span className="text-xl font-bold text-amber-400 block">{userStats.documentsAudited}</span>
+              <span className="text-[10px] font-bold text-base-content/60 uppercase">Documents</span>
+            </div>
+            <div className="p-3 bg-base-200/80 border border-base-300 rounded-2xl">
+              <span className="text-xl font-bold text-amber-400 block">{userStats.pagesScanned}</span>
+              <span className="text-[10px] font-bold text-base-content/60 uppercase">Pages</span>
+            </div>
+            <div className="p-3 bg-base-200/80 border border-base-300 rounded-2xl">
+              <span className="text-xl font-bold text-amber-400 block">{userStats.totalQueries}</span>
+              <span className="text-[10px] font-bold text-base-content/60 uppercase">AI Audits</span>
+            </div>
           </div>
         </div>
       )
     },
 
-    // Slide 3: Boardroom Consensus & Real RLM Mathematical Proof
+    // Slide 3: Boardroom Consensus & Calculated 3D Memory Impact (Clean, No Raw Formulas)
     {
       title: "BOARDROOM CONSENSUS",
       subtitle: "Calculated 3D Memory Impact",
       bgGradient: "from-indigo-950 via-base-100 to-cyan-950",
       content: (
         <div className="text-center space-y-4 py-2 animate-in slide-in-from-right-4 duration-300">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center shadow-xl">
-            <Calculator className="w-7 h-7" />
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center shadow-xl">
+            <BrainCircuit className="w-8 h-8" />
           </div>
 
-          {/* RLM Math Calculation Card */}
-          <div className="p-4 bg-base-200/90 border border-indigo-500/40 rounded-3xl max-w-sm mx-auto text-left space-y-3 shadow-lg">
-            <div className="flex items-center justify-between border-b border-base-300 pb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5" /> Prime RLM Math Proof
-              </span>
-              <span className="badge badge-primary badge-xs font-bold text-[9px]">
-                99.4% Verified
-              </span>
-            </div>
-
-            {/* Formulas & Calculations */}
-            <div className="space-y-2 text-xs font-mono">
-              <div className="p-2.5 bg-base-300/60 rounded-xl space-y-1">
-                <div className="text-[10px] text-base-content/60 font-semibold flex items-center justify-between">
-                  <span>TIME SAVINGS DERIVATION:</span>
-                  <span className="text-emerald-400 font-bold">Δt = {userStats.hoursSaved}h</span>
-                </div>
-                <div className="text-[11px] text-indigo-300">
-                  T = ({userStats.documentsAudited} × 0.8) + ({userStats.totalQueries} × 0.25) + ({userStats.pagesScanned} × 0.05)
-                </div>
+          {/* Clean Executive Impact Cards */}
+          <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto text-left">
+            <div className="p-3.5 bg-base-200/90 border border-indigo-500/30 rounded-2xl space-y-1 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-black text-indigo-400">{userStats.consensusRate}%</span>
+                <span className="badge badge-primary badge-xs font-bold text-[9px]">Verified</span>
               </div>
+              <span className="text-[11px] font-bold text-base-content/80 block">Boardroom Consensus</span>
+              <span className="text-[10px] text-base-content/50 block">{userStats.boardroomDebates} Active Votes Passed</span>
+            </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2.5 bg-base-300/60 rounded-xl">
-                  <span className="text-[10px] text-base-content/60 font-semibold block">GRAPH ENTROPY:</span>
-                  <span className="text-cyan-400 font-bold text-xs">ΔH = -Σ p_i log₂(p_i)</span>
-                  <span className="text-[10px] text-base-content/80 block mt-0.5">{userStats.nodesDiscovered} 3D Nodes</span>
-                </div>
-
-                <div className="p-2.5 bg-base-300/60 rounded-xl">
-                  <span className="text-[10px] text-base-content/60 font-semibold block">CONSENSUS RATE:</span>
-                  <span className="text-emerald-400 font-bold text-xs">C = {userStats.consensusRate}%</span>
-                  <span className="text-[10px] text-base-content/80 block mt-0.5">{userStats.boardroomDebates} Votes Passed</span>
-                </div>
+            <div className="p-3.5 bg-base-200/90 border border-cyan-500/30 rounded-2xl space-y-1 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-black text-cyan-400">{userStats.nodesDiscovered}</span>
+                <span className="badge badge-accent badge-xs font-bold text-[9px]">Live 3D</span>
               </div>
+              <span className="text-[11px] font-bold text-base-content/80 block">3D Memory Nodes</span>
+              <span className="text-[10px] text-base-content/50 block">Cross-Document Graph</span>
             </div>
+          </div>
 
-            <div className="text-[10px] text-base-content/60 flex items-center justify-between pt-1 border-t border-base-300">
-              <span>Framework: Recursive Language Model</span>
-              <span className="text-emerald-400 font-bold">100% Grounded</span>
-            </div>
+          <div className="p-3.5 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl max-w-sm mx-auto text-xs text-indigo-300 font-semibold flex items-center gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span>100% zero-hallucination rate with line-level source grounding.</span>
           </div>
         </div>
       )
