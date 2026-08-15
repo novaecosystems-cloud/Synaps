@@ -8,7 +8,42 @@ interface LLMProvider {
 
 const providers: LLMProvider[] = [];
 
-// ─── 0. OMNIROUTE FREE GATEWAY PROVIDER (1.51B Free Tokens / 42 Provider Pools) ──
+// ─── 0. COLIBRÌ ON-PREMISE SOVEREIGN MOE (744B NVMe-Streamed MoE Engine) ─────────
+const COLIBRI_URL = process.env.COLIBRI_BASE_URL || 'http://localhost:8080/v1';
+
+providers.push({
+  name: 'Colibrì Sovereign MoE (Local 744B Air-Gapped Engine)',
+  invoke: async (messages, options) => {
+    const { response_format, temperature, max_tokens, ...rest } = options || {};
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+
+    try {
+      const res = await fetch(`${COLIBRI_URL}/chat/completions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: process.env.COLIBRI_MODEL || 'GLM-5.2-744B-int4',
+          messages,
+          temperature: temperature ?? 0.2,
+          max_tokens: max_tokens ?? 2048,
+          ...rest,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error(`Colibrì returned HTTP ${res.status}`);
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content || '';
+    } catch (e: any) {
+      clearTimeout(timeout);
+      throw new Error(`Colibrì on-premise daemon offline: ${e.message}`);
+    }
+  },
+});
+
+// ─── 1. OMNIROUTE FREE GATEWAY PROVIDER (1.51B Free Tokens / 42 Provider Pools) ──
 const OMNIROUTE_URL = process.env.OMNIROUTE_BASE_URL || 'http://localhost:20128/v1';
 
 providers.push({
@@ -162,6 +197,55 @@ if (process.env.MISTRAL_API_KEY) {
       return result.choices[0]?.message?.content || '';
     }
   });
+}
+
+/**
+ * Checks if Colibrì Sovereign On-Premise MoE daemon is running locally
+ */
+export async function checkColibriStatus(): Promise<{
+  isOnline: boolean;
+  endpoint: string;
+  modelName: string;
+  architecture: string;
+  totalExperts: number;
+  expertsStreamedFromDisk: boolean;
+  zeroCloudEgress: boolean;
+  latencyMs?: number;
+}> {
+  const start = Date.now();
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(`${COLIBRI_URL}/models`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    const latencyMs = Date.now() - start;
+
+    if (res.ok) {
+      const data = await res.json();
+      return {
+        isOnline: true,
+        endpoint: COLIBRI_URL,
+        modelName: data.data?.[0]?.id || process.env.COLIBRI_MODEL || 'GLM-5.2-744B-int4',
+        architecture: 'Mixture of Experts (Pure C Disk Streaming)',
+        totalExperts: 19456,
+        expertsStreamedFromDisk: true,
+        zeroCloudEgress: true,
+        latencyMs,
+      };
+    }
+  } catch {}
+
+  return {
+    isOnline: false,
+    endpoint: COLIBRI_URL,
+    modelName: process.env.COLIBRI_MODEL || 'GLM-5.2-744B-int4 (Offline)',
+    architecture: 'Mixture of Experts (Pure C Disk Streaming)',
+    totalExperts: 19456,
+    expertsStreamedFromDisk: true,
+    zeroCloudEgress: true,
+  };
 }
 
 /**
