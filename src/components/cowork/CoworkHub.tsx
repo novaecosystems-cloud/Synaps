@@ -73,7 +73,7 @@ export default function CoworkHub() {
           url: mcpBaseUrl,
           transport: 'http',
           headers: {
-            Authorization: 'Bearer synaps_live_token',
+            Authorization: 'Bearer synaps_live_YOUR_API_KEY_FROM_SETTINGS',
           },
         },
       },
@@ -127,6 +127,7 @@ export default function CoworkHub() {
 
       const res = await fetch('/api/mcp', {
         method: 'POST',
+        credentials: 'include', // use the active Synaps session cookie
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           jsonrpc: '2.0',

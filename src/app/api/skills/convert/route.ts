@@ -81,8 +81,15 @@ Rules:
     }
 
     if (!parsedResult || !Array.isArray(parsedResult.decisionRules)) {
-      // Fallback deterministic synthesis
-      const slug = (documentTitle || 'playbook').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      // Fallback deterministic synthesis — sanitize slug to prevent path injection
+      const rawSlug = (documentTitle || 'playbook')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/[\s]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+        .slice(0, 60);
+      const slug = rawSlug || 'custom-playbook-skill';
       parsedResult = {
         name: slug || 'custom-playbook-skill',
         displayName: documentTitle || 'Custom Enterprise Skill',
@@ -189,6 +196,6 @@ ${rulesList}
     });
   } catch (error: any) {
     console.error('Book-to-Skill conversion error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Skill conversion failed. Please try again.' }, { status: 500 });
   }
 }

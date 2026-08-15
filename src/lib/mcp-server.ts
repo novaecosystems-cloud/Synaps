@@ -92,12 +92,21 @@ export const SYNAPS_MCP_TOOLS: McpToolDefinition[] = [
 export async function executeMcpTool(
   toolName: string,
   args: Record<string, any>,
-  organizationId: string = 'demo_apex_org_id'
+  organizationId: string
 ): Promise<{ content: Array<{ type: 'text'; text: string }>; isError?: boolean }> {
+  // organizationId must always be a real resolved org — never a demo fallback at this layer
+  if (!organizationId) {
+    return { isError: true, content: [{ type: 'text', text: 'Unauthorized: organization context required' }] };
+  }
   try {
     switch (toolName) {
       case 'search_synaps_memory': {
-        const { query, limit = 5 } = args;
+        // Sanitize and cap inputs
+        const rawQuery = String(args.query || '').trim().slice(0, 500);
+        const limit = Math.min(Math.max(Number(args.limit) || 5, 1), 20); // 1–20 hard cap
+        if (!rawQuery) {
+          return { isError: true, content: [{ type: 'text', text: 'query parameter is required and cannot be empty' }] };
+        }
         let docs: any[] = [];
         try {
           docs = await prisma.document.findMany({
@@ -105,8 +114,8 @@ export async function executeMcpTool(
               organizationId,
               isDeleted: false,
               OR: [
-                { name: { contains: query, mode: 'insensitive' } },
-                { description: { contains: query, mode: 'insensitive' } },
+                { name: { contains: rawQuery, mode: 'insensitive' } },
+                { description: { contains: rawQuery, mode: 'insensitive' } },
               ],
             },
             take: limit,

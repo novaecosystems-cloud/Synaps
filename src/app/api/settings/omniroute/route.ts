@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
       ],
     });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    console.error('[OmniRoute Status] Error:', e);
+    return NextResponse.json({ error: 'Failed to retrieve OmniRoute status' }, { status: 500 });
   }
 }
