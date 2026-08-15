@@ -34,9 +34,7 @@ export async function POST(req: NextRequest) {
   if (auth instanceof NextResponse) return auth;
   try {
     const body = await req.json();
-    const { action } = body;
     const userId = auth.userId; // Always use session-verified userId
-    }
 
     // 1. Right to Erasure (Data Deletion)
     if (action === 'ERASURE') {

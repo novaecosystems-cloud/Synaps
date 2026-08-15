@@ -6,7 +6,7 @@ import {
   Send, AlertTriangle, CheckCircle2, Lock, ExternalLink, RefreshCw, Scale
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DPDP_GRIEVANCE_OFFICER, SUB_PROCESSOR_INVENTORY, calculateDPDPComplianceScore } from '@/lib/dpdp-compliance';
+import { DPDP_GRIEVANCE_OFFICER, SUB_PROCESSOR_INVENTORY, calculateDPDPComplianceScore } from '@/lib/dpdp-constants';
 
 export default function DPDPPrivacyCompliancePage() {
   const [activeTab, setActiveTab] = useState<'rights' | 'nomination' | 'grievance' | 'scorecard' | 'processors'>('scorecard');
