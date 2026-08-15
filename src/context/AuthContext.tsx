@@ -29,12 +29,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/session', { method: 'DELETE' });
-      await logoutAction();
-      if (auth) await auth.signOut();
+      await fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {});
+      await logoutAction().catch(() => {});
+      if (auth) await auth.signOut().catch(() => {});
       setUser(null);
       setSessionExpiresAt(null);
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         window.location.href = '/login?reason=session_expired';
       }
     } catch (err) {
@@ -59,7 +59,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // 2. Firebase Auth Listener
     if (!auth) {
-      console.warn("Firebase Auth is not initialized. Check your environment variables.");
       setLoading(false);
       return;
     }
@@ -68,33 +67,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(currentUser);
       
       if (currentUser) {
-        const token = await currentUser.getIdToken();
-        await loginAction(token);
-
-        // Fetch session expiration details from API
         try {
+          const token = await currentUser.getIdToken();
+          await loginAction(token);
+
+          // Fetch session expiration details from API
           const res = await fetch('/api/auth/session');
           if (res.ok) {
             const data = await res.json();
             setSessionExpiresAt(data.expiresAt || null);
-          } else if (res.status === 401) {
-            handleLogout();
           }
         } catch (e) {
           console.warn('Failed to verify session details:', e);
         }
-      } else {
-        await logoutAction();
       }
       
       setLoading(false);
     });
 
-    // 3. Periodic Session Expiration Health Check (Every 3 minutes)
+    // 3. Periodic Session Expiration Health Check (Every 5 minutes for active sessions)
     const healthInterval = setInterval(async () => {
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/login')) {
+        return; // Skip health checks on login screen
+      }
       try {
         const res = await fetch('/api/auth/session');
-        if (res.status === 401) {
+        if (res.status === 401 && user) {
           console.warn('[AUTH] Session expired on server. Logging out...');
           handleLogout();
         } else if (res.ok) {
@@ -104,7 +102,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (e) {
         // Silently ignore network check failures
       }
-    }, 3 * 60 * 1000);
+    }, 5 * 60 * 1000);
 
     return () => {
       unsubscribe();
