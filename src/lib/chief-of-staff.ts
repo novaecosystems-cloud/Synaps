@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { enrichAgentWithPrimeRLM } from '@/lib/prime-rlm';
+import { deepCleanObjectSlop } from '@/lib/de-slop';
 
 function parseSafeJson(content: string) {
   try {
@@ -185,7 +186,7 @@ ${riskContext || 'No active risks'}`;
 
     const result = parseSafeJson(rawContent);
 
-    return {
+    const briefingResult: ExecutiveBriefingData = {
       riskScore: computedRiskScore,
       weeklySummary: result.weeklySummary || `Executive Briefing for Nova Industries: Enterprise risk score stands at ${computedRiskScore}/100. Q3 strategy execution is proceeding with active monitoring across supply chain contracts and board governance timelines.`,
       todayPriorities: Array.isArray(result.todayPriorities) && result.todayPriorities.length > 0 ? result.todayPriorities : [
@@ -288,6 +289,8 @@ ${riskContext || 'No active risks'}`;
         recommendation: d.recommendation
       }))
     };
+
+    return deepCleanObjectSlop(briefingResult);
 
   } catch (error) {
     console.error("Error generating Chief of Staff briefing:", error);

@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { logDataInput } from '@/lib/dpdp-compliance';
 import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
+import { deepCleanObjectSlop } from '@/lib/de-slop';
 
 export async function POST(req: NextRequest) {
   const _auth = await requireAuthForLLM(req);
@@ -86,7 +87,7 @@ Return ONLY a valid JSON object matching this exact structure:
 
     return NextResponse.json({
       success: true,
-      data: redlineData
+      data: deepCleanObjectSlop(redlineData)
     });
 
   } catch (error: any) {

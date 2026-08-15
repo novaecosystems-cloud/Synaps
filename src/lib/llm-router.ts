@@ -207,9 +207,12 @@ export async function checkOmniRouteStatus(): Promise<{
   };
 }
 
+import { ANTI_SLOP_SYSTEM_DIRECTIVE, cleanAISlop } from '@/lib/de-slop';
+
 /**
  * Executes LLM requests across an ultra-resilient multi-provider failover chain.
  * Prioritizes OmniRoute 1.51B free token gateway -> Groq -> Gemini -> OpenRouter -> Mistral.
+ * Automatically enforces Peter Yang No-AI-Slop standards across all generated responses.
  */
 export async function invokeLLMWithFallback(
   input: { systemPrompt?: string; userPrompt: string; temperature?: number } | any[],
@@ -219,8 +222,9 @@ export async function invokeLLMWithFallback(
   if (Array.isArray(input)) {
     messages = input;
   } else {
+    const combinedSystemPrompt = (input.systemPrompt || '') + '\n' + ANTI_SLOP_SYSTEM_DIRECTIVE;
     messages = [
-      ...(input.systemPrompt ? [{ role: 'system', content: input.systemPrompt }] : []),
+      { role: 'system', content: combinedSystemPrompt.trim() },
       { role: 'user', content: input.userPrompt },
     ];
     if (input.temperature !== undefined) {
@@ -236,6 +240,10 @@ export async function invokeLLMWithFallback(
       const response = await provider.invoke(messages, options);
       if (response && response.trim().length > 0) {
         console.log(`[LLM Router] Success using ${provider.name}.`);
+        // If response is not raw JSON, clean AI slop patterns
+        if (options?.response_format?.type !== 'json_object' && !response.trim().startsWith('{')) {
+          return cleanAISlop(response);
+        }
         return response;
       }
     } catch (error: any) {
