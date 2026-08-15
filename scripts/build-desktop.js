@@ -31,8 +31,11 @@ fs.writeFileSync(
 );
 
 // 2. Copy Electron shell files
-fs.copyFileSync(path.join(rootDir, 'electron', 'main.js'),    path.join(appDir, 'main.js'));
-fs.copyFileSync(path.join(rootDir, 'electron', 'preload.js'), path.join(appDir, 'preload.js'));
+fs.copyFileSync(path.join(rootDir, 'electron', 'main.js'),       path.join(appDir, 'main.js'));
+fs.copyFileSync(path.join(rootDir, 'electron', 'preload.js'),    path.join(appDir, 'preload.js'));
+if (fs.existsSync(path.join(rootDir, 'electron', 'spotlight.html'))) {
+  fs.copyFileSync(path.join(rootDir, 'electron', 'spotlight.html'), path.join(appDir, 'spotlight.html'));
+}
 
 // 3. Copy favicon if available
 const publicDir = path.join(appDir, 'public');

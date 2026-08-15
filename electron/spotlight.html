@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synaps Spotlight Companion</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+    body {
+      background: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px;
+    }
+    .spotlight-container {
+      width: 100%;
+      background: rgba(11, 17, 33, 0.95);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.15);
+      padding: 12px 16px;
+      color: #f8fafc;
+      transition: all 0.2s ease;
+    }
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 14px;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f8fafc;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    input::placeholder {
+      color: #64748b;
+    }
+    .hotkey-hint {
+      font-size: 11px;
+      font-family: monospace;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 3px 8px;
+      border-radius: 6px;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+    .mode-chips {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .chip {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .chip:hover, .chip.active {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: rgba(99, 102, 241, 0.5);
+      color: #fff;
+    }
+    .response-area {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+      line-height: 1.5;
+      color: #e2e8f0;
+      max-height: 260px;
+      overflow-y: auto;
+      user-select: text;
+    }
+    .actions-row {
+      display: none;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-expand {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-expand:hover {
+      background: #4f46e5;
+    }
+  </style>
+</head>
+<body>
+  <div class="spotlight-container" id="container">
+    <div class="input-row">
+      <div class="logo-badge">S</div>
+      <input type="text" id="promptInput" placeholder="Ask Synaps, query 10-Agent Boardroom, or redline clause..." autofocus />
+      <span class="hotkey-hint" id="escHint">ESC to close</span>
+    </div>
+
+    <div class="mode-chips">
+      <div class="chip active" data-mode="boardroom">🏛️ Boardroom</div>
+      <div class="chip" data-mode="colibri">🔒 Colibrì 744B MoE</div>
+      <div class="chip" data-mode="redline">📄 60s Redline</div>
+      <div class="chip" data-mode="notebook">🎙️ Audio Note</div>
+    </div>
+
+    <div class="response-area" id="responseArea"></div>
+
+    <div class="actions-row" id="actionsRow">
+      <button class="btn-expand" id="expandBtn">Open in Full Synaps OS ↗</button>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('promptInput');
+    const responseArea = document.getElementById('responseArea');
+    const actionsRow = document.getElementById('actionsRow');
+    const expandBtn = document.getElementById('expandBtn');
+    let currentMode = 'boardroom';
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        currentMode = chip.getAttribute('data-mode');
+        input.placeholder = `Mode [${chip.textContent.trim()}]: Ask anything...`;
+        input.focus();
+      });
+    });
+
+    input.addEventListener('keydown', async (e) => {
+      if (e.key === 'Escape') {
+        if (window.electronAPI && window.electronAPI.hideSpotlight) {
+          window.electronAPI.hideSpotlight();
+        }
+      } else if (e.key === 'Enter' && input.value.trim()) {
+        const query = input.value.trim();
+        responseArea.style.display = 'block';
+        actionsRow.style.display = 'flex';
+        responseArea.innerHTML = `<span style="color:#6366f1">⚡ [${currentMode.toUpperCase()}] Deliberating...</span>`;
+        
+        if (window.electronAPI && window.electronAPI.querySpotlight) {
+          window.electronAPI.querySpotlight({ query, mode: currentMode });
+        } else {
+          // Fallback simulation
+          setTimeout(() => {
+            responseArea.innerHTML = `<strong>🏛️ Synaps Consensus on "${query}":</strong><br><br>• <strong>CFO Verdict:</strong> Positive unit economics with 4.2x ROI margin.<br>• <strong>Legal Counsel:</strong> 100% compliant with standard enterprise liability caps.<br>• <strong>Action:</strong> Proceed with immediate deployment.`;
+          }, 800);
+        }
+      }
+    });
+
+    expandBtn.addEventListener('click', () => {
+      if (window.electronAPI && window.electronAPI.expandToFullApp) {
+        window.electronAPI.expandToFullApp(input.value);
+      }
+    });
+  </script>
+</body>
+</html>

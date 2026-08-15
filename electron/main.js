@@ -230,11 +230,60 @@ function createTray() {
   });
 }
 
+let spotlightWindow = null;
+
+function createSpotlightWindow() {
+  if (spotlightWindow) return;
+
+  spotlightWindow = new BrowserWindow({
+    width: 700,
+    height: 400,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    show: false,
+    resizable: false,
+    skipTaskbar: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  spotlightWindow.loadFile(path.join(__dirname, 'spotlight.html'));
+
+  spotlightWindow.on('blur', () => {
+    if (spotlightWindow && spotlightWindow.isVisible()) {
+      spotlightWindow.hide();
+    }
+  });
+}
+
+function toggleSpotlight() {
+  if (!spotlightWindow) createSpotlightWindow();
+  if (spotlightWindow.isVisible()) {
+    spotlightWindow.hide();
+  } else {
+    spotlightWindow.center();
+    const [x, y] = spotlightWindow.getPosition();
+    spotlightWindow.setPosition(x, Math.max(80, Math.floor(y * 0.4)));
+    spotlightWindow.show();
+    spotlightWindow.focus();
+  }
+}
+
 app.whenReady().then(() => {
   createWindow();
+  createSpotlightWindow();
   try { createTray(); } catch (e) { console.log('Tray setup note:', e.message); }
 
-  // Register Global Hotkey (CmdOrCtrl+Shift+S) to bring Synaps to front
+  // 1. ChatGPT-style Floating Spotlight Bar (Alt+Space / Option+Space)
+  globalShortcut.register('Alt+Space', () => {
+    toggleSpotlight();
+  });
+
+  // 2. Full OS Summon Hotkey (CmdOrCtrl+Shift+S)
   globalShortcut.register('CommandOrControl+Shift+S', () => {
     if (mainWindow) {
       if (mainWindow.isVisible()) {
@@ -258,6 +307,24 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
+// IPC Listeners for Spotlight Companion
+ipcMain.on('hide-spotlight', () => {
+  if (spotlightWindow) spotlightWindow.hide();
+});
+
+ipcMain.on('expand-to-full-app', (event, query) => {
+  if (spotlightWindow) spotlightWindow.hide();
+  if (mainWindow) {
+    mainWindow.show();
+    mainWindow.focus();
+    if (query) {
+      const isDev = process.env.NODE_ENV === 'development';
+      const startBaseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
+      mainWindow.loadURL(`${startBaseUrl}/dashboard/chat?q=${encodeURIComponent(query)}`);
+    }
+  }
+});
+
 // IPC Listener: Native directory picker for 24/7 background folder monitoring
 ipcMain.handle('select-watched-folder', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
@@ -267,3 +334,4 @@ ipcMain.handle('select-watched-folder', async () => {
   if (result.canceled) return null;
   return result.filePaths[0];
 });
+
