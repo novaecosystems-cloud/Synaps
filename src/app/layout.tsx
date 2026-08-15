@@ -38,6 +38,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Synaps AI — Enterprise Intelligence Layer & Evidence Engine",
   description: "Synaps AI transforms complex document libraries into an interactive 3D Knowledge Graph and a 10-Agent AI Boardroom.",
+  verification: {
+    google: "0f4930e9950c5fc4",
+  },
 };
 
 export const viewport: Viewport = {
