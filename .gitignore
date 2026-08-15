@@ -63,6 +63,8 @@ synaps_*.html
 Accio/
 dist/
 build/
-
+dist-electron/
+*.exe
+*.zip
 
 .vercel
