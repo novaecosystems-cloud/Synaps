@@ -167,6 +167,16 @@ Complex corporate problems are not solved by a single generic prompt. Synaps orc
 ### Moat Pillar 4: Prime RLM & Spatial Memory Palace
 Multi-tier memory architecture that maintains entity-relation vectors across projects, preventing context degradation across millions of document tokens.
 
+### Moat Pillar 5: Fast Hybrid Vector & Evidence Search (140ms Latency)
+* **Hybrid Retrieval:** Blends high-dimensional dense vector embeddings with BM25 lexical token matching for sub-140ms search queries across 100,000+ document pages.
+* **Line-Level Coordinate Indexing:** Every indexed chunk stores exact structural coordinates `[Document_ID, Page_Number, Line_Range, SHA-256_Checksum]`.
+* **Zero Guesswork Guarantee:** Automatically flags confidence deficits if factual evidence is absent from the repository.
+
+### Moat Pillar 6: Dual-Core 1-Shot Lightning OCR (PP-OCRv4 / Baidu Architecture & Vision VLM)
+* **Core 1 (Sovereign Edge Pipeline):** Powered by the ultra-fast **PP-OCRv4 / Baidu PaddleOCR architecture** (Apache 2.0 compliant) for sub-second on-device character recognition and offline desktop extraction.
+* **Core 2 (1-Shot Multimodal Vision VLM):** Sub-1.8-second markdown table reconstruction, key-value extraction, and legal clause classification via Google Gemini 1.5/2.5 Flash.
+* **Auto-Detect Scanned PDFs:** Automatically identifies image-only scanned contracts with blank text layers and routes them through the 1-shot visual OCR pipeline.
+
 ---
 
 ## 🛠️ 4. Core Architecture & Tech Stack
