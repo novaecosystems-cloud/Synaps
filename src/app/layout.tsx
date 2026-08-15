@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
 import MicrosoftClarity from "@/components/MicrosoftClarity";
 import AppUpdateNotifier from "@/components/AppUpdateNotifier";
+import OfflineNetworkGuardian from "@/components/OfflineNetworkGuardian";
 import { getSoftwareApplicationJsonLd } from "@/lib/openseo";
 
 const fraunces = Fraunces({
@@ -96,6 +97,7 @@ export default function RootLayout({
             <Toaster />
             <Analytics />
             <AppUpdateNotifier />
+            <OfflineNetworkGuardian />
           </AuthProvider>
         </ThemeProvider>
       </body>
