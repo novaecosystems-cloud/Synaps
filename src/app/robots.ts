@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://synaps.ai';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://synaps-one.vercel.app';
 
   return {
     rules: [

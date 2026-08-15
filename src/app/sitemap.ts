@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { LEGAL_DOCUMENTS } from '@/lib/legal-docs';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://synaps.ai';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://synaps-one.vercel.app';
 
   const legalSlugs = Object.keys(LEGAL_DOCUMENTS);
 

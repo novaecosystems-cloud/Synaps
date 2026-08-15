@@ -27,7 +27,7 @@ export interface SEOAuditResult {
 
 const DEFAULT_TITLE = "Synaps AI — 3D Corporate Memory Graph & 10-Agent AI Boardroom";
 const DEFAULT_DESCRIPTION = "Synaps AI transforms enterprise document libraries into an interactive 3D Knowledge Graph, 10-Agent C-Suite Boardroom, and automated executive operational briefings.";
-const DEFAULT_APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://synaps.ai";
+const DEFAULT_APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://synaps-one.vercel.app";
 const DEFAULT_OG_IMAGE = `${DEFAULT_APP_URL}/synaps_logo.png`;
 
 /**
