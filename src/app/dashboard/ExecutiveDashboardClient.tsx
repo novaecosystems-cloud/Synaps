@@ -316,11 +316,11 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black tracking-tight">{data.healthScore}</span>
-            <span className="text-xs font-bold text-emerald-500">/ 100</span>
+            <span className="text-3xl font-black tracking-tight">{data.healthScore > 0 ? data.healthScore : '--'}</span>
+            <span className="text-xs font-bold text-emerald-500">{data.healthScore > 0 ? '/ 100' : 'Awaiting Ingestion'}</span>
           </div>
           <div className="w-full bg-base-200 h-1.5 rounded-full overflow-hidden mt-3">
-            <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${data.healthScore}%` }}></div>
+            <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${data.healthScore || 5}%` }}></div>
           </div>
         </div>
 
@@ -333,10 +333,10 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-black tracking-tight">{data.knowledgeCoverage}%</span>
-            <span className="text-xs font-bold text-indigo-500">Ingested</span>
+            <span className="text-xs font-bold text-indigo-500">{data.knowledgeCoverage > 0 ? 'Ingested' : '0 Docs Loaded'}</span>
           </div>
           <div className="w-full bg-base-200 h-1.5 rounded-full overflow-hidden mt-3">
-            <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${data.knowledgeCoverage}%` }}></div>
+            <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${data.knowledgeCoverage || 5}%` }}></div>
           </div>
         </div>
 
@@ -348,9 +348,9 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            {getRiskBadge(data.riskLevel)}
+            {data.knowledgeCoverage > 0 ? getRiskBadge(data.riskLevel) : <span className="text-slate-400 font-bold text-sm">Unassessed</span>}
           </div>
-          <p className="text-[11px] text-base-content/50 mt-3">Evaluated across Gaps & Compliance</p>
+          <p className="text-[11px] text-base-content/50 mt-3">{data.knowledgeCoverage > 0 ? 'Evaluated across Gaps & Compliance' : 'Upload records to evaluate'}</p>
         </div>
 
         <div className="bg-base-100 border border-base-300 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all">
@@ -361,11 +361,11 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black tracking-tight">{data.decisionConfidence}%</span>
-            <span className="text-xs font-bold text-blue-500">Confidence</span>
+            <span className="text-3xl font-black tracking-tight">{data.decisionConfidence > 0 ? `${data.decisionConfidence}%` : '--%'}</span>
+            <span className="text-xs font-bold text-blue-500">{data.decisionConfidence > 0 ? 'Confidence' : 'Awaiting Data'}</span>
           </div>
           <div className="w-full bg-base-200 h-1.5 rounded-full overflow-hidden mt-3">
-            <div className="bg-blue-500 h-full rounded-full" style={{ width: `${data.decisionConfidence}%` }}></div>
+            <div className="bg-blue-500 h-full rounded-full" style={{ width: `${data.decisionConfidence || 5}%` }}></div>
           </div>
         </div>
       </div>
@@ -381,39 +381,60 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {(data?.executiveAnswers || []).map((item) => {
-            const citations = item?.citations || [];
-            return (
-              <div 
-                key={item.id} 
-                onClick={() => setActiveAnswer(item)}
-                className="bg-base-100 border border-base-300 hover:border-primary/40 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex justify-between items-start mb-3 gap-3">
-                    <h3 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug break-words flex-1 min-w-0 pr-1">
-                      {item.question}
-                    </h3>
-                    <div className="shrink-0">
-                      {getStatusBadge(item.status)}
+        {(!data?.executiveAnswers || data.executiveAnswers.length === 0) ? (
+          <div className="bg-base-100 border border-base-300 rounded-3xl p-8 text-center space-y-4 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mx-auto">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-bold text-base text-base-content">No Documents Ingested Yet</h3>
+              <p className="text-xs text-base-content/60 max-w-md mx-auto">
+                Upload your company's vendor contracts, financial reports, or compliance policies to automatically generate executive questions, citations, and risk scores.
+              </p>
+            </div>
+            <Link 
+              href="/dashboard/knowledge" 
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold transition-all shadow-md hover:scale-[1.02]"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Ingest First Document</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {data.executiveAnswers.map((item) => {
+              const citations = item?.citations || [];
+              return (
+                <div 
+                  key={item.id} 
+                  onClick={() => setActiveAnswer(item)}
+                  className="bg-base-100 border border-base-300 hover:border-primary/40 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex justify-between items-start mb-3 gap-3">
+                      <h3 className="font-bold text-sm sm:text-base text-base-content group-hover:text-primary transition-colors leading-snug break-words flex-1 min-w-0 pr-1">
+                        {item.question}
+                      </h3>
+                      <div className="shrink-0">
+                        {getStatusBadge(item.status)}
+                      </div>
                     </div>
+                    <p className="text-xs text-base-content/70 line-clamp-3 leading-relaxed mb-4">
+                      {item.answer}
+                    </p>
                   </div>
-                  <p className="text-xs text-base-content/70 line-clamp-3 leading-relaxed mb-4">
-                    {item.answer}
-                  </p>
-                </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-base-200 text-xs text-base-content/50">
-                  <span className="flex items-center gap-1.5 font-medium text-primary text-[11px]">
-                    <FileText className="w-3.5 h-3.5" /> {citations.length} Document Citations
-                  </span>
-                  <span className="group-hover:translate-x-1 transition-transform text-primary font-bold">Inspect →</span>
+                  <div className="flex items-center justify-between pt-3 border-t border-base-200 text-xs text-base-content/50">
+                    <span className="flex items-center gap-1.5 font-medium text-primary text-[11px]">
+                      <FileText className="w-3.5 h-3.5" /> {citations.length} Document Citations
+                    </span>
+                    <span className="group-hover:translate-x-1 transition-transform text-primary font-bold">Inspect →</span>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* 4. DEPARTMENT HEALTH MATRIX & AI RECOMMENDATIONS */}

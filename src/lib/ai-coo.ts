@@ -1,4 +1,4 @@
-﻿import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { memPalaceEngine } from '@/lib/mempalace-engine';
 import { NOVA_DEMO_DOCUMENTS } from '@/lib/demo-data';
@@ -134,9 +134,45 @@ export async function generateExecutiveBriefData(organizationId: string): Promis
     console.warn('[AI COO] Error fetching relationships:', e);
   }
 
+  // If real user organization has no documents or data yet, return clean empty state
+  const isDemo = organizationId.includes('demo');
+  if (documents.length === 0 && !isDemo && projects.length === 0 && decisions.length === 0) {
+    return {
+      executiveBrief: "Welcome to your Synaps Executive Workspace. No organizational documents have been ingested yet. Ingest your first contract, financial report, or operational SOP in Documents & Knowledge to activate real-time AI COO briefing, health scores, and memory graph extraction.",
+      healthScore: 0,
+      knowledgeCoverage: 0,
+      riskLevel: 'LOW',
+      decisionConfidence: 0,
+      executiveAnswers: [],
+      departmentHealth: [],
+      aiRecommendations: [
+        {
+          id: 'init_1',
+          priority: 'HIGH',
+          title: 'Ingest Organizational Knowledge Records',
+          recommendation: 'Upload PDF, DOCX, or XLSX documents to your Knowledge Vault to initialize AI analysis.',
+          rationale: 'Synaps uses zero-hallucination grounded RAG to extract compliance, revenue, and operational data directly from your verified documents.',
+          citations: []
+        }
+      ],
+      recentEvents: [
+        {
+          date: 'Today',
+          title: 'Workspace Ready',
+          category: 'SYNAPS AI',
+          description: 'Knowledge Base initialized. Awaiting document ingestion.',
+          docName: 'Knowledge Vault'
+        }
+      ],
+      timelineHighlights: [
+        { date: 'Phase 1', milestone: 'Document Ingestion', impact: 'Awaiting Records' }
+      ]
+    };
+  }
+
   // Construct Data Summary context for AI COO
   const docsSummary = documents.map(d => 
-    `â€¢ Document "${d.name}" (Type: ${d.mimeType}, Size: ${(d.sizeBytes / 1024 / 1024).toFixed(2)}MB, Updated: ${d.updatedAt ? new Date(d.updatedAt).toISOString().slice(0,10) : ''}): ${d.processedDoc?.textContent?.slice(0, 300) || 'No text'}`
+    `• Document "${d.name}" (Type: ${d.mimeType}, Size: ${(d.sizeBytes / 1024 / 1024).toFixed(2)}MB, Updated: ${d.updatedAt ? new Date(d.updatedAt).toISOString().slice(0,10) : ''}): ${d.processedDoc?.textContent?.slice(0, 300) || 'No text'}`
   ).join('\n');
 
   const projectsSummary = projects.map(p => 
@@ -309,7 +345,7 @@ Generate the complete JSON executive briefing based on the above data context.`;
 
     const data = parseSafeJson(rawResult);
 
-    const safeExecutiveAnswers = (Array.isArray(data.executiveAnswers) && data.executiveAnswers.length > 0 ? data.executiveAnswers : getFallbackAnswers(documents)).map((ans: any, idx: number) => ({
+    const safeExecutiveAnswers = (Array.isArray(data.executiveAnswers) && data.executiveAnswers.length > 0 ? data.executiveAnswers : getFallbackAnswers(documents, isDemo)).map((ans: any, idx: number) => ({
       id: ans.id || `q${idx + 1}`,
       question: ans.question || 'Executive Query',
       answer: ans.answer || 'Analysis complete.',
@@ -317,7 +353,7 @@ Generate the complete JSON executive briefing based on the above data context.`;
       citations: Array.isArray(ans.citations) ? ans.citations : []
     }));
 
-    const safeDepartmentHealth = (Array.isArray(data.departmentHealth) && data.departmentHealth.length > 0 ? data.departmentHealth : getFallbackDepartments()).map((dept: any) => ({
+    const safeDepartmentHealth = (Array.isArray(data.departmentHealth) && data.departmentHealth.length > 0 ? data.departmentHealth : getFallbackDepartments(isDemo)).map((dept: any) => ({
       department: dept.department || 'General Operations',
       healthScore: typeof dept.healthScore === 'number' ? dept.healthScore : 90,
       riskLevel: dept.riskLevel || 'LOW',
@@ -326,7 +362,7 @@ Generate the complete JSON executive briefing based on the above data context.`;
       citations: Array.isArray(dept.citations) ? dept.citations : []
     }));
 
-    const safeRecommendations = (Array.isArray(data.aiRecommendations) && data.aiRecommendations.length > 0 ? data.aiRecommendations : getFallbackRecommendations()).map((rec: any, idx: number) => ({
+    const safeRecommendations = (Array.isArray(data.aiRecommendations) && data.aiRecommendations.length > 0 ? data.aiRecommendations : getFallbackRecommendations(isDemo)).map((rec: any, idx: number) => ({
       id: rec.id || `rec${idx + 1}`,
       priority: rec.priority || 'MEDIUM',
       title: rec.title || 'Executive Action Item',
@@ -349,7 +385,7 @@ Generate the complete JSON executive briefing based on the above data context.`;
     };
   } catch (err) {
     console.error('[AI COO] Failed to generate brief with LLM, returning robust default data:', err);
-    return getFallbackExecutiveBrief(documents);
+    return getFallbackExecutiveBrief(documents, isDemo);
   }
 }
 
@@ -371,7 +407,10 @@ export async function askAiCooQuestion(organizationId: string, question: string)
   }
 }
 
-function getFallbackAnswers(documentsList: any[] = []): ExecutiveAnswer[] {
+function getFallbackAnswers(documentsList: any[] = [], isDemo: boolean = false): ExecutiveAnswer[] {
+  if (!Array.isArray(documentsList) || documentsList.length === 0) {
+    if (!isDemo) return [];
+  }
   const docsToUse = (Array.isArray(documentsList) && documentsList.length > 0) ? documentsList : NOVA_DEMO_DOCUMENTS;
   
   return docsToUse.slice(0, 6).map((doc: any, i: number) => {
@@ -420,7 +459,10 @@ function getFallbackAnswers(documentsList: any[] = []): ExecutiveAnswer[] {
   });
 }
 
-function getFallbackDepartments(): DepartmentHealthItem[] {
+function getFallbackDepartments(isDemo: boolean = false): DepartmentHealthItem[] {
+  if (!isDemo) {
+    return [];
+  }
   return [
     {
       department: 'Hotel Operations',
@@ -449,29 +491,56 @@ function getFallbackDepartments(): DepartmentHealthItem[] {
   ];
 }
 
-function getFallbackRecommendations(): AIRecommendationItem[] {
+function getFallbackRecommendations(isDemo: boolean = false): AIRecommendationItem[] {
+  if (!isDemo) {
+    return [
+      {
+        id: 'rec1',
+        priority: 'HIGH',
+        title: 'Upload Organizational Documents',
+        recommendation: 'Ingest PDF, XLSX, or DOCX contracts and records into the Knowledge Vault.',
+        rationale: 'Enables AI Boardroom deliberation, automatic risk detection, and executive answers.',
+        citations: []
+      }
+    ];
+  }
   return [
     {
       id: 'rec1',
       priority: 'HIGH',
       title: 'Serve F&B Vendor Notice Before Oct 15',
       recommendation: 'Send formal written notice to Royal Agri Supplies to lock in bulk pricing and prevent the 14% annual cost escalation.',
-      rationale: 'Avoids â‚¹38.4 Lakh quarterly cost overrun identified in F&B_Vendor_Supply_Contracts_2026.pdf.',
+      rationale: 'Avoids ₹38.4 Lakh quarterly cost overrun identified in F&B_Vendor_Supply_Contracts_2026.pdf.',
       citations: [{ documentName: 'F&B_Vendor_Supply_Contracts_2026.pdf', snippet: 'Section 8.4 Auto-Renewal' }]
     }
   ];
 }
 
-function getFallbackExecutiveBrief(documentsList: any[] = []): ExecutiveBriefData {
+function getFallbackExecutiveBrief(documentsList: any[] = [], isDemo: boolean = false): ExecutiveBriefData {
+  if (!isDemo && (!documentsList || documentsList.length === 0)) {
+    return {
+      executiveBrief: "Welcome to your Synaps Executive Workspace. No organizational documents have been ingested yet. Ingest your first contract, financial report, or operational SOP in Documents & Knowledge to activate real-time AI COO briefing, health scores, and memory graph extraction.",
+      healthScore: 0,
+      knowledgeCoverage: 0,
+      riskLevel: 'LOW',
+      decisionConfidence: 0,
+      executiveAnswers: [],
+      departmentHealth: [],
+      aiRecommendations: getFallbackRecommendations(false),
+      recentEvents: [],
+      timelineHighlights: []
+    };
+  }
+
   return {
     executiveBrief: "Synaps AI COO Engine is actively monitoring enterprise data streams. Organization health and decision confidence are optimal across all uploaded document indexes.",
     healthScore: 94,
     knowledgeCoverage: 96,
     riskLevel: 'LOW',
     decisionConfidence: 95,
-    executiveAnswers: getFallbackAnswers(documentsList),
-    departmentHealth: getFallbackDepartments(),
-    aiRecommendations: getFallbackRecommendations(),
+    executiveAnswers: getFallbackAnswers(documentsList, isDemo),
+    departmentHealth: getFallbackDepartments(isDemo),
+    aiRecommendations: getFallbackRecommendations(isDemo),
     recentEvents: [],
     timelineHighlights: []
   };

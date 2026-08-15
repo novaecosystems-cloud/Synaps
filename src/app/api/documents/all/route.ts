@@ -60,7 +60,10 @@ export async function GET(req: NextRequest) {
       source: 'UPLOADED'
     }));
 
-    // Combine uploaded files + fallback demo files if no files uploaded yet
+    const searchParams = req.nextUrl.searchParams;
+    const isExplicitDemo = searchParams.get('demo') === 'true' || orgId.includes('demo');
+
+    // Combine uploaded files or fallback to demo files ONLY if on demo mode
     const demoDocsFormatted = NOVA_DEMO_DOCUMENTS.map((d, i) => ({
       id: `demo_${i}`,
       name: d.name,
@@ -73,10 +76,14 @@ export async function GET(req: NextRequest) {
 
     const allDocuments = formattedDbDocs.length > 0 
       ? formattedDbDocs
-      : demoDocsFormatted;
+      : isExplicitDemo
+        ? demoDocsFormatted
+        : [];
 
     // Collect unique groups
-    const availableGroups = Array.from(new Set(allDocuments.map(d => d.group || 'General Vault')));
+    const availableGroups = allDocuments.length > 0
+      ? Array.from(new Set(allDocuments.map(d => d.group || 'General Vault')))
+      : ['General Vault'];
 
     return NextResponse.json({
       success: true,

@@ -2,8 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { Zap } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export default function AiCreditBadge() {
+interface AiCreditBadgeProps {
+  onOpenPaywall?: () => void;
+  className?: string;
+}
+
+export default function AiCreditBadge({ onOpenPaywall, className }: AiCreditBadgeProps) {
   const [credits, setCredits] = useState<{ creditsUsed: number; creditLimit: number; remaining: number; role?: string } | null>(null);
 
   useEffect(() => {
@@ -27,8 +33,8 @@ export default function AiCreditBadge() {
       if (customEv.detail) {
         setCredits((prev) => ({
           creditsUsed: customEv.detail.creditsUsed ?? prev?.creditsUsed ?? 0,
-          creditLimit: customEv.detail.creditLimit ?? prev?.creditLimit ?? 10000,
-          remaining: customEv.detail.remaining ?? prev?.remaining ?? 10000,
+          creditLimit: customEv.detail.creditLimit ?? prev?.creditLimit ?? 50,
+          remaining: customEv.detail.remaining ?? prev?.remaining ?? 50,
           role: customEv.detail.role ?? prev?.role ?? 'MEMBER'
         }));
       }
@@ -47,23 +53,38 @@ export default function AiCreditBadge() {
     };
   }, []);
 
-  if (!credits) return null;
-
-  const getTierLabel = () => {
-    const role = (credits.role || 'MEMBER').toUpperCase();
-    if (role === 'OWNER' || role === 'LEADER' || credits.creditLimit >= 10000) return 'ENTERPRISE MAX';
-    if (role === 'ADMIN' || credits.creditLimit >= 500) return 'PRO AI';
-    return 'SYNAPS AI';
+  const handleClick = () => {
+    if (onOpenPaywall) {
+      onOpenPaywall();
+    } else {
+      window.dispatchEvent(new CustomEvent('synaps:credits_exhausted', { detail: { role: credits?.role || 'MEMBER' } }));
+    }
   };
 
+  if (!credits) return null;
+
+  const role = (credits.role || 'MEMBER').toUpperCase();
+  const isEnterprise = role === 'OWNER' || role === 'LEADER' || credits.creditLimit >= 10000;
+  const isPro = !isEnterprise && (role === 'ADMIN' || credits.creditLimit >= 500);
+
   return (
-    <div 
-      onClick={() => window.dispatchEvent(new CustomEvent('synaps:credits_exhausted', { detail: { role: credits.role } }))}
-      className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-xs font-extrabold tracking-wider shadow-inner cursor-pointer hover:bg-cyan-500/25 transition-all shrink-0 whitespace-nowrap"
-      title="Synaps AI Executive Engine active with zero-hallucination precision RAG. Click to manage plan."
+    <button
+      onClick={handleClick}
+      className={cn(
+        "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md hover:scale-[1.03] shrink-0 whitespace-nowrap",
+        isEnterprise 
+          ? "bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/25"
+          : isPro
+            ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25"
+            : "bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white aura-cyan",
+        className
+      )}
+      title="View Plan & AI Credit Limits"
     >
-      <Zap className="h-3.5 w-3.5 fill-cyan-400 text-cyan-400 animate-pulse shrink-0" />
-      <span className="truncate">{getTierLabel()}</span>
-    </div>
+      <Zap className={cn("w-3.5 h-3.5 shrink-0", !isEnterprise && !isPro ? "fill-white animate-pulse" : isEnterprise ? "fill-cyan-400 text-cyan-400" : "fill-emerald-400 text-emerald-400")} />
+      <span>
+        {isEnterprise ? 'ENTERPRISE MAX' : isPro ? 'PRO AI' : 'UPGRADE'}
+      </span>
+    </button>
   );
 }
