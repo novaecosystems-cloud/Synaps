@@ -2,6 +2,11 @@ const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, shell }
 const path = require('path');
 const fs = require('fs');
 
+app.setName('Synaps AI');
+try {
+  app.setPath('userData', path.join(app.getPath('appData'), 'SynapsDesktopApp'));
+} catch (e) {}
+
 let mainWindow = null;
 let tray = null;
 
