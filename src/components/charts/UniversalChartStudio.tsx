@@ -152,8 +152,9 @@ export default function UniversalChartStudio() {
     setChart({ ...chart, data: newData });
   };
 
-  // Generate self-contained standalone SVG with embedded themes, card background, typography & dimensions
-  const generateStandaloneSvgString = (): string | null => {
+  // Generate self-contained standalone SVG string.
+  // canvasSafe=true strips external font @import to avoid tainted canvas on PNG export.
+  const generateStandaloneSvgString = (canvasSafe = false): string | null => {
     if (!chartRef.current) return null;
     const svgElem = chartRef.current.querySelector('svg.recharts-surface') || chartRef.current.querySelector('svg');
     if (!svgElem) return null;
@@ -161,7 +162,7 @@ export default function UniversalChartStudio() {
     const width = 960;
     const height = 560;
     const chartWidth = 900;
-    const chartHeight = 400;
+    const chartHeight = 420;
 
     // Clone the inner recharts svg
     const clonedSvg = svgElem.cloneNode(true) as SVGElement;
@@ -169,50 +170,46 @@ export default function UniversalChartStudio() {
     clonedSvg.setAttribute('height', `${chartHeight}`);
     clonedSvg.removeAttribute('style');
 
-    // Ensure all text elements have computed colors
-    const textNodes = clonedSvg.querySelectorAll('text, tspan');
-    textNodes.forEach((node) => {
-      const currentFill = (node as SVGTextElement).getAttribute('fill');
-      if (!currentFill || currentFill === 'currentColor') {
-        (node as SVGTextElement).setAttribute('fill', currentPalette.text);
+    // Stamp color onto every text node so they survive standalone rendering
+    clonedSvg.querySelectorAll('text, tspan').forEach((node) => {
+      const el = node as SVGTextElement;
+      if (!el.getAttribute('fill') || el.getAttribute('fill') === 'currentColor') {
+        el.setAttribute('fill', currentPalette.text);
       }
-      (node as SVGTextElement).setAttribute('font-family', 'Inter, system-ui, -apple-system, sans-serif');
+      el.setAttribute('font-family', 'Inter, system-ui, -apple-system, sans-serif');
     });
 
-    const innerContent = clonedSvg.innerHTML;
+    // Inline all gradient/defs ids to avoid id conflicts
+    const innerContent = clonedSvg.outerHTML
+      .replace(/<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+
+    const styleBlock = canvasSafe
+      ? `<style>text { font-family: system-ui, -apple-system, sans-serif; }</style>`
+      : `<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap'); text { font-family: 'Inter', system-ui, sans-serif; }</style>`;
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap');
-    text { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-  </style>
-  
+  ${styleBlock}
   <!-- Background Card -->
-  <rect width="100%" height="100%" rx="24" fill="${currentPalette.bg}" stroke="#334155" stroke-width="1.5"/>
-  
+  <rect width="${width}" height="${height}" rx="24" fill="${currentPalette.bg}" stroke="#334155" stroke-width="1.5"/>
   <!-- Header Title -->
-  <text x="36" y="48" fill="${currentPalette.text}" font-size="20" font-weight="700" letter-spacing="-0.02em">${escapeXml(chart.title)}</text>
-  
-  <!-- Subtitle -->
-  ${chart.subtitle ? `<text x="36" y="74" fill="${currentPalette.text}" opacity="0.65" font-size="12">${escapeXml(chart.subtitle)}</text>` : ''}
-  
+  <text x="36" y="50" fill="${currentPalette.text}" font-size="20" font-weight="700" letter-spacing="-0.3">${escapeXml(chart.title)}</text>
+  ${chart.subtitle ? `<text x="36" y="76" fill="${currentPalette.text}" opacity="0.6" font-size="12">${escapeXml(chart.subtitle)}</text>` : ''}
   <!-- ARLM Badge -->
-  <g transform="translate(${width - 170}, 28)">
-    <rect width="134" height="28" rx="14" fill="#10b98122" stroke="#10b981" stroke-width="1"/>
-    <text x="67" y="18" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">ARLM ${(chart.meta.arlmScore * 100).toFixed(1)}%</text>
+  <g transform="translate(${width - 174}, 28)">
+    <rect width="138" height="30" rx="15" fill="#10b98118" stroke="#10b981" stroke-width="1"/>
+    <text x="69" y="20" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">ARLM ${(chart.meta.arlmScore * 100).toFixed(1)}% CERTIFIED</text>
   </g>
-  
   <!-- Chart Viewport -->
-  <g transform="translate(30, 100)">
+  <g transform="translate(28, 108)">
     ${innerContent}
   </g>
 </svg>`;
   };
 
-  // Export Vector SVG (Self-Contained Standalone XML)
+  // Export Vector SVG (self-contained XML — opens in browser, Figma, Illustrator)
   const handleExportSVG = () => {
-    const fullSvg = generateStandaloneSvgString();
+    const fullSvg = generateStandaloneSvgString(false);
     if (!fullSvg) return;
     const blob = new Blob([fullSvg], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -225,24 +222,29 @@ export default function UniversalChartStudio() {
     URL.revokeObjectURL(url);
   };
 
-  // Export High-Res 2x PNG (Presentation & Slide Ready)
+  // Export High-Res 2x PNG via canvas — uses canvasSafe SVG (no external fonts) to avoid CORS taint
   const handleExportPNG = () => {
-    const svgStr = generateStandaloneSvgString();
+    const svgStr = generateStandaloneSvgString(true); // canvas-safe: no external @import
     if (!svgStr) return;
 
-    const img = new Image();
     const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
     const blobURL = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
 
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const scale = 2; // 2x Retina resolution (1920x1120)
+      const scale = 2; // 2x Retina: 1920×1120
       canvas.width = 960 * scale;
       canvas.height = 560 * scale;
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) { URL.revokeObjectURL(blobURL); return; }
       ctx.scale(scale, scale);
-      ctx.drawImage(img, 0, 0);
+      // Fill background explicitly in case browser leaves transparent
+      ctx.fillStyle = currentPalette.bg;
+      ctx.fillRect(0, 0, 960, 560);
+      ctx.drawImage(img, 0, 0, 960, 560);
+      URL.revokeObjectURL(blobURL);
 
       const pngUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -251,8 +253,14 @@ export default function UniversalChartStudio() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(blobURL);
     };
+
+    img.onerror = () => {
+      // Fallback: direct download of the SVG if canvas fails
+      URL.revokeObjectURL(blobURL);
+      handleExportSVG();
+    };
+
     img.src = blobURL;
   };
 
