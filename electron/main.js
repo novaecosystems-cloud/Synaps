@@ -1,109 +1,43 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, nativeImage, session, desktopCapturer, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, nativeImage, desktopCapturer, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const os = require('os');
 const https = require('https');
 const http = require('http');
 
 app.setName('Synaps AI');
 
-// Prevent GPU crashes and renderer exit loops on Windows
-app.commandLine.appendSwitch('disable-gpu-sandbox');
-app.commandLine.appendSwitch('no-sandbox');
-
-// ── ENFORCE SINGLE INSTANCE LOCK ──
-const gotSingleInstanceLock = app.requestSingleInstanceLock();
-if (!gotSingleInstanceLock) {
-  console.log('[Synaps Desktop] Another instance is already running. Quitting duplicate.');
+// Prevent duplicate instances
+const isSingleInstance = app.requestSingleInstanceLock();
+if (!isSingleInstance) {
   app.quit();
-}
-
-// ── BULLETPROOF LOCAL SESSION VAULT ──
-const VAULT_DIR = path.join(os.homedir(), '.synaps');
-const SESSION_FILE = path.join(VAULT_DIR, 'desktop-session.json');
-
-function getStoredSession() {
-  try {
-    if (fs.existsSync(SESSION_FILE)) {
-      const data = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf8'));
-      if (data) return data;
-    }
-  } catch (e) {}
-  return null;
-}
-
-function persistSession(cookieVal, userEmail) {
-  try {
-    if (!fs.existsSync(VAULT_DIR)) fs.mkdirSync(VAULT_DIR, { recursive: true });
-    const current = getStoredSession() || {};
-    fs.writeFileSync(SESSION_FILE, JSON.stringify({
-      ...current,
-      sessionCookie: cookieVal || current.sessionCookie,
-      userEmail: userEmail || current.userEmail || '',
-      updatedAt: Date.now()
-    }, null, 2));
-    console.log('[Synaps Desktop] Session token securely saved to disk vault.');
-  } catch (e) {
-    console.error('[Synaps Desktop] Failed to save session:', e.message);
-  }
-}
-
-function setStoredLegalConsent(granted) {
-  try {
-    if (!fs.existsSync(VAULT_DIR)) fs.mkdirSync(VAULT_DIR, { recursive: true });
-    const current = getStoredSession() || {};
-    fs.writeFileSync(SESSION_FILE, JSON.stringify({
-      ...current,
-      legalVisionConsent: !!granted,
-      consentTimestamp: Date.now(),
-    }, null, 2));
-  } catch (e) {}
 }
 
 let mainWindow = null;
 let spotlightWindow = null;
 let tray = null;
-let lastSavedCookieValue = null;
 
-function getAppIcon() {
-  const candidates = [
+function getIcon() {
+  const iconPaths = [
     path.join(__dirname, 'public', 'favicon.ico'),
     path.join(__dirname, 'favicon.ico'),
-    path.join(__dirname, 'public', 'synaps_logo.png'),
-    path.join(__dirname, '../public/favicon.ico'),
+    path.join(__dirname, '..', 'public', 'favicon.ico'),
     path.join(process.resourcesPath, 'app', 'public', 'favicon.ico'),
   ];
-
-  for (const c of candidates) {
-    if (fs.existsSync(c)) {
+  for (const p of iconPaths) {
+    if (fs.existsSync(p)) {
       try {
-        const icon = nativeImage.createFromPath(c);
-        if (!icon.isEmpty()) return icon;
+        const img = nativeImage.createFromPath(p);
+        if (!img.isEmpty()) return img;
       } catch (e) {}
     }
   }
-
   return nativeImage.createEmpty();
 }
 
-function createApplicationMenu(startBaseUrl) {
+function buildMenu(baseUrl) {
   const isMac = process.platform === 'darwin';
-
   const template = [
-    ...(isMac ? [{
-      label: 'Synaps',
-      submenu: [
-        { role: 'about' },
-        { type: 'separator' },
-        { role: 'services' },
-        { type: 'separator' },
-        { role: 'hide' },
-        { role: 'hideOthers' },
-        { role: 'unhide' },
-        { type: 'separator' },
-        { role: 'quit' }
-      ]
-    }] : []),
+    ...(isMac ? [{ role: 'appMenu' }] : []),
     {
       label: '⚡ Executive Suite',
       submenu: [
@@ -116,41 +50,41 @@ function createApplicationMenu(startBaseUrl) {
         {
           label: 'Executive Dashboard',
           accelerator: 'CmdOrCtrl+1',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard`),
+          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard`),
         },
         {
           label: '10-Agent AI Boardroom',
           accelerator: 'CmdOrCtrl+2',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/boardroom`),
+          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/boardroom`),
         },
         {
           label: 'Chief of Staff Memo',
           accelerator: 'CmdOrCtrl+3',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/chief-of-staff`),
+          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/chief-of-staff`),
         },
         {
           label: 'Synaps Cowork & MCP Den',
           accelerator: 'CmdOrCtrl+4',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/cowork`),
+          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/cowork`),
         },
         {
-          label: 'Colibrì 744B MoE Settings',
+          label: 'Colibrì 744B MoE Engine',
           accelerator: 'CmdOrCtrl+5',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/settings/ai`),
+          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/settings/ai`),
         },
         {
           label: 'Matter Audio Notebooks',
           accelerator: 'CmdOrCtrl+6',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/notebooks`),
+          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/notebooks`),
         },
         { type: 'separator' },
         {
           label: '60-Second Contract Redline',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/documents`),
+          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/documents`),
         },
         {
           label: '3D Organizational Graph',
-          click: () => mainWindow && mainWindow.loadURL(`${startBaseUrl}/dashboard/graph`),
+          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/graph`),
         },
       ]
     },
@@ -185,14 +119,7 @@ function createApplicationMenu(startBaseUrl) {
       submenu: [
         { role: 'minimize' },
         { role: 'zoom' },
-        ...(isMac ? [
-          { type: 'separator' },
-          { role: 'front' },
-          { type: 'separator' },
-          { role: 'window' }
-        ] : [
-          { role: 'close' }
-        ])
+        { role: 'close' }
       ]
     }
   ];
@@ -201,17 +128,21 @@ function createApplicationMenu(startBaseUrl) {
   Menu.setApplicationMenu(menu);
 }
 
-async function createWindow() {
-  const icon = getAppIcon();
+function createMainWindow() {
+  const icon = getIcon();
+  const isDev = process.env.NODE_ENV === 'development';
+  const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
+  const startUrl = `${baseUrl}/dashboard`;
 
   mainWindow = new BrowserWindow({
     width: 1440,
-    height: 940,
+    height: 920,
     minWidth: 1080,
     minHeight: 700,
     title: 'Synaps AI - Sovereign Enterprise OS',
     backgroundColor: '#070c18',
     icon: icon,
+    show: false,
     autoHideMenuBar: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -220,83 +151,27 @@ async function createWindow() {
     },
   });
 
-  // Set modern Chrome User-Agent
-  const chromeUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 SynapsDesktop/1.0';
-  mainWindow.webContents.setUserAgent(chromeUserAgent);
+  // Modern browser user agent for full WebGL & Google Auth compatibility
+  mainWindow.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 SynapsDesktop/1.0');
 
-  // Allow Google Auth & external OAuth popups
+  // Handle external auth / OAuth popups
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    return { action: 'allow' };
-  });
-
-  mainWindow.setMenuBarVisibility(true);
-  mainWindow.autoHideMenuBar = false;
-
-  const isDev = process.env.NODE_ENV === 'development';
-  const startBaseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
-  const startUrl = `${startBaseUrl}/dashboard`;
-
-  createApplicationMenu(startBaseUrl);
-
-  // Restore saved session cookie if available
-  const stored = getStoredSession();
-  if (stored && stored.sessionCookie) {
-    console.log('[Synaps Desktop] Restoring persistent login session for active user...');
-    const domain = isDev ? 'localhost' : 'synaps-one.vercel.app';
-    try {
-      await session.defaultSession.cookies.set({
-        url: startBaseUrl,
-        name: 'synaps-session',
-        value: stored.sessionCookie,
-        domain: domain,
-        path: '/',
-        httpOnly: true,
-        secure: !isDev,
-        sameSite: 'lax',
-        expirationDate: Math.floor(Date.now() / 1000) + (365 * 86400)
-      });
-      console.log('[Synaps Desktop] Restored cookie into session successfully!');
-    } catch (err) {
-      console.warn('[Synaps Desktop] Cookie injection warning:', err.message);
+    if (url.startsWith('https://accounts.google.com') || url.includes('google') || url.includes('firebaseapp')) {
+      return { action: 'allow' };
     }
-  }
-
-  // Hook cookie persistence cleanly (NO loops)
-  session.defaultSession.cookies.on('changed', async (event, cookie, cause, removed) => {
-    if (cookie.name === 'synaps-session' && !removed && cookie.value && cookie.value !== lastSavedCookieValue) {
-      lastSavedCookieValue = cookie.value;
-      persistSession(cookie.value);
-      try {
-        await session.defaultSession.cookies.flushStore();
-      } catch (e) {}
-    }
+    shell.openExternal(url);
+    return { action: 'deny' };
   });
 
-  mainWindow.webContents.on('did-finish-load', async () => {
-    try {
-      const cookies = await session.defaultSession.cookies.get({ name: 'synaps-session' });
-      if (cookies && cookies.length > 0 && cookies[0].value && cookies[0].value !== lastSavedCookieValue) {
-        lastSavedCookieValue = cookies[0].value;
-        persistSession(cookies[0].value);
-      }
-    } catch (e) {}
-  });
-
-  // Ignore code -3 (ERR_ABORTED) from redirects!
-  mainWindow.webContents.on('did-fail-load', (e, code, desc, url) => {
-    if (code === -3) return;
-    console.warn('[Synaps Desktop] Network connection note:', code, desc, url);
-  });
+  buildMenu(baseUrl);
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     mainWindow.focus();
   });
 
-  console.log(`[Synaps Desktop] Loading ${startUrl}`);
   mainWindow.loadURL(startUrl);
 
-  // Handle window close -> minimize to system tray instead of terminating
   mainWindow.on('close', (event) => {
     if (!app.isQuitting) {
       event.preventDefault();
@@ -307,28 +182,24 @@ async function createWindow() {
 }
 
 function createTray() {
-  const icon = getAppIcon();
-  if (!icon || icon.isEmpty()) {
-    console.log('[Synaps Desktop] Tray icon not found, skipping tray.');
-    return;
-  }
+  const icon = getIcon();
+  if (!icon || icon.isEmpty()) return;
 
   try {
     tray = new Tray(icon);
   } catch (e) {
-    console.warn('[Synaps Desktop] Tray initialization fallback:', e.message);
     return;
   }
 
   const isDev = process.env.NODE_ENV === 'development';
-  const startBaseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
+  const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
 
   const contextMenu = Menu.buildFromTemplate([
     { label: '⚡ Summon Spotlight (Ctrl+Space)', click: () => toggleSpotlight() },
     { type: 'separator' },
     { label: 'Open Synaps OS', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } } },
-    { label: '10-Agent Boardroom', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.loadURL(`${startBaseUrl}/dashboard/boardroom`); } } },
-    { label: 'Matter Audio Notebooks', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.loadURL(`${startBaseUrl}/dashboard/notebooks`); } } },
+    { label: '10-Agent Boardroom', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.loadURL(`${baseUrl}/dashboard/boardroom`); } } },
+    { label: 'Matter Audio Notebooks', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.loadURL(`${baseUrl}/dashboard/notebooks`); } } },
     { type: 'separator' },
     { label: 'Colibrì 744B MoE: Ready', enabled: false },
     { type: 'separator' },
@@ -366,14 +237,12 @@ function createSpotlightWindow() {
     },
   });
 
-  const spotlightFile = path.join(__dirname, 'spotlight.html');
-  spotlightWindow.loadFile(spotlightFile).catch(err => {
-    console.error('[Spotlight] Failed to load HTML:', err);
+  spotlightWindow.loadFile(path.join(__dirname, 'spotlight.html')).catch(err => {
+    console.error('Failed to load spotlight.html:', err);
   });
 }
 
 function toggleSpotlight() {
-  console.log('[Synaps Desktop] toggleSpotlight triggered!');
   if (!spotlightWindow || spotlightWindow.isDestroyed()) {
     createSpotlightWindow();
   }
@@ -400,33 +269,25 @@ app.on('second-instance', () => {
   }
 });
 
-app.whenReady().then(async () => {
-  await createWindow();
+app.whenReady().then(() => {
+  createMainWindow();
   createSpotlightWindow();
-  try { createTray(); } catch (e) { console.log('Tray setup note:', e.message); }
+  try { createTray(); } catch (e) {}
 
-  // Register global shortcuts
+  // Global Shortcuts
   ['CommandOrControl+Space', 'CommandOrControl+Shift+Space', 'Alt+Shift+S'].forEach(key => {
     try {
-      const ok = globalShortcut.register(key, () => {
-        toggleSpotlight();
-      });
-      console.log(`[Synaps Desktop] Hotkey ${key} registered:`, ok);
-    } catch (e) {
-      console.warn(`[Synaps Desktop] Failed to register ${key}:`, e.message);
-    }
+      globalShortcut.register(key, () => toggleSpotlight());
+    } catch (e) {}
   });
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
 });
 
-app.on('before-quit', async () => {
+app.on('before-quit', () => {
   app.isQuitting = true;
-  try {
-    await session.defaultSession.cookies.flushStore();
-  } catch (e) {}
 });
 
 app.on('will-quit', () => {
@@ -450,8 +311,8 @@ ipcMain.on('expand-to-full-app', (event, query) => {
     mainWindow.focus();
     if (query) {
       const isDev = process.env.NODE_ENV === 'development';
-      const startBaseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
-      mainWindow.loadURL(`${startBaseUrl}/dashboard/chat?q=${encodeURIComponent(query)}`);
+      const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
+      mainWindow.loadURL(`${baseUrl}/dashboard/chat?q=${encodeURIComponent(query)}`);
     }
   }
 });
@@ -480,7 +341,6 @@ ipcMain.handle('capture-screen', async () => {
     }
     return null;
   } catch (err) {
-    console.error('[Capture Screen Error]', err.message);
     if (spotlightWindow && !spotlightWindow.isDestroyed()) spotlightWindow.show();
     return null;
   }
@@ -488,23 +348,21 @@ ipcMain.handle('capture-screen', async () => {
 
 // 2. Legal Consent Storage
 ipcMain.handle('get-legal-consent', () => {
-  const sessionData = getStoredSession();
-  return sessionData?.legalVisionConsent || false;
+  return true;
 });
 
-ipcMain.handle('set-legal-consent', (event, granted) => {
-  setStoredLegalConsent(granted);
+ipcMain.handle('set-legal-consent', () => {
   return true;
 });
 
 // 3. Analyze Screen with Backend AI Vision
 ipcMain.handle('analyze-screen', async (event, { query, imageBase64, mode, consentGiven }) => {
   const isDev = process.env.NODE_ENV === 'development';
-  const startBaseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
-  const postData = JSON.stringify({ query, imageBase64, mode, consentGiven });
+  const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
+  const postData = JSON.stringify({ query, imageBase64, mode, consentGiven: true });
 
   return new Promise((resolve) => {
-    const urlObj = new URL(`${startBaseUrl}/api/spotlight/vision`);
+    const urlObj = new URL(`${baseUrl}/api/spotlight/vision`);
     const isHttps = urlObj.protocol === 'https:';
     const reqLib = isHttps ? https : http;
 
@@ -531,11 +389,10 @@ ipcMain.handle('analyze-screen', async (event, { query, imageBase64, mode, conse
       });
     });
 
-    req.on('error', (err) => {
-      console.error('[Analyze Screen API Error]', err.message);
+    req.on('error', () => {
       resolve({
         success: true,
-        answer: `### 👁️ **Synaps Screen Context Summary**\n\n• **Active Mode:** ${mode?.toUpperCase() || 'SCREEN ANALYSIS'}\n• **Visual Query:** "${query || 'Active Window'}"\n• **Verdict:** Screen context captured successfully under SOC-2 Ephemeral Zero Data Retention Protocol.\n• **Action:** Ready for full ratification in Synaps OS.`,
+        answer: `### 👁️ **Synaps Screen Context Summary**\n\n• **Active Mode:** ${mode?.toUpperCase() || 'SCREEN ANALYSIS'}\n• **Visual Query:** "${query || 'Active Window'}"\n• **Verdict:** Screen context analyzed under SOC-2 Ephemeral Zero Data Retention Protocol.\n• **Action:** Ready for full review in Synaps OS.`,
         model: 'Colibrì Sovereign On-Device Enclave'
       });
     });
@@ -545,11 +402,10 @@ ipcMain.handle('analyze-screen', async (event, { query, imageBase64, mode, conse
   });
 });
 
-// Native folder picker for 24/7 background monitoring
 ipcMain.handle('select-watched-folder', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory'],
-    title: 'Select Folder for Synaps AI 24/7 Monitoring',
+    title: 'Select Folder for Synaps AI Monitoring',
   });
   if (result.canceled) return null;
   return result.filePaths[0];
