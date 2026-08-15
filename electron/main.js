@@ -1,43 +1,67 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, nativeImage, session } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
 app.setName('Synaps AI');
 
-// Ensure persistent user data directory so user login is saved across app restarts
-try {
-  const userDataDir = path.join(app.getPath('appData'), 'synaps-enterprise-desktop');
-  if (!fs.existsSync(userDataDir)) {
-    fs.mkdirSync(userDataDir, { recursive: true });
+// Ensure persistent user data directory
+const userDataDir = path.join(app.getPath('appData'), 'SynapsAI-App');
+if (!fs.existsSync(userDataDir)) {
+  fs.mkdirSync(userDataDir, { recursive: true });
+}
+app.setPath('userData', userDataDir);
+
+// ── BULLETPROOF LOCAL SESSION VAULT ──
+const VAULT_DIR = path.join(os.homedir(), '.synaps');
+const SESSION_FILE = path.join(VAULT_DIR, 'desktop-session.json');
+
+function getStoredSession() {
+  try {
+    if (fs.existsSync(SESSION_FILE)) {
+      const data = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf8'));
+      if (data && data.sessionCookie) return data;
+    }
+  } catch (e) {}
+  return null;
+}
+
+function persistSession(cookieVal, userEmail) {
+  try {
+    if (!fs.existsSync(VAULT_DIR)) fs.mkdirSync(VAULT_DIR, { recursive: true });
+    fs.writeFileSync(SESSION_FILE, JSON.stringify({
+      sessionCookie: cookieVal,
+      userEmail: userEmail || '',
+      updatedAt: Date.now()
+    }, null, 2));
+    console.log('[Synaps Desktop] Session token securely saved to disk vault.');
+  } catch (e) {
+    console.error('[Synaps Desktop] Failed to save session:', e.message);
   }
-  app.setPath('userData', userDataDir);
-} catch (e) {
-  console.warn('[Synaps Desktop] UserData init note:', e.message);
 }
 
 let mainWindow = null;
 let spotlightWindow = null;
 let tray = null;
-let lastSpotlightOpenTime = 0;
 
 function getAppIcon() {
   const candidates = [
-    path.join(__dirname, 'favicon.ico'),
     path.join(__dirname, 'public', 'favicon.ico'),
+    path.join(__dirname, 'favicon.ico'),
+    path.join(__dirname, 'public', 'synaps_logo.png'),
     path.join(__dirname, '../public/favicon.ico'),
-    path.join(process.resourcesPath, 'app', 'favicon.ico'),
     path.join(process.resourcesPath, 'app', 'public', 'favicon.ico'),
   ];
 
   for (const c of candidates) {
     if (fs.existsSync(c)) {
       try {
-        return nativeImage.createFromPath(c);
+        const icon = nativeImage.createFromPath(c);
+        if (!icon.isEmpty()) return icon;
       } catch (e) {}
     }
   }
 
-  // Fallback: Create 16x16 icon in memory if file is missing
   return nativeImage.createEmpty();
 }
 
@@ -156,7 +180,7 @@ function createApplicationMenu(startBaseUrl) {
   Menu.setApplicationMenu(menu);
 }
 
-function createWindow() {
+async function createWindow() {
   const icon = getAppIcon();
 
   mainWindow = new BrowserWindow({
@@ -172,7 +196,6 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      partition: 'persist:synaps_main_user', // Persistent partition preserves login cookies & state forever!
     },
   });
 
@@ -185,12 +208,53 @@ function createWindow() {
 
   createApplicationMenu(startBaseUrl);
 
+  // Restore saved session cookie if available
+  const stored = getStoredSession();
+  if (stored && stored.sessionCookie) {
+    console.log('[Synaps Desktop] Restoring persistent login session for active user...');
+    const domain = isDev ? 'localhost' : 'synaps-one.vercel.app';
+    try {
+      await session.defaultSession.cookies.set({
+        url: startBaseUrl,
+        name: 'synaps-session',
+        value: stored.sessionCookie,
+        domain: domain,
+        path: '/',
+        httpOnly: true,
+        secure: !isDev,
+        sameSite: 'lax',
+        expirationDate: Math.floor(Date.now() / 1000) + (365 * 86400)
+      });
+      console.log('[Synaps Desktop] Restored cookie into session successfully!');
+    } catch (err) {
+      console.warn('[Synaps Desktop] Cookie injection warning:', err.message);
+    }
+  }
+
+  // Hook cookie persistence so all future logins/refreshes are instantly saved to disk vault
+  session.defaultSession.cookies.on('changed', async (event, cookie, cause, removed) => {
+    if (cookie.name === 'synaps-session' && !removed && cookie.value) {
+      persistSession(cookie.value);
+    }
+    try {
+      await session.defaultSession.cookies.flushStore();
+    } catch (e) {}
+  });
+
+  mainWindow.webContents.on('did-finish-load', async () => {
+    try {
+      const cookies = await session.defaultSession.cookies.get({ name: 'synaps-session' });
+      if (cookies && cookies.length > 0 && cookies[0].value) {
+        persistSession(cookies[0].value);
+      }
+    } catch (e) {}
+  });
+
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     mainWindow.focus();
   });
 
-  // Load dashboard with persistent user session — no fake token overwrite!
   console.log(`[Synaps Desktop] Loading ${startUrl}`);
   mainWindow.loadURL(startUrl);
 
@@ -207,7 +271,8 @@ function createWindow() {
 function createTray() {
   const icon = getAppIcon();
   if (!icon || icon.isEmpty()) {
-    console.log('[Synaps Desktop] Generating tray icon from canvas...');
+    console.log('[Synaps Desktop] Tray icon not found, skipping tray.');
+    return;
   }
 
   try {
@@ -251,30 +316,21 @@ function createSpotlightWindow() {
     height: 380,
     frame: false,
     transparent: false,
-    backgroundColor: '#070c18',
+    backgroundColor: '#0b1121',
     alwaysOnTop: true,
     show: false,
     resizable: false,
-    skipTaskbar: true,
+    skipTaskbar: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      partition: 'persist:synaps_main_user',
     },
   });
 
   const spotlightFile = path.join(__dirname, 'spotlight.html');
   spotlightWindow.loadFile(spotlightFile).catch(err => {
     console.error('[Spotlight] Failed to load HTML:', err);
-  });
-
-  spotlightWindow.on('blur', () => {
-    if (Date.now() - lastSpotlightOpenTime > 700) {
-      if (spotlightWindow && !spotlightWindow.isDestroyed() && spotlightWindow.isVisible()) {
-        spotlightWindow.hide();
-      }
-    }
   });
 }
 
@@ -287,7 +343,6 @@ function toggleSpotlight() {
   if (spotlightWindow.isVisible()) {
     spotlightWindow.hide();
   } else {
-    lastSpotlightOpenTime = Date.now();
     spotlightWindow.setAlwaysOnTop(true, 'screen-saver');
     spotlightWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     spotlightWindow.center();
@@ -295,16 +350,17 @@ function toggleSpotlight() {
     spotlightWindow.setPosition(x, Math.max(80, Math.floor(y * 0.35)));
     spotlightWindow.show();
     spotlightWindow.focus();
+    spotlightWindow.moveTop();
   }
 }
 
-app.whenReady().then(() => {
-  createWindow();
+app.whenReady().then(async () => {
+  await createWindow();
   createSpotlightWindow();
   try { createTray(); } catch (e) { console.log('Tray setup note:', e.message); }
 
   // Register multiple global shortcuts for maximum OS compatibility
-  ['CommandOrControl+Space', 'Control+Space', 'Alt+Space', 'CommandOrControl+Shift+Space', 'Alt+Shift+S'].forEach(key => {
+  ['CommandOrControl+Space', 'CommandOrControl+Shift+Space', 'Alt+Shift+S'].forEach(key => {
     try {
       const ok = globalShortcut.register(key, () => {
         toggleSpotlight();
@@ -329,6 +385,13 @@ app.whenReady().then(() => {
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+});
+
+app.on('before-quit', async () => {
+  app.isQuitting = true;
+  try {
+    await session.defaultSession.cookies.flushStore();
+  } catch (e) {}
 });
 
 app.on('will-quit', () => {
