@@ -192,7 +192,6 @@ const FAQ_ITEMS = [
 
 export default function IncrediblesStyleLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [pricingTab, setPricingTab] = useState<"single" | "recurring">("recurring");
   const [comparisonView, setComparisonView] = useState<"both" | "without" | "with">("both");
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
   const [legalDoc, setLegalDoc] = useState<LegalDocType | null>(null);
@@ -209,10 +208,6 @@ export default function IncrediblesStyleLanding() {
     isValid: true,
   });
   const [promoMessage, setPromoMessage] = useState("LAUNCH100 applied! Enjoy 30% OFF on Gumroad Checkout.");
-
-  // Calculator State
-  const [projectType, setProjectType] = useState("workspace");
-  const [projectCreativity, setProjectCreativity] = useState("enhanced");
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -787,7 +782,7 @@ export default function IncrediblesStyleLanding() {
           <div className="w-full md:w-1/3 space-y-4">
             <h2 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#0f0f11]">Simple pricing</h2>
             <p className="text-[#18181b] text-base font-semibold leading-relaxed">
-              Choose between monthly engagement or single workspace compliance audits. All plans process securely via Gumroad Merchant of Record.
+              Choose between Standard Workspace or Enterprise Suite. All plans process securely via Gumroad Merchant of Record.
             </p>
 
             {/* Discount Promo Card */}
@@ -824,152 +819,82 @@ export default function IncrediblesStyleLanding() {
             </div>
           </div>
 
-          {/* Right Column: Pricing Switcher & Cards */}
-          <div className="w-full md:w-2/3 space-y-8">
-            {/* Tab Toggle */}
-            <div className="inline-flex items-center p-1.5 rounded-full bg-white border border-[#cecece] shadow-sm font-mono text-xs">
-              <button
-                onClick={() => setPricingTab("recurring")}
-                className={`px-6 py-2.5 rounded-full transition-all ${
-                  pricingTab === "recurring"
-                    ? "bg-[#0f0f11] text-white font-bold shadow-md"
-                    : "text-[#18181b] hover:text-[#0f0f11] font-bold"
-                }`}
-              >
-                Monthly Engagement
-              </button>
-              <button
-                onClick={() => setPricingTab("single")}
-                className={`px-6 py-2.5 rounded-full transition-all ${
-                  pricingTab === "single"
-                    ? "bg-[#0f0f11] text-white font-bold shadow-md"
-                    : "text-[#18181b] hover:text-[#0f0f11] font-bold"
-                }`}
-              >
-                Single Audit Project
-              </button>
-            </div>
-
-            {/* Recurring Cards */}
-            {pricingTab === "recurring" ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Standard Card */}
-                <div className="p-8 rounded-3xl bg-white/95 border border-[#cecece] shadow-xl space-y-6 flex flex-col justify-between backdrop-blur-md">
-                  <div className="space-y-4">
-                    <span className="font-mono text-xs text-[#fc4778] uppercase font-extrabold">STANDARD WORKSPACE</span>
-                    <div className="flex items-baseline gap-2">
-                      <div className="font-serif text-4xl font-extrabold text-[#0f0f11]">
-                        ${standardPrice}
-                        <span className="text-sm font-sans font-semibold text-[#18181b]">/month</span>
-                      </div>
-                      {appliedDiscount.isValid && (
-                        <span className="font-mono text-xs text-[#fc4778] line-through font-bold">
-                          ${baseStandard}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[#18181b] text-xs font-semibold">Ideal for growing teams needing continuous document RAG & Chief of Staff briefings.</p>
-                    <ul className="space-y-2 font-mono text-xs text-[#0f0f11] font-bold">
-                      <li>✓ Up to 500 documents parsed</li>
-                      <li>✓ 10,000 AI Credits / month</li>
-                      <li>✓ Daily Chief of Staff Briefings</li>
-                      <li>✓ Document & Web RAG Search</li>
-                      <li>✓ Dedicated Support Channel</li>
-                    </ul>
-                  </div>
-                  <button
-                    onClick={() => handleGumroadCheckout("pro")}
-                    className="w-full py-3.5 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-white font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center justify-center gap-2"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Pay with Gumroad (${standardPrice})</span>
-                  </button>
-                </div>
-
-                {/* Extended Enterprise Card */}
-                <div className="p-8 rounded-3xl bg-[#0f0f11] text-white shadow-xl space-y-6 flex flex-col justify-between relative overflow-hidden">
-                  <div className="space-y-4 relative z-10">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs text-[#fc4778] uppercase font-extrabold">ENTERPRISE PRO</span>
-                      {appliedDiscount.isValid && (
-                        <span className="px-2 py-0.5 rounded-full bg-[#fc4778] text-white font-mono text-[10px] font-bold uppercase">
-                          {appliedDiscount.percentage}% OFF
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <div className="font-serif text-4xl font-extrabold text-white">
-                        ${enterprisePrice}
-                        <span className="text-sm font-sans font-semibold text-neutral-300">/month</span>
-                      </div>
-                      {appliedDiscount.isValid && (
-                        <span className="font-mono text-xs text-neutral-400 line-through">
-                          ${baseEnterprise}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-neutral-300 text-xs font-medium">Full C-suite suite with Boardroom Simulation Engine & risk audits.</p>
-                    <ul className="space-y-2 font-mono text-xs text-white font-bold">
-                      <li>✓ Unlimited documents parsed</li>
-                      <li>✓ Unlimited Boardroom Simulations</li>
-                      <li>✓ 10 C-Suite Digital Twins</li>
-                      <li>✓ Continuous Risk Scanner</li>
-                      <li>✓ 24/7 Priority Support</li>
-                    </ul>
-                  </div>
-                  <button
-                    onClick={() => handleGumroadCheckout("enterprise")}
-                    className="w-full py-3.5 rounded-full bg-[#fc4778] hover:bg-white hover:text-black text-white font-mono text-xs font-bold uppercase transition-all relative z-10 shadow-md flex items-center justify-center gap-2"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Pay via Gumroad (${enterprisePrice})</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* Single Audit Calculator Form */
-              <div className="p-8 rounded-3xl bg-white/95 border border-[#cecece] shadow-xl space-y-6 backdrop-blur-md">
-                <h3 className="font-serif text-2xl font-extrabold text-[#0f0f11]">Single Compliance Audit</h3>
-                <p className="text-[#18181b] text-xs font-mono font-bold">
-                  For one-time M&A data room audits, contract liability scans, or regulatory reviews.
-                </p>
-
+          {/* Right Column: Pricing Cards */}
+          <div className="w-full md:w-2/3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Standard Card */}
+              <div className="p-8 rounded-3xl bg-white/95 border border-[#cecece] shadow-xl space-y-6 flex flex-col justify-between backdrop-blur-md">
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="font-mono text-xs text-[#0f0f11] font-bold uppercase">1 // Audit Type</label>
-                    <select
-                      value={projectType}
-                      onChange={(e) => setProjectType(e.target.value)}
-                      className="w-full p-3.5 rounded-xl border border-[#cecece] bg-white font-sans text-sm text-[#0f0f11] font-semibold focus:outline-none focus:border-[#fc4778]"
-                    >
-                      <option value="workspace">Contract Liability & Indemnification Scan</option>
-                      <option value="data-room">M&A Data Room Audit</option>
-                      <option value="regulatory">DPDP Act Compliance Review</option>
-                    </select>
+                  <span className="font-mono text-xs text-[#fc4778] uppercase font-extrabold">STANDARD WORKSPACE</span>
+                  <div className="flex items-baseline gap-2">
+                    <div className="font-serif text-4xl font-extrabold text-[#0f0f11]">
+                      ${standardPrice}
+                      <span className="text-sm font-sans font-semibold text-[#18181b]">/month</span>
+                    </div>
+                    {appliedDiscount.isValid && (
+                      <span className="font-mono text-xs text-[#fc4778] line-through font-bold">
+                        ${baseStandard}
+                      </span>
+                    )}
                   </div>
-
-                  <div className="space-y-2">
-                    <label className="font-mono text-xs text-[#0f0f11] font-bold uppercase">2 // Document Volume</label>
-                    <select
-                      value={projectCreativity}
-                      onChange={(e) => setProjectCreativity(e.target.value)}
-                      className="w-full p-3.5 rounded-xl border border-[#cecece] bg-white font-sans text-sm text-[#0f0f11] font-semibold focus:outline-none focus:border-[#fc4778]"
-                    >
-                      <option value="standard">Up to 100 Documents</option>
-                      <option value="enhanced">100 — 500 Documents</option>
-                      <option value="creative">500+ Documents (Data Room)</option>
-                    </select>
-                  </div>
+                  <p className="text-[#18181b] text-xs font-semibold">Ideal for growing teams needing continuous document RAG & Chief of Staff briefings.</p>
+                  <ul className="space-y-2 font-mono text-xs text-[#0f0f11] font-bold">
+                    <li>✓ Up to 500 documents parsed</li>
+                    <li>✓ 10,000 AI Credits / month</li>
+                    <li>✓ Daily Chief of Staff Briefings</li>
+                    <li>✓ Document & Web RAG Search</li>
+                    <li>✓ Dedicated Support Channel</li>
+                  </ul>
                 </div>
-
-                <div className="p-5 rounded-2xl bg-[#0f0f11] text-white space-y-2">
-                  <span className="font-mono text-xs text-[#fc4778] uppercase font-bold">ESTIMATED AUDIT INVESTMENT</span>
-                  <div className="font-serif text-3xl font-extrabold">
-                    {projectType === "workspace" ? "$2,500 — $4,500" : "$6,500 — $12,000"}
-                  </div>
-                </div>
+                <button
+                  onClick={() => handleGumroadCheckout("pro")}
+                  className="w-full py-3.5 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-white font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center justify-center gap-2"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Pay with Gumroad (${standardPrice})</span>
+                </button>
               </div>
-            )}
+
+              {/* Extended Enterprise Card */}
+              <div className="p-8 rounded-3xl bg-[#0f0f11] text-white shadow-xl space-y-6 flex flex-col justify-between relative overflow-hidden">
+                <div className="space-y-4 relative z-10">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs text-[#fc4778] uppercase font-extrabold">ENTERPRISE PRO</span>
+                    {appliedDiscount.isValid && (
+                      <span className="px-2 py-0.5 rounded-full bg-[#fc4778] text-white font-mono text-[10px] font-bold uppercase">
+                        {appliedDiscount.percentage}% OFF
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <div className="font-serif text-4xl font-extrabold text-white">
+                      ${enterprisePrice}
+                      <span className="text-sm font-sans font-semibold text-neutral-300">/month</span>
+                    </div>
+                    {appliedDiscount.isValid && (
+                      <span className="font-mono text-xs text-neutral-400 line-through">
+                        ${baseEnterprise}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-neutral-300 text-xs font-medium">Full C-suite suite with Boardroom Simulation Engine & risk audits.</p>
+                  <ul className="space-y-2 font-mono text-xs text-white font-bold">
+                    <li>✓ Unlimited documents parsed</li>
+                    <li>✓ Unlimited Boardroom Simulations</li>
+                    <li>✓ 10 C-Suite Digital Twins</li>
+                    <li>✓ Continuous Risk Scanner</li>
+                    <li>✓ 24/7 Priority Support</li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => handleGumroadCheckout("enterprise")}
+                  className="w-full py-3.5 rounded-full bg-[#fc4778] hover:bg-white hover:text-black text-white font-mono text-xs font-bold uppercase transition-all relative z-10 shadow-md flex items-center justify-center gap-2"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Pay via Gumroad (${enterprisePrice})</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
