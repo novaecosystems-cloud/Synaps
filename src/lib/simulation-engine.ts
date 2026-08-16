@@ -1,7 +1,8 @@
-﻿import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { runMathMonteCarloSimulation, MonteCarloRunResult } from './monte-carlo-engine';
 import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
+import { getDomainTrainingContext } from '@/lib/domain-datasets/universal-training-corpus';
 
 function parseSafeJson(content: string) {
   try {
@@ -99,9 +100,11 @@ Knowledge Documents: ${docs.map(d => d.name).join(', ') || 'Enterprise Financial
 Historical Decisions: ${decisions.map(d => `${d.status} (${d.recommendation})`).join('; ') || 'None'}
 Enterprise Graph Entities: ${graphEntities.map(g => `${g.name} [${g.type}]`).join(', ') || 'None'}`;
 
+  const domainCorpus = getDomainTrainingContext('CEO');
+
   const systemPrompt = `You are the Synaps Business Decision Simulation Engine.
 Simulate the business impact of a strategic decision across 10 department vectors and 3 scenario projections (Expected, Optimistic, Worst Case).
-
+${domainCorpus}
 DEPARTMENT VECTORS TO EVALUATE:
 1. Revenue
 2. Cashflow

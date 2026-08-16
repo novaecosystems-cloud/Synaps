@@ -1,6 +1,7 @@
-﻿import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
+import { getDomainTrainingContext } from '@/lib/domain-datasets/universal-training-corpus';
 
 function parseSafeJson(content: string) {
   try {
@@ -244,6 +245,8 @@ export async function queryExecutiveDigitalTwin(
     });
   } catch (e) {}
 
+  const domainTraining = getDomainTrainingContext(twinProfile.role);
+
   const systemInstruction = `You are the ${twinProfile.name} (${twinProfile.title}) for the enterprise.
 Persona Attributes:
 - Risk Tolerance: ${twinProfile.riskTolerance}
@@ -251,17 +254,17 @@ Persona Attributes:
 - Priorities: ${twinProfile.priorities.join(', ')}
 - Decision Patterns: ${twinProfile.decisionPatterns}
 - Expertise: ${twinProfile.expertise.join(', ')}
-
+${domainTraining}
 STRICT ANTI-HALLUCINATION RULE:
-Base your recommendation solely on your persona role, leadership discipline, and enterprise evidence.
+Base your recommendation solely on your pre-trained domain corpus, leadership discipline, and enterprise evidence.
 NEVER fabricate personal knowledge. If evidence is sparse, explicitly note uncertainty.
 
 OUTPUT MUST BE VALID JSON:
 {
   "recommendation": "1-2 sentence executive recommendation",
-  "reasoningSummary": "Clear rationale based on role priorities",
+  "reasoningSummary": "Clear rationale based on role priorities and domain precedents",
   "confidenceScore": 95,
-  "supportingEvidence": "Citation from org context or role framework",
+  "supportingEvidence": "Citation from domain framework or org context",
   "relevantMemories": ["Historical Decision Precedent A"],
   "supportingDocuments": ["Vault Doc 1"],
   "suggestedActions": ["Action Item 1", "Action Item 2"]
