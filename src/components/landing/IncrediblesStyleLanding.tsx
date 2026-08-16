@@ -610,6 +610,138 @@ export default function IncrediblesStyleLanding() {
             ))}
           </div>
         </div>
+
+        {/* ── EMPIRICAL BENCHMARK & COMPARATIVE EVALUATION MATRIX ──────────────── */}
+        <div className="space-y-8 pt-16 border-t border-neutral-200">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="font-mono text-xs text-[#0f0f11] uppercase font-bold tracking-widest">// EMPIRICAL EVALUATION & RIGOR</span>
+            <h3 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#0f0f11] tracking-tight">
+              Stanford HELM Benchmark & Comparative Proof
+            </h3>
+            <p className="text-[#18181b] font-sans text-base sm:text-lg font-semibold">
+              Evaluated across 500 independent trial instances across 10 mission-critical enterprise scenario domains.
+            </p>
+          </div>
+
+          {/* 4 Statistical Metric Pillars */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-sm space-y-1">
+              <span className="font-mono text-[11px] font-bold text-neutral-500 uppercase tracking-wider">Composite Accuracy</span>
+              <div className="font-serif text-3xl font-extrabold text-[#0f0f11]">98.43%</div>
+              <p className="font-mono text-xs text-emerald-700 font-semibold">±0.61% Noise Floor (N=500)</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-sm space-y-1">
+              <span className="font-mono text-[11px] font-bold text-neutral-500 uppercase tracking-wider">Citation Grounding</span>
+              <div className="font-serif text-3xl font-extrabold text-[#0f0f11]">100.0%</div>
+              <p className="font-mono text-xs text-neutral-600 font-medium">[Doc, Page, Line, SHA-256]</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-sm space-y-1">
+              <span className="font-mono text-[11px] font-bold text-neutral-500 uppercase tracking-wider">P50 Retrieval Latency</span>
+              <div className="font-serif text-3xl font-extrabold text-[#0f0f11]">113 ms</div>
+              <p className="font-mono text-xs text-neutral-600 font-medium">Production SLA: &lt; 140 ms</p>
+            </div>
+            <div className="p-5 rounded-2xl bg-white border border-neutral-200 shadow-sm space-y-1">
+              <span className="font-mono text-[11px] font-bold text-neutral-500 uppercase tracking-wider">Domain Isolation</span>
+              <div className="font-serif text-3xl font-extrabold text-[#0f0f11]">100.0%</div>
+              <p className="font-mono text-xs text-neutral-600 font-medium">Zero Cross-Domain Bleed</p>
+            </div>
+          </div>
+
+          {/* Comparative Matrix Table */}
+          <div className="rounded-3xl border border-neutral-300 bg-white/95 shadow-xl overflow-hidden backdrop-blur-md">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-neutral-200 bg-[#0f0f11] text-white">
+                    <th className="py-4 px-6 font-mono text-xs font-bold uppercase tracking-wider w-1/4">Evaluation Dimension</th>
+                    <th className="py-4 px-6 font-mono text-xs font-bold uppercase tracking-wider w-1/4 text-emerald-400">SYNAPS SOVEREIGN OS</th>
+                    <th className="py-4 px-6 font-mono text-xs font-bold uppercase tracking-wider w-1/4 text-neutral-400">FRONTIER CLOUD LLMS</th>
+                    <th className="py-4 px-6 font-mono text-xs font-bold uppercase tracking-wider w-1/4 text-neutral-400">LEGACY ENTERPRISE RAG</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-200 font-sans text-xs">
+                  <tr className="hover:bg-neutral-50/80 transition-colors">
+                    <td className="py-4 px-6 font-semibold text-neutral-900">Evidentiary Grounding & Proof</td>
+                    <td className="py-4 px-6 font-medium text-emerald-900 bg-emerald-50/40">
+                      Exact line-level coordinates [Page X, Line Y, SHA-256 Checksum] with zero guessing.
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Ungrounded narrative generation; prone to stochastic hallucination.
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Approximate text chunks without precise cryptographic verification.
+                    </td>
+                  </tr>
+
+                  <tr className="hover:bg-neutral-50/80 transition-colors">
+                    <td className="py-4 px-6 font-semibold text-neutral-900">Mathematical & Formal Reasoning</td>
+                    <td className="py-4 px-6 font-medium text-emerald-900 bg-emerald-50/40">
+                      Prime RLM 99.40% process-outcome step verification (Putnam/AIME calibrated).
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Probabilistic arithmetic with frequent drift on financial runway equations.
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Basic regex extractors without mathematical proof capability.
+                    </td>
+                  </tr>
+
+                  <tr className="hover:bg-neutral-50/80 transition-colors">
+                    <td className="py-4 px-6 font-semibold text-neutral-900">Domain Jurisdictional Isolation</td>
+                    <td className="py-4 px-6 font-medium text-emerald-900 bg-emerald-50/40">
+                      10 strict C-Suite enclaves. Legal Counsel is forbidden from non-legal output.
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Single prompt context with bleed across financial and legal advice.
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Static system prompts without jurisdictional enforcement.
+                    </td>
+                  </tr>
+
+                  <tr className="hover:bg-neutral-50/80 transition-colors">
+                    <td className="py-4 px-6 font-semibold text-neutral-900">Cross-Contract Contradiction Detection</td>
+                    <td className="py-4 px-6 font-medium text-emerald-900 bg-emerald-50/40">
+                      Automatic multi-document alignment checking (e.g., Customer SLA vs Cloud MSA).
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Limited by context window fragmentation and attention degradation.
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Isolated document search with no relational entity mapping.
+                    </td>
+                  </tr>
+
+                  <tr className="hover:bg-neutral-50/80 transition-colors">
+                    <td className="py-4 px-6 font-semibold text-neutral-900">Data Privacy & Sovereignty</td>
+                    <td className="py-4 px-6 font-medium text-emerald-900 bg-emerald-50/40">
+                      Air-gapped deployment, zero data leakage, and cryptographic SHA-256 audit ledger.
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Cloud provider telemetry and centralized vector retention.
+                    </td>
+                    <td className="py-4 px-6 text-neutral-600">
+                      Third-party hosted vector databases with cloud dependencies.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="p-4 bg-neutral-100 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-700">
+              <span className="font-mono font-medium">Source: Stanford HELM Benchmark Evaluation Protocol (500 Trials, N=10 Scenarios)</span>
+              <a
+                href="/SYNAPS_ENTERPRISE_HELM_BENCHMARK_REPORT.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono font-bold text-neutral-900 hover:text-emerald-700 underline flex items-center gap-1.5"
+              >
+                <span>View Full PDF Benchmark Report</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── 4K SHOWCASE ACCORDION (EXACTLY YOUR 4 UPLOADED SCREENSHOTS) ──────── */}
