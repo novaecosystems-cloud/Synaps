@@ -1,21 +1,33 @@
-MIT License
+SYNAPS SOVEREIGN OS — PROPRIETARY & SOURCE-AVAILABLE LICENSE
+Copyright (c) 2026 Shourya / Nova Ecosystems Cloud. All Rights Reserved.
 
-Copyright (c) 2026 Synaps AI
+IMPORTANT NOTICE: This repository is published as a "Source-Available" public reference for official competition judging (including XPRIZE), academic peer verification, and transparency audits. 
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+IT IS NOT OPEN-SOURCE SOFTWARE (NOT MIT / NOT APACHE).
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+==============================================================================
+1. PERMITTED EVALUATION USE
+==============================================================================
+Permission is hereby granted to official XPRIZE judges, competition evaluators, academic reviewers, and individual non-commercial auditors to view, inspect, and benchmark the Software solely for the purpose of technical evaluation, scoring, and research verification.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+==============================================================================
+2. STRICT PROHIBITION OF COMMERCIAL USE & REDISTRIBUTION
+==============================================================================
+Except as expressly permitted in Section 1, NO PERMISSION is granted to any person, corporation, or entity to:
+  a) Copy, clone, distribute, publish, sublicense, rent, lease, or sell the Software or any portion thereof.
+  b) Use the Software or any of its proprietary components (including the 10-Agent Boardroom deliberation engine, evidentiary coordinate RAG algorithms, and Stanford HELM evaluation datasets) to build, train, power, or deploy any commercial software, SaaS, or competitive AI platform.
+  c) Create derivative works, reverse-engineer, or adapt the architecture for external public deployment without prior written authorization from the copyright holder.
+
+==============================================================================
+3. INTELLECTUAL PROPERTY & PATENTS
+==============================================================================
+All title, ownership rights, intellectual property, trade secrets, and patent rights in and to the Software, including but not limited to the multi-agent consensus mechanisms, line-level citation hashing structures, and on-device sovereign node architectures, remain the exclusive property of Shourya / Nova Ecosystems Cloud.
+
+==============================================================================
+4. DISCLAIMER & WARRANTY
+==============================================================================
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR OR COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE.
+
+For commercial licensing, enterprise deployment rights, or partnership inquiries, contact:
+Nova Ecosystems Cloud / Synaps Intelligence
+Website: https://synaps-one.vercel.app/about

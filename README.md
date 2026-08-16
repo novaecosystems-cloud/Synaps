@@ -5,7 +5,9 @@
 [![MCP Protocol](https://img.shields.io/badge/Protocol-Model_Context_Protocol_(MCP)-8A2BE2.svg)](https://synaps-one.vercel.app/api/mcp)
 [![Framework: Next.js 15](https://img.shields.io/badge/Framework-Next.js_15_App_Router-black.svg)](https://nextjs.org/)
 [![AI Engine: Gemini 1.5 Pro](https://img.shields.io/badge/AI-Google_Gemini_1.5_Pro-4285F4.svg)](https://ai.google.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
+[![License: Proprietary (XPRIZE Evaluation)](https://img.shields.io/badge/License-Proprietary_(XPRIZE_Evaluation)-red.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
+
+> 🛡️ **LEGAL & XPRIZE EVALUATION NOTICE:** This repository is published as a **Source-Available** public reference strictly for official XPRIZE competition judging, academic peer review, and empirical verification. All rights are reserved. **Unauthorized commercial use, reproduction, cloning, or redistribution of this software, its 10-Agent Boardroom engine, or its algorithms is strictly prohibited under the [Proprietary License](LICENSE).**
 
 **SYNAPS** is an enterprise-grade Decision Intelligence Operating System and Evidentiary RAG Engine. It transforms unstructured document libraries (contracts, financial models, board minutes, operational SOPs, and compliance audits) into verified, line-level source-cited decisions through a **10-Agent Autonomous AI Boardroom**, **3D Corporate Memory Graph**, and **Data-As-A-Moat (DAAM)** compounding intelligence architecture.
 
