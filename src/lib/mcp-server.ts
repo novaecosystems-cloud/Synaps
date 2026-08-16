@@ -136,13 +136,10 @@ export async function executeMcpTool(
             where: {
               organizationId,
               isDeleted: false,
-              OR: [
-                { name: { contains: rawQuery, mode: 'insensitive' } },
-                { description: { contains: rawQuery, mode: 'insensitive' } },
-              ],
+              name: { contains: rawQuery, mode: 'insensitive' },
             },
             take: limit,
-            select: { id: true, name: true, description: true, mimeType: true, updatedAt: true },
+            select: { id: true, name: true, mimeType: true, updatedAt: true },
           });
         } catch {}
 

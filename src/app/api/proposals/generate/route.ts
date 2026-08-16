@@ -57,14 +57,13 @@ export async function POST(req: NextRequest) {
     });
     const docSummary = chunks.map(c => c.text).join('\n---\n').slice(0, 4000);
 
-    const generatedSections = await generateProposalSections({
-      documentTitle: doc.name,
-      documentSummary: docSummary,
-      requirementsSummary: reqText || 'No specific requirements extracted.',
-      gapsSummary: gapsText || 'No major gaps flagged.',
-      decisionSummary: decText || 'Standard proposal approval workflow.',
-      mode: mode as any
-    });
+    const generatedSections = await generateProposalSections(
+      documentId,
+      reqText || 'No specific requirements extracted.',
+      gapsText || 'No major gaps flagged.',
+      decText || 'Standard proposal approval workflow.',
+      (mode as any) || 'detailed'
+    );
 
     // Check if a proposal already exists for this document or create a new one
     let proposal = await prisma.proposal.findFirst({
@@ -75,11 +74,9 @@ export async function POST(req: NextRequest) {
       proposal = await prisma.proposal.create({
         data: {
           title: `Proposal: ${doc.name}`,
-          content: 'Generated Proposal via Synaps Multi-Agent Engine',
           status: 'DRAFT',
           organizationId: user.organizationId,
-          documentId: doc.id,
-          authorId: user.id
+          documentId: doc.id
         }
       });
     }
@@ -94,11 +91,9 @@ export async function POST(req: NextRequest) {
         data: {
           proposalId: proposal.id,
           organizationId: user.organizationId,
-          sectionType: sec.sectionType,
           title: sec.title,
           content: sec.content,
-          order: sec.order,
-          confidenceScore: sec.confidenceScore
+          order: sec.order
         }
       });
     }

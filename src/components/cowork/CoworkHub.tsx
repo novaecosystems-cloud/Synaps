@@ -1041,24 +1041,24 @@ Format your response with large, clean, professional structure:
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {PRESET_SKILLS.map((skill) => (
               <div
-                key={skill.slug}
+                key={skill.id || skill.name}
                 className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-4 shadow-sm flex flex-col justify-between hover:border-indigo-500/40 transition-all"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="badge badge-primary badge-sm font-bold text-[10px]">{skill.category}</span>
-                    <span className="text-[10px] font-mono text-base-content/40">{skill.estimatedExecutionTime}</span>
+                    <span className="text-[10px] font-mono text-base-content/40">{skill.compressionRatio} compression</span>
                   </div>
-                  <h4 className="font-bold text-sm text-base-content">{skill.title}</h4>
+                  <h4 className="font-bold text-sm text-base-content">{skill.displayName}</h4>
                   <p className="text-xs text-base-content/65 leading-relaxed">{skill.description}</p>
                 </div>
 
                 <div className="pt-2 border-t border-base-300/40 flex items-center justify-between">
-                  <span className="text-[10px] text-indigo-400 font-mono font-bold">/{skill.slug}</span>
+                  <span className="text-[10px] text-indigo-400 font-mono font-bold">/{skill.name}</span>
                   <Button
                     onClick={() => {
                       setSelectedTool('execute_playbook_skill');
-                      setTestInput(`Run ${skill.title}`);
+                      setTestInput(`Run ${skill.displayName}`);
                       setActiveTab('mcp');
                     }}
                     className="btn-xs rounded-lg bg-indigo-600/15 text-indigo-400 hover:bg-indigo-600 hover:text-white border-0 font-bold"

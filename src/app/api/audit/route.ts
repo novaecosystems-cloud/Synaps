@@ -1,13 +1,13 @@
 export const dynamic = 'force-dynamic';
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, Prisma } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
 import { requireAuth } from '@/lib/api-security';
 
-export async function GET(request: Request) {
-  const _auth = await requireAuth(req);
+export async function GET(request: NextRequest) {
+  const _auth = await requireAuth(request);
   if (_auth instanceof NextResponse) return _auth;
   const { searchParams } = new URL(request.url);
   
@@ -65,8 +65,8 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
-  const _auth = await requireAuth(req);
+export async function POST(request: NextRequest) {
+  const _auth = await requireAuth(request);
   if (_auth instanceof NextResponse) return _auth;
   try {
     const body = await request.json();

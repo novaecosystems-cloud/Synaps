@@ -25,7 +25,7 @@ async function resolveOrganizationId(req: NextRequest): Promise<string> {
     if (token.startsWith('synaps_live_') && token.length >= 20) {
       try {
         const org = await prisma.organization
-          .findFirst({ where: { apiKey: token }, select: { id: true } })
+          .findFirst({ where: { id: token }, select: { id: true } })
           .catch(() => null);
         if (org?.id) return org.id;
       } catch {}
