@@ -9,18 +9,6 @@ export async function GET(
   const { platform } = await params;
   const p = (platform || '').toLowerCase();
 
-  if (p === 'windows' || p === 'win' || p === 'exe') {
-    return NextResponse.redirect(`${GITHUB_REPO}/releases/latest/download/Synaps-Setup.exe`);
-  }
-
-  if (p === 'mac' || p === 'macos' || p === 'dmg') {
-    return NextResponse.redirect(`${GITHUB_REPO}/releases/latest/download/Synaps.dmg`);
-  }
-
-  if (p === 'linux' || p === 'appimage') {
-    return NextResponse.redirect(`${GITHUB_REPO}/releases/latest/download/Synaps.AppImage`);
-  }
-
-  // Fallback to releases page
-  return NextResponse.redirect(`${GITHUB_REPO}/releases/latest`);
+  // Safely redirect to GitHub Releases hub
+  return NextResponse.redirect(`${GITHUB_REPO}/releases`, { status: 307 });
 }

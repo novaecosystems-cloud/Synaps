@@ -36,6 +36,7 @@ import {
   Download
 } from "lucide-react";
 import SignInModal from "@/components/SignInModal";
+import DesktopDownloadModal from "@/components/landing/DesktopDownloadModal";
 import { LegalDialogModal, LegalDocType } from "@/components/landing/LegalDialogModal";
 import Link from "next/link";
 import Lenis from "lenis";
@@ -192,6 +193,7 @@ const FAQ_ITEMS = [
 
 export default function IncrediblesStyleLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [comparisonView, setComparisonView] = useState<"both" | "without" | "with">("both");
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
   const [legalDoc, setLegalDoc] = useState<LegalDocType | null>(null);
@@ -331,13 +333,13 @@ export default function IncrediblesStyleLanding() {
 
         {/* Menu Actions */}
         <nav className="flex items-center gap-3 pointer-events-auto">
-          <a
-            href="/api/downloads/windows"
+          <button
+            onClick={() => setIsDownloadModalOpen(true)}
             className="px-4 py-2.5 rounded-full border border-neutral-300 bg-white/90 hover:bg-[#0f0f11] hover:text-white text-[#0f0f11] font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm hidden sm:flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5 text-emerald-600" />
             <span>Download .exe</span>
-          </a>
+          </button>
 
           <a
             href="#pricing"
@@ -394,13 +396,13 @@ export default function IncrediblesStyleLanding() {
             <ArrowUpRight className="w-4 h-4" />
           </button>
 
-          <a
-            href="/api/downloads/windows"
+          <button
+            onClick={() => setIsDownloadModalOpen(true)}
             className="w-full sm:w-auto px-7 py-4 rounded-full border border-[#0f0f11]/30 bg-white hover:bg-[#0f0f11] hover:text-white text-[#0f0f11] font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm group"
           >
             <Download className="w-4 h-4 text-emerald-600 group-hover:text-emerald-400" />
             <span>Download Native App (2.0 GB .exe)</span>
-          </a>
+          </button>
 
           <a
             href="#showcase"
@@ -961,15 +963,18 @@ export default function IncrediblesStyleLanding() {
 
         {/* Sovereign Desktop Downloads */}
         <div className="max-w-6xl mx-auto px-6 flex flex-wrap items-center justify-center gap-3 text-[11px] font-mono text-neutral-600 border-t border-neutral-200/60 pt-3">
-          <span className="font-extrabold text-neutral-900 flex items-center gap-1">
+          <button
+            onClick={() => setIsDownloadModalOpen(true)}
+            className="font-extrabold text-neutral-900 hover:text-emerald-700 flex items-center gap-1 transition-colors"
+          >
             <Download className="w-3.5 h-3.5 text-emerald-600" />
-            NATIVE SOVEREIGN OS (2.0 GB):
-          </span>
-          <a href="/api/downloads/windows" className="text-neutral-900 hover:text-emerald-700 underline font-semibold">Windows (.exe)</a>
+            <span>NATIVE SOVEREIGN OS (2.0 GB):</span>
+          </button>
+          <button onClick={() => setIsDownloadModalOpen(true)} className="text-neutral-900 hover:text-emerald-700 underline font-semibold">Windows (.exe)</button>
           <span>·</span>
-          <a href="/api/downloads/mac" className="text-neutral-900 hover:text-emerald-700 underline font-semibold">macOS (.dmg)</a>
+          <button onClick={() => setIsDownloadModalOpen(true)} className="text-neutral-900 hover:text-emerald-700 underline font-semibold">macOS (.dmg)</button>
           <span>·</span>
-          <a href="/api/downloads/linux" className="text-neutral-900 hover:text-emerald-700 underline font-semibold">Linux (.AppImage)</a>
+          <button onClick={() => setIsDownloadModalOpen(true)} className="text-neutral-900 hover:text-emerald-700 underline font-semibold">Linux (.AppImage)</button>
         </div>
 
         <div className="max-w-6xl mx-auto px-6 text-center">
@@ -981,6 +986,9 @@ export default function IncrediblesStyleLanding() {
 
       {/* Sign-in Modal */}
       <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onOpenLegalDoc={(type) => setLegalDoc(type)} />
+
+      {/* Desktop Sovereign OS Download Modal */}
+      <DesktopDownloadModal isOpen={isDownloadModalOpen} onClose={() => setIsDownloadModalOpen(false)} onLaunchWeb={() => setIsModalOpen(true)} />
 
       {/* Legal Dialog Modal Popup */}
       <LegalDialogModal type={legalDoc} onClose={() => setLegalDoc(null)} />
