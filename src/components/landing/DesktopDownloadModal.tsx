@@ -143,7 +143,11 @@ export default function DesktopDownloadModal({
                 </div>
 
                 <a
-                  href="https://github.com/novaecosystems-cloud/Synaps/releases"
+                  href={
+                    selectedPlatform === "win"
+                      ? "https://github.com/novaecosystems-cloud/Synaps/releases/download/v2.5.0/Synaps-Setup-0.1.0.exe"
+                      : "https://github.com/novaecosystems-cloud/Synaps/releases/tag/v2.5.0"
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full py-4 rounded-xl bg-white hover:bg-emerald-400 hover:text-black text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl group"
