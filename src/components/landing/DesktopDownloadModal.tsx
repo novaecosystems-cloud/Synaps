@@ -5,15 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   Download,
-  Terminal,
   ShieldCheck,
   Cpu,
   HardDrive,
   Globe,
   ArrowUpRight,
-  CheckCircle2,
-  Copy,
-  Check
+  CheckCircle2
 } from "lucide-react";
 
 interface DesktopDownloadModalProps {
@@ -27,28 +24,19 @@ export default function DesktopDownloadModal({
   onClose,
   onLaunchWeb,
 }: DesktopDownloadModalProps) {
-  const [copied, setCopied] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<"win" | "mac" | "linux">("win");
-
-  const buildCmd = "git clone https://github.com/novaecosystems-cloud/Synaps.git\ncd Synaps && npm install\nnpm run desktop:start";
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(buildCmd);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-md">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.2 }}
-          className="relative w-full max-w-2xl rounded-3xl bg-[#0f0f11] text-white border border-neutral-800 shadow-2xl overflow-hidden font-sans"
+          className="relative w-full max-w-xl rounded-3xl bg-[#0f0f11] text-white border border-neutral-800 shadow-2xl overflow-hidden font-sans"
         >
           {/* Top Bar Header */}
           <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
@@ -58,10 +46,10 @@ export default function DesktopDownloadModal({
               </div>
               <div>
                 <h3 className="font-serif text-xl sm:text-2xl font-bold text-white leading-tight">
-                  Download SYNAPS Sovereign OS
+                  Download SYNAPS Desktop
                 </h3>
                 <p className="font-mono text-xs text-neutral-400">
-                  Version 2.5.0 · 2.00 GB Offline Engine · Zero Cloud Telemetry
+                  Version 2.5.0 · 1-Click Standalone Installer (.exe)
                 </p>
               </div>
             </div>
@@ -79,17 +67,17 @@ export default function DesktopDownloadModal({
               <div className="p-3 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-1">
                 <div className="flex items-center gap-1 text-emerald-400 font-bold">
                   <HardDrive className="w-3.5 h-3.5" />
-                  <span>2.00 GB</span>
+                  <span>155 MB</span>
                 </div>
-                <p className="text-[10px] text-neutral-400">Self-Contained Bundle</p>
+                <p className="text-[10px] text-neutral-400">Fast 1-Click Setup</p>
               </div>
 
               <div className="p-3 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-1">
                 <div className="flex items-center gap-1 text-sky-400 font-bold">
                   <Cpu className="w-3.5 h-3.5" />
-                  <span>4 GB VRAM</span>
+                  <span>Zero CMD</span>
                 </div>
-                <p className="text-[10px] text-neutral-400">Layer-Streaming Active</p>
+                <p className="text-[10px] text-neutral-400">Direct .exe Installer</p>
               </div>
 
               <div className="p-3 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-1">
@@ -97,7 +85,7 @@ export default function DesktopDownloadModal({
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Air-Gapped</span>
                 </div>
-                <p className="text-[10px] text-neutral-400">Zero Data Leakage</p>
+                <p className="text-[10px] text-neutral-400">Offline Guardian</p>
               </div>
             </div>
 
@@ -137,65 +125,61 @@ export default function DesktopDownloadModal({
               </div>
 
               {/* Download Action Box */}
-              <div className="p-5 rounded-2xl bg-gradient-to-b from-neutral-900 to-black border border-neutral-800 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-bold text-white text-sm">
-                      {selectedPlatform === "win" && "Synaps Sovereign Desktop for Windows 10/11"}
-                      {selectedPlatform === "mac" && "Synaps Sovereign Desktop for macOS (Apple Silicon / Intel)"}
-                      {selectedPlatform === "linux" && "Synaps Sovereign Desktop for Linux (x86_64)"}
+              <div className="p-6 rounded-2xl bg-gradient-to-b from-neutral-900 to-black border border-neutral-800 space-y-5">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-white text-base">
+                      {selectedPlatform === "win" && "Synaps Setup for Windows (.exe)"}
+                      {selectedPlatform === "mac" && "Synaps Desktop for macOS (.dmg)"}
+                      {selectedPlatform === "linux" && "Synaps Desktop for Linux (.AppImage)"}
                     </h4>
-                    <p className="font-mono text-xs text-neutral-400">
-                      Includes 1.2B Boardroom Core + 10 LoRA Persona Adapters
-                    </p>
+                    <span className="font-mono text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
+                      Standalone Installer
+                    </span>
                   </div>
-                  <span className="font-mono text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold border border-emerald-500/20">
-                    Ready
-                  </span>
+                  <p className="text-xs text-neutral-400">
+                    Just double-click to install on your system. No command prompt, Git, or terminal setup required.
+                  </p>
                 </div>
 
                 <a
-                  href={`https://github.com/novaecosystems-cloud/Synaps/releases/latest`}
+                  href="https://github.com/novaecosystems-cloud/Synaps/releases"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-3.5 rounded-xl bg-white hover:bg-emerald-400 hover:text-black text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg"
+                  className="w-full py-4 rounded-xl bg-white hover:bg-emerald-400 hover:text-black text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl group"
                 >
-                  <Download className="w-4 h-4" />
-                  <span>Download Installer on GitHub</span>
+                  <Download className="w-4 h-4 text-emerald-600 group-hover:text-black" />
+                  <span>
+                    {selectedPlatform === "win" && "Download Synaps-Setup.exe"}
+                    {selectedPlatform === "mac" && "Download Synaps.dmg"}
+                    {selectedPlatform === "linux" && "Download Synaps.AppImage"}
+                  </span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </a>
-              </div>
-            </div>
 
-            {/* Quick Run via Source (Developer Terminal) */}
-            <div className="p-4 rounded-2xl bg-black/60 border border-neutral-800 space-y-2">
-              <div className="flex items-center justify-between text-xs font-mono text-neutral-400">
-                <div className="flex items-center gap-1.5 font-bold">
-                  <Terminal className="w-3.5 h-3.5 text-neutral-300" />
-                  <span>DEVELOPER 1-LINE INSTALL & RUN</span>
+                <div className="flex items-center justify-center gap-4 text-[11px] font-mono text-neutral-400">
+                  <span className="flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    Auto-Desktop Shortcut
+                  </span>
+                  <span>·</span>
+                  <span className="flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    Offline Failover Built-In
+                  </span>
                 </div>
-                <button
-                  onClick={handleCopy}
-                  className="flex items-center gap-1 text-neutral-300 hover:text-white transition-colors"
-                >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? "Copied" : "Copy"}</span>
-                </button>
               </div>
-              <pre className="p-3 rounded-xl bg-neutral-950 text-neutral-300 font-mono text-[11px] overflow-x-auto leading-relaxed border border-neutral-900">
-                {buildCmd}
-              </pre>
             </div>
 
             {/* Cloud Web Option */}
-            <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-800/40 flex items-center justify-between gap-4">
+            <div className="p-4 rounded-2xl bg-neutral-900/60 border border-neutral-800 flex items-center justify-between gap-4">
               <div className="space-y-0.5">
-                <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs font-mono">
-                  <Globe className="w-3.5 h-3.5" />
-                  <span>PREFER INSTANT ACCESS?</span>
+                <div className="flex items-center gap-1.5 text-white font-bold text-xs font-mono">
+                  <Globe className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>PREFER BROWSER ACCESS?</span>
                 </div>
-                <p className="text-xs text-neutral-300">
-                  Use the full cloud version instantly in your browser with zero installation.
+                <p className="text-xs text-neutral-400">
+                  Run the full C-suite suite instantly in your browser with zero installation.
                 </p>
               </div>
               <button
@@ -203,7 +187,7 @@ export default function DesktopDownloadModal({
                   onClose();
                   onLaunchWeb();
                 }}
-                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-xs uppercase tracking-wider transition-all shrink-0"
+                className="px-4 py-2 rounded-xl bg-neutral-800 hover:bg-white hover:text-black text-white font-mono font-bold text-xs uppercase tracking-wider transition-all shrink-0 border border-neutral-700"
               >
                 Launch Web App
               </button>
