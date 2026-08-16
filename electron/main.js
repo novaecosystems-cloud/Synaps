@@ -130,7 +130,7 @@ function buildMenu(baseUrl) {
 
 function createMainWindow() {
   const icon = getIcon();
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = process.env.SYNAPS_DEV === 'true';
   const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
   const startUrl = `${baseUrl}/dashboard`;
 
@@ -161,6 +161,15 @@ function createMainWindow() {
     }
     shell.openExternal(url);
     return { action: 'deny' };
+  });
+
+  // Failover mechanism: If local or route fails to load, fallback to live production platform
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    console.log(`[Synaps Electron] Failed to load ${validatedURL} (${errorCode}: ${errorDescription})`);
+    if (validatedURL.includes('localhost')) {
+      console.log('[Synaps Electron] Falling back to live production platform...');
+      mainWindow.loadURL('https://synaps-one.vercel.app/dashboard');
+    }
   });
 
   buildMenu(baseUrl);
