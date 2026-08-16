@@ -729,12 +729,14 @@ export default function IncrediblesStyleLanding() {
             </div>
 
             <div className="p-4 bg-neutral-100 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-700">
-              <span className="font-mono font-medium">Source: Stanford HELM Benchmark Evaluation Protocol (500 Trials, N=10 Scenarios)</span>
+              <span className="font-mono text-[11px] text-neutral-600 max-w-2xl">
+                Methodology: Stanford HELM Benchmark Evaluation Protocol (500 Internal Trials, N=10 Scenarios). Conducted by Synaps Engineering; not affiliated with or endorsed by Stanford University.
+              </span>
               <a
                 href="/SYNAPS_ENTERPRISE_HELM_BENCHMARK_REPORT.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono font-bold text-neutral-900 hover:text-emerald-700 underline flex items-center gap-1.5"
+                className="font-mono font-bold text-neutral-900 hover:text-emerald-700 underline flex items-center gap-1.5 shrink-0"
               >
                 <span>View Full PDF Benchmark Report</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />

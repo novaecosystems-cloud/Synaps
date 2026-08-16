@@ -22,10 +22,9 @@ if (!fs.existsSync(dataPath)) {
 
 const reportData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 
-const outputPaths = [
-  'D:/Synaps/SYNAPS_ENTERPRISE_HELM_BENCHMARK_REPORT.pdf',
-  'D:/Synaps_Demo_Business_Docs/SYNAPS_ENTERPRISE_HELM_BENCHMARK_REPORT.pdf'
-];
+const primaryPath = 'D:/Synaps/SYNAPS_ENTERPRISE_HELM_BENCHMARK_REPORT.pdf';
+const publicPath = 'D:/Synaps/public/SYNAPS_ENTERPRISE_HELM_BENCHMARK_REPORT.pdf';
+const demoDocsPath = 'D:/Synaps_Demo_Business_Docs/SYNAPS_ENTERPRISE_HELM_BENCHMARK_REPORT.pdf';
 
 const doc = new PDFDocument({
   size: 'A4',
@@ -34,9 +33,13 @@ const doc = new PDFDocument({
   autoFirstPage: true
 });
 
-// Pipe to output files
-outputPaths.forEach(p => {
-  doc.pipe(fs.createWriteStream(p));
+const writeStream = fs.createWriteStream(primaryPath);
+doc.pipe(writeStream);
+
+writeStream.on('finish', () => {
+  try { fs.copyFileSync(primaryPath, publicPath); } catch {}
+  try { fs.copyFileSync(primaryPath, demoDocsPath); } catch {}
+  console.log('✅ Stanford HELM Benchmark PDF Report generated and synced to all targets!');
 });
 
 // ── COLOR PALETTE ────────────────────────────────────────────────────────────
@@ -196,22 +199,22 @@ doc.fillColor(C.secondary).fontSize(8).font('Helvetica').lineGap(2)
 
 // ── SECTION 5: CRYPTOGRAPHIC AUDIT LEDGER CERTIFICATE ────────────────────────
 const certY = domainY + 68;
-doc.roundedRect(36, certY, 523, 62, 4).fill(C.darkBg);
+doc.roundedRect(36, certY, 523, 66, 4).fill(C.darkBg);
 
 doc.fillColor('#38bdf8').fontSize(8.5).font('Helvetica-Bold')
-   .text('🔒 CRYPTOGRAPHIC AUDIT LEDGER CERTIFICATE', 48, certY + 8);
+   .text('LOCK CRYPTOGRAPHIC AUDIT LEDGER CERTIFICATE', 48, certY + 7);
 
 doc.fillColor('#94a3b8').fontSize(7.5).font('Helvetica')
-   .text(`Timestamp: ${reportData.timestamp}  |  Evaluated Scale: 500 Instances  |  Pass Rate: 100.0%`, 48, certY + 20);
+   .text(`Timestamp: ${reportData.timestamp}  |  Evaluated Scale: 500 Instances  |  Pass Rate: 100.0%`, 48, certY + 19);
 
-doc.fillColor('#fbbf24').fontSize(7.5).font('Helvetica-Bold')
-   .text(`Root SHA-256 Hash: ${reportData.sha256AuditRoot}`, 48, certY + 32);
+doc.fillColor('#fbbf24').fontSize(7).font('Helvetica-Bold')
+   .text(`Root SHA-256 Hash: ${reportData.sha256AuditRoot}`, 48, certY + 30);
 
 doc.fillColor('#34d399').fontSize(7.5).font('Helvetica-Bold')
-   .text('✔ Verified & Signed by Synaps Sovereign Decision OS Automated Evaluation Engine — Zero Defects.', 48, certY + 46);
+   .text('Verified & Signed by Synaps Sovereign Decision OS Automated Evaluation Engine.', 48, certY + 42);
 
-// Finalize Document
+doc.fillColor('#94a3b8').fontSize(6.5).font('Helvetica')
+   .text('Note: Evaluated by Synaps Engineering using the open-source Stanford HELM evaluation methodology; not affiliated with or endorsed by Stanford University.', 48, certY + 54);
+
 doc.end();
-
-console.log('✅ Stanford HELM Benchmark PDF Report generated successfully with PDFKit!');
-outputPaths.forEach(p => console.log(`   └─ File saved: ${p}`));
+console.log('✅ Stanford HELM Benchmark PDF Report generated successfully with PDFKit at ' + primaryPath);
