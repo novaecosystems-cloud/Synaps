@@ -733,7 +733,7 @@ export default function IncrediblesStyleLanding() {
                 Methodology Notice: Stanford HELM Benchmark Evaluation Protocol (500 Internal Trials, N=10 Scenarios). Conducted by Synaps Engineering; not affiliated with, sponsored by, or endorsed by Stanford University.
               </span>
               <a
-                href="/SYNAPS_ENTERPRISE_HELM_BENCHMARK_REPORT.pdf"
+                href="/api/benchmark-report"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono text-xs font-bold text-neutral-900 hover:text-emerald-700 underline flex items-center gap-1.5 shrink-0"
