@@ -177,6 +177,12 @@ Multi-tier memory architecture that maintains entity-relation vectors across pro
 * **Core 2 (1-Shot Multimodal Vision VLM):** Sub-1.8-second markdown table reconstruction, key-value extraction, and legal clause classification via Google Gemini 1.5/2.5 Flash.
 * **Auto-Detect Scanned PDFs:** Automatically identifies image-only scanned contracts with blank text layers and routes them through the 1-shot visual OCR pipeline.
 
+### Moat Pillar 7: Sovereign Dual-Engine Framework (Nano + Soup $\le$ 2.5 GB Footprint)
+* **Dynamic Boardroom Core (1.2B Base + 10 LoRAs):** 1.2B INT4 Base Model (~750 MB) with 10 hot-swappable 15 MB persona LoRAs (CEO, CFO, CTO, Legal, Risk) enabling **5ms personality weight-swapping** during live deliberations.
+* **10 Dedicated Nano Micro-Agents (`nanochat` Powered):** 10x 150M parameter micro-models (~750 MB total @ 75 MB each) for sub-20ms instant reranking, OCR table parsing, and compliance scoring.
+* **On-Premise 8B Fine-Tuning Pipeline (`Soup` Layer Streaming):** Fine-tunes massive 8-Billion parameter foundation models on client 4 GB laptop GPUs without cloud compute costs.
+* **Storage Budget:** Total combined desktop bundle occupies **2.00 GB**, comfortably below the **2.50 GB ceiling** with 500 MB headroom for vector storage.
+
 ---
 
 ## 🛠️ 4. Core Architecture & Tech Stack

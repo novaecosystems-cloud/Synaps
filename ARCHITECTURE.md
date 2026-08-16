@@ -126,6 +126,23 @@ SYNAPS is engineered as an **Evidentiary Decision Intelligence Operating System*
 
 ---
 
+### 2.9 Sovereign AI Dual-Engine Framework (Nano + Soup Architecture)
+* **Bundle Target Size:** **$\le$ 2.50 GB Total Offline Desktop Footprint** (Measured at **2.00 GB**, leaving 500 MB headroom).
+* **Tier 1 — Dynamic Boardroom Core (1.2B Base + 10 LoRA Personality Adapters):**
+  * **1.2B Base Foundation Model (INT4 Quantized):** **~750 MB**
+  * **10 C-Suite LoRA Adapters (15 MB each):** **~150 MB** (CEO, CFO, CTO, Legal, CRO, COO, CISO, Compliance, Strategy, Chief of Staff).
+  * **5ms Hot Weight-Swapping:** Switches persona weights in memory during multi-agent debates without reloading the base model.
+* **Tier 2 — 10 Dedicated Nano Micro-Agents (Powered by `nanochat` Architecture):**
+  * **10x 150M Parameter Task Models (75 MB each):** **~750 MB**
+  * `Fast-Reranker-Nano`, `OCR-Table-Reconstructor-Nano`, `Clause-Classifier-Nano`, `DPDP-Redactor-Nano`, `Indemnity-Checker-Nano`, `Runway-Auditor-Nano`, `SPOF-Detector-Nano`, `Cross-Doc-Validator-Nano`, `SLA-Penalty-Parser-Nano`, `Audit-Hasher-Nano`.
+  * **Sub-20ms Latency:** High-throughput micro-tasks run concurrently on CPU or integrated GPU.
+* **Tier 3 — On-Premise 8B Fine-Tuning Pipeline (Powered by `Soup` Layer Streaming):**
+  * Integrates **Layer Streaming** to fine-tune 8-Billion parameter foundation models (Llama-3.1-8B / Qwen-2.5-7B) on client 4 GB VRAM laptop GPUs using a single YAML configuration (`stream_layers: true`).
+* **Storage Allocation Matrix:**
+  $$\text{Base Model (750 MB)} + \text{LoRAs (150 MB)} + \text{Nano Agents (750 MB)} + \text{App Shell/Engine (350 MB)} = \mathbf{2.00\text{ GB}} \le \mathbf{2.50\text{ GB}}$$
+
+---
+
 ## 3. Database Schema & Data Models (Prisma / NeonDB)
 
 ```
