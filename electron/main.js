@@ -16,12 +16,15 @@ let mainWindow = null;
 let spotlightWindow = null;
 let tray = null;
 
+const isDev = process.env.SYNAPS_DEV === 'true';
+const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
+
 function getIcon() {
   const iconPaths = [
     path.join(__dirname, 'public', 'favicon.ico'),
     path.join(__dirname, 'favicon.ico'),
     path.join(__dirname, '..', 'public', 'favicon.ico'),
-    path.join(process.resourcesPath, 'app', 'public', 'favicon.ico'),
+    path.join(process.resourcesPath || '', 'app', 'public', 'favicon.ico'),
   ];
   for (const p of iconPaths) {
     if (fs.existsSync(p)) {
@@ -34,7 +37,7 @@ function getIcon() {
   return nativeImage.createEmpty();
 }
 
-function buildMenu(baseUrl) {
+function buildMenu(url) {
   const isMac = process.platform === 'darwin';
   const template = [
     ...(isMac ? [{ role: 'appMenu' }] : []),
@@ -50,41 +53,36 @@ function buildMenu(baseUrl) {
         {
           label: 'Executive Dashboard',
           accelerator: 'CmdOrCtrl+1',
-          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard`),
+          click: () => mainWindow && mainWindow.loadURL(`${url}/dashboard`),
         },
         {
           label: '10-Agent AI Boardroom',
           accelerator: 'CmdOrCtrl+2',
-          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/boardroom`),
+          click: () => mainWindow && mainWindow.loadURL(`${url}/dashboard/boardroom`),
         },
         {
           label: 'Chief of Staff Memo',
           accelerator: 'CmdOrCtrl+3',
-          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/chief-of-staff`),
+          click: () => mainWindow && mainWindow.loadURL(`${url}/dashboard/chief-of-staff`),
         },
         {
-          label: 'Synaps Cowork & MCP Den',
+          label: 'Interactive Sandbox (Demo)',
           accelerator: 'CmdOrCtrl+4',
-          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/cowork`),
-        },
-        {
-          label: 'Colibrì 744B MoE Engine',
-          accelerator: 'CmdOrCtrl+5',
-          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/settings/ai`),
+          click: () => mainWindow && mainWindow.loadURL(`${url}/demo`),
         },
         {
           label: 'Matter Audio Notebooks',
-          accelerator: 'CmdOrCtrl+6',
-          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/notebooks`),
+          accelerator: 'CmdOrCtrl+5',
+          click: () => mainWindow && mainWindow.loadURL(`${url}/dashboard/notebooks`),
         },
         { type: 'separator' },
         {
           label: '60-Second Contract Redline',
-          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/documents`),
+          click: () => mainWindow && mainWindow.loadURL(`${url}/dashboard/documents`),
         },
         {
           label: '3D Organizational Graph',
-          click: () => mainWindow && mainWindow.loadURL(`${baseUrl}/dashboard/graph`),
+          click: () => mainWindow && mainWindow.loadURL(`${url}/dashboard/graph`),
         },
       ]
     },
@@ -130,9 +128,7 @@ function buildMenu(baseUrl) {
 
 function createMainWindow() {
   const icon = getIcon();
-  const isDev = process.env.SYNAPS_DEV === 'true';
-  const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
-  const startUrl = `${baseUrl}/dashboard`;
+  const startUrl = `${baseUrl}/demo`;
 
   mainWindow = new BrowserWindow({
     width: 1440,
@@ -151,8 +147,8 @@ function createMainWindow() {
     },
   });
 
-  // Modern browser user agent for full WebGL & Google Auth compatibility
-  mainWindow.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 SynapsDesktop/1.0');
+  // Modern browser user agent for full WebGL, Three.js & OAuth compatibility
+  mainWindow.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 SynapsDesktop/2.5.0');
 
   // Handle external auth / OAuth popups
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -163,12 +159,25 @@ function createMainWindow() {
     return { action: 'deny' };
   });
 
-  // Failover mechanism: If local or route fails to load, fallback to live production platform
+  // Strict retry controller to prevent infinite reload loops
+  let failRetries = 0;
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-    console.log(`[Synaps Electron] Failed to load ${validatedURL} (${errorCode}: ${errorDescription})`);
-    if (validatedURL.includes('localhost')) {
-      console.log('[Synaps Electron] Falling back to live production platform...');
-      mainWindow.loadURL('https://synaps-one.vercel.app/dashboard');
+    console.log(`[Synaps Electron] Failed to load: ${validatedURL} (Code: ${errorCode})`);
+    if (failRetries < 2) {
+      failRetries++;
+      setTimeout(() => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.loadURL(`${baseUrl}/demo`);
+        }
+      }, 1200);
+    } else {
+      console.log('[Synaps Electron] Max retries reached. Loading offline fallback.');
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        const offlinePath = path.join(__dirname, 'offline.html');
+        if (fs.existsSync(offlinePath)) {
+          mainWindow.loadFile(offlinePath);
+        }
+      }
     }
   });
 
@@ -200,17 +209,12 @@ function createTray() {
     return;
   }
 
-  const isDev = process.env.NODE_ENV === 'development';
-  const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
-
   const contextMenu = Menu.buildFromTemplate([
     { label: '⚡ Summon Spotlight (Ctrl+Space)', click: () => toggleSpotlight() },
     { type: 'separator' },
     { label: 'Open Synaps OS', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } } },
     { label: '10-Agent Boardroom', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.loadURL(`${baseUrl}/dashboard/boardroom`); } } },
-    { label: 'Matter Audio Notebooks', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.loadURL(`${baseUrl}/dashboard/notebooks`); } } },
-    { type: 'separator' },
-    { label: 'Colibrì 744B MoE: Ready', enabled: false },
+    { label: 'Interactive Demo', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.loadURL(`${baseUrl}/demo`); } } },
     { type: 'separator' },
     { label: 'Quit Synaps', click: () => { app.isQuitting = true; app.quit(); } },
   ]);
@@ -246,9 +250,10 @@ function createSpotlightWindow() {
     },
   });
 
-  spotlightWindow.loadFile(path.join(__dirname, 'spotlight.html')).catch(err => {
-    console.error('Failed to load spotlight.html:', err);
-  });
+  const spotlightPath = path.join(__dirname, 'spotlight.html');
+  if (fs.existsSync(spotlightPath)) {
+    spotlightWindow.loadFile(spotlightPath).catch(() => {});
+  }
 }
 
 function toggleSpotlight() {
@@ -307,7 +312,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-// ── IPC HANDLERS: SCREEN CAPTURE & VISION ANALYSIS ──
+// ── IPC HANDLERS ──
 
 ipcMain.on('hide-spotlight', () => {
   if (spotlightWindow) spotlightWindow.hide();
@@ -319,14 +324,11 @@ ipcMain.on('expand-to-full-app', (event, query) => {
     mainWindow.show();
     mainWindow.focus();
     if (query) {
-      const isDev = process.env.NODE_ENV === 'development';
-      const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
       mainWindow.loadURL(`${baseUrl}/dashboard/chat?q=${encodeURIComponent(query)}`);
     }
   }
 });
 
-// 1. Capture screen snapshot (ephemeral)
 ipcMain.handle('capture-screen', async () => {
   try {
     if (spotlightWindow && !spotlightWindow.isDestroyed() && spotlightWindow.isVisible()) {
@@ -355,19 +357,10 @@ ipcMain.handle('capture-screen', async () => {
   }
 });
 
-// 2. Legal Consent Storage
-ipcMain.handle('get-legal-consent', () => {
-  return true;
-});
+ipcMain.handle('get-legal-consent', () => true);
+ipcMain.handle('set-legal-consent', () => true);
 
-ipcMain.handle('set-legal-consent', () => {
-  return true;
-});
-
-// 3. Analyze Screen with Backend AI Vision
-ipcMain.handle('analyze-screen', async (event, { query, imageBase64, mode, consentGiven }) => {
-  const isDev = process.env.NODE_ENV === 'development';
-  const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
+ipcMain.handle('analyze-screen', async (event, { query, imageBase64, mode }) => {
   const postData = JSON.stringify({ query, imageBase64, mode, consentGiven: true });
 
   return new Promise((resolve) => {

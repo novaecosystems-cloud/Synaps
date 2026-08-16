@@ -36,6 +36,9 @@ fs.copyFileSync(path.join(rootDir, 'electron', 'preload.js'),    path.join(appDi
 if (fs.existsSync(path.join(rootDir, 'electron', 'spotlight.html'))) {
   fs.copyFileSync(path.join(rootDir, 'electron', 'spotlight.html'), path.join(appDir, 'spotlight.html'));
 }
+if (fs.existsSync(path.join(rootDir, 'electron', 'offline.html'))) {
+  fs.copyFileSync(path.join(rootDir, 'electron', 'offline.html'), path.join(appDir, 'offline.html'));
+}
 
 // 3. Copy favicon to root and public folder for tray & window icons
 const publicDir = path.join(appDir, 'public');
