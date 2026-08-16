@@ -729,14 +729,14 @@ export default function IncrediblesStyleLanding() {
             </div>
 
             <div className="p-4 bg-neutral-100 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-700">
-              <span className="font-mono text-[11px] text-neutral-600 max-w-2xl">
-                Methodology: Stanford HELM Benchmark Evaluation Protocol (500 Internal Trials, N=10 Scenarios). Conducted by Synaps Engineering; not affiliated with or endorsed by Stanford University.
+              <span className="font-sans text-[10px] leading-tight text-neutral-500 max-w-2xl">
+                Methodology Notice: Stanford HELM Benchmark Evaluation Protocol (500 Internal Trials, N=10 Scenarios). Conducted by Synaps Engineering; not affiliated with, sponsored by, or endorsed by Stanford University.
               </span>
               <a
                 href="/SYNAPS_ENTERPRISE_HELM_BENCHMARK_REPORT.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono font-bold text-neutral-900 hover:text-emerald-700 underline flex items-center gap-1.5 shrink-0"
+                className="font-mono text-xs font-bold text-neutral-900 hover:text-emerald-700 underline flex items-center gap-1.5 shrink-0"
               >
                 <span>View Full PDF Benchmark Report</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -1004,7 +1004,7 @@ export default function IncrediblesStyleLanding() {
       </section>
 
       {/* ── SITE FOOTER ─────────────────────────────────────────────────────── */}
-      <footer className="py-12 border-t border-[#cecece] text-center font-mono text-xs text-[#18181b] font-bold z-10 bg-white/60 backdrop-blur-md">
+      <footer className="py-12 border-t border-[#cecece] text-center font-mono text-xs text-[#18181b] font-bold z-10 bg-white/60 backdrop-blur-md space-y-4">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <span>© 2026 SYNAPS INTELLIGENCE INC. ALL RIGHTS RESERVED.</span>
           <div className="flex flex-wrap items-center justify-center gap-6 text-[#0f0f11] font-bold">
@@ -1015,6 +1015,11 @@ export default function IncrediblesStyleLanding() {
             <button onClick={() => setLegalDoc('privacy')} className="hover:text-[#fc4778] transition-colors uppercase">Privacy Policy</button>
             <button onClick={() => setLegalDoc('security')} className="hover:text-[#fc4778] transition-colors uppercase">DPDP Act Compliance SLA</button>
           </div>
+        </div>
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <p className="font-sans text-[10px] text-neutral-400 font-normal leading-relaxed">
+            Legal Disclosure: Benchmark scores reflect internal empirical evaluation trials conducted by Synaps Engineering utilizing the open-source Stanford HELM evaluation methodology protocol (500 instances, N=10 scenario domains). Not affiliated with, sponsored by, or endorsed by Stanford University.
+          </p>
         </div>
       </footer>
 
