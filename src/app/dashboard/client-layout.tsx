@@ -48,6 +48,7 @@ const FirstTimeOnboarding = dynamic(() => import('@/components/FirstTimeOnboardi
 const AiCreditBadge = dynamic(() => import('@/components/AiCreditBadge'), { ssr: false });
 const AiCreditExhaustedModal = dynamic(() => import('@/components/AiCreditExhaustedModal'), { ssr: false });
 const DemoHeaderBadge = dynamic(() => import('@/components/DemoHeaderBadge'), { ssr: false });
+const DailyWorkdayBriefModal = dynamic(() => import('@/components/DailyWorkdayBriefModal'), { ssr: false });
 
 const PlanAccessGate = dynamic(() => import('@/components/PlanAccessGate'), { ssr: false });
 
@@ -266,6 +267,7 @@ export default function ClientLayout({ children, user }: { children: React.React
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
   const [isWrappedModalOpen, setIsWrappedModalOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [isDailyBriefOpen, setIsDailyBriefOpen] = useState(false);
 
   const handleLogout = async () => {
     await logoutAction();
@@ -454,6 +456,16 @@ export default function ClientLayout({ children, user }: { children: React.React
               <span className="hidden sm:inline">Desktop App</span>
             </button>
             
+            {/* Daily Morning Workday Briefing Button */}
+            <button
+              onClick={() => setIsDailyBriefOpen(true)}
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all hover:scale-[1.03]"
+              title="Open Today's Daily Workday Executive Brief"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0 animate-pulse" />
+              <span className="hidden sm:inline">Daily Brief</span>
+            </button>
+
             {/* Spotify-Wrapped Style Executive Progress Card Button */}
             <button
               onClick={() => setIsWrappedModalOpen(true)}
@@ -483,6 +495,10 @@ export default function ClientLayout({ children, user }: { children: React.React
 
       {/* Global Modals & Hints */}
       <GlobalSearch />
+      <DailyWorkdayBriefModal 
+        isOpenOverride={isDailyBriefOpen} 
+        onCloseOverride={() => setIsDailyBriefOpen(false)} 
+      />
       <LaunchPromoModal userPlan={user?.isPremium ? 'max' : 'free'} />
       <MultiStepPaywallModal 
         isOpen={isPaywallModalOpen} 
