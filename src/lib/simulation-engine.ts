@@ -100,7 +100,7 @@ Knowledge Documents: ${docs.map(d => d.name).join(', ') || 'Enterprise Financial
 Historical Decisions: ${decisions.map(d => `${d.status} (${d.recommendation})`).join('; ') || 'None'}
 Enterprise Graph Entities: ${graphEntities.map(g => `${g.name} [${g.type}]`).join(', ') || 'None'}`;
 
-  const domainCorpus = getDomainTrainingContext('CEO');
+  const domainCorpus = getDomainTrainingContext('CEO', `${decisionType} ${decisionDetails}`);
 
   const systemPrompt = `You are the Synaps Business Decision Simulation Engine.
 Simulate the business impact of a strategic decision across 10 department vectors and 3 scenario projections (Expected, Optimistic, Worst Case).

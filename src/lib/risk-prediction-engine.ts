@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
+import { getDomainTrainingContext } from '@/lib/domain-datasets/universal-training-corpus';
 
 function parseSafeJson(content: string) {
   try {
@@ -70,6 +71,8 @@ export async function scanEnterpriseRisks(organizationId: string): Promise<RiskI
 Documents: ${docs.map(d => d.name).join(', ') || 'Enterprise Standard SOPs & Contracts'}
 Decisions: ${decisions.map(d => `${d.title} (${d.status})`).join('; ') || 'None'}`;
 
+  const domainTraining = getDomainTrainingContext('LEGAL_RISK', contextText);
+
   const systemPrompt = `You are the AI Risk Scanner for Synaps.
 Scan the provided enterprise documents and corporate data for operational vulnerabilities across 8 categories:
 1. MISSING_SIGNATURE
@@ -80,7 +83,7 @@ Scan the provided enterprise documents and corporate data for operational vulner
 6. COMPLIANCE_VIOLATION
 7. INCOMPLETE_SOP
 8. DUPLICATE_PROCESS
-
+${domainTraining}
 Return valid JSON with format:
 {
   "risks": [

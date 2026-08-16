@@ -245,7 +245,7 @@ export async function queryExecutiveDigitalTwin(
     });
   } catch (e) {}
 
-  const domainTraining = getDomainTrainingContext(twinProfile.role);
+  const domainTraining = getDomainTrainingContext(twinProfile.role, scenarioPrompt);
 
   const systemInstruction = `You are the ${twinProfile.name} (${twinProfile.title}) for the enterprise.
 Persona Attributes:

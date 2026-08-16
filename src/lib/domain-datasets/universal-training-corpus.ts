@@ -121,10 +121,12 @@ export const UNIVERSAL_DOMAIN_CORPUS: Record<string, DomainCorpus> = {
   }
 };
 
+import { SynapsPersistentKnowledgeEngine } from './global-enterprise-encyclopedia';
+
 /**
- * Returns formatted training context for a specific executive role
+ * Returns formatted training context for a specific executive role, enriched with global multi-jurisdiction & industry knowledge
  */
-export function getDomainTrainingContext(role: string): string {
+export function getDomainTrainingContext(role: string, queryContext: string = '', userJurisdiction: string = 'UNITED_STATES'): string {
   const r = (role || '').toUpperCase();
 
   let corpusKeys = ['STRATEGY'];
@@ -154,5 +156,9 @@ export function getDomainTrainingContext(role: string): string {
   }
   formatted += `═══════════════════════════════════════════════════════════════════════\n`;
 
+  // Attach dynamic multi-jurisdictional & industry vertical intelligence
+  formatted += SynapsPersistentKnowledgeEngine.getMasterTrainingDataset(queryContext || role, userJurisdiction);
+
   return formatted;
 }
+
