@@ -32,7 +32,8 @@ import {
   Eye,
   Lock,
   AlertTriangle,
-  CheckCheck
+  CheckCheck,
+  Download
 } from "lucide-react";
 import SignInModal from "@/components/SignInModal";
 import { LegalDialogModal, LegalDocType } from "@/components/landing/LegalDialogModal";
@@ -336,6 +337,14 @@ export default function IncrediblesStyleLanding() {
         {/* Menu Actions */}
         <nav className="flex items-center gap-3 pointer-events-auto">
           <a
+            href="/api/downloads/windows"
+            className="px-4 py-2.5 rounded-full border border-neutral-300 bg-white/90 hover:bg-[#0f0f11] hover:text-white text-[#0f0f11] font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm hidden sm:flex items-center gap-1.5"
+          >
+            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Download .exe</span>
+          </a>
+
+          <a
             href="#pricing"
             className="px-5 py-2.5 rounded-full border border-[#0f0f11]/30 bg-white/90 hover:bg-[#0f0f11] hover:text-white text-[#0f0f11] font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
           >
@@ -391,10 +400,18 @@ export default function IncrediblesStyleLanding() {
           </button>
 
           <a
-            href="#showcase"
-            className="w-full sm:w-auto px-8 py-4 rounded-full border border-[#0f0f11]/30 bg-white hover:bg-[#0f0f11] hover:text-white text-[#0f0f11] font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm"
+            href="/api/downloads/windows"
+            className="w-full sm:w-auto px-7 py-4 rounded-full border border-[#0f0f11]/30 bg-white hover:bg-[#0f0f11] hover:text-white text-[#0f0f11] font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm group"
           >
-            <span>View Platform Media (4 Screenshots)</span>
+            <Download className="w-4 h-4 text-emerald-600 group-hover:text-emerald-400" />
+            <span>Download Native App (2.0 GB .exe)</span>
+          </a>
+
+          <a
+            href="#showcase"
+            className="w-full sm:w-auto px-7 py-4 rounded-full border border-[#0f0f11]/20 bg-white/80 hover:bg-[#0f0f11] hover:text-white text-[#0f0f11] font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm"
+          >
+            <span>View Platform Media</span>
           </a>
         </div>
       </section>
@@ -1016,6 +1033,20 @@ export default function IncrediblesStyleLanding() {
             <button onClick={() => setLegalDoc('security')} className="hover:text-[#fc4778] transition-colors uppercase">DPDP Act Compliance SLA</button>
           </div>
         </div>
+
+        {/* Sovereign Desktop Downloads */}
+        <div className="max-w-6xl mx-auto px-6 flex flex-wrap items-center justify-center gap-3 text-[11px] font-mono text-neutral-600 border-t border-neutral-200/60 pt-3">
+          <span className="font-extrabold text-neutral-900 flex items-center gap-1">
+            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            NATIVE SOVEREIGN OS (2.0 GB):
+          </span>
+          <a href="/api/downloads/windows" className="text-neutral-900 hover:text-emerald-700 underline font-semibold">Windows (.exe)</a>
+          <span>·</span>
+          <a href="/api/downloads/mac" className="text-neutral-900 hover:text-emerald-700 underline font-semibold">macOS (.dmg)</a>
+          <span>·</span>
+          <a href="/api/downloads/linux" className="text-neutral-900 hover:text-emerald-700 underline font-semibold">Linux (.AppImage)</a>
+        </div>
+
         <div className="max-w-6xl mx-auto px-6 text-center">
           <p className="font-sans text-[10px] text-neutral-400 font-normal leading-relaxed">
             Legal Disclosure: Benchmark scores reflect internal empirical evaluation trials conducted by Synaps Engineering utilizing the open-source Stanford HELM evaluation methodology protocol (1,500 instances across 5 core enterprise suites). Not affiliated with, sponsored by, or endorsed by Stanford University.
