@@ -287,8 +287,8 @@ export default function IncrediblesStyleLanding() {
   };
 
   // Pricing calculations
-  const baseStandard = 7;
-  const baseEnterprise = 20;
+  const baseStandard = 29;
+  const baseEnterprise = 99;
   const standardPrice = appliedDiscount.isValid
     ? Math.round(baseStandard * (1 - appliedDiscount.percentage / 100))
     : baseStandard;

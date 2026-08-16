@@ -100,12 +100,12 @@ export default function MultiStepPaywallModal({
 
   const prices = {
     pro: {
-      original: billingCycle === 'yearly' ? 10 : 14,
-      discounted: billingCycle === 'yearly' ? 5 : 7
+      original: billingCycle === 'yearly' ? 24 : 39,
+      discounted: billingCycle === 'yearly' ? 19 : 29
     },
     enterprise: {
-      original: billingCycle === 'yearly' ? 32 : 40,
-      discounted: billingCycle === 'yearly' ? 16 : 20
+      original: billingCycle === 'yearly' ? 79 : 129,
+      discounted: billingCycle === 'yearly' ? 59 : 99
     }
   };
 
