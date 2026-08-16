@@ -112,7 +112,6 @@ const sidebarSections: MenuSection[] = [
           { name: 'Decision Memory', href: '/dashboard/decisions' },
           { name: 'Simulation Engine', href: '/dashboard/simulations', badge: 'MAX' },
           { name: 'Memory Graph', href: '/dashboard/graph', badge: 'PRO' },
-          { name: 'DPDP Privacy & Rights', href: '/dashboard/settings/privacy', badge: 'PRO' },
         ]
       }
     ]
