@@ -625,6 +625,73 @@ export default function IncrediblesStyleLanding() {
           </div>
         </div>
 
+        {/* ── GLOBAL PRE-TRAINED MULTI-JURISDICTION & MULTI-INDUSTRY INTELLIGENCE ── */}
+        <div className="space-y-8 pt-16 border-t border-neutral-200">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="font-mono text-xs text-[#fc4778] uppercase font-bold tracking-widest">// PRE-TRAINED ENTERPRISE CORPUS</span>
+            <h3 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#0f0f11] tracking-tight">
+              Pre-Trained on Global Law & Real-World Operating Equations
+            </h3>
+            <p className="text-[#18181b] font-sans text-base sm:text-lg font-semibold leading-relaxed">
+              Not a generic chatbot. Synaps arrives pre-loaded with statutory contract law across 6 global jurisdictions and verified operating equations across 8 enterprise verticals.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Jurisdiction Block */}
+            <div className="p-6 rounded-3xl bg-white border border-[#cecece] shadow-xl space-y-3 hover:border-[#fc4778] transition-all group backdrop-blur-md">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 flex items-center justify-center font-bold text-sm">
+                <Scale className="w-5 h-5" />
+              </div>
+              <h4 className="font-serif text-xl font-bold text-[#0f0f11] group-hover:text-[#fc4778] transition-colors">
+                6 Global Jurisdictions
+              </h4>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Pre-trained on Delaware DGCL § 141, EU GDPR Article 28, Indian Contract Act 1872 (§ 27 non-compete voidness), Singapore SIAC, and UAE DIFC/ADGM common law.
+              </p>
+            </div>
+
+            {/* Vertical Equations Block */}
+            <div className="p-6 rounded-3xl bg-white border border-[#cecece] shadow-xl space-y-3 hover:border-[#fc4778] transition-all group backdrop-blur-md">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-600 flex items-center justify-center font-bold text-sm">
+                <Activity className="w-5 h-5" />
+              </div>
+              <h4 className="font-serif text-xl font-bold text-[#0f0f11] group-hover:text-[#fc4778] transition-colors">
+                8 Industry Verticals
+              </h4>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Hardcoded operating formulas for Hospitality (RevPAR/ADR/OTA parity), Freight (Incoterms 2020/Demurrage), SaaS (Rule of 40/NRR), and FinTech (Basel III).
+              </p>
+            </div>
+
+            {/* Non-Volatile Memory Block */}
+            <div className="p-6 rounded-3xl bg-white border border-[#cecece] shadow-xl space-y-3 hover:border-[#fc4778] transition-all group backdrop-blur-md">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 flex items-center justify-center font-bold text-sm">
+                <Database className="w-5 h-5" />
+              </div>
+              <h4 className="font-serif text-xl font-bold text-[#0f0f11] group-hover:text-[#fc4778] transition-colors">
+                Non-Volatile Retention
+              </h4>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Persistent memory graph and Prime RLM reinforcement ledger guarantee the AI never discards context or forgets approved executive decisions.
+              </p>
+            </div>
+
+            {/* First-Principles Engine */}
+            <div className="p-6 rounded-3xl bg-white border border-[#cecece] shadow-xl space-y-3 hover:border-[#fc4778] transition-all group backdrop-blur-md">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-600 flex items-center justify-center font-bold text-sm">
+                <Cpu className="w-5 h-5" />
+              </div>
+              <h4 className="font-serif text-xl font-bold text-[#0f0f11] group-hover:text-[#fc4778] transition-colors">
+                Zero-Shot New Businesses
+              </h4>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Decomposes brand new, unseen businesses into 5 first-principles primitives (Cashflow, Liabilities, SPOFs, Jurisdiction, and Moats) in under 60 seconds.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* ── EMPIRICAL BENCHMARK & COMPARATIVE EVALUATION MATRIX ──────────────── */}
         <div className="space-y-8 pt-16 border-t border-neutral-200">
           <div className="text-center max-w-3xl mx-auto space-y-3">

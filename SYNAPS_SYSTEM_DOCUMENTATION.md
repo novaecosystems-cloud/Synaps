@@ -142,6 +142,14 @@ SYNAPS includes a multi-agent executive boardroom representing corporate functio
 
 Integrated directory allowing the AI COO to query public APIs for real-time external data (weather, economics, market data, sports, transport, etc.) via `/dashboard/integrations`.
 
+## 🏛️ Universal Pre-Trained Enterprise Domain Corpus & Global Statutory Frameworks
+
+SYNAPS is pre-trained on authoritative corporate law and operational datasets:
+- **6 Global Jurisdictions**: United States (DGCL § 141, UCC Article 2, Cal. B&P Code § 16600 non-compete ban), European Union & UK (GDPR Article 28 DPA & SCCs, UK UCTA 1977, *Cavendish* penalty clause doctrine), India (Indian Contract Act 1872 § 27 non-compete voidness, § 74 damages ceiling, DPDP Act 2023), Singapore (SIAC Model Clauses & IAA), and UAE (DIFC/ADGM Common Law vs. Mainland UAE Civil Code Art. 246).
+- **8 Industry Verticals**: Hospitality (RevPAR, GOPPAR, ADR, OTA rate parity), Logistics & Freight (Incoterms 2020, Demurrage formulas, COGSA $500 limit), Enterprise SaaS (Rule of 40, Magic Number, NRR > 115%), FinTech & Banking (Basel III, Chargebacks < 0.9%, PCI-DSS v4.0), Healthcare (HIPAA BAA, FDA 21 CFR Part 11), and Real Estate (Cap Rates, NNN reconciliations, AIA A201).
+- **Non-Volatile Memory Retention Engine** (`src/lib/domain-datasets/global-enterprise-encyclopedia.ts`): Grounded context injection guarantees agents retain and continuously learn from these frameworks across sessions.
+- **Zero-Shot Novel Business Decomposition**: Decomposes unseen business models into 5 invariant primitives (Cashflow, Liabilities, SPOFs, Jurisdiction, Moats).
+
 ---
 
 ## 🔐 Security, Compliance & Multi-Tenant Isolation

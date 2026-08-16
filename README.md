@@ -139,7 +139,47 @@ Synaps is built around an **omnichannel, product-led distribution flywheel** des
 
 ---
 
-## 🏰 3. The Synaps Competitive Moat
+## 🌍 3. Universal Pre-Trained Domain Knowledge & Multi-Jurisdictional Frameworks
+
+Unlike generic models that require tedious custom prompting, Synaps arrives **pre-trained and grounded with authoritative domain corpora and statutory legal systems** out of the box:
+
+```
+                               ┌─────────────────────────────────────────────────────────────┐
+                               │       SYNAPS MASTER MULTI-DOMAIN TRAINING CORPUS            │
+                               └──────────────────────────────┬──────────────────────────────┘
+                                                              │
+        ┌─────────────────────────┬───────────────────────────┼───────────────────────────┬─────────────────────────┐
+        ▼                         ▼                           ▼                           ▼                         ▼
+┌───────────────┐         ┌───────────────┐           ┌───────────────┐           ┌───────────────┐         ┌───────────────┐
+│ 1. LEGAL &    │         │ 2. FINANCE &  │           │ 3. HOSPITALITY│           │ 4. LOGISTICS  │         │ 5. SAAS &     │
+│ JURISDICTIONS │         │ ACCOUNTING    │           │ & HOTEL OPS   │           │ & FREIGHT     │         │ TECH INFOSEC  │
+│ • SEC EDGAR   │         │ • FASB ASC 606│           │ • STR Global  │           │ • Incoterms   │         │ • BVP Index   │
+│ • Del. DGCL   │         │ • CFA Inst.   │           │ • Cornell CHR │           │ • COGSA / ICC │         │ • NIST Zero-T │
+│ • India ICA   │         │ • IFRS 15/16  │           │ • OTA Parity  │           │ • Demurrage   │         │ • SOC-2 TypeII│
+│ • EU GDPR/UCTA│         │ • Rule of 40  │           │ • FSSAI / FDA │           │ • Cold-Chain  │         │ • Google SRE  │
+└───────────────┘         └───────────────┘           └───────────────┘           └───────────────┘         └───────────────┘
+```
+
+### A. 6 Global Statutory Legal Frameworks:
+* 🇺🇸 **United States (Delaware / NY / California):** Delaware General Corporation Law (DGCL § 141), UCC Article 2 implied warranties, and California Bus. & Prof. Code § 16600 (absolute non-compete voidness).
+* 🇪🇺 **European Union & UK:** EU GDPR Regulation 2016/679 (Article 28 DPA sub-processor terms & SCCs), UK UCTA 1977 reasonableness, and *Cavendish v El Makdessi* penalty clause doctrine.
+* 🇮🇳 **India:** Indian Contract Act 1872 (§ 27 non-compete voidness, § 74 damages upper ceiling), Digital Personal Data Protection Act 2023 (₹250 Cr penalties), and GST ITC vendor holdback reconciliation.
+* 🇸🇬 **Singapore & APAC:** SIAC Model Arbitration Clauses & Singapore International Arbitration Act (IAA).
+* 🇦🇪 **UAE & Middle East:** DIFC/ADGM English Common Law courts vs. Mainland UAE Federal Law No. 5/1985 (Article 246 Good Faith doctrine).
+
+### B. 8 Pre-Loaded Industry Vertical Equations:
+* 🏨 **Hospitality & Hotel Operations:** RevPAR ($\text{ADR} \times \text{Occupancy}$), GOPPAR, OTA rate parity audits (Expedia/Booking.com margin protection), and FSSAI/FDA HACCP food safety compliance.
+* 🚢 **Logistics, Freight & Supply Chain:** Incoterms 2020 (FOB, CIF, DDP risk/cost transfer points), Port Demurrage & Detention penalty calculations, and US COGSA $500/package limitation tracking.
+* 💻 **Enterprise SaaS & IT:** Rule of 40 ($\text{Growth \%} + \text{FCF Margin \%} \ge 40\%$), SaaS Magic Number (> 0.75), NRR (> 115%), and tiered SLA downtime penalty credit structures.
+* 💳 **FinTech & Banking:** Basel III Capital Adequacy Ratios (CAR > 10.5%), Chargeback rate caps (< 0.9%), PCI-DSS v4.0 HSM tokenization, and AML/KYC sanctions screening.
+
+### C. Non-Volatile Memory Retention Engine:
+* Grounded context injection guarantees the AI never discards context or forgets approved executive decisions across boardroom sessions.
+* **First-Principles Engine on Novel Businesses:** Decomposes brand new, unseen businesses into 5 first-principles primitives (Cashflow, Liabilities, SPOFs, Jurisdiction, and Moats) in under 60 seconds.
+
+---
+
+## 🏰 4. The Synaps Competitive Moat
 
 Generic AI chatbots guess; Synaps provides **evidentiary proof, multi-agent dialectics, and compounding data advantage**.
 

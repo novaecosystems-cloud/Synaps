@@ -143,6 +143,24 @@ SYNAPS is engineered as an **Evidentiary Decision Intelligence Operating System*
 
 ---
 
+### 2.10 Universal Pre-Trained Domain Knowledge & Multi-Jurisdictional Encyclopedia
+* **Engine Files:** [`src/lib/domain-datasets/global-enterprise-encyclopedia.ts`](file:///D:/Synaps/src/lib/domain-datasets/global-enterprise-encyclopedia.ts), [`src/lib/domain-datasets/universal-training-corpus.ts`](file:///D:/Synaps/src/lib/domain-datasets/universal-training-corpus.ts)
+* **6 Global Legal Jurisdictions:**
+  * **USA (Delaware / NY / CA):** DGCL § 141 business judgment, UCC Article 2 warranties, Cal. B&P Code § 16600 (non-compete ban).
+  * **EU & UK:** GDPR Article 28 DPA sub-processor terms, UK UCTA 1977 reasonableness test, *Cavendish* penalty doctrine.
+  * **India:** Indian Contract Act 1872 (§ 27 non-compete voidness, § 74 damages ceiling), DPDP Act 2023, GST ITC reconciliation.
+  * **Singapore & APAC:** SIAC Model Arbitration Clauses, Singapore International Arbitration Act (IAA).
+  * **UAE & Middle East:** DIFC/ADGM English Common Law vs. Mainland UAE Civil Code (Article 246 Good Faith).
+* **8 Pre-Loaded Industry Operating Equations:**
+  * **Hospitality:** $\text{RevPAR} = \text{ADR} \times \text{Occupancy}$, GOPPAR, OTA rate parity, FSSAI/FDA food safety.
+  * **Logistics & Freight:** Incoterms 2020 (FOB/CIF/DDP), Demurrage calculations, COGSA $500/package limit.
+  * **Enterprise SaaS:** $\text{Rule of 40} = \text{Growth \%} + \text{FCF Margin \%} \ge 40\%$, Magic Number $> 0.75$, NRR $> 115\%$.
+  * **FinTech & Banking:** Basel III Capital Adequacy Ratio (CAR $> 10.5\%$), Chargeback threshold $< 0.9\%$, PCI-DSS v4.0.
+* **Non-Volatile Retention:** Context injection pipeline dynamically feeds statutory precedents and mathematical formulas into every Boardroom, Simulation, and Risk Center query.
+* **Zero-Shot Novel Businesses:** First-principles decomposition decomposes unseen business models into 5 invariant primitives (Cashflow, Liabilities, SPOFs, Jurisdiction, and Moats).
+
+---
+
 ## 3. Database Schema & Data Models (Prisma / NeonDB)
 
 ```
