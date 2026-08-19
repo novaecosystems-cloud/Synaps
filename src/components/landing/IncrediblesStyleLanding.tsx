@@ -91,7 +91,7 @@ const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
   },
 ];
 
-// ─── WITH VS WITHOUT SYNAPS COMPARISON DATA ──────────────────────────────────
+// ─── WITH VS WITHOUT CAUSARIX COMPARISON DATA ──────────────────────────────────
 const COMPARISON_DIMENSIONS = [
   {
     id: "redlines",
@@ -175,19 +175,19 @@ const PROPRIETARY_ENGINES = [
   },
 ];
 
-// ─── FAQ ITEMS TAILORED TO SYNAPS ─────────────────────────────────────────────
+// ─── FAQ ITEMS TAILORED TO CAUSARIX ───────────────────────────────────────────
 const FAQ_ITEMS = [
   {
-    question: "How does SYNAPS prevent AI hallucinations?",
-    answer: "SYNAPS uses strict RAG (Retrieval-Augmented Generation) grounded in your exact document repository. Every answer, risk score, and boardroom recommendation includes direct citations and evidence traceability back to source files.",
+    question: "How does CAUSARIX prevent AI hallucinations?",
+    answer: "CAUSARIX uses strict RAG (Retrieval-Augmented Generation) grounded in your exact document repository. Every answer, risk score, and boardroom recommendation includes direct citations and evidence traceability back to source files.",
   },
   {
     question: "What is the Executive Boardroom Simulation Engine?",
     answer: "The Boardroom Engine initializes autonomous C-suite digital twins (CEO, CFO, CTO, Legal, COO). You enter a strategic scenario (e.g. 'Should we launch an enterprise sales office in London?'), and the twins debate, run risk modeling, and deliver a consensus proposal.",
   },
   {
-    question: "What formats does SYNAPS support?",
-    answer: "SYNAPS parses PDF contracts, Word documents, Excel spreadsheets, Notion databases, Google Drive files, Slack channels, and live web search data.",
+    question: "What formats does CAUSARIX support?",
+    answer: "CAUSARIX parses PDF contracts, Word documents, Excel spreadsheets, Notion databases, Google Drive files, Slack channels, and live web search data.",
   },
   {
     question: "How does the Autonomous Chief of Staff prioritize tasks?",
@@ -497,10 +497,10 @@ export default function IncrediblesStyleLanding() {
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <span className="font-mono text-xs text-[#fc4778] uppercase font-bold tracking-widest">// THE PARADIGM SHIFT</span>
           <h2 className="font-serif text-3xl sm:text-6xl font-extrabold text-[#0f0f11] tracking-tight leading-tight">
-            What problem does SYNAPS solve?
+            What problem does CAUSARIX solve?
           </h2>
           <p className="text-[#18181b] font-sans text-lg sm:text-xl font-semibold leading-relaxed">
-            Enterprises lose millions to 3-week legal bottlenecks, unvetted indemnity traps, and AI chatbots that hallucinate liability numbers. SYNAPS replaces guesswork with 4 proprietary evidentiary engines.
+            Enterprises lose millions to 3-week legal bottlenecks, unvetted indemnity traps, and AI chatbots that hallucinate liability numbers. CAUSARIX replaces guesswork with 4 proprietary evidentiary engines.
           </p>
 
           {/* Interactive View Toggle */}
@@ -523,7 +523,7 @@ export default function IncrediblesStyleLanding() {
                   : "text-rose-600 hover:text-rose-700 font-bold"
               }`}
             >
-              ❌ Without SYNAPS
+              ❌ Without CAUSARIX
             </button>
             <button
               onClick={() => setComparisonView("with")}
@@ -533,7 +533,7 @@ export default function IncrediblesStyleLanding() {
                   : "text-emerald-700 hover:text-emerald-800 font-bold"
               }`}
             >
-              ✅ With SYNAPS
+              ✅ With CAUSARIX
             </button>
           </div>
         </div>
@@ -561,12 +561,12 @@ export default function IncrediblesStyleLanding() {
                   {item.title}
                 </h3>
 
-                {/* Without Synaps Block */}
+                {/* Without Causarix Block */}
                 {(comparisonView === "both" || comparisonView === "without") && (
                   <div className="p-4 rounded-2xl bg-rose-50/80 border border-rose-200/80 space-y-1.5 transition-all">
                     <div className="flex items-center gap-1.5 text-rose-700 font-mono text-xs font-extrabold uppercase">
                       <XCircle className="w-4 h-4 shrink-0 text-rose-600" />
-                      <span>WITHOUT SYNAPS</span>
+                      <span>WITHOUT CAUSARIX</span>
                     </div>
                     <p className="text-xs text-rose-950 font-sans font-medium leading-relaxed">
                       {item.withoutText}
@@ -574,12 +574,12 @@ export default function IncrediblesStyleLanding() {
                   </div>
                 )}
 
-                {/* With Synaps Block */}
+                {/* With Causarix Block */}
                 {(comparisonView === "both" || comparisonView === "with") && (
                   <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 space-y-1.5 transition-all">
                     <div className="flex items-center gap-1.5 text-emerald-800 font-mono text-xs font-extrabold uppercase">
                       <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-                      <span>WITH SYNAPS</span>
+                      <span>WITH CAUSARIX</span>
                     </div>
                     <p className="text-xs text-emerald-950 font-sans font-medium leading-relaxed">
                       {item.withText}
@@ -653,7 +653,7 @@ export default function IncrediblesStyleLanding() {
               Pre-Trained on Global Law & Real-World Operating Equations
             </h3>
             <p className="text-[#18181b] font-sans text-base sm:text-lg font-semibold leading-relaxed">
-              Not a generic chatbot. Synaps arrives pre-loaded with statutory contract law across 6 global jurisdictions and verified operating equations across 8 enterprise verticals.
+              Not a generic chatbot. CAUSARIX arrives pre-loaded with statutory contract law across 6 global jurisdictions and verified operating equations across 8 enterprise verticals.
             </p>
           </div>
 
@@ -755,7 +755,7 @@ export default function IncrediblesStyleLanding() {
                 <thead>
                   <tr className="border-b border-neutral-200 bg-[#0f0f11] text-white">
                     <th className="py-4 px-6 font-mono text-xs font-bold uppercase tracking-wider w-1/4">Evaluation Dimension</th>
-                    <th className="py-4 px-6 font-mono text-xs font-bold uppercase tracking-wider w-1/4 text-emerald-400">SYNAPS SOVEREIGN OS</th>
+                    <th className="py-4 px-6 font-mono text-xs font-bold uppercase tracking-wider w-1/4 text-emerald-400">CAUSARIX SOVEREIGN OS</th>
                     <th className="py-4 px-6 font-mono text-xs font-bold uppercase tracking-wider w-1/4 text-neutral-400">FRONTIER CLOUD LLMS</th>
                     <th className="py-4 px-6 font-mono text-xs font-bold uppercase tracking-wider w-1/4 text-neutral-400">LEGACY ENTERPRISE RAG</th>
                   </tr>
@@ -831,7 +831,7 @@ export default function IncrediblesStyleLanding() {
 
             <div className="p-4 bg-neutral-100 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-700">
               <span className="font-sans text-[10px] leading-tight text-neutral-500 max-w-2xl">
-                Methodology Notice: Stanford HELM Benchmark Evaluation Protocol (1,500 Internal Trials across 5 Core Suites × 300 Instances). Conducted by Synaps Engineering; not affiliated with, sponsored by, or endorsed by Stanford University.
+                Methodology Notice: Stanford HELM Benchmark Evaluation Protocol (1,500 Internal Trials across 5 Core Suites × 300 Instances). Conducted by Causarix Engineering; not affiliated with, sponsored by, or endorsed by Stanford University.
               </span>
               <a
                 href="/api/benchmark-report"
@@ -850,7 +850,7 @@ export default function IncrediblesStyleLanding() {
       {/* ── 4K SHOWCASE ACCORDION (EXACTLY YOUR 4 UPLOADED SCREENSHOTS) ──────── */}
       <section id="showcase" className="py-20 px-6 sm:px-12 max-w-6xl mx-auto space-y-12 z-10" data-incredibles-reveal>
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <span className="font-mono text-xs text-[#fc4778] uppercase font-bold tracking-widest">// SYNAPS PLATFORM MEDIA</span>
+          <span className="font-mono text-xs text-[#fc4778] uppercase font-bold tracking-widest">// CAUSARIX PLATFORM MEDIA</span>
           <h2 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#0f0f11] tracking-tight">
             See for yourself
           </h2>
@@ -931,7 +931,7 @@ export default function IncrediblesStyleLanding() {
                   <span>3–4 weeks manual legal review at $1,200/hr ($15,000+ per deal).</span>
                 </div>
                 <div className="flex items-start gap-2 text-emerald-400 font-semibold">
-                  <span className="shrink-0 font-bold">✓ With Synaps:</span>
+                  <span className="shrink-0 font-bold">✓ With Causarix:</span>
                   <span>Instant 60s Delaware Redlines + 10-Agent Boardroom from $0.49/day.</span>
                 </div>
               </div>
@@ -946,31 +946,33 @@ export default function IncrediblesStyleLanding() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs text-[#0f0f11] uppercase font-extrabold">STANDARD WORKSPACE</span>
-                    <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 font-mono text-[10px] font-bold">
+                    <span className="px-2.5 py-1 rounded-md bg-neutral-100 text-neutral-800 font-mono text-xs font-bold">
                       PRO TIER
                     </span>
                   </div>
 
                   <div>
                     <div className="flex items-baseline gap-2">
-                      <div className="font-serif text-4xl font-extrabold text-[#0f0f11]">
+                      <div className="font-serif text-4xl sm:text-5xl font-extrabold text-[#0f0f11]">
                         ${standardPrice}
                         <span className="text-sm font-sans font-semibold text-[#18181b]">/month</span>
                       </div>
                       {appliedDiscount.isValid && (
-                        <span className="font-mono text-xs text-[#fc4778] line-through font-bold">
+                        <span className="font-mono text-sm text-[#fc4778] line-through font-bold">
                           ${baseStandard}
                         </span>
                       )}
                     </div>
-                    {/* Daily Micro-Framing */}
-                    <p className="text-[11px] font-mono font-bold text-emerald-700 mt-1">
-                      ⚡ Just $0.63 / day — less than a cup of coffee
-                    </p>
+
+                    {/* Daily Micro-Framing - Enriched, larger & bolder */}
+                    <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 font-mono text-xs sm:text-sm font-bold tracking-tight shadow-sm w-full">
+                      <span className="text-base sm:text-lg">⚡</span>
+                      <span>Just <strong className="text-emerald-700 font-black text-sm sm:text-base">${(standardPrice / 30).toFixed(2)} / day</strong> — less than half a coffee</span>
+                    </div>
                   </div>
 
-                  <p className="text-[#18181b] text-xs font-semibold">Ideal for growing teams needing continuous document RAG & Chief of Staff briefings.</p>
-                  <ul className="space-y-2 font-mono text-xs text-[#0f0f11] font-bold">
+                  <p className="text-[#18181b] text-sm font-semibold leading-relaxed">Ideal for growing teams needing continuous document RAG & Chief of Staff briefings.</p>
+                  <ul className="space-y-2 font-mono text-xs sm:text-sm text-[#0f0f11] font-bold">
                     <li>✓ Up to 500 documents parsed</li>
                     <li>✓ 10,000 AI Credits / month</li>
                     <li>✓ Daily Chief of Staff Briefings</li>
@@ -982,12 +984,12 @@ export default function IncrediblesStyleLanding() {
                 <div className="space-y-3">
                   <button
                     onClick={() => handleGumroadCheckout("pro")}
-                    className="signup-cta w-full py-3.5 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-white font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center justify-center gap-2 active:scale-95"
+                    className="signup-cta w-full py-4 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-white font-mono text-xs sm:text-sm font-bold uppercase transition-all shadow-md flex items-center justify-center gap-2 active:scale-95"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>Get Pro Workspace (${standardPrice}/mo)</span>
                   </button>
-                  <p className="text-[10px] text-center font-mono text-neutral-500">
+                  <p className="text-xs text-center font-mono text-neutral-600 font-bold">
                     🛡️ 14-Day Free Sandbox · 1-Click Cancel
                   </p>
                 </div>
@@ -996,15 +998,15 @@ export default function IncrediblesStyleLanding() {
               {/* Extended Enterprise Card (Decoy & Dominant Center-Stage) */}
               <div className="p-8 rounded-3xl bg-[#0f0f11] text-white shadow-2xl space-y-6 flex flex-col justify-between relative overflow-hidden border-2 border-amber-400/70 sm:-translate-y-2 transition-all">
                 {/* Glowing Specular Accent */}
-                <div className="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-amber-400 via-[#fc4778] to-indigo-500" />
+                <div className="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-amber-400 via-[#fc4778] to-indigo-500" />
                 
                 <div className="space-y-4 relative z-10">
                   <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-400 to-[#fc4778] text-black font-mono text-[10px] font-black uppercase tracking-wider shadow-sm">
+                    <span className="px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-[#fc4778] text-black font-mono text-xs font-black uppercase tracking-wider shadow-sm">
                       ⭐ MOST POPULAR · 84% CHOOSE THIS
                     </span>
                     {appliedDiscount.isValid && (
-                      <span className="px-2 py-0.5 rounded-full bg-[#fc4778] text-white font-mono text-[10px] font-bold uppercase">
+                      <span className="px-2.5 py-1 rounded-full bg-[#fc4778] text-white font-mono text-xs font-bold uppercase">
                         {appliedDiscount.percentage}% OFF
                       </span>
                     )}
@@ -1012,24 +1014,26 @@ export default function IncrediblesStyleLanding() {
 
                   <div>
                     <div className="flex items-baseline gap-2">
-                      <div className="font-serif text-4xl font-extrabold text-white">
+                      <div className="font-serif text-4xl sm:text-5xl font-extrabold text-white">
                         ${enterprisePrice}
                         <span className="text-sm font-sans font-semibold text-neutral-300">/month</span>
                       </div>
                       {appliedDiscount.isValid && (
-                        <span className="font-mono text-xs text-neutral-400 line-through">
+                        <span className="font-mono text-sm text-neutral-400 line-through">
                           ${baseEnterprise}
                         </span>
                       )}
                     </div>
-                    {/* Daily Micro-Framing */}
-                    <p className="text-[11px] font-mono font-bold text-amber-300 mt-1">
-                      ⚡ Just $1.63 / day for full 10 C-Suite AI Agents
-                    </p>
+
+                    {/* Daily Micro-Framing - Enriched, larger & bolder */}
+                    <div className="mt-3 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-400/20 border border-amber-400/50 text-amber-200 font-mono text-xs sm:text-sm font-bold tracking-tight shadow-sm w-full">
+                      <span className="text-base sm:text-lg">⚡</span>
+                      <span>Just <strong className="text-amber-300 font-black text-sm sm:text-base">${(enterprisePrice / 30).toFixed(2)} / day</strong> for 10 C-Suite AI Agents</span>
+                    </div>
                   </div>
 
-                  <p className="text-neutral-300 text-xs font-medium">Full C-suite suite with Boardroom Simulation Engine & risk audits.</p>
-                  <ul className="space-y-2 font-mono text-xs text-white font-bold">
+                  <p className="text-neutral-200 text-sm font-medium leading-relaxed">Full C-suite suite with Boardroom Simulation Engine & risk audits.</p>
+                  <ul className="space-y-2 font-mono text-xs sm:text-sm text-white font-bold">
                     <li>✓ Unlimited documents parsed</li>
                     <li>✓ Unlimited Boardroom Simulations</li>
                     <li>✓ 10 C-Suite Digital Twins</li>
@@ -1041,12 +1045,12 @@ export default function IncrediblesStyleLanding() {
                 <div className="space-y-3 relative z-10">
                   <button
                     onClick={() => handleGumroadCheckout("enterprise")}
-                    className="signup-cta w-full py-3.5 rounded-full bg-gradient-to-r from-[#fc4778] to-rose-600 hover:from-white hover:to-white hover:text-black text-white font-mono text-xs font-black uppercase transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 shadow-[0_0_20px_rgba(252,71,120,0.4)]"
+                    className="signup-cta w-full py-4 rounded-full bg-gradient-to-r from-[#fc4778] to-rose-600 hover:from-white hover:to-white hover:text-black text-white font-mono text-xs sm:text-sm font-black uppercase transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 shadow-[0_0_20px_rgba(252,71,120,0.4)]"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>Get Enterprise Pro (${enterprisePrice}/mo)</span>
                   </button>
-                  <p className="text-[10px] text-center font-mono text-neutral-400">
+                  <p className="text-xs text-center font-mono text-neutral-300 font-bold">
                     🔒 Sovereign 256-Bit Isolation · Cancel Anytime
                   </p>
                 </div>
@@ -1059,9 +1063,9 @@ export default function IncrediblesStyleLanding() {
       {/* ── THE TACTILE KITCHEN: PHYSICAL MICRO-INTERACTIONS (DQNAMO SUITE) ────── */}
       <section className="py-24 px-6 sm:px-12 max-w-6xl mx-auto space-y-12 z-10" data-incredibles-reveal>
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900 text-white font-mono text-[11px] font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-900 text-white font-mono text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            SYNAPS TACTILE LABS · KITCHEN EXPERIMENTS
+            CAUSARIX TACTILE LABS · KITCHEN EXPERIMENTS
           </div>
           <h2 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#0f0f11]">
             Physical Micro-Interactions & Tactile Controls
@@ -1191,7 +1195,7 @@ export default function IncrediblesStyleLanding() {
             Answers to your questions
           </h2>
           <p className="text-[#18181b] text-base font-semibold">
-            Need more information about SYNAPS? Feel free to <button onClick={() => setIsModalOpen(true)} className="underline hover:text-[#fc4778] font-bold">reach out.</button>
+            Need more information about CAUSARIX? Feel free to <button onClick={() => setIsModalOpen(true)} className="underline hover:text-[#fc4778] font-bold">reach out.</button>
           </p>
         </div>
 

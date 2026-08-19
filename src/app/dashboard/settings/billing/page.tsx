@@ -332,15 +332,15 @@ export default function BillingPage() {
                     <span className="text-xs font-medium text-base-content/60">{periodLabel} ({activeCurrency.code})</span>
                   </div>
                   {price > 0 && (
-                    <p className="text-[11px] font-mono font-bold text-emerald-500 mt-0.5">
-                      ⚡ Just {activeCurrency.symbol}{(price / (billingCycle === 'weekly' ? 7 : 30)).toFixed(2)} / day
-                    </p>
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-mono font-black">
+                      <span>⚡ Just {activeCurrency.symbol}{(price / (billingCycle === 'weekly' ? 7 : 30)).toFixed(2)} / day</span>
+                    </div>
                   )}
                   {billingCycle === 'yearly' && price > 0 && (
-                    <span className="text-[10px] text-success font-bold block">Billed annually ({activeCurrency.symbol}{price * 12}/yr)</span>
+                    <span className="text-xs text-success font-bold block mt-1">Billed annually ({activeCurrency.symbol}{price * 12}/yr)</span>
                   )}
                   {billingCycle === 'weekly' && price > 0 && (
-                    <span className="text-[10px] text-emerald-500 font-bold block">Billed weekly ({activeCurrency.symbol}{price}/week — cancel anytime)</span>
+                    <span className="text-xs text-emerald-500 font-bold block mt-1">Billed weekly ({activeCurrency.symbol}{price}/week — cancel anytime)</span>
                   )}
                 </div>
 
