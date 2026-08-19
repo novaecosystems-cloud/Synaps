@@ -115,6 +115,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
 
   const GITHUB_CLIENT_ID = "Ov23li5MJdkSTkxXfr8P";
   const ATLASSIAN_CLIENT_ID = "5vuAKDnx4cfhpGcYRlSxrDc1GJuPppr1";
+  const SLACK_CLIENT_ID = "11623622093636.11857963256533";
 
   useEffect(() => {
     const isCompleted = localStorage.getItem("causarix_onboarding_completed");
@@ -192,6 +193,15 @@ export function AdaptiveEnterpriseOnboardingModal() {
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
       window.open(url, "atlassian-oauth", `width=${width},height=${height},left=${left},top=${top}`);
+    } else if (provider === "slack") {
+      const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback/slack`);
+      const state = `causarix_slack_${Date.now()}`;
+      const url = `https://slack.com/oauth/v2/authorize?client_id=${SLACK_CLIENT_ID}&scope=chat:write,channels:read,groups:read,im:write,incoming-webhook&redirect_uri=${redirectUri}&state=${state}`;
+      const width = 600;
+      const height = 720;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      window.open(url, "slack-oauth", `width=${width},height=${height},left=${left},top=${top}`);
     }
   };
 
@@ -201,8 +211,8 @@ export function AdaptiveEnterpriseOnboardingModal() {
     setIsAuthorizingOAuth(false);
     setActiveOAuthPopup(integId);
 
-    // Automatically trigger real browser popup for GitHub and Atlassian Jira
-    if (integId === "github" || integId === "jira") {
+    // Automatically trigger real browser popup for GitHub, Jira, and Slack
+    if (integId === "github" || integId === "jira" || integId === "slack") {
       handleLaunchRealOAuthWindow(integId);
     }
   };
@@ -985,19 +995,26 @@ export function AdaptiveEnterpriseOnboardingModal() {
 
                   <div className="space-y-2 pt-2">
                     <button
+                      onClick={() => handleLaunchRealOAuthWindow("slack")}
+                      className="w-full py-3 px-4 rounded-xl bg-[#007a5a] hover:bg-[#148567] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>Authorize on Slack.com Popup ↗</span>
+                    </button>
+                    <button
                       onClick={handleExecuteOAuthConsent}
                       disabled={isAuthorizingOAuth}
-                      className="w-full py-3 px-4 rounded-xl bg-[#007a5a] hover:bg-[#148567] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       {isAuthorizingOAuth ? (
                         <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                           <span>Connecting Slack Workspace...</span>
                         </>
                       ) : (
                         <>
-                          <Check className="w-4 h-4" />
-                          <span>Allow & Connect Slack</span>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Fast 1-Click Sandbox Authorization</span>
                         </>
                       )}
                     </button>
