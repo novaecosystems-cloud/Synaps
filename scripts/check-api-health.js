@@ -33,18 +33,18 @@ async function checkGoogleGemini() {
     return { provider: 'Google Gemini AI', status: 'SKIPPED', message: 'No GEMINI_API_KEY set in env.' };
   }
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: 'Ping test' }] }] })
     });
     const data = await res.json();
     if (res.ok && data.candidates) {
-      return { provider: 'Google Gemini AI (gemini-2.0-flash)', status: 'HEALTHY ✅', message: 'API Key active & operational.' };
+      return { provider: 'Google Gemini AI (gemini-2.5-flash)', status: 'HEALTHY ✅', message: 'API Key active & operational.' };
     } else {
       const msg = data.error?.message || JSON.stringify(data);
       if (msg.includes('quota') || msg.includes('429') || res.status === 429) {
-        return { provider: 'Google Gemini AI (gemini-2.0-flash)', status: 'VALID (QUOTA LIMITED ⚡)', message: 'API Key is VALID and authenticated with Google, currently under free tier 429 rate limit.' };
+        return { provider: 'Google Gemini AI (gemini-2.5-flash)', status: 'VALID (QUOTA LIMITED ⚡)', message: 'API Key is VALID and authenticated with Google, currently under free tier 429 rate limit.' };
       }
       return { provider: 'Google Gemini AI', status: 'FAILED ❌', message: msg };
     }
