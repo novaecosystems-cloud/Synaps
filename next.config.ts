@@ -32,6 +32,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  productionBrowserSourceMaps: false,
+  poweredByHeader: false,
   serverExternalPackages: ["pdf-parse", "officeparser", "pdfmake"],
   images: {
     remotePatterns: [
