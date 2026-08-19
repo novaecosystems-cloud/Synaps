@@ -37,8 +37,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Synaps AI — Enterprise Intelligence Layer & Evidence Engine",
-  description: "Synaps AI transforms complex document libraries into an interactive 3D Knowledge Graph and a 10-Agent AI Boardroom.",
+  title: "CAUSARIX™ (formerly Synaps) — The Causal Decision OS & 10-Agent Boardroom",
+  description: "CAUSARIX (powered by Synaps Causal Intelligence Core) is an institutional Causal Decision Operating System with 10-Agent Boardroom Quorum, line-level SHA-256 evidence grounding, and 3D Corporate Memory Palace.",
   verification: {
     google: "0f4930e9950c5fc4",
   },

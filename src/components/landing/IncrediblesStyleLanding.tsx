@@ -329,13 +329,18 @@ export default function IncrediblesStyleLanding() {
       <header className="fixed top-6 left-0 z-50 w-full px-6 sm:px-12 flex items-center justify-between pointer-events-none">
         {/* Brand Logo */}
         <div className="pointer-events-auto">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-[#0f0f11] flex items-center justify-center text-[#fafafa] font-mono font-bold text-sm shadow-md group-hover:bg-[#fc4778] transition-colors">
-              S
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-xl bg-[#0f0f11] flex items-center justify-center text-[#fafafa] font-mono font-black text-sm shadow-md group-hover:bg-[#fc4778] transition-colors">
+              C
             </div>
-            <span className="font-mono font-extrabold text-sm tracking-wider text-[#0f0f11]">
-              SYNAPS
-            </span>
+            <div className="flex flex-col text-left">
+              <span className="font-mono font-black text-sm tracking-wider text-[#0f0f11] leading-none">
+                CAUSARIX<span className="text-[#fc4778]">™</span>
+              </span>
+              <span className="text-[9px] font-mono font-bold text-neutral-500 uppercase tracking-widest leading-none mt-0.5">
+                by Synaps Core
+              </span>
+            </div>
           </Link>
         </div>
 
@@ -366,7 +371,7 @@ export default function IncrediblesStyleLanding() {
         </nav>
       </header>
 
-      {/* ── HERO SECTION TAILORED TO SYNAPS ─────────────────────────────────── */}
+      {/* ── HERO SECTION TAILORED TO CAUSARIX ───────────────────────────────── */}
       <section className="relative pt-40 pb-28 px-6 sm:px-12 max-w-6xl mx-auto text-center space-y-8 z-10">
         {/* Interactive Aurora Bars Animated Background */}
         <div className="absolute inset-0 -z-10 opacity-40 overflow-hidden pointer-events-auto rounded-3xl">
@@ -377,21 +382,28 @@ export default function IncrediblesStyleLanding() {
             blur={3}
           />
         </div>
+
+        {/* XPRIZE Foundation Competition Entry & Transition Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0f0f11] text-white font-mono text-[11px] font-black uppercase tracking-wider shadow-lg">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>XPRIZE FOUNDATION COMPETITION ENTRY · CAUSARIX™ (FORMERLY SYNAPS)</span>
+        </div>
+
         {/* Badges Ticker */}
         <ul className="flex items-center justify-center flex-wrap gap-4 font-mono text-xs font-extrabold uppercase tracking-wider text-[#18181b]">
-          <li className="flex items-center gap-2"><span>140MS QUERY SPEED</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
-          <li className="flex items-center gap-2"><span>99.8% PRECISION RAG</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
-          <li className="flex items-center gap-2"><span>10 DIGITAL TWINS</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
+          <li className="flex items-center gap-2"><span>140MS CAUSAL GRAPH-RAG</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
+          <li className="flex items-center gap-2"><span>99.8% CITATION PRECISION</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
+          <li className="flex items-center gap-2"><span>10-AGENT BOARDROOM QUORUM</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
           <li><span>ZERO HALLUCINATIONS</span></li>
         </ul>
 
         {/* Hero Title */}
         <h1 className="font-serif text-4xl sm:text-7xl font-extrabold text-[#0f0f11] tracking-tight leading-[1.08] max-w-5xl mx-auto">
-          AI Executive Intelligence Suite for Enterprise Decisions
+          Causal Decision Operating System for Enterprise
         </h1>
 
         <p className="text-[#18181b] font-sans text-lg sm:text-2xl max-w-3xl mx-auto font-semibold leading-relaxed">
-          SYNAPS turns your company's scattered documents, contracts, and web data into evidence-grounded answers, boardroom simulations, and daily chief of staff action plans.
+          CAUSARIX (powered by the Synaps™ Causal Intelligence Core) turns scattered corporate contracts, financials, and communications into 100% citation-grounded boardroom deliberations and automated Delaware redlines.
         </p>
 
         {/* Action Buttons */}
@@ -1221,7 +1233,7 @@ export default function IncrediblesStyleLanding() {
       {/* ── SITE FOOTER ─────────────────────────────────────────────────────── */}
       <footer className="py-12 border-t border-[#cecece] text-center font-mono text-xs text-[#18181b] font-bold z-10 bg-white/60 backdrop-blur-md space-y-4">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span>© 2026 SYNAPS INTELLIGENCE INC. ALL RIGHTS RESERVED.</span>
+          <span>© 2026 CAUSARIX INC. (A SYNAPS INTELLIGENCE COMPANY). ALL RIGHTS RESERVED.</span>
           <div className="flex flex-wrap items-center justify-center gap-6 text-[#0f0f11] font-bold">
             <a href="#pricing" className="hover:text-[#fc4778] transition-colors">PRICING</a>
             <button onClick={() => setIsModalOpen(true)} className="hover:text-[#fc4778] transition-colors">CONTACT</button>

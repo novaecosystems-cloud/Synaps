@@ -5,8 +5,8 @@ import { verifySessionCookie } from '@/lib/auth-server';
 import IncrediblesStyleLanding from '@/components/landing/IncrediblesStyleLanding';
 
 export const metadata = {
-  title: 'SYNAPS — Creative AI Development Team & Enterprise Suite | incredibles',
-  description: "Two senior AI systems engineers with 15+ years of experience, working seamlessly with enterprise teams and agencies worldwide on high-stakes web projects.",
+  title: 'CAUSARIX™ (formerly Synaps) — Causal Decision OS & Enterprise Intelligence Suite',
+  description: "CAUSARIX transforms complex corporate document libraries and contracts into an interactive 3D Knowledge Graph, 10-Agent Boardroom Quorum, and automated Delaware redlines.",
 };
 
 export default async function RootPage() {
