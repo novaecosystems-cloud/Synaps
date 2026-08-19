@@ -401,12 +401,22 @@ export default function MultiStepPaywallModal({
                           Your account has <strong>10,000 Daily AI Credits</strong>, 10-Agent C-Suite Boardroom, Monte Carlo Risk Engine, and Unlimited Workspaces fully unlocked.
                         </p>
                       </div>
-                      <button
-                        onClick={onClose}
-                        className="py-3 px-8 rounded-2xl bg-amber-400 text-black font-extrabold text-xs uppercase tracking-wider hover:bg-amber-300 transition-all shadow-md"
-                      >
-                        Return to Workspace
-                      </button>
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
+                        <button
+                          onClick={onClose}
+                          className="w-full sm:w-auto py-3 px-8 rounded-2xl bg-amber-400 text-black font-extrabold text-xs uppercase tracking-wider hover:bg-amber-300 transition-all shadow-md"
+                        >
+                          Return to Workspace
+                        </button>
+                        <a
+                          href="https://app.gumroad.com/library"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full sm:w-auto py-3 px-6 rounded-2xl bg-white/10 hover:bg-rose-500/20 border border-white/20 hover:border-rose-500/50 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+                        >
+                          <span>Manage / Cancel on Gumroad ↗</span>
+                        </a>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -495,12 +505,22 @@ export default function MultiStepPaywallModal({
                   )}
 
                   <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-2 text-xs">
-                    <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-                      <ShieldCheck className="w-5 h-5" /> 100% Risk-Free Guarantee & Cancel Anytime
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                        <ShieldCheck className="w-5 h-5" /> 100% Risk-Free Guarantee & Cancel Anytime
+                      </div>
+                      <a
+                        href="https://app.gumroad.com/library"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-mono font-bold text-emerald-400 underline hover:text-emerald-300 flex items-center gap-1 shrink-0"
+                      >
+                        <span>Cancel / Refund on Gumroad ↗</span>
+                      </a>
                     </div>
                     <p className="text-base-content/80 leading-relaxed">
-                      • <strong>Cancel Anytime:</strong> Zero long-term lock-in contracts. Cancel from your billing settings in 1 click.<br/>
-                      • <strong>14-Day 100% Refund Policy:</strong> If you are not satisfied with Synaps AI within 14 days, request a full refund with zero questions asked.
+                      • <strong>Cancel Anytime:</strong> Zero long-term lock-in contracts. Cancel from your <a href="https://app.gumroad.com/library" target="_blank" rel="noopener noreferrer" className="underline text-emerald-400 font-bold">Gumroad Library</a> or billing settings in 1 click.<br/>
+                      • <strong>14-Day 100% Refund Policy:</strong> If you are not satisfied with Causarix within 14 days, request an immediate refund via Gumroad or billing support with zero questions asked.
                     </p>
                   </div>
 

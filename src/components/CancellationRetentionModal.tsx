@@ -211,15 +211,25 @@ export default function CancellationRetentionModal({
             <div>
               <h3 className="font-extrabold text-lg text-white">Cancellation Request Processed</h3>
               <p className="text-xs text-slate-400 mt-1">
-                Your cancellation request has been logged. You can resubscribe anytime with 1 click on Gumroad!
+                Your cancellation request has been logged. To complete instant cancellation or claim a 14-day refund directly, click below to open your Gumroad customer portal:
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="py-3 px-8 rounded-2xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all"
-            >
-              Close Window
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <a
+                href="https://app.gumroad.com/library"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto py-3 px-6 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-1.5"
+              >
+                <span>Open Gumroad Library / Cancel ↗</span>
+              </a>
+              <button
+                onClick={onClose}
+                className="w-full sm:w-auto py-3 px-6 rounded-2xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all"
+              >
+                Close Window
+              </button>
+            </div>
           </div>
         )}
 

@@ -222,6 +222,15 @@ export default function BillingPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-3">
+          <a
+            href="https://app.gumroad.com/library"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-2xl gap-1.5 font-bold py-2.5 px-4 bg-base-200 hover:bg-rose-500/10 border border-base-300 hover:border-rose-500/40 text-xs text-base-content hover:text-rose-500 transition-all flex items-center shrink-0 shadow-sm"
+          >
+            <span>Manage / Cancel on Gumroad ↗</span>
+          </a>
+
           {activePlanId !== 'enterprise' && (
             <Button 
               onClick={() => {
@@ -447,16 +456,26 @@ export default function BillingPage() {
             </div>
             <div>
               <h3 className="font-bold text-sm text-base-content">30-Day Risk-Free Money Back Guarantee</h3>
-              <p className="text-xs text-base-content/60">If Synaps AI does not deliver value for your executive team within 30 days, claim a 100% refund or pause your plan anytime.</p>
+              <p className="text-xs text-base-content/60">If Causarix does not deliver value for your executive team within 30 days, claim a 100% refund or cancel your plan anytime.</p>
             </div>
           </div>
           
-          <button
-            onClick={() => setShowRetentionModal(true)}
-            className="text-[11px] text-base-content/40 hover:text-base-content/70 transition-all underline font-medium shrink-0 pt-1 sm:pt-0"
-          >
-            Manage / Cancel Subscription
-          </button>
+          <div className="flex items-center gap-2 shrink-0 pt-1 sm:pt-0">
+            <a
+              href="https://app.gumroad.com/library"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="py-2 px-3.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 font-bold text-xs transition-all flex items-center gap-1"
+            >
+              <span>Cancel on Gumroad ↗</span>
+            </a>
+            <button
+              onClick={() => setShowRetentionModal(true)}
+              className="py-2 px-3.5 rounded-xl bg-base-200 hover:bg-base-300 border border-base-300 font-bold text-xs text-base-content transition-all"
+            >
+              Manage / Pause Subscription
+            </button>
+          </div>
         </div>
       </div>
 
