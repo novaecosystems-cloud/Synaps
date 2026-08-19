@@ -114,6 +114,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
   const [oauthStepStatus, setOauthStepStatus] = useState<string>("");
 
   const GITHUB_CLIENT_ID = "Ov23li5MJdkSTkxXfr8P";
+  const ATLASSIAN_CLIENT_ID = "5vuAKDnx4cfhpGcYRlSxrDc1GJuPppr1";
 
   useEffect(() => {
     const isCompleted = localStorage.getItem("causarix_onboarding_completed");
@@ -182,6 +183,15 @@ export function AdaptiveEnterpriseOnboardingModal() {
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
       window.open(url, "github-oauth", `width=${width},height=${height},left=${left},top=${top}`);
+    } else if (provider === "jira") {
+      const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback/atlassian`);
+      const state = `causarix_atlassian_${Date.now()}`;
+      const url = `https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=${ATLASSIAN_CLIENT_ID}&scope=read%3Ajira-work%20read%3Ajira-user%20manage%3Ajira-configuration%20write%3Ajira-work&redirect_uri=${redirectUri}&state=${state}&response_type=code&prompt=consent`;
+      const width = 600;
+      const height = 720;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      window.open(url, "atlassian-oauth", `width=${width},height=${height},left=${left},top=${top}`);
     }
   };
 
@@ -191,9 +201,9 @@ export function AdaptiveEnterpriseOnboardingModal() {
     setIsAuthorizingOAuth(false);
     setActiveOAuthPopup(integId);
 
-    // Automatically trigger real browser popup for GitHub
-    if (integId === "github") {
-      handleLaunchRealOAuthWindow("github");
+    // Automatically trigger real browser popup for GitHub and Atlassian Jira
+    if (integId === "github" || integId === "jira") {
+      handleLaunchRealOAuthWindow(integId);
     }
   };
 
@@ -896,19 +906,26 @@ export function AdaptiveEnterpriseOnboardingModal() {
 
                   <div className="space-y-2 pt-2">
                     <button
+                      onClick={() => handleLaunchRealOAuthWindow("jira")}
+                      className="w-full py-3 px-4 rounded-xl bg-[#0052cc] hover:bg-[#0747a6] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>Authorize on Atlassian.com Popup ↗</span>
+                    </button>
+                    <button
                       onClick={handleExecuteOAuthConsent}
                       disabled={isAuthorizingOAuth}
-                      className="w-full py-3 px-4 rounded-xl bg-[#0052cc] hover:bg-[#0747a6] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       {isAuthorizingOAuth ? (
                         <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                           <span>Authorizing Atlassian Site...</span>
                         </>
                       ) : (
                         <>
-                          <Check className="w-4 h-4" />
-                          <span>Accept & Authorize Jira Cloud</span>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Fast 1-Click Sandbox Authorization</span>
                         </>
                       )}
                     </button>
