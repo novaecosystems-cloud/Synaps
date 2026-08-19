@@ -33,25 +33,25 @@ const CURRENCIES: CurrencyConfig[] = [
     code: 'USD',
     symbol: '$',
     label: 'USD ($)',
-    rates: { free: 0, proWeekly: 1.99, proMonthly: 7, proYearly: 5, enterpriseWeekly: 4.99, enterpriseMonthly: 20, enterpriseYearly: 16 }
+    rates: { free: 0, proWeekly: 7.25, proMonthly: 29, proYearly: 24, enterpriseWeekly: 9.75, enterpriseMonthly: 39, enterpriseYearly: 32 }
   },
   {
     code: 'EUR',
     symbol: '€',
     label: 'EUR (€)',
-    rates: { free: 0, proWeekly: 1.80, proMonthly: 6.5, proYearly: 4.5, enterpriseWeekly: 4.50, enterpriseMonthly: 18.5, enterpriseYearly: 15 }
+    rates: { free: 0, proWeekly: 6.75, proMonthly: 27, proYearly: 22, enterpriseWeekly: 8.99, enterpriseMonthly: 36, enterpriseYearly: 29 }
   },
   {
     code: 'GBP',
     symbol: '£',
     label: 'GBP (£)',
-    rates: { free: 0, proWeekly: 1.50, proMonthly: 5.5, proYearly: 4, enterpriseWeekly: 3.99, enterpriseMonthly: 16, enterpriseYearly: 13 }
+    rates: { free: 0, proWeekly: 5.75, proMonthly: 23, proYearly: 19, enterpriseWeekly: 7.75, enterpriseMonthly: 31, enterpriseYearly: 25 }
   },
   {
     code: 'INR',
     symbol: '₹',
     label: 'INR (₹)',
-    rates: { free: 0, proWeekly: 169, proMonthly: 599, proYearly: 449, enterpriseWeekly: 419, enterpriseMonthly: 1699, enterpriseYearly: 1399 }
+    rates: { free: 0, proWeekly: 599, proMonthly: 2399, proYearly: 1999, enterpriseWeekly: 799, enterpriseMonthly: 3199, enterpriseYearly: 2699 }
   }
 ];
 
@@ -336,8 +336,18 @@ export default function BillingPage() {
 
                 {/* Price */}
                 <div className="py-2 border-y border-base-200">
-                  <div className="flex items-baseline gap-1">
+                  <div className="flex items-baseline gap-1.5">
                     <span className="text-3xl font-extrabold text-base-content">{activeCurrency.symbol}{price}</span>
+                    {plan.id === 'enterprise' && (
+                      <span className="text-sm font-bold text-base-content/40 line-through">
+                        {activeCurrency.symbol}{billingCycle === 'weekly' ? 25 : billingCycle === 'yearly' ? 80 : 100}
+                      </span>
+                    )}
+                    {plan.id === 'enterprise' && (
+                      <span className="text-[10px] font-mono text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 font-extrabold">
+                        LAUNCH100 (61% OFF)
+                      </span>
+                    )}
                     <span className="text-xs font-medium text-base-content/60">{periodLabel} ({activeCurrency.code})</span>
                   </div>
                   {price > 0 && (

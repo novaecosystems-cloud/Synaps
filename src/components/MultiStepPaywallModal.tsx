@@ -100,12 +100,12 @@ export default function MultiStepPaywallModal({
 
   const prices = {
     pro: {
-      original: billingCycle === 'yearly' ? 24 : 39,
-      discounted: billingCycle === 'yearly' ? 19 : 29
+      original: billingCycle === 'yearly' ? 39 : 49,
+      discounted: billingCycle === 'yearly' ? 24 : 29
     },
     enterprise: {
-      original: billingCycle === 'yearly' ? 79 : 129,
-      discounted: billingCycle === 'yearly' ? 59 : 99
+      original: billingCycle === 'yearly' ? 89 : 100,
+      discounted: billingCycle === 'yearly' ? 32 : 39
     }
   };
 
@@ -448,16 +448,16 @@ export default function MultiStepPaywallModal({
                             {userRole === 'ADMIN' || creditLimit === 500 ? (
                               <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">✓ Current Active Plan</span>
                             ) : (
-                              <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular ($4.90/mo)</span>
+                              <span className="text-[10px] text-amber-500 font-bold uppercase tracking-wider">Most Popular ($29/mo)</span>
                             )}
                           </div>
                           {selectedPlan === 'pro' && <CheckCircle2 className="w-5 h-5 text-primary" />}
                         </div>
 
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-extrabold text-amber-500">$4.90</span>
-                          <span className="text-xs text-base-content/50 line-through">$14</span>
-                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">30% OFF</span>
+                          <span className="text-3xl font-extrabold text-amber-500">$29</span>
+                          <span className="text-xs text-base-content/50 line-through">$49</span>
+                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">40% OFF</span>
                           <span className="text-xs text-base-content/60">/ month</span>
                         </div>
 
@@ -482,15 +482,15 @@ export default function MultiStepPaywallModal({
                         <div className="flex justify-between items-start">
                           <div>
                             <span className="font-extrabold text-base text-base-content block">Enterprise Max</span>
-                            <span className="text-[10px] text-cyan-500 font-bold uppercase tracking-wider">Max Limit Cap ($14/mo)</span>
+                            <span className="text-[10px] text-cyan-500 font-bold uppercase tracking-wider">Launch Special ($39/mo)</span>
                           </div>
                           {selectedPlan === 'enterprise' && <CheckCircle2 className="w-5 h-5 text-cyan-500" />}
                         </div>
 
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-extrabold text-cyan-400">$14.00</span>
-                          <span className="text-xs text-base-content/50 line-through">$40</span>
-                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-bold">30% OFF</span>
+                          <span className="text-3xl font-extrabold text-cyan-400">$39</span>
+                          <span className="text-xs text-base-content/50 line-through">$100</span>
+                          <span className="text-[10px] font-mono text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 font-extrabold">LAUNCH100 (61% OFF)</span>
                           <span className="text-xs text-base-content/60">/ month</span>
                         </div>
 
@@ -535,7 +535,7 @@ export default function MultiStepPaywallModal({
                       onClick={() => setStep(3)}
                       className="flex-1 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
                     >
-                      Proceed to Secure Checkout ({selectedPlan === 'pro' ? 'Pro — $7' : 'Enterprise — $20'}/mo) <ArrowRight className="w-4 h-4" />
+                      Proceed to Secure Checkout ({selectedPlan === 'pro' ? 'Pro — $29' : 'Enterprise — $39'}/mo) <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
