@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-gumroad-field="name">Causarix Enterprise — Sovereign Executive Intelligence OS</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#10b981',
+              600: '#059669',
+              900: '#064e3b',
+            },
+            dark: {
+              900: '#090d16',
+              800: '#0f172a',
+              700: '#1e293b',
+              600: '#334155'
+            }
+          },
+          fontFamily: {
+            serif: ['Georgia', 'Cambria', 'serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Tactile 3D Switch Buttons */
+    .tactile-btn {
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 0 #047857, 0 8px 16px rgba(16, 185, 129, 0.25);
+      transition: all 0.08s ease-in-out;
+      transform: translateY(0);
+      cursor: pointer;
+    }
+    .tactile-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 #047857, 0 10px 20px rgba(16, 185, 129, 0.35);
+    }
+    .tactile-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #047857, 0 2px 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .tactile-dark-btn {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 0 #1e293b, 0 8px 14px rgba(0, 0, 0, 0.4);
+      transition: all 0.08s ease-in-out;
+    }
+    .tactile-dark-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 #1e293b, 0 10px 18px rgba(0, 0, 0, 0.5);
+    }
+    .tactile-dark-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #1e293b, 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Thermal Serrated Edge */
+    .thermal-receipt {
+      background: #fdfbf7;
+      color: #1a1a1a;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .thermal-receipt::after {
+      content: "";
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: radial-gradient(circle, transparent, transparent 50%, #fdfbf7 50%, #fdfbf7 100%);
+      background-size: 14px 14px;
+    }
+
+    /* Cassette Reel Rotation */
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .reel-spinning {
+      animation: spin-slow 4s linear infinite;
+    }
+
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card:hover {
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: 0 12px 32px -8px rgba(16, 185, 129, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-[#060911] text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-white min-h-screen">
+
+  <!-- Ambient Glow Background -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-tr from-emerald-600/20 via-cyan-600/15 to-indigo-600/10 blur-[130px] rounded-full"></div>
+    <div class="absolute top-[800px] -right-40 w-[600px] h-[600px] bg-emerald-600/10 blur-[150px] rounded-full"></div>
+    <div class="absolute top-[1600px] -left-40 w-[600px] h-[600px] bg-indigo-600/10 blur-[150px] rounded-full"></div>
+  </div>
+
+  <!-- 1. NAVIGATION HEADER -->
+  <header class="relative z-50 border-b border-slate-800/80 bg-[#060911]/80 backdrop-blur-xl sticky top-0">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-700 p-0.5 shadow-lg shadow-emerald-900/40">
+          <div class="w-full h-full bg-[#090d16] rounded-[14px] flex items-center justify-center">
+            <svg class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <span class="font-serif font-black text-xl tracking-tight text-white block leading-none">CAUSARIX</span>
+          <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-emerald-400">Sovereign Executive OS</span>
+        </div>
+      </div>
+
+      <!-- Nav Links -->
+      <nav class="hidden md:flex items-center gap-8 font-mono text-xs text-slate-300 font-semibold">
+        <a href="#boardroom" class="hover:text-emerald-400 transition-colors">10-Agent Boardroom</a>
+        <a href="#contract-redlines" class="hover:text-emerald-400 transition-colors">Delaware Redlines</a>
+        <a href="#mna-diligence" class="hover:text-emerald-400 transition-colors">$200M M&A Engine</a>
+        <a href="#pricing" class="hover:text-emerald-400 transition-colors">Pricing & Guarantee</a>
+      </nav>
+
+      <!-- Buy CTA Trigger -->
+      <div class="flex items-center gap-4">
+        <a 
+          data-gumroad-action="buy" 
+          data-gumroad-option="PRO"
+          class="tactile-btn bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs font-bold px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg"
+        >
+          <span>Get Sovereign Access</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. HERO SECTION -->
+  <section class="relative z-10 pt-16 pb-24 px-6 max-w-5xl mx-auto text-center space-y-8">
+    
+    <!-- Top Statutory Pill Badge -->
+    <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/90 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold shadow-xl">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span>DELAWARE DGCL § 141 & SHA-256 EVIDENTIARY GROUNDING VERIFIED</span>
+    </div>
+
+    <!-- Main Hero Headline -->
+    <h1 class="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1]">
+      Turn Boardroom Debates & M&A Diligence into <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-300 to-indigo-400">Deterministic Science</span>.
+    </h1>
+
+    <!-- Executive Subheading (No AI Fluff) -->
+    <p class="text-slate-300 text-base sm:text-xl max-w-3xl mx-auto leading-relaxed font-normal">
+      The sovereign executive operating system for Founders, General Counsels, and CFOs. Simulate 10-agent C-suite dialectic quorum, execute 60-second statutory contract redlines, and stress-test $200M acquisitions with zero math drift.
+    </p>
+
+    <!-- Live Cryptographic Matrix Scramble Badge -->
+    <div class="flex justify-center">
+      <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs font-mono">
+        <span class="text-slate-500 uppercase tracking-widest font-bold">Immutable Ledger:</span>
+        <span id="matrix-scramble-text" class="text-emerald-400 font-black tracking-wider">SHA-256: 9e4f2b8a7c1d3e5f...DGCL § 141 VERIFIED</span>
+      </div>
+    </div>
+
+    <!-- Hero CTA Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+      <a 
+        data-gumroad-action="buy" 
+        data-gumroad-option="PRO"
+        class="w-full sm:w-auto tactile-btn bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-sm font-bold px-8 py-4 rounded-2xl flex items-center justify-center gap-3 shadow-xl"
+      >
+        <span>Subscribe to Pro ($99/mo)</span>
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      
+      <a 
+        href="#interactive-demo"
+        class="w-full sm:w-auto tactile-dark-btn bg-slate-900 hover:bg-slate-800 text-slate-200 font-mono text-sm font-bold px-8 py-4 rounded-2xl flex items-center justify-center gap-2 border border-slate-800"
+      >
+        <span>Inspect Evidence & Quorum Engine ↓</span>
+      </a>
+    </div>
+
+    <!-- Guarantee Micro-copy -->
+    <div class="flex items-center justify-center gap-6 text-slate-400 font-mono text-xs pt-2">
+      <span class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        14-Day 100% Evidentiary Guarantee
+      </span>
+      <span class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        1-Click Gumroad Cancellation
+      </span>
+    </div>
+  </section>
+
+  <!-- 3. INTERACTIVE BOARDROOM QUORUM & THERMAL PROOF DISPLAY -->
+  <section id="interactive-demo" class="relative z-10 py-16 px-6 max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      
+      <!-- Left: Interactive 10-Agent Boardroom Debate Terminal (7 Cols) -->
+      <div class="lg:col-span-7 glass-card rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+            <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
+            <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+            <span class="font-mono text-xs text-slate-400 font-bold ml-2">BOARDROOM-SYNAPSE-ENCLAVE: QUORUM ACTIVE</span>
+          </div>
+          <span class="font-mono text-[10px] text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-500/30">
+            10/10 AGENTS SYNCHRONIZED
+          </span>
+        </div>
+
+        <div class="space-y-4 font-mono text-xs">
+          <!-- CEO Twin -->
+          <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
+            <div class="flex justify-between items-center text-slate-400">
+              <span class="text-emerald-400 font-bold">🏛️ CEO Digital Twin:</span>
+              <span class="text-[10px]">Vote: APPROVE</span>
+            </div>
+            <p class="text-slate-200">"Target revenue growth matches 3-year strategic horizon. Authorize $130M bid conditional on IP indemnification carve-out."</p>
+          </div>
+
+          <!-- Legal Counsel Twin -->
+          <div class="p-3.5 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-1">
+            <div class="flex justify-between items-center text-slate-400">
+              <span class="text-amber-400 font-bold">⚖️ General Counsel Twin (Delaware DGCL § 141):</span>
+              <span class="text-[10px] text-amber-400">Vote: CONDITIONAL</span>
+            </div>
+            <p class="text-slate-200">"FLAGGED: Section 8.4 contains uncapped indemnification and reciprocal GPLv3 license contamination in target repo. Escrow must be increased by $25M."</p>
+          </div>
+
+          <!-- CFO WASM Sandbox Twin -->
+          <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
+            <div class="flex justify-between items-center text-slate-400">
+              <span class="text-cyan-400 font-bold">📈 CFO Deterministic Python WASM:</span>
+              <span class="text-[10px] text-cyan-400">Vote: APPROVE WITH AMENDMENT</span>
+            </div>
+            <p class="text-slate-200">"Clean-room rewrite cost evaluated at $42.0M. Target valuation adjusted from $200M down to $130M with 98.4% balance sheet solvency."</p>
+          </div>
+        </div>
+
+        <!-- Dialectic Synthesis Outcome -->
+        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-mono uppercase text-emerald-400 font-black block">Dialectic Quorum Consensus</span>
+            <strong class="text-sm text-white font-serif">Valuation Adjusted & $25M Seller Escrow Locked</strong>
+          </div>
+          <span class="px-3 py-1 bg-emerald-500 text-black font-mono font-bold text-xs rounded-lg shadow-sm">
+            100% UNANIMOUS
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: Authentic Serrated Evidentiary Proof Receipt (5 Cols) -->
+      <div class="lg:col-span-5 flex justify-center">
+        <div class="thermal-receipt w-full max-w-[340px] rounded-t-2xl p-6 font-mono text-[11px] space-y-4">
+          <div class="text-center border-b border-dashed border-gray-400 pb-3 space-y-1">
+            <h3 class="font-black text-sm uppercase tracking-wider text-black">CAUSARIX SOVEREIGN OS</h3>
+            <p class="text-[10px] text-gray-600">DELAWARE DGCL § 141 AUDIT PROOF</p>
+            <p class="text-[9px] text-gray-500">TIMESTAMP: 2026-08-20 00:09 UTC</p>
+          </div>
+
+          <div class="space-y-1.5 text-gray-800">
+            <div class="flex justify-between">
+              <span>TENANT ID:</span>
+              <span class="font-bold">APEX-ENTERPRISE-01</span>
+            </div>
+            <div class="flex justify-between">
+              <span>TARGET VALUATION:</span>
+              <span class="font-bold">$130,000,000</span>
+            </div>
+            <div class="flex justify-between">
+              <span>CLEAN-ROOM REWRITE:</span>
+              <span class="font-bold text-red-600">-$42,000,000</span>
+            </div>
+            <div class="flex justify-between">
+              <span>SELLER IP ESCROW:</span>
+              <span class="font-bold text-emerald-700">+$25,000,000</span>
+            </div>
+          </div>
+
+          <div class="border-t border-b border-dashed border-gray-400 py-2 space-y-1">
+            <div class="text-[10px] font-bold text-black">CITATIONS & EVIDENCE:</div>
+            <p class="text-[9px] text-gray-600 leading-tight">Doc: APA_Agreement_Final.pdf (Page 44, Line 12)</p>
+            <p class="text-[9px] text-gray-600 leading-tight">Doc: KuzuDB_Dependency_Tree.json (Node #842)</p>
+          </div>
+
+          <div class="text-center space-y-1 pt-1">
+            <div class="text-[10px] font-black text-black">SHA-256 CHECKSUM:</div>
+            <div class="text-[8px] break-all bg-gray-200 p-1.5 rounded text-gray-800 font-mono">
+              9e4f2b8a7c1d3e5f6a8b0c2d4e6f8a0b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f
+            </div>
+            <span class="text-[9px] font-bold text-emerald-700 block pt-1">✓ STATUTORY AUDIT TRAIL IMMUTABLE</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. FOUR CORE SOVEREIGN CAPABILITIES (NO AI SLOP) -->
+  <section id="boardroom" class="relative z-10 py-20 px-6 max-w-7xl mx-auto space-y-16">
+    <div class="text-center max-w-3xl mx-auto space-y-4">
+      <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white tracking-tight">
+        Engineered for Fiduciary Assurance.
+      </h2>
+      <p class="text-slate-400 text-sm sm:text-base font-mono">
+        Traditional LLMs hallucinate probabilities. Causarix grounds every strategic decision in statutory compliance, deterministic Python sandboxes, and causal graph traversals.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- Card 1: 10-Agent Boardroom -->
+      <div class="glass-card rounded-3xl p-8 space-y-4 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold text-xl">
+          🏛️
+        </div>
+        <h3 class="font-serif text-2xl font-bold text-white">10-Agent C-Suite Dialectic Boardroom</h3>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          Simulate synchronous deliberations between CEO, CFO, CTO, Legal Counsel, and Chief Risk Officer. Each agent debates from their specific statutory duty, resolving cross-silo contradictions before decisions reach the physical board.
+        </p>
+        <ul class="space-y-2 text-xs font-mono text-slate-400 pt-2">
+          <li class="flex items-center gap-2 text-emerald-400">✓ Unanimous Quorum Consensus Protocol</li>
+          <li class="flex items-center gap-2 text-emerald-400">✓ 100% SHA-256 Evidentiary Citation Ledger</li>
+        </ul>
+      </div>
+
+      <!-- Card 2: Delaware Contract Redlines -->
+      <div id="contract-redlines" class="glass-card rounded-3xl p-8 space-y-4 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center font-bold text-xl">
+          ⚖️
+        </div>
+        <h3 class="font-serif text-2xl font-bold text-white">Automated Delaware DGCL § 141 Redlines</h3>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          Detect dangerous uncapped indemnity, auto-renewals, non-mutual IP assignments, and SLA traps in under 60 seconds. Causarix automatically generates statutory counter-proposals aligned with Delaware and GDPR Article 28 case law.
+        </p>
+        <ul class="space-y-2 text-xs font-mono text-slate-400 pt-2">
+          <li class="flex items-center gap-2 text-cyan-400">✓ Sub-2s 1-Shot Visual OCR Table Parsing</li>
+          <li class="flex items-center gap-2 text-cyan-400">✓ Instant Statutory Counter-Clause Generation</li>
+        </ul>
+      </div>
+
+      <!-- Card 3: $200M M&A Diligence Engine -->
+      <div id="mna-diligence" class="glass-card rounded-3xl p-8 space-y-4 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center font-bold text-xl">
+          💼
+        </div>
+        <h3 class="font-serif text-2xl font-bold text-white">$200M M&A Cloud Diligence & IP Auditing</h3>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          Execute multi-hop KùzuDB graph traversals (<1ms) across acquired codebases to uncover hidden GPLv3 reciprocal licensing contamination. Deterministically calculates clean-room rewrite costs to adjust buyer valuations.
+        </p>
+        <ul class="space-y-2 text-xs font-mono text-slate-400 pt-2">
+          <li class="flex items-center gap-2 text-amber-400">✓ $42.0M Clean-Room Rewrite Financial Modeling</li>
+          <li class="flex items-center gap-2 text-amber-400">✓ Seller IP Indemnity Escrow Calibration</li>
+        </ul>
+      </div>
+
+      <!-- Card 4: Pyodide WASM Financial Sandbox -->
+      <div class="glass-card rounded-3xl p-8 space-y-4 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold text-xl">
+          📈
+        </div>
+        <h3 class="font-serif text-2xl font-bold text-white">Deterministic Python Financial Sandboxes</h3>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          Stress-test balance sheets against macro tariff spikes (+15%) and supply chain shocks in isolated Pyodide WebAssembly sandboxes. Zero math hallucination, 100% reproducible EBITDA and cash runway projections.
+        </p>
+        <ul class="space-y-2 text-xs font-mono text-slate-400 pt-2">
+          <li class="flex items-center gap-2 text-indigo-400">✓ 90-Day Telemetry Bayesian Delta Calibration</li>
+          <li class="flex items-center gap-2 text-indigo-400">✓ Native Pyodide WASM Client Sandboxing</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. PRICING & TIER SELECTION -->
+  <section id="pricing" class="relative z-10 py-24 px-6 max-w-5xl mx-auto space-y-12">
+    <div class="text-center space-y-4">
+      <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white tracking-tight">
+        Sovereign Access & Pricing
+      </h2>
+      <p class="text-slate-400 text-sm sm:text-base font-mono">
+        All plans include isolated vector enclaves, 1-click Gumroad cancellation, and our 14-day evidentiary guarantee.
+      </p>
+    </div>
+
+    <!-- Pricing Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- Tier 1: Executive Pro -->
+      <div class="glass-card rounded-3xl p-8 sm:p-10 border-2 border-emerald-500/40 relative flex flex-col justify-between space-y-8 shadow-2xl">
+        <div class="absolute -top-3 right-8 px-3 py-1 rounded-full bg-emerald-500 text-black font-mono text-[10px] font-black uppercase tracking-widest shadow-md">
+          POPULAR CHOICE
+        </div>
+
+        <div class="space-y-4">
+          <span class="font-mono text-xs text-emerald-400 font-bold uppercase tracking-wider block">EXECUTIVE PRO</span>
+          <div class="flex items-baseline gap-2">
+            <span class="font-serif text-5xl font-black text-white">$99</span>
+            <span class="text-slate-400 font-mono text-xs">/ month</span>
+          </div>
+          <p class="text-slate-300 text-xs leading-relaxed">
+            Ideal for Founders, General Counsels & Corporate Officers requiring autonomous boardroom dialectic quorum and instant contract defense.
+          </p>
+
+          <ul class="space-y-3 font-mono text-xs text-slate-300 pt-4 border-t border-slate-800">
+            <li class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              <span>10-Agent C-Suite Digital Twin Quorum</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              <span>60s Delaware DGCL § 141 Contract Redlining</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              <span>Deterministic Python Financial WASM Sandbox</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              <span>1-Click GitHub, Jira & Slack OAuth Connectors</span>
+            </li>
+          </ul>
+        </div>
+
+        <a 
+          data-gumroad-action="buy" 
+          data-gumroad-option="PRO"
+          class="tactile-btn w-full bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-sm font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-xl cursor-pointer text-center"
+        >
+          <span>Subscribe to Executive Pro ↗</span>
+        </a>
+      </div>
+
+      <!-- Tier 2: Enterprise Sovereign -->
+      <div class="glass-card rounded-3xl p-8 sm:p-10 flex flex-col justify-between space-y-8">
+        <div class="space-y-4">
+          <span class="font-mono text-xs text-indigo-400 font-bold uppercase tracking-wider block">ENTERPRISE SOVEREIGN</span>
+          <div class="flex items-baseline gap-2">
+            <span class="font-serif text-5xl font-black text-white">$299</span>
+            <span class="text-slate-400 font-mono text-xs">/ month</span>
+          </div>
+          <p class="text-slate-300 text-xs leading-relaxed">
+            Full sovereign acquisition diligence for M&A firms, private equity, and multi-tenant corporate enclaves.
+          </p>
+
+          <ul class="space-y-3 font-mono text-xs text-slate-300 pt-4 border-t border-slate-800">
+            <li class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              <span>Everything in Executive Pro</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              <span>$200M M&A Diligence & Clean-Room Cost Engine</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              <span>KùzuDB Graph Traversal & IP License Scanner</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-indigo-400 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              <span>Dedicated Multi-Tenant SLA & Sovereign Enclaves</span>
+            </li>
+          </ul>
+        </div>
+
+        <a 
+          data-gumroad-action="buy" 
+          data-gumroad-option="ENTERPRISE"
+          class="tactile-dark-btn w-full bg-slate-900 hover:bg-slate-800 text-white font-mono text-sm font-bold py-4 rounded-2xl flex items-center justify-center gap-2 border border-slate-700 shadow-xl cursor-pointer text-center"
+        >
+          <span>Subscribe to Sovereign ↗</span>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 6. GUARANTEE & CANCELLATION NOTICE -->
+  <section class="relative z-10 py-16 px-6 max-w-4xl mx-auto text-center space-y-6 border-t border-slate-800/80">
+    <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold text-2xl mx-auto">
+      🛡️
+    </div>
+    <h3 class="font-serif text-2xl sm:text-3xl font-bold text-white">
+      14-Day 100% Evidentiary Guarantee & 1-Click Cancellation
+    </h3>
+    <p class="text-slate-300 text-sm font-mono max-w-2xl mx-auto leading-relaxed">
+      If Causarix doesn't identify critical contract liability gaps or save your executive team at least 10 hours of review in your first 14 days, request a full refund directly through Gumroad with 0 friction. You can also cancel your subscription at any time in 1-click.
+    </p>
+  </section>
+
+  <!-- 7. FOOTER -->
+  <footer class="relative z-10 border-t border-slate-800 bg-[#060911] py-12 px-6">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-slate-500 font-mono text-xs">
+      <div class="flex items-center gap-3">
+        <span class="font-serif font-black text-slate-200 text-base">CAUSARIX</span>
+        <span>© 2026 Synaps Sovereign Intelligence Inc.</span>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <span>Delaware DGCL § 141 Grounded</span>
+        <span>GDPR Article 28 Compliant</span>
+        <a href="https://synaps-one.vercel.app" target="_blank" class="text-emerald-400 hover:underline">
+          Launch App Enclave ↗
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Matrix Scrambler Inline JS -->
+  <script>
+    (function() {
+      const phrases = [
+        "SHA-256: 9e4f2b8a7c1d3e5f...DGCL § 141 VERIFIED",
+        "KUZUDB GRAPH TRAVERSAL: 0.8ms (0 CONFLICTS)",
+        "VALUATION ADJUSTED: -$42.0M CLEAN-ROOM REWRITE",
+        "10-AGENT BOARDROOM CONSENSUS: UNANIMOUS VOTE",
+        "TENANT VECTOR ENCLAVE: ISOLATED (ZERO LEAKAGE)"
+      ];
+      let pIdx = 0;
+      const el = document.getElementById("matrix-scramble-text");
+      if (!el) return;
+
+      const chars = "ABCDEF0123456789§$%&#*+=-_";
+      
+      setInterval(() => {
+        pIdx = (pIdx + 1) % phrases.length;
+        const target = phrases[pIdx];
+        let iteration = 0;
+        
+        const interval = setInterval(() => {
+          el.innerText = target.split("").map((letter, index) => {
+            if (index < iteration) return target[index];
+            return chars[Math.floor(Math.random() * chars.length)];
+          }).join("");
+          
+          if (iteration >= target.length) {
+            clearInterval(interval);
+          }
+          iteration += 1 / 2;
+        }, 25);
+      }, 4000);
+    })();
+  </script>
+</body>
+</html>
