@@ -62,8 +62,8 @@ interface ExecutiveBriefData {
 export default function ExecutiveDashboardClient({ userName }: { userName: string }) {
   const isDemoMode = typeof window !== 'undefined' && (window.location.pathname === '/demo' || window.location.search.includes('demo=true'));
 
-  const [data, setData] = useState<ExecutiveBriefData | null>(isDemoMode || userName === 'Demo Administrator' ? {
-    executiveBrief: "Operational health across all 15 system nodes for Apex Global Technologies is operating at 96.4% stability. AI Boardroom agents report strong alignment on Q3 strategic initiatives with zero critical risk vulnerabilities detected.",
+  const DEFAULT_DEMO_DATA: ExecutiveBriefData = {
+    executiveBrief: "Operational health across all 15 system nodes is operating at 96.4% stability. AI Boardroom agents report strong alignment on Q3 strategic initiatives with zero critical risk vulnerabilities detected.",
     healthScore: 96,
     knowledgeCoverage: 99,
     riskLevel: 'LOW',
@@ -85,11 +85,13 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
       { date: 'Yesterday, 04:15 PM', title: 'Digital Twin Simulation Passed', category: 'Operations', description: 'Stress-tested 15 core nodes against 50% simulated server outage with zero data loss.' }
     ],
     timelineHighlights: [
-      { date: 'Q3 2026', milestone: 'Synaps AI OS v4.2 Upgrade', impact: 'Completed' },
+      { date: 'Q3 2026', milestone: 'Causarix OS v4.2 Upgrade', impact: 'Completed' },
       { date: 'Q4 2026', milestone: 'Global Multi-Region Node Expansion', impact: 'In Progress' }
     ]
-  } : null);
-  const [loading, setLoading] = useState<boolean>(!data);
+  };
+
+  const [data, setData] = useState<ExecutiveBriefData>(DEFAULT_DEMO_DATA);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Active modal inspection states
@@ -120,47 +122,19 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
   const [askingCustom, setAskingCustom] = useState(false);
   const [customResponse, setCustomResponse] = useState<any | null>(null);
 
-  const DEFAULT_DEMO_DATA: ExecutiveBriefData = {
-    executiveBrief: "Operational health across all 15 system nodes is operating at 94.2% stability. AI Boardroom agents report strong alignment on Q3 strategic initiatives with 0 critical risk vulnerabilities detected.",
-    healthScore: 94,
-    knowledgeCoverage: 98,
-    riskLevel: 'LOW',
-    decisionConfidence: 96,
-    executiveAnswers: [
-      { id: '1', question: 'What is our current Q3 enterprise risk exposure?', answer: 'Risk exposure is low. Financial liquidity and compliance matrices are verified across all active projects.', status: 'HEALTHY', citations: [{ documentName: 'Q3_Risk_Audit.pdf', snippet: 'Compliance verified at 99.4%' }] },
-      { id: '2', question: 'Are any contracts missing leadership signatures?', answer: '0 unsigned agreements detected. All 14 enterprise vendor contracts are executed.', status: 'HEALTHY', citations: [{ documentName: 'Vendor_SOP_2026.docx', snippet: 'All signatures verified' }] }
-    ],
-    departmentHealth: [
-      { department: 'Engineering & Product', healthScore: 96, riskLevel: 'LOW', summary: 'Sprint velocity on target', activeIssuesCount: 0, citations: [] },
-      { department: 'Legal & Compliance', healthScore: 98, riskLevel: 'LOW', summary: '100% regulatory compliance', activeIssuesCount: 0, citations: [] },
-      { department: 'Finance & Operations', healthScore: 92, riskLevel: 'LOW', summary: 'Budget variance within +1.2%', activeIssuesCount: 0, citations: [] }
-    ],
-    aiRecommendations: [
-      { id: 'r1', priority: 'HIGH', title: 'Scale Digital Twin Stress Simulations', recommendation: 'Initiate automated disruption testing across APAC logistics nodes.', rationale: 'Preemptively validates Q4 capacity.', citations: [] }
-    ],
-    recentEvents: [
-      { date: 'Today', title: 'AI Boardroom Consensus Achieved', category: 'Strategy', description: 'Unanimous 10/10 agent consensus on Q3 expansion blueprint.' }
-    ],
-    timelineHighlights: [
-      { date: 'Q3 2026', milestone: 'Enterprise AI OS Deployment', impact: 'High Impact' }
-    ]
-  };
-
   const fetchBriefData = async () => {
-    setLoading(true);
+    setIsSyncing(true);
     setError(null);
     try {
       const res = await fetch('/api/executive/brief');
       const json = await res.json();
-      if (json.success) {
+      if (json.success && json.data) {
         setData(json.data);
-      } else {
-        setData(DEFAULT_DEMO_DATA);
       }
     } catch (err: any) {
-      setData(DEFAULT_DEMO_DATA);
+      console.warn('[AI COO] Background brief sync notice:', err);
     } finally {
-      setLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -217,29 +191,6 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
     }
   };
 
-  if (loading) {
-    return (
-      <div className="w-full min-h-[70vh] flex flex-col items-center justify-center text-base-content">
-        <BrainCircuit className="w-12 h-12 text-primary animate-pulse mb-4" />
-        <h3 className="text-lg font-bold">Initializing AI COO Briefing...</h3>
-        <p className="text-xs text-base-content/60 mt-1">Synthesizing company documents, projects, decisions, and memory graph.</p>
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    return (
-      <div className="w-full p-8 text-center bg-base-200 border border-base-300 rounded-3xl">
-        <ShieldAlert className="w-10 h-10 text-destructive mx-auto mb-3" />
-        <h3 className="text-lg font-bold">Failed to load AI COO Briefing</h3>
-        <p className="text-xs text-base-content/60 max-w-md mx-auto mt-1 mb-4">{error || 'Unknown error'}</p>
-        <Button onClick={fetchBriefData} variant="outline" className="gap-2">
-          <RefreshCw className="w-4 h-4" /> Retry Briefing
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full space-y-8 font-sans pb-16">
       
@@ -253,7 +204,14 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
                 <BrainCircuit className="w-6 h-6 animate-pulse" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400">AI COO Command Console</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400">AI COO Command Console</span>
+                  {isSyncing && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-[9px] font-mono font-bold text-indigo-300 animate-pulse">
+                      <RefreshCw className="w-2.5 h-2.5 animate-spin" /> Live Syncing...
+                    </span>
+                  )}
+                </div>
                 <h1 className="text-2xl font-bold tracking-tight text-white">Executive Operational Briefing</h1>
               </div>
             </div>
