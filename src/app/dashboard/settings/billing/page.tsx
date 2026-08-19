@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Zap, ShieldCheck, Check, Sparkles, Building2, Crown, 
-  CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers, Globe, RefreshCw, HeartHandshake, Lock, Star
+  CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers, Globe, RefreshCw, HeartHandshake, Lock, Star, Scale
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -174,14 +174,31 @@ export default function BillingPage() {
     <div className="w-full space-y-8 font-sans pb-16">
       
       {/* 30% OFF LAUNCH DAY PROMO BANNER (FIRST 100 USERS ONLY & EXPIRES SEPT 5, 2026) */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-primary/20 to-emerald-500/20 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 text-base-content font-bold">
-          <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
-          <span>🎉 LAUNCH SPECIAL: 30% OFF PRO & ENTERPRISE WITH CODE <span className="font-mono bg-amber-500 text-black px-2 py-0.5 rounded font-extrabold text-xs">LAUNCH100</span> (First 100 Users Only · Valid until Sept 5, 2026)</span>
+      <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-500/20 via-primary/20 to-rose-500/20 border border-amber-500/30 flex flex-col md:flex-row items-center justify-between gap-4 text-xs shadow-md backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-amber-500 fill-amber-500" />
+          </div>
+          <div>
+            <span className="font-extrabold text-base-content block text-sm">
+              🎉 PIONEER GRANT: 30% OFF LIFETIME ACCESS WITH CODE <span className="font-mono bg-amber-500 text-black px-2 py-0.5 rounded font-black text-xs">LAUNCH100</span>
+            </span>
+            <span className="text-[11px] text-base-content/70 font-medium">
+              Limited to the first 100 executive accounts · Valid until September 5, 2026
+            </span>
+          </div>
         </div>
-        <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 shrink-0">
-          84/100 CLAIMED
-        </span>
+
+        {/* Live Scarcity Progress Bar */}
+        <div className="w-full md:w-56 space-y-1.5 shrink-0 bg-base-100/60 p-2.5 rounded-2xl border border-base-300">
+          <div className="flex justify-between text-[10px] font-mono font-bold">
+            <span className="text-amber-500">78 / 100 Claimed</span>
+            <span className="text-rose-500">22 Remaining</span>
+          </div>
+          <div className="w-full h-1.5 bg-base-300 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-amber-500 to-rose-500 w-[78%] rounded-full" />
+          </div>
+        </div>
       </div>
 
       {/* Header & Active Plan Banner */}
@@ -314,11 +331,16 @@ export default function BillingPage() {
                     <span className="text-3xl font-extrabold text-base-content">{activeCurrency.symbol}{price}</span>
                     <span className="text-xs font-medium text-base-content/60">{periodLabel} ({activeCurrency.code})</span>
                   </div>
+                  {price > 0 && (
+                    <p className="text-[11px] font-mono font-bold text-emerald-500 mt-0.5">
+                      ⚡ Just {activeCurrency.symbol}{(price / (billingCycle === 'weekly' ? 7 : 30)).toFixed(2)} / day
+                    </p>
+                  )}
                   {billingCycle === 'yearly' && price > 0 && (
-                    <span className="text-[10px] text-success font-bold">Billed annually ({activeCurrency.symbol}{price * 12}/yr)</span>
+                    <span className="text-[10px] text-success font-bold block">Billed annually ({activeCurrency.symbol}{price * 12}/yr)</span>
                   )}
                   {billingCycle === 'weekly' && price > 0 && (
-                    <span className="text-[10px] text-emerald-500 font-bold">Billed weekly ({activeCurrency.symbol}{price}/week — cancel anytime)</span>
+                    <span className="text-[10px] text-emerald-500 font-bold block">Billed weekly ({activeCurrency.symbol}{price}/week — cancel anytime)</span>
                   )}
                 </div>
 
@@ -384,6 +406,36 @@ export default function BillingPage() {
             </div>
           );
         })}
+      </div>
+
+      {/* Cost of Inaction Contrast Box */}
+      <div className="p-6 bg-gradient-to-r from-base-200/80 via-base-100 to-base-200/80 border border-base-300 rounded-3xl space-y-3 shadow-sm">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-xs font-bold uppercase tracking-wider text-base-content/60 flex items-center gap-1.5">
+            <Scale className="w-4 h-4 text-primary" /> Cost of Inaction vs. Synaps AI Investment:
+          </span>
+          <span className="text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+            99.4% COST REDUCTION
+          </span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans">
+          <div className="p-3.5 rounded-2xl bg-rose-500/5 border border-rose-500/20 space-y-1">
+            <div className="font-bold text-rose-500 flex items-center gap-1.5">
+              <span>✕ Traditional Legal & Consulting Retainers</span>
+            </div>
+            <p className="text-base-content/70 text-[11px] leading-relaxed">
+              3–4 weeks turnaround, $1,200/hr law firm partner billing, fragmented department communication, unvetted liability slip-throughs ($15,000+ per deal).
+            </p>
+          </div>
+          <div className="p-3.5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-1">
+            <div className="font-bold text-emerald-500 flex items-center gap-1.5">
+              <span>✓ Synaps Autonomous C-Suite OS</span>
+            </div>
+            <p className="text-base-content/70 text-[11px] leading-relaxed">
+              Sub-60s Delaware Redlines, 10-Agent Boardroom Deliberation, 100% SHA-256 Citations, 10k Monte Carlo runs — starting from just $0.49/day.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Refund & Cancel Guarantee Banner */}

@@ -868,6 +868,21 @@ export default function IncrediblesStyleLanding() {
                 <Tag className="w-4 h-4" />
                 <span>30% OFF LAUNCH PROMO</span>
               </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-amber-300 font-bold uppercase">Pioneer Grant Allocation:</span>
+                  <span className="text-white font-bold">78 / 100 Claimed</span>
+                </div>
+                {/* Visual Scarcity Progress Bar */}
+                <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-amber-400 to-[#fc4778] w-[78%] rounded-full" />
+                </div>
+                <p className="text-[11px] text-neutral-300 font-mono">
+                  ⚡ <strong className="text-white">Only 22 slots remaining</strong> before price increases to standard enterprise tier.
+                </p>
+              </div>
+
               <p className="text-xs text-neutral-200 font-sans font-medium">
                 Use code <strong className="font-mono text-amber-300 bg-white/10 px-1.5 py-0.5 rounded font-bold">LAUNCH100</strong> at checkout for 30% OFF lifetime subscription.
               </p>
@@ -893,27 +908,55 @@ export default function IncrediblesStyleLanding() {
                   {promoMessage}
                 </p>
               )}
+
+              {/* Cost of Inaction Contrast Box */}
+              <div className="p-3.5 rounded-2xl bg-black/50 border border-white/10 space-y-2 text-[11px] font-sans">
+                <div className="font-mono font-bold text-neutral-400 uppercase text-[10px] tracking-wider">
+                  ⚖️ Cost of Inaction Comparison:
+                </div>
+                <div className="flex items-start gap-2 text-rose-300">
+                  <span className="shrink-0 font-bold">✕ Traditional:</span>
+                  <span>3–4 weeks manual legal review at $1,200/hr ($15,000+ per deal).</span>
+                </div>
+                <div className="flex items-start gap-2 text-emerald-400 font-semibold">
+                  <span className="shrink-0 font-bold">✓ With Synaps:</span>
+                  <span>Instant 60s Delaware Redlines + 10-Agent Boardroom from $0.49/day.</span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Right Column: Pricing Cards */}
           <div className="w-full md:w-2/3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Standard Card */}
-              <div className="p-8 rounded-3xl bg-white/95 border border-[#cecece] shadow-xl space-y-6 flex flex-col justify-between backdrop-blur-md">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-stretch">
+              {/* Standard Workspace Card */}
+              <div className="p-8 rounded-3xl bg-white/95 border border-[#cecece] shadow-xl space-y-6 flex flex-col justify-between backdrop-blur-md hover:border-neutral-400 transition-all">
                 <div className="space-y-4">
-                  <span className="font-mono text-xs text-[#fc4778] uppercase font-extrabold">STANDARD WORKSPACE</span>
-                  <div className="flex items-baseline gap-2">
-                    <div className="font-serif text-4xl font-extrabold text-[#0f0f11]">
-                      ${standardPrice}
-                      <span className="text-sm font-sans font-semibold text-[#18181b]">/month</span>
-                    </div>
-                    {appliedDiscount.isValid && (
-                      <span className="font-mono text-xs text-[#fc4778] line-through font-bold">
-                        ${baseStandard}
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs text-[#0f0f11] uppercase font-extrabold">STANDARD WORKSPACE</span>
+                    <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700 font-mono text-[10px] font-bold">
+                      PRO TIER
+                    </span>
                   </div>
+
+                  <div>
+                    <div className="flex items-baseline gap-2">
+                      <div className="font-serif text-4xl font-extrabold text-[#0f0f11]">
+                        ${standardPrice}
+                        <span className="text-sm font-sans font-semibold text-[#18181b]">/month</span>
+                      </div>
+                      {appliedDiscount.isValid && (
+                        <span className="font-mono text-xs text-[#fc4778] line-through font-bold">
+                          ${baseStandard}
+                        </span>
+                      )}
+                    </div>
+                    {/* Daily Micro-Framing */}
+                    <p className="text-[11px] font-mono font-bold text-emerald-700 mt-1">
+                      ⚡ Just $0.63 / day — less than a cup of coffee
+                    </p>
+                  </div>
+
                   <p className="text-[#18181b] text-xs font-semibold">Ideal for growing teams needing continuous document RAG & Chief of Staff briefings.</p>
                   <ul className="space-y-2 font-mono text-xs text-[#0f0f11] font-bold">
                     <li>✓ Up to 500 documents parsed</li>
@@ -923,37 +966,56 @@ export default function IncrediblesStyleLanding() {
                     <li>✓ Dedicated Support Channel</li>
                   </ul>
                 </div>
-                <button
-                  onClick={() => handleGumroadCheckout("pro")}
-                  className="w-full py-3.5 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-white font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center justify-center gap-2"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>Pay with Gumroad (${standardPrice})</span>
-                </button>
+
+                <div className="space-y-3">
+                  <button
+                    onClick={() => handleGumroadCheckout("pro")}
+                    className="signup-cta w-full py-3.5 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-white font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center justify-center gap-2 active:scale-95"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Get Pro Workspace (${standardPrice}/mo)</span>
+                  </button>
+                  <p className="text-[10px] text-center font-mono text-neutral-500">
+                    🛡️ 14-Day Free Sandbox · 1-Click Cancel
+                  </p>
+                </div>
               </div>
 
-              {/* Extended Enterprise Card */}
-              <div className="p-8 rounded-3xl bg-[#0f0f11] text-white shadow-xl space-y-6 flex flex-col justify-between relative overflow-hidden">
+              {/* Extended Enterprise Card (Decoy & Dominant Center-Stage) */}
+              <div className="p-8 rounded-3xl bg-[#0f0f11] text-white shadow-2xl space-y-6 flex flex-col justify-between relative overflow-hidden border-2 border-amber-400/70 sm:-translate-y-2 transition-all">
+                {/* Glowing Specular Accent */}
+                <div className="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-amber-400 via-[#fc4778] to-indigo-500" />
+                
                 <div className="space-y-4 relative z-10">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#fc4778] uppercase font-extrabold">ENTERPRISE PRO</span>
+                    <span className="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-400 to-[#fc4778] text-black font-mono text-[10px] font-black uppercase tracking-wider shadow-sm">
+                      ⭐ MOST POPULAR · 84% CHOOSE THIS
+                    </span>
                     {appliedDiscount.isValid && (
                       <span className="px-2 py-0.5 rounded-full bg-[#fc4778] text-white font-mono text-[10px] font-bold uppercase">
                         {appliedDiscount.percentage}% OFF
                       </span>
                     )}
                   </div>
-                  <div className="flex items-baseline gap-2">
-                    <div className="font-serif text-4xl font-extrabold text-white">
-                      ${enterprisePrice}
-                      <span className="text-sm font-sans font-semibold text-neutral-300">/month</span>
+
+                  <div>
+                    <div className="flex items-baseline gap-2">
+                      <div className="font-serif text-4xl font-extrabold text-white">
+                        ${enterprisePrice}
+                        <span className="text-sm font-sans font-semibold text-neutral-300">/month</span>
+                      </div>
+                      {appliedDiscount.isValid && (
+                        <span className="font-mono text-xs text-neutral-400 line-through">
+                          ${baseEnterprise}
+                        </span>
+                      )}
                     </div>
-                    {appliedDiscount.isValid && (
-                      <span className="font-mono text-xs text-neutral-400 line-through">
-                        ${baseEnterprise}
-                      </span>
-                    )}
+                    {/* Daily Micro-Framing */}
+                    <p className="text-[11px] font-mono font-bold text-amber-300 mt-1">
+                      ⚡ Just $1.63 / day for full 10 C-Suite AI Agents
+                    </p>
                   </div>
+
                   <p className="text-neutral-300 text-xs font-medium">Full C-suite suite with Boardroom Simulation Engine & risk audits.</p>
                   <ul className="space-y-2 font-mono text-xs text-white font-bold">
                     <li>✓ Unlimited documents parsed</li>
@@ -963,13 +1025,19 @@ export default function IncrediblesStyleLanding() {
                     <li>✓ 24/7 Priority Support</li>
                   </ul>
                 </div>
-                <button
-                  onClick={() => handleGumroadCheckout("enterprise")}
-                  className="w-full py-3.5 rounded-full bg-[#fc4778] hover:bg-white hover:text-black text-white font-mono text-xs font-bold uppercase transition-all relative z-10 shadow-md flex items-center justify-center gap-2"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>Pay via Gumroad (${enterprisePrice})</span>
-                </button>
+
+                <div className="space-y-3 relative z-10">
+                  <button
+                    onClick={() => handleGumroadCheckout("enterprise")}
+                    className="signup-cta w-full py-3.5 rounded-full bg-gradient-to-r from-[#fc4778] to-rose-600 hover:from-white hover:to-white hover:text-black text-white font-mono text-xs font-black uppercase transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 shadow-[0_0_20px_rgba(252,71,120,0.4)]"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Get Enterprise Pro (${enterprisePrice}/mo)</span>
+                  </button>
+                  <p className="text-[10px] text-center font-mono text-neutral-400">
+                    🔒 Sovereign 256-Bit Isolation · Cancel Anytime
+                  </p>
+                </div>
               </div>
             </div>
           </div>
