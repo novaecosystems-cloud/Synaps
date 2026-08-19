@@ -147,31 +147,31 @@ const COMPARISON_DIMENSIONS = [
 const PROPRIETARY_ENGINES = [
   {
     tag: "ENGINE 01",
-    title: "10-Agent Autonomous Boardroom",
-    description: "Simulates parallel C-Suite deliberations across CEO, CFO, CTO, General Counsel, and Risk Officer twins with real-time dialectic consensus voting.",
+    title: "10-Agent Autonomous Boardroom & Jira Dispatch",
+    description: "Simulates parallel C-Suite deliberations across CEO, CFO, CTO, Legal, and Risk Officer twins with real-time dialectic consensus voting and 1-click Jira ticket dispatch.",
     color: "#fc4778",
-    specs: ["CEO Strategic Vision", "CFO Cash Flow Audits", "Legal Liability Caps", "CRO Risk Scenarios"],
+    specs: ["CEO Strategic Vision", "CFO Cash Flow Audits", "Legal Liability Caps", "1-Click Jira Dispatch"],
   },
   {
     tag: "ENGINE 02",
-    title: "100% Evidentiary Grounding & Prime RLM",
-    description: "Mathematically anchors every summary and financial ratio to exact [Page, Line, SHA-256 Checksum] coordinates with 99.4% precision.",
+    title: "Cross-Silo Invariant Engine (Air-Traffic Controller)",
+    description: "Enforces global enterprise logic across fragmented departments. Flags when Sales commits to 99.99% SLAs while Engineering roadmap only supports 99.9%.",
     color: "#00f0ff",
-    specs: ["Line-Level Citation Vectors", "SHA-256 Checksums", "Zero Guesswork Fallback", "99.4% Verification"],
+    specs: ["Cross-Department Verification", "SLA Liquidation Defense", "CFO Reserve Alignment", "Auto Delaware Redlines"],
   },
   {
     tag: "ENGINE 03",
-    title: "Data-As-A-Moat (DAAM) & Cryptographic Ledger",
-    description: "Converts every decision and anonymized clause into compounding organizational memory and SHA-256 hash-chained proof records.",
+    title: "KùzuDB Multi-Hop Causal Graph & Telemetry Flywheel",
+    description: "In-process property graph executing sub-millisecond Cypher queries across multi-hop contract relationships, auto-calibrating 30/60/90-day ERP prediction deltas.",
     color: "#ff7a00",
-    specs: ["P50/P90 Percentile Curves", "PII-Stripped Sanitization", "Decision Memory Tuning", "Immutable Audit Chain"],
+    specs: ["Sub-1ms Cypher Queries", "Multi-Hop Causal Links", "30/60/90-Day Delta Calibration", "Immutable Audit Chain"],
   },
   {
     tag: "ENGINE 04",
-    title: "Dual-Core 1-Shot Lightning OCR",
-    description: "Sub-2-second end-to-end visual OCR and table reconstruction (PP-OCRv4 & Vision VLM) with automated scanned-PDF augmentation.",
+    title: "Pyodide Python Sandboxes & 1-Shot Visual OCR",
+    description: "Deterministic in-browser Python execution for zero-hallucination financial modeling coupled with sub-2-second visual OCR table reconstruction.",
     color: "#10b981",
-    specs: ["Sub-2s 1-Shot Inference", "Visual Table Reconstruction", "Auto Scanned-PDF Detection", "Offline Edge Enclave"],
+    specs: ["Pyodide WASM Execution", "Zero-Hallucination Math", "PP-OCRv4 Table Extraction", "100% Client Privacy"],
   },
 ];
 

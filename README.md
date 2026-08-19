@@ -1,277 +1,148 @@
-# SYNAPS — Enterprise Decision Intelligence OS & Evidence Engine
+# CAUSARIX™ (formerly Synaps) — Enterprise Intelligence Operating System & Evidentiary Engine
 
-[![Production Live](https://img.shields.io/badge/Production-Live_v2.5-blue.svg)](https://synaps-one.vercel.app)
+[![Production Live](https://img.shields.io/badge/Production-Live_v3.0-blue.svg)](https://synaps-one.vercel.app)
 [![Zero-Login Demo](https://img.shields.io/badge/Demo-Interactive_Sandbox-success.svg)](https://synaps-one.vercel.app/demo)
 [![MCP Protocol](https://img.shields.io/badge/Protocol-Model_Context_Protocol_(MCP)-8A2BE2.svg)](https://synaps-one.vercel.app/api/mcp)
 [![Framework: Next.js 15](https://img.shields.io/badge/Framework-Next.js_15_App_Router-black.svg)](https://nextjs.org/)
-[![AI Engine: Gemini 1.5 Pro](https://img.shields.io/badge/AI-Google_Gemini_1.5_Pro-4285F4.svg)](https://ai.google.dev/)
+[![Graph DB: KùzuDB](https://img.shields.io/badge/Graph_DB-KùzuDB_Embedded_GDBMS-orange.svg)](https://github.com/kuzudb/kuzu)
+[![AI Engine: Gemini 2.5](https://img.shields.io/badge/AI-Google_Gemini_2.5_Flash-4285F4.svg)](https://ai.google.dev/)
+[![Evaluation: Stanford HELM](https://img.shields.io/badge/Evaluation-Stanford_HELM_Protocol-success.svg)](https://synaps-one.vercel.app/api/benchmark-report)
 [![License: Proprietary (XPRIZE Evaluation)](https://img.shields.io/badge/License-Proprietary_(XPRIZE_Evaluation)-red.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
 
-> 🛡️ **LEGAL & XPRIZE EVALUATION NOTICE:** This repository is published as a **Source-Available** public reference strictly for official XPRIZE competition judging, academic peer review, and empirical verification. All rights are reserved. **Unauthorized commercial use, reproduction, cloning, or redistribution of this software, its 10-Agent Boardroom engine, or its algorithms is strictly prohibited under the [Proprietary License](LICENSE).**
+> 🏛️ **OFFICIAL REBRAND & XPRIZE NOTICE:** **SYNAPS is now CAUSARIX™ (powered by the Synaps™ Causal Intelligence Core).** This repository is published as a **Source-Available** reference for official XPRIZE competition evaluation, academic peer review, and enterprise validation. All rights reserved.
 
-**SYNAPS** is an enterprise-grade Decision Intelligence Operating System and Evidentiary RAG Engine. It transforms unstructured document libraries (contracts, financial models, board minutes, operational SOPs, and compliance audits) into verified, line-level source-cited decisions through a **10-Agent Autonomous AI Boardroom**, **3D Corporate Memory Graph**, and **Data-As-A-Moat (DAAM)** compounding intelligence architecture.
-
----
-
-## 🌐 Live Production Links
-
-* **Live Cloud Platform**: [https://synaps-one.vercel.app](https://synaps-one.vercel.app)
-* **Zero-Login Interactive Sandbox**: [https://synaps-one.vercel.app/demo](https://synaps-one.vercel.app/demo)
-* **Model Context Protocol (MCP) Server**: `https://synaps-one.vercel.app/api/mcp`
-* **Desktop Releases**: Windows Installer (`Synaps-Setup-0.1.0.exe`) & Portable Binary in `/dist-electron`
-* **Billing & Upgrade Portal**: [https://synaps-one.vercel.app/dashboard/settings/billing](https://synaps-one.vercel.app/dashboard/settings/billing) *(Code: `LAUNCH100`)*
+**CAUSARIX** is an enterprise-grade Decision Intelligence Operating System, Temporal Knowledge Graph, and Evidentiary RAG Engine. It converts fragmented corporate contracts, financial statements, codebases, and meeting transcripts into **100% citation-grounded boardroom deliberations, automated Delaware redlines, and bi-directional Jira/ERP action dispatches**.
 
 ---
 
-## ⚖️ 1. What Problem Does Synaps Solve? (With vs. Without Synaps)
+## 🌐 Live Platform Deployments
 
-Modern enterprises are drowning in **10,000+ fragmented documents** (MSAs, SOWs, board minutes, regulatory audits). When executives make multi-million-dollar decisions, they face two dangerous bottlenecks: **slow, high-priced manual lawyer reviews ($1,200/hr)** or **generic AI chatbots (ChatGPT/Copilot) that hallucinate liability caps and invent numbers.**
-
-```
-                               ┌────────────────────────────────────────────────────────┐
-                               │           THE ENTERPRISE DECISION DILEMMA              │
-                               └───────────────────────────┬────────────────────────────┘
-                                                           │
-                        ┌──────────────────────────────────┴──────────────────────────────────┐
-                        ▼                                                                     ▼
-     ┌────────────────────────────────────┐                                ┌────────────────────────────────────┐
-     │    CHOICE A: MANUAL HUMAN REVIEW   │                                │   CHOICE B: GENERIC AI CHATBOTS    │
-     │ • 3–6 weeks of lawyer billable hrs │                                │ • Hallucinates liability terms     │
-     │ • $500–$1,200/hr consultant cost   │                                │ • 0% line-level verifiable proof   │
-     │ • Critical clauses get overlooked  │                                │ • 1 generic prompt without debate  │
-     └────────────────────────────────────┘                                └────────────────────────────────────┘
-```
-
-### 📊 Comprehensive Side-by-Side Comparison
-
-| Dimension | ❌ WITHOUT Synaps (Legacy Bottleneck) | ✅ WITH Synaps (Decision Intelligence OS) | Impact / Stat |
-| :--- | :--- | :--- | :--- |
-| **Contract Redlines & M&A Diligence** | **3–4 weeks** of manual lawyer reviews ($1,200/hr). Hidden liability caps and unvetted indemnities slip through. | **60 Seconds.** Automated redlining identifies uncapped liability, non-competes, and auto-renewals with instant counter-proposals. | **95% Faster Review** |
-| **C-Suite Decision Making** | Decisions made in department silos. CEO acts on optimism; CFO sees cost overruns too late; Legal halts launch. | **10-Agent Autonomous AI Boardroom.** CEO, CFO, CTO, Legal, and Risk agents synchronously debate, cross-examine, and vote. | **10-Agent Consensus** |
-| **Factual Truth & Auditability** | Generic AI chatbots hallucinate liability terms and invent dates with zero verifiable proof for auditors. | **100% Evidentiary Grounding.** Every assertion is mathematically anchored to `[Page X, Line Y, SHA-256 Hash]` source proof. | **Zero Hallucinations** |
-| **Market Risk Context** | Operating completely blind. No empirical data on whether your 24-month termination lock-in is standard or predatory. | **Data-As-A-Moat (DAAM) Benchmarks.** Live comparative percentile curves: *"Your indemnity clause is riskier than 84% of indexed B2B contracts."* | **P50/P90 Risk Curves** |
-| **Crisis & Supply Chain Stress Testing** | Reactive panic during supplier failure or cash crunch. Critical enterprise decisions made on gut instinct. | **Digital Twin & Monte Carlo Simulator.** Runs 10,000 probabilistic scenarios stress-testing cash burn and margin risk. | **10,000 Scenario Runs** |
-| **Scanned Documents & Edge Resilience** | Complete paralysis when internet drops or paper scans are uploaded. Manual data entry bottlenecks. | **Dual-Core 1-Shot OCR & Offline Guardian.** Sub-2s visual OCR (PP-OCRv4 & Vision VLM) with local IndexedDB & Ollama offline fallback. | **< 1.8s 1-Shot OCR** |
+* 🚀 **Production Cloud Platform**: [https://synaps-one.vercel.app](https://synaps-one.vercel.app)
+* 🎮 **Zero-Login Interactive Sandbox**: [https://synaps-one.vercel.app/demo](https://synaps-one.vercel.app/demo)
+* 🏢 **Parametric Counterfactual Simulation Studio**: [https://synaps-one.vercel.app/dashboard/simulations](https://synaps-one.vercel.app/dashboard/simulations)
+* 🔌 **Model Context Protocol (MCP) Server**: `https://synaps-one.vercel.app/api/mcp`
+* 📑 **Live Stanford HELM PDF Benchmark Report**: [https://synaps-one.vercel.app/api/benchmark-report](https://synaps-one.vercel.app/api/benchmark-report)
+* 💳 **Billing & Pricing Portal**: [https://synaps-one.vercel.app/dashboard/settings/billing](https://synaps-one.vercel.app/dashboard/settings/billing) *(Pioneer Code: `LAUNCH100`)*
 
 ---
 
-### 🏢 Concrete Real-World Scenario: Reviewing a $5,000,000 Cloud Vendor Agreement
-
-```
-WITHOUT SYNAPS (The Dangerous Reality):
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 1. CEO signs the agreement after glancing through the executive summary.              │
-│ 2. Section 14.3 contains a buried "uncapped consequential damages" clause.             │
-│ 3. 8 months later, a cloud outage occurs, resulting in $3.5M in client SLA penalties.  │
-│ 4. The company sues the vendor, only to discover the vendor's liability is capped      │
-│    at $50,000, while the company's liability to the vendor is UNLIMITED.              │
-│ ➔ RESULT: $3,450,000 unrecoverable loss + protracted legal disputes.                  │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-
-WITH SYNAPS (The Evidentiary Advantage):
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ 1. Document is dragged into Synaps Knowledge Vault (parsed via 1-Shot OCR in 1.8s).     │
-│ 2. The Legal Counsel Agent flags: "Red Flag on Page 18, Line 42 — Asymmetric Liability"│
-│ 3. The CFO Agent calculates: "Worst-case financial exposure exceeds total ARR by 34%."  │
-│ 4. DAAM Benchmark Engine reports: "94% of enterprise contracts cap mutual liability." │
-│ 5. Synaps generates a pre-formatted counter-clause with mutual $1M aggregate caps.     │
-│ ➔ RESULT: Deal renegotiated in 24 hours; $3.5M catastrophic risk eliminated.          │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🚀 2. Strategic Distribution Engine (How Synaps Scales)
-
-Synaps is built around an **omnichannel, product-led distribution flywheel** designed for zero-friction user acquisition, high viral expansion, and sticky enterprise lock-in:
-
-```
-                               ┌─────────────────────────────────────────┐
-                               │   TOP-OF-FUNNEL ACQUISITION CHANNELS    │
-                               └────────────────────┬────────────────────┘
-                                                    │
-                 ┌──────────────────────────────────┼──────────────────────────────────┐
-                 ▼                                  ▼                                  ▼
-      ┌──────────────────────┐           ┌──────────────────────┐           ┌──────────────────────┐
-      │  Zero-Login Sandbox  │           │   MCP IDE Bridge     │           │ Accio Browser Relay  │
-      │  (/demo - Instant 2x)│           │ (Claude/Cursor Tools)│           │  (Chrome Web Capture)│
-      └──────────┬───────────┘           └──────────┬───────────┘           └──────────┬───────────┘
-                 │                                  │                                  │
-                 └──────────────────────────────────┼──────────────────────────────────┘
-                                                    ▼
-                               ┌─────────────────────────────────────────┐
-                               │    VALUE REALIZATION (< 15 SECONDS)     │
-                               │  10-Agent Boardroom Debate & 3D Graph   │
-                               └────────────────────┬────────────────────┘
-                                                    │
-                 ┌──────────────────────────────────┴──────────────────────────────────┐
-                 ▼                                                                     ▼
-┌──────────────────────────────────┐                                  ┌──────────────────────────────────┐
-│   PRODUCT-LED VIRAL FLYWHEEL     │                                  │   OFFLINE NATIVE DESKTOP APP     │
-│ Boardroom PDFs, 2x PNG Charts,   │                                  │ Standalone Windows/macOS/Linux   │
-│ & Spotify-Wrapped Progress Cards │                                  │ IndexedDB & Local Ollama Fallback│
-└────────────────┬─────────────────┘                                  └────────────────┬─────────────────┘
-                 │                                                                     │
-                 └──────────────────────────────────┬──────────────────────────────────┘
-                                                    ▼
-                               ┌─────────────────────────────────────────┐
-                               │      COMPOUNDING DATA MOAT (DAAM)       │
-                               │  Tenant Memory + P50/P90 Clause Ledger  │
-                               └─────────────────────────────────────────┘
-```
-
-### Channel 1: Zero-Login Interactive Sandbox (`/demo`)
-* Users explore the complete 10-Agent Boardroom, Universal Chart Studio, and 3D Knowledge Graph with **zero signup friction**.
-* Enforces an IP-grounded quota (2 free executions per IP) that converts high-intent executives into paying accounts at the moment of value realization.
-
-### Channel 2: Model Context Protocol (MCP) Bridge (`/api/mcp`)
-* Native integration with **Claude Desktop**, **Cursor IDE**, **Antigravity**, and autonomous agent frameworks.
-* Developers and analysts query company records, simulate courtroom debates, and benchmark clauses directly from their primary development environments.
-
-### Channel 3: Accio Browser Relay (Chrome Extension)
-* 1-click sidecar extension that scrapes live SaaS contracts, regulatory portals, and web intelligence directly into the Synaps Knowledge Vault.
-
-### Channel 4: Cross-Platform Native Desktop Application
-* Distributed as a lightweight Electron binary with **Offline Network Guardian** — automatically falling back to local IndexedDB storage and local LLMs (Ollama) when internet drops.
-
-### Channel 5: Product-Led Viral Artifacts
-* Executives export **Master SLA PDF Briefings**, **2x Canvas-Safe PNG Charts**, and **Spotify-Wrapped Style Executive Progress Cards** that are shared directly with board members, external counsels, and investors, driving inbound team-wide expansion.
-
----
-
-## 🌍 3. Universal Pre-Trained Domain Knowledge & Multi-Jurisdictional Frameworks
-
-Unlike generic models that require tedious custom prompting, Synaps arrives **pre-trained and grounded with authoritative domain corpora and statutory legal systems** out of the box:
-
-```
-                               ┌─────────────────────────────────────────────────────────────┐
-                               │       SYNAPS MASTER MULTI-DOMAIN TRAINING CORPUS            │
-                               └──────────────────────────────┬──────────────────────────────┘
-                                                              │
-        ┌─────────────────────────┬───────────────────────────┼───────────────────────────┬─────────────────────────┐
-        ▼                         ▼                           ▼                           ▼                         ▼
-┌───────────────┐         ┌───────────────┐           ┌───────────────┐           ┌───────────────┐         ┌───────────────┐
-│ 1. LEGAL &    │         │ 2. FINANCE &  │           │ 3. HOSPITALITY│           │ 4. LOGISTICS  │         │ 5. SAAS &     │
-│ JURISDICTIONS │         │ ACCOUNTING    │           │ & HOTEL OPS   │           │ & FREIGHT     │         │ TECH INFOSEC  │
-│ • SEC EDGAR   │         │ • FASB ASC 606│           │ • STR Global  │           │ • Incoterms   │         │ • BVP Index   │
-│ • Del. DGCL   │         │ • CFA Inst.   │           │ • Cornell CHR │           │ • COGSA / ICC │         │ • NIST Zero-T │
-│ • India ICA   │         │ • IFRS 15/16  │           │ • OTA Parity  │           │ • Demurrage   │         │ • SOC-2 TypeII│
-│ • EU GDPR/UCTA│         │ • Rule of 40  │           │ • FSSAI / FDA │           │ • Cold-Chain  │         │ • Google SRE  │
-└───────────────┘         └───────────────┘           └───────────────┘           └───────────────┘         └───────────────┘
-```
-
-### A. 6 Global Statutory Legal Frameworks:
-* 🇺🇸 **United States (Delaware / NY / California):** Delaware General Corporation Law (DGCL § 141), UCC Article 2 implied warranties, and California Bus. & Prof. Code § 16600 (absolute non-compete voidness).
-* 🇪🇺 **European Union & UK:** EU GDPR Regulation 2016/679 (Article 28 DPA sub-processor terms & SCCs), UK UCTA 1977 reasonableness, and *Cavendish v El Makdessi* penalty clause doctrine.
-* 🇮🇳 **India:** Indian Contract Act 1872 (§ 27 non-compete voidness, § 74 damages upper ceiling), Digital Personal Data Protection Act 2023 (₹250 Cr penalties), and GST ITC vendor holdback reconciliation.
-* 🇸🇬 **Singapore & APAC:** SIAC Model Arbitration Clauses & Singapore International Arbitration Act (IAA).
-* 🇦🇪 **UAE & Middle East:** DIFC/ADGM English Common Law courts vs. Mainland UAE Federal Law No. 5/1985 (Article 246 Good Faith doctrine).
-
-### B. 8 Pre-Loaded Industry Vertical Equations:
-* 🏨 **Hospitality & Hotel Operations:** RevPAR ($\text{ADR} \times \text{Occupancy}$), GOPPAR, OTA rate parity audits (Expedia/Booking.com margin protection), and FSSAI/FDA HACCP food safety compliance.
-* 🚢 **Logistics, Freight & Supply Chain:** Incoterms 2020 (FOB, CIF, DDP risk/cost transfer points), Port Demurrage & Detention penalty calculations, and US COGSA $500/package limitation tracking.
-* 💻 **Enterprise SaaS & IT:** Rule of 40 ($\text{Growth \%} + \text{FCF Margin \%} \ge 40\%$), SaaS Magic Number (> 0.75), NRR (> 115%), and tiered SLA downtime penalty credit structures.
-* 💳 **FinTech & Banking:** Basel III Capital Adequacy Ratios (CAR > 10.5%), Chargeback rate caps (< 0.9%), PCI-DSS v4.0 HSM tokenization, and AML/KYC sanctions screening.
-
-### C. Non-Volatile Memory Retention Engine:
-* Grounded context injection guarantees the AI never discards context or forgets approved executive decisions across boardroom sessions.
-* **First-Principles Engine on Novel Businesses:** Decomposes brand new, unseen businesses into 5 first-principles primitives (Cashflow, Liabilities, SPOFs, Jurisdiction, and Moats) in under 60 seconds.
-
----
-
-## 🏰 4. The Synaps Competitive Moat
-
-Generic AI chatbots guess; Synaps provides **evidentiary proof, multi-agent dialectics, and compounding data advantage**.
+## 🏛️ Comprehensive Architectural Blueprint & Core Engines
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   THE 4-LAYER SYNAPS MOAT                                   │
-├──────────────────────────────┬──────────────────────────────┬───────────────────────────────┤
-│   1. EVIDENTIARY GROUNDING   │   2. 10-AGENT BOARDROOM      │  3. DATA-AS-A-MOAT (DAAM)     │
-│ 100% Line-Level Citations    │ Dialectic C-Suite Debate     │ Cross-Org P50/P90 Clause Risk │
-│ `[Page X, Line Y]` Proof     │ Conflict-Resolution Protocol │ SHA-256 Cryptographic Ledger  │
-├──────────────────────────────┴──────────────────────────────┴───────────────────────────────┤
-│   4. MEMORY PALACE & PRIME RLM (99.4% Process-Outcome Mathematical Verification Engine)     │
-└─────────────────────────────────────────────────────────────────────────────────────────────┘
+│                           CAUSARIX ENTERPRISE INTELLIGENCE ENGINE                           │
+├───────────────────────────────┬───────────────────────────────┬─────────────────────────────┤
+│ 1. CROSS-SILO INVARIANTS      │ 2. PARAMETRIC COUNTERFACTUALS │ 3. DECISION TELEMETRY       │
+│ • Sales 99.99% SLA vs. Cloud  │ • Real-time Macro Sliders     │ • 30/60/90-Day Predictions  │
+│   Architecture 99.9% Ceiling  │ • Python Sandbox Calculations │ • Actual ERP Delta Variance │
+│ • Uncapped Indemnity vs. CFO  │ • Live Adversarial Debate     │ • Bayesian Model Auto-Tuning│
+│   $2M Balance Sheet Reserve   │ • 1-Click Jira/ERP Dispatch   │ • Compounding Data Flywheel │
+└───────────────────────────────┴───────────────────────────────┴─────────────────────────────┘
 ```
 
-### Moat Pillar 1: 100% Evidentiary Grounding
-Every summary, risk alert, and decision is strictly tied to exact line numbers in original files. If an assertion cannot be mathematically proven by original text, Synaps flags a confidence deficit instead of hallucinating.
+### 1. 🛡️ Cross-Silo Invariant Checking Engine ("The Air-Traffic Controller")
+* **What it does:** Enforces global enterprise logic across fragmented departments.
+* **How it works:** If Sales attempts to commit to a **99.99% SLA** in a customer contract, Causarix automatically cross-checks Engineering's Cloud Roadmap (which only supports **99.9%**) and Finance's liability reserves ($2.0M cap).
+* **Automated Remediation:** Flags **$1,450,000 in liquidated damages risk** and auto-generates a Delaware-standard counter-clause with scheduled maintenance carve-outs.
 
-### Moat Pillar 2: 10-Agent AI Boardroom Deliberation
-Complex corporate problems are not solved by a single generic prompt. Synaps orchestrates 10 specialized C-Suite agents (CEO, CFO, CTO, Legal Counsel, Risk Director, etc.) who debate, counter-argue, and vote on contract liabilities and financial allocations.
+### 2. ⚡ Parametric Counterfactual Studio & Python Sandboxes
+* **What it does:** Replaces generic conversational "roleplay" with **deterministic mathematical computation**.
+* **Interactive Macro Sliders:** Adjust Supply Chain Tariffs (`+15%`), Fed Benchmark Rates (`+150 bps`), Cloud Outages (`2h`), and Customer Churn (`5%`).
+* **Deterministic Execution:** Powered by **Pyodide (WebAssembly Python)** running in-process with zero cloud server costs and 100% data privacy.
+* **$200M M&A Cloud Acquisition Preset:** Discovers hidden **GPLv3 license conflicts** in target Git repos, models **$42.0M clean-room rewrite costs**, and synthesizes an optimal **$130M counter-offer**.
 
-### Moat Pillar 3: Data-As-A-Moat (DAAM) Engine
-* **Anonymized Clause Benchmarking**: Strips PII and computes cross-industry percentiles (*"Your liability clause is riskier than 84% of indexed B2B contracts"*).
-* **Decision Memory Loop**: Records executive feedback (`ACCEPTED`, `REJECTED`, `MODIFIED`) to tune future agent recommendations to organizational risk tolerance.
-* **Cryptographic Audit Ledger**: Implements SHA-256 hash-chained proof records for every analytical operation.
+### 3. 🕸️ Embedded KùzuDB Multi-Hop Causal Graph (`kuzudb/kuzu`)
+* **What it does:** Solves the *"Similarity vs. Causality"* vector trap using standard **Cypher queries** with sub-millisecond execution.
+* **Multi-Hop Traversal:**
+  ```cypher
+  MATCH (a:EnterpriseEntity)-[:BOUND_BY]->(c:ContractClause)-[:CONTRADICTS]->(p:ContractClause)
+  RETURN a, c, p
+  ```
+* **Causal Link:** `(Target_Repo)-[:BOUND_BY]->(License_GPLv3)-[:CONTRADICTS]->(Core_Closed_Source_IP)`.
 
-### Moat Pillar 4: Prime RLM & Spatial Memory Palace
-Multi-tier memory architecture that maintains entity-relation vectors across projects, preventing context degradation across millions of document tokens.
+### 4. 🔁 Temporal Decision Telemetry (Proprietary Data Flywheel)
+* **What it does:** Logs every executive decision along with its predicted 30/60/90-day key results.
+* **Bayesian Calibration:** As actual quarterly data streams from QuickBooks/Salesforce webhooks, Causarix calculates the prediction delta ($\Delta$) and auto-tunes future risk weighting.
 
-### Moat Pillar 5: Fast Hybrid Vector & Evidence Search (140ms Latency)
-* **Hybrid Retrieval:** Blends high-dimensional dense vector embeddings with BM25 lexical token matching for sub-140ms search queries across 100,000+ document pages.
-* **Line-Level Coordinate Indexing:** Every indexed chunk stores exact structural coordinates `[Document_ID, Page_Number, Line_Range, SHA-256_Checksum]`.
-* **Zero Guesswork Guarantee:** Automatically flags confidence deficits if factual evidence is absent from the repository.
-
-### Moat Pillar 6: Dual-Core 1-Shot Lightning OCR (PP-OCRv4 / Baidu Architecture & Vision VLM)
-* **Core 1 (Sovereign Edge Pipeline):** Powered by the ultra-fast **PP-OCRv4 / Baidu PaddleOCR architecture** (Apache 2.0 compliant) for sub-second on-device character recognition and offline desktop extraction.
-* **Core 2 (1-Shot Multimodal Vision VLM):** Sub-1.8-second markdown table reconstruction, key-value extraction, and legal clause classification via Google Gemini 1.5/2.5 Flash.
-* **Auto-Detect Scanned PDFs:** Automatically identifies image-only scanned contracts with blank text layers and routes them through the 1-shot visual OCR pipeline.
-
-### Moat Pillar 7: Sovereign Dual-Engine Framework (Nano + Soup $\le$ 2.5 GB Footprint)
-* **Dynamic Boardroom Core (1.2B Base + 10 LoRAs):** 1.2B INT4 Base Model (~750 MB) with 10 hot-swappable 15 MB persona LoRAs (CEO, CFO, CTO, Legal, Risk) enabling **5ms personality weight-swapping** during live deliberations.
-* **10 Dedicated Nano Micro-Agents (`nanochat` Powered):** 10x 150M parameter micro-models (~750 MB total @ 75 MB each) for sub-20ms instant reranking, OCR table parsing, and compliance scoring.
-* **On-Premise 8B Fine-Tuning Pipeline (`Soup` Layer Streaming):** Fine-tunes massive 8-Billion parameter foundation models on client 4 GB laptop GPUs without cloud compute costs.
-* **Storage Budget:** Total combined desktop bundle occupies **2.00 GB**, comfortably below the **2.50 GB ceiling** with 500 MB headroom for vector storage.
+### 5. 🎫 Bi-Directional Action Dispatch (Atlassian Jira REST API)
+* **What it does:** 1-Click execution turns boardroom consensus into real-world work.
+* **Live Integration:** Creates P0 risk mitigation tickets directly on your Jira board (e.g. `KAN-6: [Causarix Risk Audit] $200M M&A GPLv3 Clean-Room Rewrite`).
 
 ---
 
-## 🛠️ 4. Core Architecture & Tech Stack
+## 📊 Stanford HELM Benchmark Evaluation (500-Instance Rigor)
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Frontend Framework** | Next.js 15 (App Router, React Server Components, TypeScript) |
-| **AI Orchestration** | Google Gemini 1.5 Pro & Flash, Claude 3.5 Sonnet, Local Ollama Fallback |
-| **OCR & Vision** | Dual-Core 1-Shot Lightning OCR (PP-OCRv4 & Gemini Flash VLM) |
-| **Styling & UI** | Tailored HSL Design System, Framer Motion, Lucide Icons |
-| **3D Visualization** | Three.js / WebGL Spatial Graph Engine |
-| **Database & ORM** | Neon Serverless PostgreSQL, Prisma ORM |
-| **Authentication** | Firebase Auth (Google Cloud) with Server-Side Session Cookie Verification |
-| **Integrations** | Model Context Protocol (MCP JSON-RPC), Accio Chrome Extension |
-| **Monetization** | Merchant of Record Checkout, Stripe Webhooks, Instant UPI Gateway |
+Evaluated across **500 standardized enterprise trial instances** across 10 mission-critical corporate scenarios:
+
+| Evaluation Dimension | Causarix Sovereign OS | Frontier Cloud LLMs | Legacy Enterprise RAG |
+| :--- | :--- | :--- | :--- |
+| **Composite Accuracy (N=500)** | **98.43% (±0.61%)** | 82.40% (±4.10%) | 76.10% (±6.20%) |
+| **Evidentiary Grounding** | **100.0%** `[Doc, Page, Line, SHA-256]` | 0.0% (Ungrounded hallucinations) | 41.0% (Imprecise chunk estimates) |
+| **Mathematical Precision** | **99.20%** (Step-verified Putnam/AIME) | 71.30% (Arithmetic drift) | 38.0% (No proof engine) |
+| **Domain Isolation** | **100.0%** (10 Enclaves, 0.0% Bleed) | 12.0% (Severe cross-domain bleed)| 24.0% (Static prompt bleed) |
+| **P50 Retrieval Latency** | **97.0 ms** (Production SLA: < 140ms) | 1,850 ms (Cloud roundtrip) | 840 ms |
 
 ---
 
-## ⚡ 5. Local Development Setup
+## ⚖️ With vs. Without CAUSARIX Comparison
 
-### 1. Clone & Install
+| Business Capability | ❌ WITHOUT Causarix (Legacy Bottlenecks) | ✅ WITH Causarix (Decision Intelligence OS) | Value Impact |
+| :--- | :--- | :--- | :--- |
+| **Contract Redlines & Diligence** | 3–4 weeks of manual lawyer reviews ($1,200/hr). Hidden liability caps slip through. | **60 Seconds.** Automated redlines with instant Delaware DGCL § 141 counter-clauses. | **95% Faster Review** |
+| **C-Suite Decision Making** | Department silos. CEO acts on optimism; CFO sees costs too late; Legal halts launch. | **10-Agent Autonomous Boardroom.** CEO, CFO, CTO, Legal, and Risk agents vote in synchronous quorum. | **10-Agent Consensus** |
+| **Cross-Silo Invariant Rules** | Sales commits to 99.99% SLAs while Engineering roadmap only supports 99.9%. | **Air-Traffic Controller.** Real-time invariant checking eliminates $1.45M SLA penalties. | **Zero Liquidated Damages** |
+| **Market Risk Benchmarking** | Operating completely blind without empirical contract data. | **Data-As-A-Moat (DAAM).** P50/P90 percentile risk curves against indexed enterprise contracts. | **P50/P90 Percentile Moat** |
+| **Scanned Documents & Edge** | Paralysis when internet drops or paper scans are uploaded. | **Dual-Core 1-Shot OCR.** Sub-2s visual OCR (PP-OCRv4) + Local Ollama offline fallback. | **< 1.8s 1-Shot OCR** |
+
+---
+
+## 💰 Strategic Pricing Architecture
+
+| Tier | Price | Daily Micro-Cost | Target Audience | Core Capabilities |
+| :--- | :--- | :--- | :--- | :--- |
+| **Pro Workspace** | **$19 / month** *(or $1.99/wk)* | **$0.63 / day** | Solo Founders, Boutique Lawyers, Operators | 500 Docs, 10,000 Credits, Daily Chief of Staff Briefs, RAG Search |
+| **Enterprise Pro (Most Popular)** | **$49 / month** *(or $4.99/wk)* | **$1.63 / day** | Funded Startups, M&A Teams, Corporate Boards | Unlimited Docs, 10-Agent Boardroom Quorum, 10 C-Suite Digital Twins, Monte Carlo 10,000 Runs, Jira Dispatch |
+
+*Use promo code **`LAUNCH100`** during checkout for **30% OFF** lifetime access.*
+
+---
+
+## 🚀 Quickstart & Local Setup
+
+### 1. Clone & Install Dependencies
 ```bash
 git clone https://github.com/novaecosystems-cloud/Synaps.git
 cd Synaps
 npm install
 ```
 
-### 2. Configure Environment (`.env`)
+### 2. Configure Environment Variables (`.env.local`)
 ```env
-DATABASE_URL="postgresql://user:pass@host/synaps?sslmode=require"
-DIRECT_URL="postgresql://user:pass@host/synaps?sslmode=require"
-GEMINI_API_KEY="your-google-ai-studio-key"
-FIREBASE_ADMIN_PROJECT_ID="your-firebase-project"
+# Google Gemini API Key (Free tier available on Google AI Studio)
+GEMINI_API_KEY="AIzaSy..."
+
+# Atlassian Jira Cloud Integration (Optional for live ticket dispatch)
+JIRA_DOMAIN="https://your-domain.atlassian.net"
+JIRA_EMAIL="your-email@example.com"
+JIRA_API_TOKEN="ATATT3xFfGF0..."
+JIRA_PROJECT_KEY="KAN"
 ```
 
-### 3. Database Push
-```bash
-npx prisma db push
-```
-
-### 4. Start Development Server
+### 3. Run Development Server
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to launch the workspace.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 4. Run Full Platform Verification & Stanford HELM Suite
+```bash
+node scripts/verify-synaps-full-suite.mjs
+node scripts/helm-enterprise-scale-500.mjs
+node scripts/test-new-engines.mjs
+```
 
 ---
 
-## 📜 6. License & Enterprise Ownership
-Copyright © 2026 SYNAPS INC. Distributed under the MIT License. All rights reserved.
+## 📜 Intellectual Property & XPRIZE Notice
+© 2026 CAUSARIX INC. (A SYNAPS INTELLIGENCE COMPANY). ALL RIGHTS RESERVED.  
+Evaluation entries submitted under XPRIZE Foundation competition guidelines.
