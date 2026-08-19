@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { HoldToConfirmButton } from '@/components/ui/DqnamoTactileSuite';
 
 export interface ParametricSimulationState {
   tariffRate: number; // e.g. 15 (%)
@@ -359,30 +360,14 @@ export function ParametricCounterfactualStudio() {
                 </span>
               </div>
 
-              <Button
-                onClick={handleDispatchAutonomousAction}
-                disabled={isSimulating || actionDispatched}
-                className="w-full sm:w-auto font-mono text-xs font-bold gap-2 py-2.5 px-5 bg-primary text-primary-foreground shadow-md shrink-0"
-              >
-                {actionDispatched ? (
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-400" />
-                    <span>
-                      {jiraIssueKey ? `Dispatched to Jira (${jiraIssueKey})!` : 'Actions Dispatched to Jira & ERP!'}
-                    </span>
-                  </div>
-                ) : isSimulating ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Executing Sandboxes...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    <span>Execute M&A Redline & Jira Dispatch</span>
-                  </>
-                )}
-              </Button>
+              <div className="shrink-0">
+                <HoldToConfirmButton
+                  label="Hold to Execute M&A Override & Jira Dispatch"
+                  confirmedLabel={jiraIssueKey ? `Dispatched to Jira (${jiraIssueKey})!` : "M&A Override Dispatched to Jira & ERP!"}
+                  holdDurationMs={1400}
+                  onConfirm={handleDispatchAutonomousAction}
+                />
+              </div>
             </div>
             {jiraIssueKey && (
               <div className="text-[11px] font-mono text-emerald-500 font-bold flex items-center justify-end gap-1.5 pt-1">

@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { SkiperLoopLoader } from '@/components/ui/SkiperLoopLoader';
 import { downloadAsPDF } from '@/lib/export-helpers';
+import { CassetteAudioPlayer } from '@/components/ui/DqnamoTactileSuite';
 
 interface ProactiveActionRecommendation {
   id: string;
@@ -180,20 +181,33 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
       {/* ── TODAY'S PRIORITIES & WEEKLY SUMMARY ──────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Weekly Executive Summary */}
-        <div className="lg:col-span-1 p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-xs uppercase tracking-wider text-base-content/60 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-indigo-500" /> Weekly Strategic Summary
-            </h3>
-            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">LIVE SYNTHESIS</span>
+        {/* Weekly Executive Summary & Tactile Cassette Audio Player */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-xs uppercase tracking-wider text-base-content/60 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-indigo-500" /> Weekly Strategic Summary
+              </h3>
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">LIVE SYNTHESIS</span>
+            </div>
+            <p className="text-xs text-base-content/80 leading-relaxed p-4 bg-base-200 border border-base-300 rounded-2xl font-medium">
+              {renderSafeString(briefing?.weeklySummary)}
+            </p>
+            <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-base-content/50">
+              <span>Channels Monitored: {monitoring?.totalMonitoredChannels || 8}/8</span>
+              <span>Alerts Active: {monitoring?.activeProactiveAlerts?.length || 4}</span>
+            </div>
           </div>
-          <p className="text-xs text-base-content/80 leading-relaxed p-4 bg-base-200 border border-base-300 rounded-2xl font-medium">
-            {renderSafeString(briefing?.weeklySummary)}
-          </p>
-          <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-base-content/50">
-            <span>Channels Monitored: {monitoring?.totalMonitoredChannels || 8}/8</span>
-            <span>Alerts Active: {monitoring?.activeProactiveAlerts?.length || 4}</span>
+
+          {/* Skeuomorphic Cassette Executive Briefing Audio Player */}
+          <div className="p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-amber-500">
+                🎙️ Morning Brief Audio Tape
+              </span>
+              <span className="text-[10px] font-mono text-base-content/50">SIDE A · HQ DISPATCH</span>
+            </div>
+            <CassetteAudioPlayer />
           </div>
         </div>
 

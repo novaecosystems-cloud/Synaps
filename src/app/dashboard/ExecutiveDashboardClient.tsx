@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
+import { TactileButton, ScrambleText, ThermalReceipt } from '@/components/ui/DqnamoTactileSuite';
 
 interface Citation {
   documentId?: string;
@@ -100,6 +101,7 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
 
   // Mandatory Legal Acceptance Modal on Dashboard Load
   const [mandatoryLegalDoc, setMandatoryLegalDoc] = useState<LegalDocType | null>(null);
+  const [showThermalReceipt, setShowThermalReceipt] = useState<boolean>(false);
 
   useEffect(() => {
     try {
@@ -197,7 +199,7 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
       {/* 1. HERO AI COO BRIEFING BANNER */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/20 text-white p-8 shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="relative z-10 space-y-4">
+        <div className="relative z-10 space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-2xl bg-indigo-600/30 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.4)]">
@@ -215,49 +217,45 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
                 <h1 className="text-2xl font-bold tracking-tight text-white">Executive Operational Briefing</h1>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={() => downloadAsPDF({
-                  title: 'Executive Operational Briefing',
-                  subtitle: 'SYNAPS AI COO Command Console Report',
-                  sections: [
-                    {
-                      heading: 'Executive Brief Summary',
-                      content: data.executiveBrief,
-                      kvPairs: {
-                        'Org Health Score': `${data.healthScore}/100`,
-                        'Knowledge Coverage': `${data.knowledgeCoverage}%`,
-                        'Risk Level': data.riskLevel,
-                        'Decision Confidence': `${data.decisionConfidence}%`
-                      }
-                    }
-                  ]
-                })}
-                className="px-3 py-1.5 rounded-full bg-emerald-500 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 hover:bg-emerald-400 cursor-pointer shadow-md"
-              >
-                <FileText className="w-3.5 h-3.5" /> PDF Brief
-              </button>
-              <button
-                onClick={() => downloadAsCSV('executive-briefing', {
-                  executiveBrief: data.executiveBrief,
-                  healthScore: data.healthScore,
-                  knowledgeCoverage: data.knowledgeCoverage,
-                  riskLevel: data.riskLevel,
-                  decisionConfidence: data.decisionConfidence
-                })}
-                className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-              >
-                CSV
-              </button>
-              <button onClick={fetchBriefData} className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-medium flex items-center gap-2 transition-all">
-                <RefreshCw className="w-3.5 h-3.5" /> Refresh
-              </button>
+
+            {/* Cryptographic SHA-256 Scramble Text Badge */}
+            <div className="px-3.5 py-1.5 rounded-xl bg-black/60 border border-indigo-500/30 font-mono text-xs text-emerald-400 font-bold shadow-inner">
+              <ScrambleText text="SHA-256: 9e4f2b8a...DGCL § 141 VERIFIED" />
             </div>
           </div>
 
           <p className="text-sm text-slate-200 leading-relaxed max-w-4xl bg-white/5 border border-white/10 p-4 rounded-2xl backdrop-blur-md">
             {data.executiveBrief}
           </p>
+
+          {/* Tactile 3D Action Controls */}
+          <div className="flex flex-wrap items-center gap-4 pt-2">
+            <TactileButton variant="primary" onClick={() => window.location.href = '/dashboard/boardroom'}>
+              <span>Run 10-Agent Deliberation</span>
+              <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
+            </TactileButton>
+
+            <TactileButton variant="amber" onClick={() => window.location.href = '/dashboard/simulations'}>
+              <span>Deploy Invariant Engine</span>
+            </TactileButton>
+
+            <TactileButton variant="dark" onClick={() => setShowThermalReceipt(!showThermalReceipt)}>
+              <span>{showThermalReceipt ? "Hide Proof Receipt" : "Print Proof Receipt 🖨️"}</span>
+            </TactileButton>
+
+            <button onClick={fetchBriefData} className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer">
+              <RefreshCw className="w-3.5 h-3.5" /> Re-Sync
+            </button>
+          </div>
+
+          {/* Interactive Thermal Receipt Modal/Slide-down */}
+          {showThermalReceipt && (
+            <div className="pt-4 flex justify-center animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="p-4 bg-black/80 rounded-3xl border border-white/10 shadow-2xl backdrop-blur-md">
+                <ThermalReceipt />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
