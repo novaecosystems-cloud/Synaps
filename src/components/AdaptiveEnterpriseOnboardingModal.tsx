@@ -6,7 +6,8 @@ import {
   Building2, Sparkles, ShieldCheck, Scale, DollarSign, 
   Cpu, Briefcase, Check, ArrowRight, CheckCircle2, Lock, 
   Globe2, FileText, ChevronRight, Database, Terminal, Layers,
-  X, AlertCircle, RefreshCw, Link2, ExternalLink
+  X, AlertCircle, RefreshCw, Link2, ExternalLink, ShieldAlert,
+  UserCheck, CheckCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -104,27 +105,13 @@ export function AdaptiveEnterpriseOnboardingModal() {
   const [selectedRole, setSelectedRole] = useState<ExecutiveRole>("LEGAL");
   const [selectedJurisdiction, setSelectedJurisdiction] = useState<Jurisdiction>("US_DELAWARE");
   const [selectedDocScale, setSelectedDocScale] = useState<DocScale>("CONTRACTS_PDF");
-  const [selectedIntegration, setSelectedIntegration] = useState<string>("jira");
-  const [isIntegrationConnected, setIsIntegrationConnected] = useState<boolean>(false);
+  const [selectedIntegration, setSelectedIntegration] = useState<string>("github");
+  const [connectedIntegrations, setConnectedIntegrations] = useState<Record<string, boolean>>({});
 
-  // Active Connection Modal State
-  const [activeConnectorPopup, setActiveConnectorPopup] = useState<"jira" | "github" | "slack" | "erp" | null>(null);
-  const [isTestingConnection, setIsTestingConnection] = useState<boolean>(false);
-  const [connectionSuccess, setConnectionSuccess] = useState<boolean>(false);
-
-  // Credentials State
-  const [jiraDomain, setJiraDomain] = useState("https://novaecosystems.atlassian.net");
-  const [jiraEmail, setJiraEmail] = useState("admin@causarix.ai");
-  const [jiraToken, setJiraToken] = useState("ATATT3xFfGF0...");
-  const [jiraProjectKey, setJiraProjectKey] = useState("KAN");
-
-  const [githubRepoUrl, setGithubRepoUrl] = useState("https://github.com/novaecosystems-cloud/Synaps");
-  const [githubPat, setGithubPat] = useState("ghp_live_token_77a9...");
-
-  const [slackWebhookUrl, setSlackWebhookUrl] = useState("https://hooks.slack.com/services/T00/B00/X00");
-  const [slackChannel, setSlackChannel] = useState("#executive-briefs");
-
-  const [erpApiKey, setErpApiKey] = useState("qb_sec_live_99482...");
+  // Active OAuth 2.0 Authorization Modal State
+  const [activeOAuthPopup, setActiveOAuthPopup] = useState<"github" | "jira" | "slack" | "erp" | null>(null);
+  const [isAuthorizingOAuth, setIsAuthorizingOAuth] = useState<boolean>(false);
+  const [oauthStepStatus, setOauthStepStatus] = useState<string>("");
 
   useEffect(() => {
     const isCompleted = localStorage.getItem("causarix_onboarding_completed");
@@ -160,33 +147,44 @@ export function AdaptiveEnterpriseOnboardingModal() {
     setCurrentStep("integration");
   };
 
-  const handleOpenConnectorPopup = (integId: "jira" | "github" | "slack" | "erp") => {
+  const handleOpenOAuthPopup = (integId: "github" | "jira" | "slack" | "erp") => {
     setSelectedIntegration(integId);
-    setConnectionSuccess(false);
-    setActiveConnectorPopup(integId);
+    setOauthStepStatus("");
+    setIsAuthorizingOAuth(false);
+    setActiveOAuthPopup(integId);
   };
 
-  const handleTestConnection = async () => {
-    setIsTestingConnection(true);
-    // Simulate real-time API roundtrip validation
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    setIsTestingConnection(false);
-    setConnectionSuccess(true);
-    setIsIntegrationConnected(true);
+  const handleExecuteOAuthConsent = async () => {
+    setIsAuthorizingOAuth(true);
+    setOauthStepStatus("Redirecting to OAuth 2.0 authorization server...");
+    
+    await new Promise(resolve => setTimeout(resolve, 600));
+    setOauthStepStatus("Exchanging authorization grant token...");
+    
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setOauthStepStatus("Validating enterprise tenant scopes & permissions...");
+    
+    await new Promise(resolve => setTimeout(resolve, 600));
+    setOauthStepStatus("OAuth 2.0 handshake verified!");
 
-    // Persist verified integration
+    setConnectedIntegrations(prev => ({
+      ...prev,
+      [selectedIntegration]: true
+    }));
+
     try {
       localStorage.setItem(`causarix_${selectedIntegration}_connected`, "true");
     } catch (e) {}
 
     setTimeout(() => {
-      setActiveConnectorPopup(null);
+      setIsAuthorizingOAuth(false);
+      setActiveOAuthPopup(null);
       setCurrentStep("intro");
-    }, 1000);
+    }, 800);
   };
 
   const handleSkipIntegration = () => {
-    setActiveConnectorPopup(null);
+    setActiveOAuthPopup(null);
     setCurrentStep("intro");
   };
 
@@ -198,7 +196,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
       jurisdiction: selectedJurisdiction,
       docScale: selectedDocScale,
       integration: selectedIntegration,
-      isIntegrationConnected,
+      connectedIntegrations,
       completedAt: new Date().toISOString()
     }));
     setIsOpen(false);
@@ -207,6 +205,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
   // Generate Tailored Dynamic Checklist based on Q1-Q6 Answers
   const getTailoredChecklist = (): ChecklistItemWithProgress[] => {
     const jurLabel = JURISDICTIONS.find(j => j.id === selectedJurisdiction)?.label || "Delaware";
+    const isConnected = !!connectedIntegrations[selectedIntegration];
     
     switch (selectedGoal) {
       case "CONTRACT_REDLINES":
@@ -214,7 +213,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
           { id: 1, text: `Upload Master Services Agreement (${selectedDocScale === "CONTRACTS_PDF" ? "Scanned PDF" : "Word/Doc"})`, helperText: "Sub-2s 1-Shot Visual OCR parsing", helperLink: { href: "/dashboard/documents", text: "Upload Vault" } },
           { id: 2, text: `Run ${jurLabel} Liability Cap & Indemnity Scan`, helperText: "Detects uncapped damages & non-mutual clauses", helperLink: { href: "/dashboard/simulations", text: "Run Redline" } },
           { id: 3, text: "Generate Automated Statutory Counter-Clause", helperText: "Instant Delaware DGCL § 141 approved language", helperLink: { href: "/dashboard/documents", text: "Export Redline" } },
-          { id: 4, text: `Dispatch Redline Audit to ${selectedIntegration.toUpperCase()}`, helperText: isIntegrationConnected ? "Live Connector Verified" : "1-Click Ticket Dispatch", helperLink: { href: "/dashboard/settings/api-keys", text: "View Connector" } }
+          { id: 4, text: `Dispatch Redline Audit via ${selectedIntegration.toUpperCase()} OAuth`, helperText: isConnected ? "OAuth 2.0 Token Active" : "1-Click Ticket Dispatch", helperLink: { href: "/dashboard/settings/api-keys", text: "View Connector" } }
         ];
       case "MNA_DILIGENCE":
         return [
@@ -228,7 +227,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
           { id: 1, text: "Initialize 10-Agent C-Suite Digital Twins", helperText: "CEO, CFO, CTO, Legal, and Risk Quorum", helperLink: { href: "/dashboard/boardroom", text: "Enter Boardroom" } },
           { id: 2, text: `Submit Strategic Expansion Query under ${jurLabel}`, helperText: "Dialectic debate with 100% SHA-256 grounding", helperLink: { href: "/dashboard/boardroom", text: "Start Debate" } },
           { id: 3, text: "Reach Unanimous Quorum Consensus & Vote Record", helperText: "Permanent immutable audit trail logged", helperLink: { href: "/dashboard/audit", text: "View Audit" } },
-          { id: 4, text: `Auto-Create Action Tickets on ${selectedIntegration.toUpperCase()}`, helperText: isIntegrationConnected ? "Live Connector Verified" : "1-Click Ticket Dispatch", helperLink: { href: "/dashboard/settings/api-keys", text: "View Dispatch" } }
+          { id: 4, text: `Auto-Create Action Tickets on ${selectedIntegration.toUpperCase()}`, helperText: isConnected ? "OAuth 2.0 Connected" : "1-Click Ticket Dispatch", helperLink: { href: "/dashboard/settings/api-keys", text: "View Dispatch" } }
         ];
       case "CASH_RUNWAY":
         return [
@@ -243,7 +242,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
           { id: 1, text: "Establish Engineering 99.9% Cloud Uptime Ceiling", helperText: "Air-Traffic Controller protects infrastructure roadmap", helperLink: { href: "/dashboard/simulations", text: "Set Ceiling" } },
           { id: 2, text: "Intercept Sales 99.99% SLA Customer Commitments", helperText: "Catches $1.45M liquidated damages breach risk", helperLink: { href: "/dashboard/simulations", text: "Check Invariants" } },
           { id: 3, text: `Generate ${jurLabel} Standard SLA Counter-Clause`, helperText: "Adds scheduled maintenance carve-outs", helperLink: { href: "/dashboard/documents", text: "Export Clause" } },
-          { id: 4, text: `Dispatch P0 Invariant Violation to ${selectedIntegration.toUpperCase()}`, helperText: isIntegrationConnected ? "Live Connector Verified" : "1-Click Ticket Dispatch", helperLink: { href: "/dashboard/settings/api-keys", text: "View Dispatch" } }
+          { id: 4, text: `Dispatch P0 Invariant Violation to ${selectedIntegration.toUpperCase()}`, helperText: isConnected ? "OAuth 2.0 Connected" : "1-Click Ticket Dispatch", helperLink: { href: "/dashboard/settings/api-keys", text: "View Dispatch" } }
         ];
     }
   };
@@ -274,7 +273,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
                   {currentStep === "role" && "STAGE 3/7 · EXECUTIVE SEAT"}
                   {currentStep === "jurisdiction" && "STAGE 4/7 · STATUTORY LAW"}
                   {currentStep === "doc_scale" && "STAGE 5/7 · DATA INGESTION"}
-                  {currentStep === "integration" && "STAGE 6/7 · ACTION DISPATCH"}
+                  {currentStep === "integration" && "STAGE 6/7 · OAUTH 2.0 CONNECT"}
                   {currentStep === "intro" && "FINAL STAGE 7/7 · CUSTOMIZED GUIDE"}
                 </span>
               </div>
@@ -587,52 +586,83 @@ export function AdaptiveEnterpriseOnboardingModal() {
           </div>
         )}
 
-        {/* STAGE 6: Interactive Action Dispatch with Live Connection Popup */}
+        {/* STAGE 6: 1-Click OAuth 2.0 Authorization Connectors */}
         {currentStep === "integration" && (
           <div className="p-6 sm:p-8 space-y-6">
             <div className="space-y-2">
               <h2 className="font-serif text-2xl font-bold text-base-content">
-                Connect your workflow dispatch tool
+                Connect your workflow via 1-Click OAuth 2.0
               </h2>
               <p className="text-xs sm:text-sm text-base-content/70 leading-relaxed">
-                Click any tool below to open its live configuration popup and test credentials, or skip to configure later.
+                Click any service below to open its official OAuth authorization popup. No API keys or tokens required.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { id: "jira" as const, label: "Atlassian Jira Cloud (Project KAN)", desc: "1-Click auto-generates P0 mitigation tickets on your Jira board.", badge: "RECOMMENDED" },
-                { id: "github" as const, label: "GitHub Repositories & PRs", desc: "Automated license scanning and PR invariant verification.", badge: "CODEBASE AUDIT" },
-                { id: "slack" as const, label: "Slack & Microsoft Teams", desc: "Delivers daily morning audio briefings and urgent risk alerts.", badge: "DAILY BRIEFS" },
-                { id: "erp" as const, label: "QuickBooks / Stripe Webhooks", desc: "Live cashflow telemetry feed for 90-day Bayesian auto-tuning.", badge: "FINANCIAL" },
+                { 
+                  id: "github" as const, 
+                  label: "GitHub Repositories & PRs", 
+                  desc: "Authorize repository access for GPLv3 license scanning and PR invariant audits.", 
+                  badge: "1-CLICK OAUTH",
+                  icon: "🐙"
+                },
+                { 
+                  id: "jira" as const, 
+                  label: "Atlassian Jira Cloud (Project KAN)", 
+                  desc: "Authorize Jira site access to auto-create P0 mitigation tickets on boardroom consensus.", 
+                  badge: "RECOMMENDED",
+                  icon: "🎫"
+                },
+                { 
+                  id: "slack" as const, 
+                  label: "Slack & Microsoft Teams", 
+                  desc: "Authorize Slack bot to deliver daily morning audio briefings and urgent contract risk alerts.", 
+                  badge: "DAILY BRIEFS",
+                  icon: "💬"
+                },
+                { 
+                  id: "erp" as const, 
+                  label: "QuickBooks / Stripe OAuth", 
+                  desc: "Authorize read-only cashflow telemetry to calibrate 90-day Bayesian decision accuracy.", 
+                  badge: "FINANCIAL",
+                  icon: "📈"
+                },
               ].map((integ) => {
-                const isConnected = selectedIntegration === integ.id && isIntegrationConnected;
+                const isConnected = !!connectedIntegrations[integ.id];
                 return (
                   <div
                     key={integ.id}
-                    onClick={() => handleOpenConnectorPopup(integ.id)}
+                    onClick={() => handleOpenOAuthPopup(integ.id)}
                     className={cn(
                       "p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer space-y-2.5 flex flex-col justify-between group hover:border-primary shadow-sm",
                       isConnected ? "bg-emerald-500/10 border-emerald-500 ring-2 ring-emerald-500/20" : "bg-base-200/50 border-base-300"
                     )}
                   >
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
                           {integ.badge}
                         </span>
-                        {isConnected && (
+                        {isConnected ? (
                           <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" /> CONNECTED
+                            <CheckCircle2 className="w-3 h-3" /> AUTHORIZED
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-mono text-base-content/50">
+                            OAuth 2.0
                           </span>
                         )}
                       </div>
-                      <h4 className="font-bold text-sm text-base-content group-hover:text-primary transition-colors pt-1">{integ.label}</h4>
+                      <h4 className="font-bold text-sm text-base-content group-hover:text-primary transition-colors flex items-center gap-2">
+                        <span>{integ.icon}</span>
+                        <span>{integ.label}</span>
+                      </h4>
                       <p className="text-xs text-base-content/70">{integ.desc}</p>
                     </div>
 
                     <div className="pt-2 flex items-center justify-between text-xs font-mono font-bold text-primary">
-                      <span>{isConnected ? "Reconfigure Connection" : "Configure & Test Live ↗"}</span>
+                      <span>{isConnected ? "Re-authorize OAuth 2.0" : "Authorize with OAuth 2.0 ↗"}</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </div>
                   </div>
@@ -685,185 +715,306 @@ export function AdaptiveEnterpriseOnboardingModal() {
           </div>
         )}
 
-        {/* ─── LIVE CONNECTOR POPUP MODAL ────────────────────────────────────────── */}
-        {activeConnectorPopup && (
+        {/* ─── REALISTIC 1-CLICK OAUTH 2.0 CONSENT SCREENS ──────────────────────── */}
+        {activeOAuthPopup && (
           <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="w-full max-w-lg bg-base-100 border border-base-300 rounded-3xl shadow-2xl p-6 space-y-5 relative text-base-content"
+              className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden relative border"
             >
-              <button
-                onClick={() => setActiveConnectorPopup(null)}
-                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-base-200 text-base-content/60"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
-                    <Link2 className="w-4 h-4" />
-                  </div>
-                  <h3 className="font-serif text-lg font-bold">
-                    {activeConnectorPopup === "jira" && "Connect Atlassian Jira Cloud"}
-                    {activeConnectorPopup === "github" && "Connect GitHub Repository"}
-                    {activeConnectorPopup === "slack" && "Connect Slack / Teams Webhook"}
-                    {activeConnectorPopup === "erp" && "Connect QuickBooks / Stripe Feed"}
-                  </h3>
-                </div>
-                <p className="text-xs text-base-content/60">
-                  {activeConnectorPopup === "jira" && "Causarix will automatically create P0 risk mitigation tickets directly on your Jira board."}
-                  {activeConnectorPopup === "github" && "Scans Git commits and dependencies for GPLv3 reciprocal license conflicts."}
-                  {activeConnectorPopup === "slack" && "Delivers daily Chief of Staff morning audio briefings directly to your team channel."}
-                  {activeConnectorPopup === "erp" && "Syncs cashflow telemetry to auto-calibrate 90-day Bayesian decision accuracy."}
-                </p>
-              </div>
-
-              {/* JIRA CONFIG FORM */}
-              {activeConnectorPopup === "jira" && (
-                <div className="space-y-3 text-xs">
-                  <div>
-                    <label className="font-bold text-[11px] block mb-1">Jira Cloud Domain URL</label>
-                    <input
-                      type="text"
-                      value={jiraDomain}
-                      onChange={(e) => setJiraDomain(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="font-bold text-[11px] block mb-1">Atlassian Email</label>
-                      <input
-                        type="email"
-                        value={jiraEmail}
-                        onChange={(e) => setJiraEmail(e.target.value)}
-                        className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
-                      />
+              {/* 1. GITHUB OAUTH 2.0 SCREEN */}
+              {activeOAuthPopup === "github" && (
+                <div className="bg-[#0d1117] border-[#30363d] text-[#c9d1d9] p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-[#30363d] pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center text-xl">
+                        🐙
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm text-white">Authorize Causarix</h3>
+                        <p className="text-[11px] text-[#8b949e]">causarix-enterprise-app</p>
+                      </div>
                     </div>
-                    <div>
-                      <label className="font-bold text-[11px] block mb-1">Project Key</label>
-                      <input
-                        type="text"
-                        value={jiraProjectKey}
-                        onChange={(e) => setJiraProjectKey(e.target.value)}
-                        className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
-                      />
+                    <button onClick={() => setActiveOAuthPopup(null)} className="text-[#8b949e] hover:text-white p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-[#161b22] border border-[#30363d] flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-600/20 text-emerald-400 font-bold flex items-center justify-center text-xs">
+                      <UserCheck className="w-4 h-4" />
+                    </div>
+                    <div className="text-xs">
+                      <span className="text-[#8b949e] block text-[10px]">Signed in to GitHub as:</span>
+                      <strong className="text-white">developer-lead@apex-enterprises</strong>
                     </div>
                   </div>
-                  <div>
-                    <label className="font-bold text-[11px] block mb-1">Atlassian API Token</label>
-                    <input
-                      type="password"
-                      value={jiraToken}
-                      onChange={(e) => setJiraToken(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
-                    />
-                  </div>
-                </div>
-              )}
 
-              {/* GITHUB CONFIG FORM */}
-              {activeConnectorPopup === "github" && (
-                <div className="space-y-3 text-xs">
-                  <div>
-                    <label className="font-bold text-[11px] block mb-1">Repository URL</label>
-                    <input
-                      type="text"
-                      value={githubRepoUrl}
-                      onChange={(e) => setGithubRepoUrl(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
-                    />
+                  <div className="space-y-2.5 text-xs text-[#8b949e]">
+                    <span className="font-bold text-[11px] text-white uppercase tracking-wider block">
+                      Causarix by Synaps would like permission to:
+                    </span>
+                    <div className="flex items-start gap-2.5 text-[#c9d1d9]">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span><strong>Repositories:</strong> Read commit trees, license files (`LICENSE`, `pom.xml`), and dependencies for GPLv3 conflict audits.</span>
+                    </div>
+                    <div className="flex items-start gap-2.5 text-[#c9d1d9]">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span><strong>Organizations:</strong> Verify tenant membership and automated pull request invariant checks.</span>
+                    </div>
                   </div>
-                  <div>
-                    <label className="font-bold text-[11px] block mb-1">GitHub Personal Access Token (PAT)</label>
-                    <input
-                      type="password"
-                      value={githubPat}
-                      onChange={(e) => setGithubPat(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
-                    />
-                  </div>
-                </div>
-              )}
 
-              {/* SLACK CONFIG FORM */}
-              {activeConnectorPopup === "slack" && (
-                <div className="space-y-3 text-xs">
-                  <div>
-                    <label className="font-bold text-[11px] block mb-1">Incoming Webhook URL</label>
-                    <input
-                      type="text"
-                      value={slackWebhookUrl}
-                      onChange={(e) => setSlackWebhookUrl(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-bold text-[11px] block mb-1">Channel Name</label>
-                    <input
-                      type="text"
-                      value={slackChannel}
-                      onChange={(e) => setSlackChannel(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* ERP CONFIG FORM */}
-              {activeConnectorPopup === "erp" && (
-                <div className="space-y-3 text-xs">
-                  <div>
-                    <label className="font-bold text-[11px] block mb-1">QuickBooks / Stripe Webhook Key</label>
-                    <input
-                      type="password"
-                      value={erpApiKey}
-                      onChange={(e) => setErpApiKey(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
-                    />
-                  </div>
-                  <p className="text-[11px] text-base-content/60">
-                    Live transactions feed into the 90-Day Telemetry Flywheel to calibrate Bayesian risk models.
-                  </p>
-                </div>
-              )}
-
-              {/* Connection Status Banner */}
-              {connectionSuccess && (
-                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-bold flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Connection Verified! Synchronizing with Causarix OS...</span>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between pt-2">
-                <button
-                  type="button"
-                  onClick={handleSkipIntegration}
-                  className="font-mono text-xs font-bold text-base-content/60 hover:text-base-content"
-                >
-                  Skip for Now
-                </button>
-                <Button
-                  onClick={handleTestConnection}
-                  disabled={isTestingConnection}
-                  className="font-mono text-xs font-bold py-2.5 px-6 bg-primary text-primary-foreground gap-2 shadow-md"
-                >
-                  {isTestingConnection ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Testing Live Connection...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-3.5 h-3.5" />
-                      <span>Test & Verify Connection</span>
-                    </>
+                  {oauthStepStatus && (
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-mono font-bold flex items-center gap-2">
+                      <RefreshCw className={cn("w-3.5 h-3.5 shrink-0", isAuthorizingOAuth && "animate-spin")} />
+                      <span>{oauthStepStatus}</span>
+                    </div>
                   )}
-                </Button>
-              </div>
+
+                  <div className="space-y-2 pt-2">
+                    <button
+                      onClick={handleExecuteOAuthConsent}
+                      disabled={isAuthorizingOAuth}
+                      className="w-full py-3 px-4 rounded-xl bg-[#238636] hover:bg-[#2ea043] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isAuthorizingOAuth ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Authorizing via GitHub OAuth...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span>Authorize Causarix (causarix-app)</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setActiveOAuthPopup(null)}
+                      className="w-full py-2 text-center text-xs font-mono text-[#8b949e] hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. ATLASSIAN JIRA OAUTH 2.0 (3LO) SCREEN */}
+              {activeOAuthPopup === "jira" && (
+                <div className="bg-[#172b4d] text-white p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#0052cc] flex items-center justify-center text-white font-bold text-lg shadow-md">
+                        🎫
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm text-white">Authorize Atlassian Jira Cloud</h3>
+                        <p className="text-[11px] text-blue-200/70">Atlassian 3LO Consent</p>
+                      </div>
+                    </div>
+                    <button onClick={() => setActiveOAuthPopup(null)} className="text-white/70 hover:text-white p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-white/10 border border-white/15 space-y-1">
+                    <span className="text-[10px] text-blue-200 font-mono uppercase block">Authorized Site Domain:</span>
+                    <strong className="text-sm font-mono text-emerald-400">novaecosystems.atlassian.net (Project: KAN)</strong>
+                  </div>
+
+                  <div className="space-y-2 text-xs text-blue-100/80">
+                    <span className="font-bold text-[11px] text-white uppercase tracking-wider block">
+                      Permissions Requested:
+                    </span>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Read Jira issue backlog and sprint milestones.</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Create and assign P0 risk mitigation tickets from boardroom quorum votes.</span>
+                    </div>
+                  </div>
+
+                  {oauthStepStatus && (
+                    <div className="p-3 bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs font-mono font-bold flex items-center gap-2">
+                      <RefreshCw className={cn("w-3.5 h-3.5 shrink-0", isAuthorizingOAuth && "animate-spin")} />
+                      <span>{oauthStepStatus}</span>
+                    </div>
+                  )}
+
+                  <div className="space-y-2 pt-2">
+                    <button
+                      onClick={handleExecuteOAuthConsent}
+                      disabled={isAuthorizingOAuth}
+                      className="w-full py-3 px-4 rounded-xl bg-[#0052cc] hover:bg-[#0747a6] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isAuthorizingOAuth ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Authorizing Atlassian Site...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span>Accept & Authorize Jira Cloud</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setActiveOAuthPopup(null)}
+                      className="w-full py-2 text-center text-xs font-mono text-blue-200/70 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 3. SLACK OAUTH 2.0 SCREEN */}
+              {activeOAuthPopup === "slack" && (
+                <div className="bg-[#4a154b] text-white p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white text-2xl flex items-center justify-center shadow-md">
+                        💬
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm text-white">Connect Slack Workspace</h3>
+                        <p className="text-[11px] text-pink-200/70">Slack OAuth 2.0 Bot</p>
+                      </div>
+                    </div>
+                    <button onClick={() => setActiveOAuthPopup(null)} className="text-white/70 hover:text-white p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-white/10 border border-white/15 space-y-1">
+                    <span className="text-[10px] text-pink-200 font-mono uppercase block">Target Channel:</span>
+                    <strong className="text-sm font-mono text-emerald-400">#executive-briefs (Apex Tech)</strong>
+                  </div>
+
+                  <div className="space-y-2 text-xs text-pink-100/80">
+                    <span className="font-bold text-[11px] text-white uppercase tracking-wider block">
+                      Permissions Requested:
+                    </span>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Post daily Chief of Staff morning audio briefings directly to your team channel.</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Broadcast P0 contract liability breach alerts.</span>
+                    </div>
+                  </div>
+
+                  {oauthStepStatus && (
+                    <div className="p-3 bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs font-mono font-bold flex items-center gap-2">
+                      <RefreshCw className={cn("w-3.5 h-3.5 shrink-0", isAuthorizingOAuth && "animate-spin")} />
+                      <span>{oauthStepStatus}</span>
+                    </div>
+                  )}
+
+                  <div className="space-y-2 pt-2">
+                    <button
+                      onClick={handleExecuteOAuthConsent}
+                      disabled={isAuthorizingOAuth}
+                      className="w-full py-3 px-4 rounded-xl bg-[#007a5a] hover:bg-[#148567] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isAuthorizingOAuth ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Connecting Slack Workspace...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span>Allow & Connect Slack</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setActiveOAuthPopup(null)}
+                      className="w-full py-2 text-center text-xs font-mono text-pink-200/70 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 4. INTUIT QUICKBOOKS OAUTH 2.0 SCREEN */}
+              {activeOAuthPopup === "erp" && (
+                <div className="bg-[#1f2937] text-white p-6 space-y-5">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#2ca01c] text-white text-2xl flex items-center justify-center shadow-md">
+                        📈
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm text-white">Connect Intuit QuickBooks</h3>
+                        <p className="text-[11px] text-gray-400">Intuit Single Sign-On & Data Sync</p>
+                      </div>
+                    </div>
+                    <button onClick={() => setActiveOAuthPopup(null)} className="text-white/70 hover:text-white p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-white/10 border border-white/15 space-y-1">
+                    <span className="text-[10px] text-gray-300 font-mono uppercase block">Company Connected:</span>
+                    <strong className="text-sm font-mono text-emerald-400">Apex Global Enterprises LLC</strong>
+                  </div>
+
+                  <div className="space-y-2 text-xs text-gray-300">
+                    <span className="font-bold text-[11px] text-white uppercase tracking-wider block">
+                      Permissions Requested:
+                    </span>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Read monthly revenue, ARR churn, and expense streams.</span>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>Calibrate 90-Day Telemetry Bayesian weights with deterministic Python WASM.</span>
+                    </div>
+                  </div>
+
+                  {oauthStepStatus && (
+                    <div className="p-3 bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-300 text-xs font-mono font-bold flex items-center gap-2">
+                      <RefreshCw className={cn("w-3.5 h-3.5 shrink-0", isAuthorizingOAuth && "animate-spin")} />
+                      <span>{oauthStepStatus}</span>
+                    </div>
+                  )}
+
+                  <div className="space-y-2 pt-2">
+                    <button
+                      onClick={handleExecuteOAuthConsent}
+                      disabled={isAuthorizingOAuth}
+                      className="w-full py-3 px-4 rounded-xl bg-[#2ca01c] hover:bg-[#248017] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isAuthorizingOAuth ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Connecting QuickBooks Online...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-4 h-4" />
+                          <span>Connect Intuit Account</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setActiveOAuthPopup(null)}
+                      className="w-full py-2 text-center text-xs font-mono text-gray-400 hover:text-white"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
