@@ -29,6 +29,7 @@ export function ParametricCounterfactualStudio() {
   const [activeScenario, setActiveScenario] = useState<'custom' | 'mna200m' | 'tariffShock' | 'cloudFailure'>('mna200m');
   const [isSimulating, setIsSimulating] = useState(false);
   const [actionDispatched, setActionDispatched] = useState(false);
+  const [jiraIssueKey, setJiraIssueKey] = useState<string | null>(null);
 
   // Deterministic Financial Model Computation
   const financialModel = useMemo(() => {
@@ -87,12 +88,27 @@ export function ParametricCounterfactualStudio() {
     }
   };
 
-  const handleDispatchAutonomousAction = () => {
+  const handleDispatchAutonomousAction = async () => {
     setIsSimulating(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/integrations/jira', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          summary: `[Causarix M&A Dispatch] $200M Cloud Acquisition - Clean Room Rewrite Mitigation (${financialModel.totalEbitdaCompression}M EBITDA Impact)`,
+          description: `Dispatched from Causarix Autonomous Boardroom Quorum. General Counsel flagged GPLv3 license conflict requiring a clean-room rewrite. Revised Runway: ${financialModel.revisedRunwayMonths} months.`
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.issueKey) {
+        setJiraIssueKey(data.issueKey);
+      }
+    } catch (e) {
+      console.warn("Jira dispatch error:", e);
+    } finally {
       setIsSimulating(false);
       setActionDispatched(true);
-    }, 900);
+    }
   };
 
   return (
@@ -349,10 +365,12 @@ export function ParametricCounterfactualStudio() {
                 className="w-full sm:w-auto font-mono text-xs font-bold gap-2 py-2.5 px-5 bg-primary text-primary-foreground shadow-md shrink-0"
               >
                 {actionDispatched ? (
-                  <>
+                  <div className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-400" />
-                    <span>Actions Dispatched to Jira & ERP!</span>
-                  </>
+                    <span>
+                      {jiraIssueKey ? `Dispatched to Jira (${jiraIssueKey})!` : 'Actions Dispatched to Jira & ERP!'}
+                    </span>
+                  </div>
                 ) : isSimulating ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
@@ -366,6 +384,19 @@ export function ParametricCounterfactualStudio() {
                 )}
               </Button>
             </div>
+            {jiraIssueKey && (
+              <div className="text-[11px] font-mono text-emerald-500 font-bold flex items-center justify-end gap-1.5 pt-1">
+                <span>✓ Live Issue Created:</span>
+                <a
+                  href={`https://novaecosystems-1787145882335.atlassian.net/browse/${jiraIssueKey}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-emerald-400"
+                >
+                  {jiraIssueKey} on your Jira Board ↗
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>
