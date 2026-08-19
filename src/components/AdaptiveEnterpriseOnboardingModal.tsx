@@ -113,6 +113,8 @@ export function AdaptiveEnterpriseOnboardingModal() {
   const [isAuthorizingOAuth, setIsAuthorizingOAuth] = useState<boolean>(false);
   const [oauthStepStatus, setOauthStepStatus] = useState<string>("");
 
+  const GITHUB_CLIENT_ID = "Ov23li5MJdkSTkxXfr8P";
+
   useEffect(() => {
     const isCompleted = localStorage.getItem("causarix_onboarding_completed");
     if (!isCompleted) {
@@ -122,6 +124,28 @@ export function AdaptiveEnterpriseOnboardingModal() {
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // Listen for real OAuth popup callback window message
+  useEffect(() => {
+    const handleOAuthCallbackMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
+        const provider = event.data.provider || selectedIntegration;
+        setConnectedIntegrations(prev => ({
+          ...prev,
+          [provider]: true
+        }));
+        try {
+          localStorage.setItem(`causarix_${provider}_connected`, "true");
+        } catch (e) {}
+        setIsAuthorizingOAuth(false);
+        setActiveOAuthPopup(null);
+        setCurrentStep("intro");
+      }
+    };
+
+    window.addEventListener('message', handleOAuthCallbackMessage);
+    return () => window.removeEventListener('message', handleOAuthCallbackMessage);
+  }, [selectedIntegration]);
 
   const handleSelectGoal = (goal: StrategicGoal) => {
     setSelectedGoal(goal);
@@ -147,11 +171,30 @@ export function AdaptiveEnterpriseOnboardingModal() {
     setCurrentStep("integration");
   };
 
+  const handleLaunchRealOAuthWindow = (provider: "github" | "jira" | "slack" | "erp") => {
+    if (typeof window === "undefined") return;
+    
+    if (provider === "github") {
+      const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback/github`);
+      const url = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo,read:org,user:email&redirect_uri=${redirectUri}`;
+      const width = 600;
+      const height = 720;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      window.open(url, "github-oauth", `width=${width},height=${height},left=${left},top=${top}`);
+    }
+  };
+
   const handleOpenOAuthPopup = (integId: "github" | "jira" | "slack" | "erp") => {
     setSelectedIntegration(integId);
     setOauthStepStatus("");
     setIsAuthorizingOAuth(false);
     setActiveOAuthPopup(integId);
+
+    // Automatically trigger real browser popup for GitHub
+    if (integId === "github") {
+      handleLaunchRealOAuthWindow("github");
+    }
   };
 
   const handleExecuteOAuthConsent = async () => {
@@ -774,19 +817,26 @@ export function AdaptiveEnterpriseOnboardingModal() {
 
                   <div className="space-y-2 pt-2">
                     <button
+                      onClick={() => handleLaunchRealOAuthWindow("github")}
+                      className="w-full py-3 px-4 rounded-xl bg-[#238636] hover:bg-[#2ea043] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>Authorize on GitHub.com Popup ↗</span>
+                    </button>
+                    <button
                       onClick={handleExecuteOAuthConsent}
                       disabled={isAuthorizingOAuth}
-                      className="w-full py-3 px-4 rounded-xl bg-[#238636] hover:bg-[#2ea043] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-2.5 px-4 rounded-xl bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] font-bold text-xs border border-[#30363d] transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       {isAuthorizingOAuth ? (
                         <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Authorizing via GitHub OAuth...</span>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Authorizing Grant...</span>
                         </>
                       ) : (
                         <>
-                          <Check className="w-4 h-4" />
-                          <span>Authorize Causarix (causarix-app)</span>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Fast 1-Click Sandbox Authorization</span>
                         </>
                       )}
                     </button>
