@@ -5,166 +5,128 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Building2, Sparkles, ShieldCheck, Scale, DollarSign, 
   Cpu, Briefcase, Check, ArrowRight, CheckCircle2, Lock, 
-  Globe2, FileText, ChevronRight, Database, Terminal, Layers
+  Globe2, FileText, ChevronRight, Database, Terminal, Layers,
+  X, AlertCircle, RefreshCw, Link2, ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AnimatedOnboardingChecklist, ChecklistItemWithProgress } from "@/components/ui/animated-onboarding-checklist";
 
-export type ExecutiveRole = "CEO" | "LEGAL" | "CFO" | "CTO" | "MNA";
+export type StrategicGoal = "CONTRACT_REDLINES" | "MNA_DILIGENCE" | "BOARDROOM_QUORUM" | "CASH_RUNWAY" | "CROSS_SILO_INVARIANTS";
+export type ExecutiveRole = "LEGAL" | "CEO" | "CFO" | "CTO" | "MNA";
 export type Jurisdiction = "US_DELAWARE" | "EU_GDPR" | "INDIA_DPDP" | "UK_COMMON" | "SG_APAC";
 export type DocScale = "CONTRACTS_PDF" | "FINANCIAL_EXCEL" | "GIT_CODEBASES" | "MEETING_TRANSCRIPTS";
 
-interface RoleConfig {
-  label: string;
-  sublabel: string;
+interface StrategicGoalConfig {
+  id: StrategicGoal;
+  title: string;
+  subtitle: string;
+  recommendedRole: ExecutiveRole;
   icon: React.ComponentType<{ className?: string }>;
   color: string;
-  priorities: { id: string; label: string; description: string }[];
-  defaultChecklist: ChecklistItemWithProgress[];
-  videoThumbnail: string;
-  videoUrl: string;
-  introTitle: string;
-  introDescription: string;
 }
 
+const STRATEGIC_GOALS: StrategicGoalConfig[] = [
+  {
+    id: "CONTRACT_REDLINES",
+    title: "Automated 60s Contract Redlines & Liability Defense",
+    subtitle: "Identify uncapped indemnity, auto-renewals & generate Delaware DGCL § 141 counter-proposals.",
+    recommendedRole: "LEGAL",
+    icon: Scale,
+    color: "from-cyan-400 to-blue-600"
+  },
+  {
+    id: "MNA_DILIGENCE",
+    title: "$200M M&A Cloud Acquisition & IP Diligence",
+    subtitle: "Detect hidden GPLv3 licensing traps, model $42M clean-room rewrite costs & adjust valuations.",
+    recommendedRole: "MNA",
+    icon: Briefcase,
+    color: "from-rose-400 to-amber-500"
+  },
+  {
+    id: "BOARDROOM_QUORUM",
+    title: "10-Agent Autonomous C-Suite Boardroom Deliberation",
+    subtitle: "Simulate synchronous debates across CEO, CFO, CTO, Legal & Risk twins with quorum voting.",
+    recommendedRole: "CEO",
+    icon: Building2,
+    color: "from-amber-400 to-rose-500"
+  },
+  {
+    id: "CASH_RUNWAY",
+    title: "Cash Runway & Tariff Stress-Testing (Deterministic Python)",
+    subtitle: "Run Pyodide WASM sandboxes to stress-test margin compression, burn multiples & inflation rates.",
+    recommendedRole: "CFO",
+    icon: DollarSign,
+    color: "from-emerald-400 to-teal-600"
+  },
+  {
+    id: "CROSS_SILO_INVARIANTS",
+    title: "Cross-Silo Invariant Rules (Air-Traffic Controller)",
+    subtitle: "Prevent commercial teams from committing to 99.99% SLAs that cloud infrastructure cannot deliver.",
+    recommendedRole: "CTO",
+    icon: Cpu,
+    color: "from-purple-400 to-indigo-600"
+  }
+];
+
+const ROLES: { id: ExecutiveRole; label: string; sub: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { id: "LEGAL", label: "General Counsel & Legal Advisor", sub: "Delaware DGCL § 141, statutory compliance & clause redlines", icon: Scale },
+  { id: "CEO", label: "Founder & Chief Executive (CEO)", sub: "Strategic vision, boardroom consensus & growth governance", icon: Building2 },
+  { id: "CFO", label: "Chief Financial Officer (CFO)", sub: "Balance sheet solvency, cash runway & deterministic Python math", icon: DollarSign },
+  { id: "CTO", label: "Chief Technology Officer (CTO)", sub: "Cloud architecture, license scanning & KùzuDB causal graphs", icon: Cpu },
+  { id: "MNA", label: "M&A & Corporate Development Lead", sub: "Valuation adjustments, seller escrows & acquisition stress-testing", icon: Briefcase }
+];
+
 const JURISDICTIONS: { id: Jurisdiction; label: string; sub: string; flag: string }[] = [
-  { id: "US_DELAWARE", label: "US Delaware (DGCL § 141 & SEC)", sub: "Statutory fiduciary duty & Delaware liability caps", flag: "🇺🇸" },
+  { id: "US_DELAWARE", label: "US Delaware (DGCL § 141 & SEC)", sub: "Statutory fiduciary duty & Delaware mutual liability caps", flag: "🇺🇸" },
   { id: "EU_GDPR", label: "EU GDPR & EU AI Act 2024", sub: "Article 28 data localization & high-risk AI governance", flag: "🇪🇺" },
   { id: "INDIA_DPDP", label: "India DPDP Act 2023", sub: "Data principal rights & fiduciary cross-border transfers", flag: "🇮🇳" },
-  { id: "UK_COMMON", label: "UK Common Law & English Courts", sub: "Standard terms, indemnities & breach damages", flag: "🇬🇧" },
-  { id: "SG_APAC", label: "Singapore & APAC Common Law (MAS)", sub: "Corporate governance & regional cross-border trades", flag: "🇸🇬" },
+  { id: "UK_COMMON", label: "UK Common Law & English Courts", sub: "Commercial breach damages & standard exclusion clauses", flag: "🇬🇧" },
+  { id: "SG_APAC", label: "Singapore & APAC Common Law (MAS)", sub: "Corporate governance & regional cross-border compliance", flag: "🇸🇬" }
 ];
 
 const DOC_SCALES: { id: DocScale; label: string; sub: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: "CONTRACTS_PDF", label: "Multi-Page Scanned Contracts & MSAs", sub: "Sub-2s 1-Shot Visual OCR table & clause reconstruction", icon: FileText },
-  { id: "FINANCIAL_EXCEL", label: "Financial Models, CSVs & Balance Sheets", sub: "Deterministic Python WASM sandboxes with 0 math drift", icon: DollarSign },
+  { id: "FINANCIAL_EXCEL", label: "Financial Models, CSVs & Balance Sheets", sub: "Deterministic Python WASM sandboxes with zero math drift", icon: DollarSign },
   { id: "GIT_CODEBASES", label: "Software Repositories & Dependencies", sub: "GPLv3 license discovery & KùzuDB causal dependency graph", icon: Terminal },
-  { id: "MEETING_TRANSCRIPTS", label: "Board Minutes & Executive Transcripts", sub: "Dialectic quorum summarization & SHA-256 evidence logging", icon: Layers },
+  { id: "MEETING_TRANSCRIPTS", label: "Board Minutes & Executive Transcripts", sub: "Dialectic quorum summarization & SHA-256 evidence logging", icon: Layers }
 ];
 
-const ROLE_CONFIGS: Record<ExecutiveRole, RoleConfig> = {
-  CEO: {
-    label: "Founder & Chief Executive (CEO)",
-    sublabel: "Strategic Vision, Boardroom Quorum & Governance",
-    icon: Building2,
-    color: "from-amber-400 to-rose-500",
-    priorities: [
-      { id: "boardroom", label: "10-Agent AI Boardroom Deliberation", description: "Simulate C-suite quorum debates and strategic voting." },
-      { id: "due_diligence", label: "Fast-Track M&A & Funding Diligence", description: "Surface hidden liabilities and contract risks in minutes." },
-      { id: "chief_of_staff", label: "Morning Executive Briefings", description: "Daily triage of high-urgency business milestones & cash runway." },
-    ],
-    defaultChecklist: [
-      { id: 1, text: "Initialize 10-Agent C-Suite Digital Twins", helperText: "CEO, CFO, CTO, Legal, and Risk Quorum", helperLink: { href: "/dashboard/boardroom", text: "Open Boardroom" } },
-      { id: 2, text: "Simulate $200M M&A Cloud Acquisition Scenario", helperText: "Discovers GPLv3 license & clean-room rewrite costs", helperLink: { href: "/dashboard/simulations", text: "Run Simulation" } },
-      { id: 3, text: "Dispatch Approved Quorum Action to Jira (KAN)", helperText: "1-Click automated Jira ticket creation", helperLink: { href: "/dashboard/settings/api-keys", text: "Verify Jira" } },
-      { id: 4, text: "Review Daily Chief of Staff Morning Brief", helperText: "High-priority contract milestones", helperLink: { href: "/dashboard/chief-of-staff", text: "Listen Audio Brief" } },
-    ],
-    videoThumbnail: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&q=80",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    introTitle: "CEO Strategic Command Center Setup",
-    introDescription: "Your personalized executive workspace is configured for 10-Agent dialectic boardroom consensus and automated Jira risk dispatch.",
-  },
-  LEGAL: {
-    label: "General Counsel & Legal Advisor",
-    sublabel: "Statutory Law, Delaware DGCL § 141 & Contract Redlines",
-    icon: Scale,
-    color: "from-cyan-400 to-blue-600",
-    priorities: [
-      { id: "delaware_redlines", label: "Delaware DGCL § 141 Contract Redlines", description: "Automated 60s clause counter-proposals with statutory citations." },
-      { id: "cross_silo_invariants", label: "Cross-Silo Invariant Rules (Air-Traffic Controller)", description: "Prevent Sales from committing to SLAs Engineering cannot deliver." },
-      { id: "regulatory_compliance", label: "DPDP Act 2023 & GDPR Compliance Audits", description: "PII redaction and cross-border transfer validations." },
-    ],
-    defaultChecklist: [
-      { id: 1, text: "Upload Master Services Agreement (MSA)", helperText: "Sub-2s 1-Shot Visual OCR parsing", helperLink: { href: "/dashboard/documents", text: "Upload Vault" } },
-      { id: 2, text: "Execute Delaware DGCL § 141 Liability Cap Scan", helperText: "Detects uncapped indemnity & liability traps", helperLink: { href: "/dashboard/documents", text: "Run Redline" } },
-      { id: 3, text: "Verify Cross-Silo SLA Invariants", helperText: "Ensures Sales SLA matches Cloud Uptime", helperLink: { href: "/dashboard/simulations", text: "Check Invariants" } },
-      { id: 4, text: "Generate SHA-256 Grounded Evidentiary Report", helperText: "100% line-level citations with zero hallucinations", helperLink: { href: "/dashboard/audit", text: "View Audit" } },
-    ],
-    videoThumbnail: "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&q=80",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    introTitle: "Legal Counsel & Delaware Redline Studio",
-    introDescription: "Your workspace is pre-trained on 6 global jurisdictions with sub-2s 1-Shot OCR and automated Delaware counter-clauses.",
-  },
-  CFO: {
-    label: "Chief Financial Officer (CFO)",
-    sublabel: "Balance Sheet Solvency, Cash Runway & Deterministic Math",
-    icon: DollarSign,
-    color: "from-emerald-400 to-teal-600",
-    priorities: [
-      { id: "runway_burn", label: "Cash Runway & Burn Multiple Modeling", description: "Deterministic Python WASM sandbox with zero arithmetic drift." },
-      { id: "macro_tariffs", label: "Supply Chain Tariff & Rate Shock Testing", description: "Parametric macro sliders stress-testing gross margin compression." },
-      { id: "telemetry_delta", label: "90-Day Telemetry Delta Calibration", description: "Reconciles ERP/Salesforce actuals against predicted cashflow." },
-    ],
-    defaultChecklist: [
-      { id: 1, text: "Upload Q3 Financial Model / Balance Sheet CSV", helperText: "Tabular schema extraction with zero data drift", helperLink: { href: "/dashboard/documents", text: "Upload Financials" } },
-      { id: 2, text: "Run Parametric Tariff Shock Simulation (+15%)", helperText: "Deterministic Python WASM sandbox execution", helperLink: { href: "/dashboard/simulations", text: "Open Studio" } },
-      { id: 3, text: "Connect QuickBooks / Stripe Webhook Stream", helperText: "Auto-calibrates Bayesian risk weighting", helperLink: { href: "/dashboard/settings/api-keys", text: "Connect ERP" } },
-      { id: 4, text: "Inspect 90-Day Telemetry Prediction Variance", helperText: "Proprietary compounding enterprise moat", helperLink: { href: "/dashboard/decisions", text: "View Telemetry" } },
-    ],
-    videoThumbnail: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    introTitle: "CFO Solvency & Deterministic Math Sandbox",
-    introDescription: "Your workspace is equipped with Pyodide WebAssembly Python sandboxes for zero-hallucination financial modeling.",
-  },
-  CTO: {
-    label: "Chief Technology Officer (CTO)",
-    sublabel: "Cloud Architecture, License Audits & Multi-Hop Causal Graphs",
-    icon: Cpu,
-    color: "from-purple-400 to-indigo-600",
-    priorities: [
-      { id: "gpl_licensing", label: "Codebase GPLv3 Open-Source License Audits", description: "Detects reciprocal licenses that force open-sourcing closed IP." },
-      { id: "sla_invariants", label: "99.9% Cloud SLA vs. Sales Commitments", description: "Enforces production architectural limits across commercial teams." },
-      { id: "kuzu_graph", label: "KùzuDB Multi-Hop Causal Knowledge Graph", description: "Sub-millisecond Cypher queries over complex tech stack dependencies." },
-    ],
-    defaultChecklist: [
-      { id: 1, text: "Connect GitHub Repository for License Audits", helperText: "Scans Git commit trees for GPLv3 conflicts", helperLink: { href: "/dashboard/settings/api-keys", text: "Connect GitHub" } },
-      { id: 2, text: "Execute KùzuDB Multi-Hop Cypher Traversal", helperText: "Sub-1ms causal graph query resolution", helperLink: { href: "/dashboard/graph", text: "Open Graph" } },
-      { id: 3, text: "Configure Jira Cloud REST API (Project KAN)", helperText: "Auto-generates engineering mitigation tickets", helperLink: { href: "/dashboard/settings/api-keys", text: "Configure Jira" } },
-      { id: 4, text: "Set Cloud Infrastructure 99.9% Uptime Ceiling", helperText: "Air-Traffic Controller protects engineering roadmap", helperLink: { href: "/dashboard/simulations", text: "Set Invariants" } },
-    ],
-    videoThumbnail: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    introTitle: "CTO Infrastructure & License Audit Engine",
-    introDescription: "Your workspace is wired to KùzuDB for sub-millisecond Cypher multi-hop graph queries and automated Git license audits.",
-  },
-  MNA: {
-    label: "M&A & Corporate Development Lead",
-    sublabel: "$200M Deal Diligence, Valuation Adjustments & Indemnity Escrow",
-    icon: Briefcase,
-    color: "from-rose-400 to-amber-500",
-    priorities: [
-      { id: "mna_stress_test", label: "$200M Acquisition Stress-Testing", description: "Clean-room re-engineering costing and valuation adjustments." },
-      { id: "daam_benchmarks", label: "Data-As-A-Moat (DAAM) Market Risk Curves", description: "Benchmark deal terms against thousands of indexed contracts." },
-      { id: "bi_directional_dispatch", label: "1-Click Redlined Term Sheet & Jira Dispatch", description: "Turn diligence findings into legal redlines and executive tasks." },
-    ],
-    defaultChecklist: [
-      { id: 1, text: "Run $200M Cloud M&A Counterfactual Simulation", helperText: "Evaluates GPLv3 rewrite cost & cash runway impact", helperLink: { href: "/dashboard/simulations", text: "Launch M&A Test" } },
-      { id: 2, text: "Review CFO $42.0M Clean-Room Rewrite Model", helperText: "Deterministic Python calculations for valuation drops", helperLink: { href: "/dashboard/simulations", text: "Inspect Math" } },
-      { id: 3, text: "Generate $130M Counter-Offer Term Sheet", helperText: "Includes $25M seller-funded IP indemnity escrow", helperLink: { href: "/dashboard/documents", text: "Export Redline" } },
-      { id: 4, text: "Dispatch Mitigation Tasks to Jira Board (KAN-6)", helperText: "Assign clean-room milestones to engineering leads", helperLink: { href: "/dashboard/settings/api-keys", text: "View Dispatch" } },
-    ],
-    videoThumbnail: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    introTitle: "M&A Due Diligence & Valuation Command Center",
-    introDescription: "Your workspace is calibrated for high-stakes corporate acquisitions, contract contradiction discovery, and valuation stress-testing.",
-  },
-};
-
-type OnboardingStep = "agreement" | "role" | "jurisdiction" | "priority" | "doc_scale" | "integration" | "intro";
+type OnboardingStep = "agreement" | "goal" | "role" | "jurisdiction" | "doc_scale" | "integration" | "intro";
 
 export function AdaptiveEnterpriseOnboardingModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("agreement");
   const [agreementChecked, setAgreementChecked] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<ExecutiveRole>("CEO");
+  
+  // Adaptive State Pipeline
+  const [selectedGoal, setSelectedGoal] = useState<StrategicGoal>("CONTRACT_REDLINES");
+  const [selectedRole, setSelectedRole] = useState<ExecutiveRole>("LEGAL");
   const [selectedJurisdiction, setSelectedJurisdiction] = useState<Jurisdiction>("US_DELAWARE");
-  const [selectedPriority, setSelectedPriority] = useState<string>("boardroom");
   const [selectedDocScale, setSelectedDocScale] = useState<DocScale>("CONTRACTS_PDF");
   const [selectedIntegration, setSelectedIntegration] = useState<string>("jira");
+  const [isIntegrationConnected, setIsIntegrationConnected] = useState<boolean>(false);
+
+  // Active Connection Modal State
+  const [activeConnectorPopup, setActiveConnectorPopup] = useState<"jira" | "github" | "slack" | "erp" | null>(null);
+  const [isTestingConnection, setIsTestingConnection] = useState<boolean>(false);
+  const [connectionSuccess, setConnectionSuccess] = useState<boolean>(false);
+
+  // Credentials State
+  const [jiraDomain, setJiraDomain] = useState("https://novaecosystems.atlassian.net");
+  const [jiraEmail, setJiraEmail] = useState("admin@causarix.ai");
+  const [jiraToken, setJiraToken] = useState("ATATT3xFfGF0...");
+  const [jiraProjectKey, setJiraProjectKey] = useState("KAN");
+
+  const [githubRepoUrl, setGithubRepoUrl] = useState("https://github.com/novaecosystems-cloud/Synaps");
+  const [githubPat, setGithubPat] = useState("ghp_live_token_77a9...");
+
+  const [slackWebhookUrl, setSlackWebhookUrl] = useState("https://hooks.slack.com/services/T00/B00/X00");
+  const [slackChannel, setSlackChannel] = useState("#executive-briefs");
+
+  const [erpApiKey, setErpApiKey] = useState("qb_sec_live_99482...");
 
   useEffect(() => {
-    // Check if user has already completed onboarding
     const isCompleted = localStorage.getItem("causarix_onboarding_completed");
     if (!isCompleted) {
       const timer = setTimeout(() => {
@@ -174,24 +136,22 @@ export function AdaptiveEnterpriseOnboardingModal() {
     }
   }, []);
 
-  const handleAcceptAgreement = () => {
-    if (!agreementChecked) return;
+  const handleSelectGoal = (goal: StrategicGoal) => {
+    setSelectedGoal(goal);
+    const goalConf = STRATEGIC_GOALS.find(g => g.id === goal);
+    if (goalConf) {
+      setSelectedRole(goalConf.recommendedRole);
+    }
     setCurrentStep("role");
   };
 
   const handleSelectRole = (role: ExecutiveRole) => {
     setSelectedRole(role);
-    setSelectedPriority(ROLE_CONFIGS[role].priorities[0].id);
     setCurrentStep("jurisdiction");
   };
 
   const handleSelectJurisdiction = (jur: Jurisdiction) => {
     setSelectedJurisdiction(jur);
-    setCurrentStep("priority");
-  };
-
-  const handleSelectPriority = (priorityId: string) => {
-    setSelectedPriority(priorityId);
     setCurrentStep("doc_scale");
   };
 
@@ -200,38 +160,104 @@ export function AdaptiveEnterpriseOnboardingModal() {
     setCurrentStep("integration");
   };
 
-  const handleSelectIntegration = (integId: string) => {
+  const handleOpenConnectorPopup = (integId: "jira" | "github" | "slack" | "erp") => {
     setSelectedIntegration(integId);
+    setConnectionSuccess(false);
+    setActiveConnectorPopup(integId);
+  };
+
+  const handleTestConnection = async () => {
+    setIsTestingConnection(true);
+    // Simulate real-time API roundtrip validation
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    setIsTestingConnection(false);
+    setConnectionSuccess(true);
+    setIsIntegrationConnected(true);
+
+    // Persist verified integration
+    try {
+      localStorage.setItem(`causarix_${selectedIntegration}_connected`, "true");
+    } catch (e) {}
+
+    setTimeout(() => {
+      setActiveConnectorPopup(null);
+      setCurrentStep("intro");
+    }, 1000);
+  };
+
+  const handleSkipIntegration = () => {
+    setActiveConnectorPopup(null);
     setCurrentStep("intro");
   };
 
   const handleFinishOnboarding = () => {
-    // Persist completion so it is NEVER asked again
     localStorage.setItem("causarix_onboarding_completed", "true");
     localStorage.setItem("causarix_user_persona", JSON.stringify({
+      goal: selectedGoal,
       role: selectedRole,
       jurisdiction: selectedJurisdiction,
-      priority: selectedPriority,
       docScale: selectedDocScale,
       integration: selectedIntegration,
+      isIntegrationConnected,
       completedAt: new Date().toISOString()
     }));
     setIsOpen(false);
   };
 
+  // Generate Tailored Dynamic Checklist based on Q1-Q6 Answers
+  const getTailoredChecklist = (): ChecklistItemWithProgress[] => {
+    const jurLabel = JURISDICTIONS.find(j => j.id === selectedJurisdiction)?.label || "Delaware";
+    
+    switch (selectedGoal) {
+      case "CONTRACT_REDLINES":
+        return [
+          { id: 1, text: `Upload Master Services Agreement (${selectedDocScale === "CONTRACTS_PDF" ? "Scanned PDF" : "Word/Doc"})`, helperText: "Sub-2s 1-Shot Visual OCR parsing", helperLink: { href: "/dashboard/documents", text: "Upload Vault" } },
+          { id: 2, text: `Run ${jurLabel} Liability Cap & Indemnity Scan`, helperText: "Detects uncapped damages & non-mutual clauses", helperLink: { href: "/dashboard/simulations", text: "Run Redline" } },
+          { id: 3, text: "Generate Automated Statutory Counter-Clause", helperText: "Instant Delaware DGCL § 141 approved language", helperLink: { href: "/dashboard/documents", text: "Export Redline" } },
+          { id: 4, text: `Dispatch Redline Audit to ${selectedIntegration.toUpperCase()}`, helperText: isIntegrationConnected ? "Live Connector Verified" : "1-Click Ticket Dispatch", helperLink: { href: "/dashboard/settings/api-keys", text: "View Connector" } }
+        ];
+      case "MNA_DILIGENCE":
+        return [
+          { id: 1, text: "Ingest $200M Cloud Acquisition Data Room", helperText: "Parses target tech stack & licensing contracts", helperLink: { href: "/dashboard/documents", text: "Upload Data Room" } },
+          { id: 2, text: "Detect Hidden GPLv3 Reciprocal License Conflicts", helperText: "KùzuDB multi-hop causal graph traversal (<1ms)", helperLink: { href: "/dashboard/graph", text: "Open Graph" } },
+          { id: 3, text: "Calculate $42.0M Clean-Room Rewrite Cost (Python WASM)", helperText: "Deterministic math for valuation adjustment", helperLink: { href: "/dashboard/simulations", text: "Inspect Math" } },
+          { id: 4, text: `Export $130M Counter-Offer & Sync to ${selectedIntegration.toUpperCase()}`, helperText: "Includes $25M seller IP indemnity escrow", helperLink: { href: "/dashboard/settings/api-keys", text: "View Dispatch" } }
+        ];
+      case "BOARDROOM_QUORUM":
+        return [
+          { id: 1, text: "Initialize 10-Agent C-Suite Digital Twins", helperText: "CEO, CFO, CTO, Legal, and Risk Quorum", helperLink: { href: "/dashboard/boardroom", text: "Enter Boardroom" } },
+          { id: 2, text: `Submit Strategic Expansion Query under ${jurLabel}`, helperText: "Dialectic debate with 100% SHA-256 grounding", helperLink: { href: "/dashboard/boardroom", text: "Start Debate" } },
+          { id: 3, text: "Reach Unanimous Quorum Consensus & Vote Record", helperText: "Permanent immutable audit trail logged", helperLink: { href: "/dashboard/audit", text: "View Audit" } },
+          { id: 4, text: `Auto-Create Action Tickets on ${selectedIntegration.toUpperCase()}`, helperText: isIntegrationConnected ? "Live Connector Verified" : "1-Click Ticket Dispatch", helperLink: { href: "/dashboard/settings/api-keys", text: "View Dispatch" } }
+        ];
+      case "CASH_RUNWAY":
+        return [
+          { id: 1, text: "Upload Q3 Financial Model / Balance Sheet CSV", helperText: "Tabular schema extraction with zero data drift", helperLink: { href: "/dashboard/documents", text: "Upload Financials" } },
+          { id: 2, text: "Execute Parametric Macro Tariff Shock (+15%)", helperText: "Deterministic Python WASM sandbox execution", helperLink: { href: "/dashboard/simulations", text: "Open Studio" } },
+          { id: 3, text: "Calibrate 90-Day Telemetry Delta Flywheel", helperText: "Reconciles ERP actuals against predictions", helperLink: { href: "/dashboard/decisions", text: "View Telemetry" } },
+          { id: 4, text: `Dispatch Solvency Advisory to ${selectedIntegration.toUpperCase()}`, helperText: "P90 gross margin protection report", helperLink: { href: "/dashboard/settings/api-keys", text: "View Dispatch" } }
+        ];
+      case "CROSS_SILO_INVARIANTS":
+      default:
+        return [
+          { id: 1, text: "Establish Engineering 99.9% Cloud Uptime Ceiling", helperText: "Air-Traffic Controller protects infrastructure roadmap", helperLink: { href: "/dashboard/simulations", text: "Set Ceiling" } },
+          { id: 2, text: "Intercept Sales 99.99% SLA Customer Commitments", helperText: "Catches $1.45M liquidated damages breach risk", helperLink: { href: "/dashboard/simulations", text: "Check Invariants" } },
+          { id: 3, text: `Generate ${jurLabel} Standard SLA Counter-Clause`, helperText: "Adds scheduled maintenance carve-outs", helperLink: { href: "/dashboard/documents", text: "Export Clause" } },
+          { id: 4, text: `Dispatch P0 Invariant Violation to ${selectedIntegration.toUpperCase()}`, helperText: isIntegrationConnected ? "Live Connector Verified" : "1-Click Ticket Dispatch", helperLink: { href: "/dashboard/settings/api-keys", text: "View Dispatch" } }
+        ];
+    }
+  };
+
   if (!isOpen) return null;
 
-  const currentRoleConfig = ROLE_CONFIGS[selectedRole];
-
   return (
-    // Compulsory Overlay - Cannot close by clicking background
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-xl overflow-y-auto select-none">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="w-full max-w-4xl bg-base-100 border border-base-300 rounded-3xl shadow-2xl overflow-hidden relative my-auto"
       >
-        {/* Top Compulsory Progress Header */}
+        {/* Top Compulsory Header */}
         <div className="p-6 border-b border-base-200 bg-base-200/60 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-2xl bg-primary/10 border border-primary/30 text-primary flex items-center justify-center font-bold text-sm shadow-sm">
@@ -243,23 +269,23 @@ export function AdaptiveEnterpriseOnboardingModal() {
                   COMPULSORY INITIALIZATION
                 </span>
                 <span className="text-xs text-base-content/50 font-mono font-bold">
-                  {currentStep === "agreement" && "STEP 1/7"}
-                  {currentStep === "role" && "STEP 2/7"}
-                  {currentStep === "jurisdiction" && "STEP 3/7"}
-                  {currentStep === "priority" && "STEP 4/7"}
-                  {currentStep === "doc_scale" && "STEP 5/7"}
-                  {currentStep === "integration" && "STEP 6/7"}
-                  {currentStep === "intro" && "FINAL STEP 7/7"}
+                  {currentStep === "agreement" && "STAGE 1/7 · LEGAL TERMS"}
+                  {currentStep === "goal" && "STAGE 2/7 · CORE OBJECTIVE"}
+                  {currentStep === "role" && "STAGE 3/7 · EXECUTIVE SEAT"}
+                  {currentStep === "jurisdiction" && "STAGE 4/7 · STATUTORY LAW"}
+                  {currentStep === "doc_scale" && "STAGE 5/7 · DATA INGESTION"}
+                  {currentStep === "integration" && "STAGE 6/7 · ACTION DISPATCH"}
+                  {currentStep === "intro" && "FINAL STAGE 7/7 · CUSTOMIZED GUIDE"}
                 </span>
               </div>
               <h3 className="font-serif text-lg font-bold text-base-content mt-0.5">
-                Causarix Enterprise Sovereign Intelligence Setup
+                Causarix Enterprise Sovereign Intelligence Calibration
               </h3>
             </div>
           </div>
 
           <div className="hidden sm:flex items-center gap-1 font-mono text-xs">
-            {["agreement", "role", "jurisdiction", "priority", "doc_scale", "integration", "intro"].map((s, idx) => (
+            {["agreement", "goal", "role", "jurisdiction", "doc_scale", "integration", "intro"].map((s, idx) => (
               <span
                 key={s}
                 className={cn(
@@ -275,7 +301,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
           </div>
         </div>
 
-        {/* STEP 1: Enterprise Legal Agreement (Compulsory) */}
+        {/* STAGE 1: Enterprise Legal Agreement */}
         {currentStep === "agreement" && (
           <div className="p-6 sm:p-8 space-y-6">
             <div className="space-y-2">
@@ -317,42 +343,107 @@ export function AdaptiveEnterpriseOnboardingModal() {
 
             <div className="flex justify-end gap-3 pt-2">
               <Button
-                onClick={handleAcceptAgreement}
+                onClick={() => {
+                  setAgreementChecked(true);
+                  setCurrentStep("goal");
+                }}
                 disabled={!agreementChecked}
                 className="font-mono text-xs font-bold gap-2 py-3 px-8 bg-primary text-primary-foreground shadow-md"
               >
-                <span>Accept & Begin Role Profiling</span>
+                <span>Accept & Choose Primary Mission</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </div>
         )}
 
-        {/* STEP 2: Executive Role Selection */}
-        {currentStep === "role" && (
+        {/* STAGE 2: Core Strategic Objective */}
+        {currentStep === "goal" && (
           <div className="p-6 sm:p-8 space-y-6">
             <div className="space-y-2">
               <h2 className="font-serif text-2xl font-bold text-base-content">
-                What is your primary executive role?
+                What is your primary mission in Causarix?
               </h2>
               <p className="text-xs sm:text-sm text-base-content/70 leading-relaxed">
-                Causarix will automatically tailor its 10-Agent AI boardroom, invariant rules, and guided tutorial to your exact responsibilities.
+                Choose the primary enterprise problem you need solved first. All subsequent questions and your workspace will calibrate around this.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {STRATEGIC_GOALS.map((goal) => {
+                const Icon = goal.icon;
+                const isSelected = selectedGoal === goal.id;
+
+                return (
+                  <div
+                    key={goal.id}
+                    onClick={() => handleSelectGoal(goal.id)}
+                    className={cn(
+                      "p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-4 group",
+                      isSelected ? "bg-primary/10 border-primary shadow-md" : "bg-base-200/50 border-base-300 hover:border-primary"
+                    )}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-base-content group-hover:text-primary transition-colors">
+                          {goal.title}
+                        </h4>
+                        <p className="text-xs text-base-content/70 mt-0.5 leading-relaxed">
+                          {goal.subtitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 flex items-center gap-1 text-xs font-mono font-bold text-primary shrink-0">
+                      <span>Select Mission</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-between items-center pt-2">
+              <button
+                onClick={() => setCurrentStep("agreement")}
+                className="font-mono text-xs font-bold text-base-content/70 hover:text-base-content"
+              >
+                ← Back to Agreement
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STAGE 3: Executive Role Alignment */}
+        {currentStep === "role" && (
+          <div className="p-6 sm:p-8 space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-mono text-primary font-bold">
+                <span>MISSION: {STRATEGIC_GOALS.find(g => g.id === selectedGoal)?.title}</span>
+              </div>
+              <h2 className="font-serif text-2xl font-bold text-base-content">
+                Based on your mission, what is your executive seat?
+              </h2>
+              <p className="text-xs sm:text-sm text-base-content/70 leading-relaxed">
+                We've pre-selected the recommended role for your mission, but you can change it anytime.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {(Object.keys(ROLE_CONFIGS) as ExecutiveRole[]).map((roleKey) => {
-                const conf = ROLE_CONFIGS[roleKey];
-                const Icon = conf.icon;
-                const isSelected = selectedRole === roleKey;
+              {ROLES.map((r) => {
+                const Icon = r.icon;
+                const isSelected = selectedRole === r.id;
 
                 return (
                   <div
-                    key={roleKey}
-                    onClick={() => handleSelectRole(roleKey)}
+                    key={r.id}
+                    onClick={() => handleSelectRole(r.id)}
                     className={cn(
-                      "p-5 rounded-2xl border transition-all cursor-pointer space-y-3 hover:border-primary group backdrop-blur-sm flex flex-col justify-between",
-                      isSelected ? "bg-primary/10 border-primary shadow-md" : "bg-base-200/50 border-base-300"
+                      "p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer space-y-3 hover:border-primary group backdrop-blur-sm flex flex-col justify-between",
+                      isSelected ? "bg-primary/10 border-primary ring-2 ring-primary/20 shadow-md" : "bg-base-200/50 border-base-300"
                     )}
                   >
                     <div className="space-y-2">
@@ -360,36 +451,45 @@ export function AdaptiveEnterpriseOnboardingModal() {
                         <Icon className="w-5 h-5" />
                       </div>
                       <h4 className="font-bold text-sm text-base-content group-hover:text-primary transition-colors">
-                        {conf.label}
+                        {r.label}
                       </h4>
                       <p className="text-[11px] text-base-content/70 leading-relaxed">
-                        {conf.sublabel}
+                        {r.sub}
                       </p>
                     </div>
 
                     <div className="pt-2 flex items-center justify-between text-[11px] font-mono font-bold text-primary">
-                      <span>Select Role</span>
+                      <span>Confirm Role</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            <div className="flex justify-between items-center pt-2">
+              <button
+                onClick={() => setCurrentStep("goal")}
+                className="font-mono text-xs font-bold text-base-content/70 hover:text-base-content"
+              >
+                ← Back to Mission
+              </button>
+            </div>
           </div>
         )}
 
-        {/* STEP 3: Compliance Jurisdiction Selection */}
+        {/* STAGE 4: Statutory Compliance Jurisdiction */}
         {currentStep === "jurisdiction" && (
           <div className="p-6 sm:p-8 space-y-6">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs font-mono text-primary font-bold">
-                <span>ROLE: {currentRoleConfig.label}</span>
+                <span>ROLE: {ROLES.find(r => r.id === selectedRole)?.label}</span>
               </div>
               <h2 className="font-serif text-2xl font-bold text-base-content">
-                What is your primary compliance jurisdiction?
+                Under which legal jurisdiction do your contracts operate?
               </h2>
               <p className="text-xs sm:text-sm text-base-content/70 leading-relaxed">
-                Calibrates automated contract redlining, liability cap standards, and statutory citations.
+                Calibrates automated contract redlining standards, statutory citations, and liability limits.
               </p>
             </div>
 
@@ -402,7 +502,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
                     onClick={() => handleSelectJurisdiction(jur.id)}
                     className={cn(
                       "p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-4",
-                      isSelected ? "bg-primary/10 border-primary shadow-sm" : "bg-base-200/50 border-base-300 hover:border-base-content/40"
+                      isSelected ? "bg-primary/10 border-primary shadow-sm" : "bg-base-200/50 border-base-300 hover:border-primary"
                     )}
                   >
                     <div className="flex items-center gap-3">
@@ -428,48 +528,48 @@ export function AdaptiveEnterpriseOnboardingModal() {
                 onClick={() => setCurrentStep("role")}
                 className="font-mono text-xs font-bold text-base-content/70 hover:text-base-content"
               >
-                ← Back to Roles
+                ← Back to Role
               </button>
             </div>
           </div>
         )}
 
-        {/* STEP 4: Strategic Bottleneck (Dynamic Branching based on Role) */}
-        {currentStep === "priority" && (
+        {/* STAGE 5: Corporate Document Ingestion Scale */}
+        {currentStep === "doc_scale" && (
           <div className="p-6 sm:p-8 space-y-6">
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-mono text-primary font-bold">
-                <span>ROLE: {currentRoleConfig.label}</span>
-              </div>
               <h2 className="font-serif text-2xl font-bold text-base-content">
-                What is your biggest operational bottleneck right now?
+                What initial corporate asset library will you upload?
               </h2>
               <p className="text-xs sm:text-sm text-base-content/70 leading-relaxed">
-                Choose what you want Causarix to calibrate and prioritize first in your workspace.
+                Configures our dual-core OCR parser, deterministic Python sandbox, or KùzuDB graph engine for maximum precision.
               </p>
             </div>
 
-            <div className="space-y-3">
-              {currentRoleConfig.priorities.map((p) => {
-                const isSelected = selectedPriority === p.id;
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {DOC_SCALES.map((doc) => {
+                const Icon = doc.icon;
+                const isSelected = selectedDocScale === doc.id;
                 return (
                   <div
-                    key={p.id}
-                    onClick={() => handleSelectPriority(p.id)}
+                    key={doc.id}
+                    onClick={() => handleSelectDocScale(doc.id)}
                     className={cn(
-                      "p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-4",
-                      isSelected ? "bg-primary/10 border-primary shadow-sm" : "bg-base-200/50 border-base-300 hover:border-base-content/40"
+                      "p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer space-y-2.5 flex flex-col justify-between group",
+                      isSelected ? "bg-primary/10 border-primary shadow-sm" : "bg-base-200/50 border-base-300 hover:border-primary"
                     )}
                   >
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-sm text-base-content">{p.label}</h4>
-                      <p className="text-xs text-base-content/70">{p.description}</p>
+                    <div className="space-y-1.5">
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-sm text-base-content group-hover:text-primary transition-colors">{doc.label}</h4>
+                      <p className="text-xs text-base-content/70">{doc.sub}</p>
                     </div>
-                    <div className={cn(
-                      "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
-                      isSelected ? "border-primary bg-primary text-primary-foreground" : "border-base-content/30"
-                    )}>
-                      {isSelected && <Check className="w-3 h-3" />}
+
+                    <div className="pt-2 flex items-center justify-between text-[11px] font-mono font-bold text-primary">
+                      <span>Select Format</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </div>
                   </div>
                 );
@@ -487,95 +587,53 @@ export function AdaptiveEnterpriseOnboardingModal() {
           </div>
         )}
 
-        {/* STEP 5: Primary Document Library & File Formats */}
-        {currentStep === "doc_scale" && (
-          <div className="p-6 sm:p-8 space-y-6">
-            <div className="space-y-2">
-              <h2 className="font-serif text-2xl font-bold text-base-content">
-                What is your primary document library type?
-              </h2>
-              <p className="text-xs sm:text-sm text-base-content/70 leading-relaxed">
-                Configures our dual-core OCR parser, Python sandbox, or KùzuDB graph engine for maximum throughput.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {DOC_SCALES.map((doc) => {
-                const Icon = doc.icon;
-                const isSelected = selectedDocScale === doc.id;
-                return (
-                  <div
-                    key={doc.id}
-                    onClick={() => handleSelectDocScale(doc.id)}
-                    className={cn(
-                      "p-4 rounded-2xl border transition-all cursor-pointer space-y-2.5 flex flex-col justify-between",
-                      isSelected ? "bg-primary/10 border-primary shadow-sm" : "bg-base-200/50 border-base-300 hover:border-base-content/40"
-                    )}
-                  >
-                    <div className="space-y-1.5">
-                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <h4 className="font-bold text-sm text-base-content">{doc.label}</h4>
-                      <p className="text-xs text-base-content/70">{doc.sub}</p>
-                    </div>
-
-                    <div className="pt-2 flex items-center justify-between text-[11px] font-mono font-bold text-primary">
-                      <span>Select Format</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-between items-center pt-2">
-              <button
-                onClick={() => setCurrentStep("priority")}
-                className="font-mono text-xs font-bold text-base-content/70 hover:text-base-content"
-              >
-                ← Back to Priorities
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 6: Action Dispatch Integration Target */}
+        {/* STAGE 6: Interactive Action Dispatch with Live Connection Popup */}
         {currentStep === "integration" && (
           <div className="p-6 sm:p-8 space-y-6">
             <div className="space-y-2">
               <h2 className="font-serif text-2xl font-bold text-base-content">
-                Select your default action dispatch destination
+                Connect your workflow dispatch tool
               </h2>
               <p className="text-xs sm:text-sm text-base-content/70 leading-relaxed">
-                When the 10-Agent Boardroom reaches quorum, where should Causarix automatically dispatch mitigation tasks?
+                Click any tool below to open its live configuration popup and test credentials, or skip to configure later.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { id: "jira", label: "Atlassian Jira Cloud (Project KAN)", desc: "Creates P0 risk mitigation tickets directly on your Jira board." },
-                { id: "github", label: "GitHub Repositories & PRs", desc: "Automated license scanning and pull request invariant audits." },
-                { id: "slack", label: "Slack & Microsoft Teams", desc: "Delivers daily Chief of Staff audio briefs and urgent alerts." },
-                { id: "erp", label: "QuickBooks / Stripe Webhooks", desc: "Connects real-time cashflow feeds for 90-day telemetry tuning." },
+                { id: "jira" as const, label: "Atlassian Jira Cloud (Project KAN)", desc: "1-Click auto-generates P0 mitigation tickets on your Jira board.", badge: "RECOMMENDED" },
+                { id: "github" as const, label: "GitHub Repositories & PRs", desc: "Automated license scanning and PR invariant verification.", badge: "CODEBASE AUDIT" },
+                { id: "slack" as const, label: "Slack & Microsoft Teams", desc: "Delivers daily morning audio briefings and urgent risk alerts.", badge: "DAILY BRIEFS" },
+                { id: "erp" as const, label: "QuickBooks / Stripe Webhooks", desc: "Live cashflow telemetry feed for 90-day Bayesian auto-tuning.", badge: "FINANCIAL" },
               ].map((integ) => {
-                const isSelected = selectedIntegration === integ.id;
+                const isConnected = selectedIntegration === integ.id && isIntegrationConnected;
                 return (
                   <div
                     key={integ.id}
-                    onClick={() => handleSelectIntegration(integ.id)}
+                    onClick={() => handleOpenConnectorPopup(integ.id)}
                     className={cn(
-                      "p-4 rounded-2xl border transition-all cursor-pointer space-y-2 flex flex-col justify-between",
-                      isSelected ? "bg-primary/10 border-primary shadow-sm" : "bg-base-200/50 border-base-300 hover:border-base-content/40"
+                      "p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer space-y-2.5 flex flex-col justify-between group hover:border-primary shadow-sm",
+                      isConnected ? "bg-emerald-500/10 border-emerald-500 ring-2 ring-emerald-500/20" : "bg-base-200/50 border-base-300"
                     )}
                   >
                     <div className="space-y-1">
-                      <h4 className="font-bold text-sm text-base-content">{integ.label}</h4>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                          {integ.badge}
+                        </span>
+                        {isConnected && (
+                          <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" /> CONNECTED
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="font-bold text-sm text-base-content group-hover:text-primary transition-colors pt-1">{integ.label}</h4>
                       <p className="text-xs text-base-content/70">{integ.desc}</p>
                     </div>
-                    <div className="pt-2 flex items-center justify-between text-[11px] font-mono font-bold text-primary">
-                      <span>Connect Integration</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
+
+                    <div className="pt-2 flex items-center justify-between text-xs font-mono font-bold text-primary">
+                      <span>{isConnected ? "Reconfigure Connection" : "Configure & Test Live ↗"}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
                     </div>
                   </div>
                 );
@@ -587,28 +645,34 @@ export function AdaptiveEnterpriseOnboardingModal() {
                 onClick={() => setCurrentStep("doc_scale")}
                 className="font-mono text-xs font-bold text-base-content/70 hover:text-base-content"
               >
-                ← Back to Document Types
+                ← Back to Data Ingestion
+              </button>
+              <button
+                onClick={handleSkipIntegration}
+                className="font-mono text-xs font-bold text-primary hover:underline flex items-center gap-1"
+              >
+                <span>Skip & View Personalized Walkthrough →</span>
               </button>
             </div>
           </div>
         )}
 
-        {/* FINAL STEP 7: Customized Guided App Intro & Dynamic Interactive Checklist */}
+        {/* FINAL STAGE 7: Customized Guided App Intro & Dynamic Interactive Checklist */}
         {currentStep === "intro" && (
           <div className="p-6 sm:p-8 space-y-6">
             <AnimatedOnboardingChecklist
-              title={currentRoleConfig.introTitle}
-              description={currentRoleConfig.introDescription}
-              items={currentRoleConfig.defaultChecklist}
-              videoThumbnailUrl={currentRoleConfig.videoThumbnail}
-              videoUrl={currentRoleConfig.videoUrl}
+              title={`Welcome to Causarix — ${ROLES.find(r => r.id === selectedRole)?.label}`}
+              description={`Your workspace is calibrated for ${STRATEGIC_GOALS.find(g => g.id === selectedGoal)?.title} under ${JURISDICTIONS.find(j => j.id === selectedJurisdiction)?.label}.`}
+              items={getTailoredChecklist()}
+              videoThumbnailUrl="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&q=80"
+              videoUrl="https://www.youtube.com/embed/dQw4w9WgXcQ"
               stepDuration={3000}
               autoAdvance={true}
             />
 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-base-200 border border-base-300">
               <div className="text-xs text-base-content/70">
-                <span>🛡️ Calibration complete for <strong>{currentRoleConfig.label}</strong> ({selectedJurisdiction}). You will never be prompted again.</span>
+                <span>🛡️ Calibration complete. Action dispatch target set to <strong>{selectedIntegration.toUpperCase()}</strong>.</span>
               </div>
               <Button
                 onClick={handleFinishOnboarding}
@@ -618,6 +682,189 @@ export function AdaptiveEnterpriseOnboardingModal() {
                 <span>Enter Personalized Workspace</span>
               </Button>
             </div>
+          </div>
+        )}
+
+        {/* ─── LIVE CONNECTOR POPUP MODAL ────────────────────────────────────────── */}
+        {activeConnectorPopup && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="w-full max-w-lg bg-base-100 border border-base-300 rounded-3xl shadow-2xl p-6 space-y-5 relative text-base-content"
+            >
+              <button
+                onClick={() => setActiveConnectorPopup(null)}
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-base-200 text-base-content/60"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
+                    <Link2 className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-serif text-lg font-bold">
+                    {activeConnectorPopup === "jira" && "Connect Atlassian Jira Cloud"}
+                    {activeConnectorPopup === "github" && "Connect GitHub Repository"}
+                    {activeConnectorPopup === "slack" && "Connect Slack / Teams Webhook"}
+                    {activeConnectorPopup === "erp" && "Connect QuickBooks / Stripe Feed"}
+                  </h3>
+                </div>
+                <p className="text-xs text-base-content/60">
+                  {activeConnectorPopup === "jira" && "Causarix will automatically create P0 risk mitigation tickets directly on your Jira board."}
+                  {activeConnectorPopup === "github" && "Scans Git commits and dependencies for GPLv3 reciprocal license conflicts."}
+                  {activeConnectorPopup === "slack" && "Delivers daily Chief of Staff morning audio briefings directly to your team channel."}
+                  {activeConnectorPopup === "erp" && "Syncs cashflow telemetry to auto-calibrate 90-day Bayesian decision accuracy."}
+                </p>
+              </div>
+
+              {/* JIRA CONFIG FORM */}
+              {activeConnectorPopup === "jira" && (
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-[11px] block mb-1">Jira Cloud Domain URL</label>
+                    <input
+                      type="text"
+                      value={jiraDomain}
+                      onChange={(e) => setJiraDomain(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="font-bold text-[11px] block mb-1">Atlassian Email</label>
+                      <input
+                        type="email"
+                        value={jiraEmail}
+                        onChange={(e) => setJiraEmail(e.target.value)}
+                        className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-[11px] block mb-1">Project Key</label>
+                      <input
+                        type="text"
+                        value={jiraProjectKey}
+                        onChange={(e) => setJiraProjectKey(e.target.value)}
+                        className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="font-bold text-[11px] block mb-1">Atlassian API Token</label>
+                    <input
+                      type="password"
+                      value={jiraToken}
+                      onChange={(e) => setJiraToken(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* GITHUB CONFIG FORM */}
+              {activeConnectorPopup === "github" && (
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-[11px] block mb-1">Repository URL</label>
+                    <input
+                      type="text"
+                      value={githubRepoUrl}
+                      onChange={(e) => setGithubRepoUrl(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-[11px] block mb-1">GitHub Personal Access Token (PAT)</label>
+                    <input
+                      type="password"
+                      value={githubPat}
+                      onChange={(e) => setGithubPat(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* SLACK CONFIG FORM */}
+              {activeConnectorPopup === "slack" && (
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-[11px] block mb-1">Incoming Webhook URL</label>
+                    <input
+                      type="text"
+                      value={slackWebhookUrl}
+                      onChange={(e) => setSlackWebhookUrl(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-[11px] block mb-1">Channel Name</label>
+                    <input
+                      type="text"
+                      value={slackChannel}
+                      onChange={(e) => setSlackChannel(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* ERP CONFIG FORM */}
+              {activeConnectorPopup === "erp" && (
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-[11px] block mb-1">QuickBooks / Stripe Webhook Key</label>
+                    <input
+                      type="password"
+                      value={erpApiKey}
+                      onChange={(e) => setErpApiKey(e.target.value)}
+                      className="w-full p-2.5 rounded-xl bg-base-200 border border-base-300 text-xs font-mono font-medium outline-none focus:border-primary"
+                    />
+                  </div>
+                  <p className="text-[11px] text-base-content/60">
+                    Live transactions feed into the 90-Day Telemetry Flywheel to calibrate Bayesian risk models.
+                  </p>
+                </div>
+              )}
+
+              {/* Connection Status Banner */}
+              {connectionSuccess && (
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Connection Verified! Synchronizing with Causarix OS...</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-2">
+                <button
+                  type="button"
+                  onClick={handleSkipIntegration}
+                  className="font-mono text-xs font-bold text-base-content/60 hover:text-base-content"
+                >
+                  Skip for Now
+                </button>
+                <Button
+                  onClick={handleTestConnection}
+                  disabled={isTestingConnection}
+                  className="font-mono text-xs font-bold py-2.5 px-6 bg-primary text-primary-foreground gap-2 shadow-md"
+                >
+                  {isTestingConnection ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Testing Live Connection...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Test & Verify Connection</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </motion.div>
           </div>
         )}
       </motion.div>
