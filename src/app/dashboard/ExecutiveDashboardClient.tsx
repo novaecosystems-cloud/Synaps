@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
-import { TactileButton, ScrambleText, ThermalReceipt } from '@/components/ui/DqnamoTactileSuite';
+import { TactileButton, ScrambleText } from '@/components/ui/DqnamoTactileSuite';
 
 interface Citation {
   documentId?: string;
@@ -29,7 +29,7 @@ interface ExecutiveAnswer {
   citations: Citation[];
 }
 
-interface DepartmentHealth {
+export interface DepartmentHealthItem {
   department: string;
   healthScore: number;
   riskLevel: 'LOW' | 'MODERATE' | 'ELEVATED' | 'CRITICAL';
@@ -38,7 +38,7 @@ interface DepartmentHealth {
   citations: Citation[];
 }
 
-interface AIRecommendation {
+export interface AIRecommendationItem {
   id: string;
   priority: 'CRITICAL' | 'HIGH' | 'MEDIUM';
   title: string;
@@ -47,15 +47,15 @@ interface AIRecommendation {
   citations: Citation[];
 }
 
-interface ExecutiveBriefData {
+export interface ExecutiveBriefData {
   executiveBrief: string;
   healthScore: number;
   knowledgeCoverage: number;
   riskLevel: 'LOW' | 'MODERATE' | 'ELEVATED' | 'CRITICAL';
   decisionConfidence: number;
   executiveAnswers: ExecutiveAnswer[];
-  departmentHealth: DepartmentHealth[];
-  aiRecommendations: AIRecommendation[];
+  departmentHealth: DepartmentHealthItem[];
+  aiRecommendations: AIRecommendationItem[];
   recentEvents: { date: string; title: string; category: string; description: string; docName?: string }[];
   timelineHighlights: { date: string; milestone: string; impact: string }[];
 }
@@ -101,7 +101,6 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
 
   // Mandatory Legal Acceptance Modal on Dashboard Load
   const [mandatoryLegalDoc, setMandatoryLegalDoc] = useState<LegalDocType | null>(null);
-  const [showThermalReceipt, setShowThermalReceipt] = useState<boolean>(false);
 
   useEffect(() => {
     try {
@@ -239,23 +238,10 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
               <span>Deploy Invariant Engine</span>
             </TactileButton>
 
-            <TactileButton variant="dark" onClick={() => setShowThermalReceipt(!showThermalReceipt)}>
-              <span>{showThermalReceipt ? "Hide Proof Receipt" : "Print Proof Receipt 🖨️"}</span>
-            </TactileButton>
-
-            <button onClick={fetchBriefData} className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer">
+            <button onClick={fetchBriefData} className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer">
               <RefreshCw className="w-3.5 h-3.5" /> Re-Sync
             </button>
           </div>
-
-          {/* Interactive Thermal Receipt Modal/Slide-down */}
-          {showThermalReceipt && (
-            <div className="pt-4 flex justify-center animate-in fade-in slide-in-from-top-4 duration-300">
-              <div className="p-4 bg-black/80 rounded-3xl border border-white/10 shadow-2xl backdrop-blur-md">
-                <ThermalReceipt />
-              </div>
-            </div>
-          )}
         </div>
       </div>
 

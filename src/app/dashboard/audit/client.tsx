@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, Search, Filter, Download, ChevronLeft, ChevronRight, Activity, Calendar, User, Database } from 'lucide-react';
+import { Loader2, Search, Filter, Download, ChevronLeft, ChevronRight, Activity, Calendar, User, Database, Printer, ShieldCheck } from 'lucide-react';
+import { ThermalReceipt } from '@/components/ui/DqnamoTactileSuite';
 
 export default function AuditExplorerClient({ organizationId }: { organizationId: string }) {
   const [logs, setLogs] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showProofReceipt, setShowProofReceipt] = useState(false);
   
   // Filters
   const [search, setSearch] = useState('');
@@ -130,11 +132,30 @@ export default function AuditExplorerClient({ organizationId }: { organizationId
             className="bg-background border border-border rounded-md px-3 py-2 text-sm"
           />
 
-          <button onClick={exportCSV} className="ml-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium flex items-center gap-2 transition-colors">
+          <button 
+            onClick={() => setShowProofReceipt(!showProofReceipt)} 
+            className="ml-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
+          >
+            <Printer className="w-4 h-4" />
+            <span>{showProofReceipt ? "Hide Proof Receipt" : "Print Proof Receipt 🖨️"}</span>
+          </button>
+
+          <button onClick={exportCSV} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium flex items-center gap-2 transition-colors">
             <Download className="w-4 h-4" /> Export CSV
           </button>
         </div>
       </div>
+
+      {/* Serrated Thermal Evidentiary Proof Receipt */}
+      {showProofReceipt && (
+        <div className="p-6 bg-base-200/60 border border-base-300 rounded-2xl flex flex-col items-center justify-center animate-in fade-in slide-in-from-top-4 duration-300 space-y-3">
+          <div className="flex items-center gap-2 text-xs font-mono text-base-content/70">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <span>CRYPTOGRAPHIC PHYSICAL PROOF RECEIPT (SHA-256 / DELAWARE DGCL § 141)</span>
+          </div>
+          <ThermalReceipt />
+        </div>
+      )}
 
       {/* Data Table */}
       <div className="flex-1 bg-card border border-border rounded-lg shadow-sm overflow-hidden flex flex-col">
