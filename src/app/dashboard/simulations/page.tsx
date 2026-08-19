@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { ParametricCounterfactualStudio } from '@/components/dashboard/simulations/ParametricCounterfactualStudio';
 
 export default function SimulationsPage() {
   const [selectedPreset, setSelectedPreset] = useState('Increase Prices');
@@ -16,6 +17,7 @@ export default function SimulationsPage() {
   const [simulating, setSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState<any | null>(null);
   const [activeScenarioTab, setActiveScenarioTab] = useState<'expected' | 'optimistic' | 'worstCase'>('expected');
+  const [activeStudioMode, setActiveStudioMode] = useState<'parametric' | 'nlp'>('parametric');
 
   const presets = [
     { label: 'Increase Prices', icon: DollarSign, example: 'Increase enterprise tier prices by 15% across all global regions.' },
@@ -82,13 +84,41 @@ export default function SimulationsPage() {
             <Activity className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-base-content">Synaps Simulation Engine</h1>
-            <p className="text-xs text-base-content/60">Simulate business decisions before execution. Model Optimistic, Expected & Worst Case scenarios across 10 department vectors.</p>
+            <h1 className="text-2xl font-bold tracking-tight text-base-content">Causarix Simulation Studio</h1>
+            <p className="text-xs text-base-content/60">Simulate business decisions before execution. Model Optimistic, Expected & Worst Case scenarios with deterministic Python financial sandboxes.</p>
           </div>
+        </div>
+
+        {/* Studio View Switcher */}
+        <div className="flex items-center gap-1.5 p-1 bg-base-200 rounded-2xl border border-base-300 text-xs font-mono font-bold">
+          <button
+            onClick={() => setActiveStudioMode('parametric')}
+            className={cn(
+              "px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5",
+              activeStudioMode === 'parametric' ? "bg-primary text-primary-foreground shadow" : "text-base-content/60"
+            )}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>Parametric Studio</span>
+          </button>
+          <button
+            onClick={() => setActiveStudioMode('nlp')}
+            className={cn(
+              "px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5",
+              activeStudioMode === 'nlp' ? "bg-primary text-primary-foreground shadow" : "text-base-content/60"
+            )}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>NLP Scenario Builder</span>
+          </button>
         </div>
       </div>
 
-      {/* SIMULATION SCENARIO BUILDER */}
+      {activeStudioMode === 'parametric' ? (
+        <ParametricCounterfactualStudio />
+      ) : (
+        <>
+          {/* SIMULATION SCENARIO BUILDER */}
       <div className="p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-5">
         <div>
           <label className="text-xs font-bold uppercase tracking-wider text-base-content/60 block mb-2">Select Decision Type</label>
@@ -428,6 +458,8 @@ export default function SimulationsPage() {
             </p>
           </div>
         </div>
+      )}
+        </>
       )}
 
     </div>
