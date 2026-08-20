@@ -4,7 +4,13 @@ const fs = require('fs');
 const https = require('https');
 const http = require('http');
 
-app.setName('Synaps AI');
+// GPU Acceleration & Zero-Blackscreen Flags
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+
+app.setName('Causarix AI');
 
 // Prevent duplicate instances
 const isSingleInstance = app.requestSingleInstanceLock();
@@ -17,7 +23,9 @@ let spotlightWindow = null;
 let tray = null;
 
 const isDev = process.env.SYNAPS_DEV === 'true';
-const baseUrl = isDev ? 'http://localhost:3000' : 'https://synaps-one.vercel.app';
+const primaryUrl = 'https://causarix.vercel.app';
+const mirrorUrl = 'https://synaps-one.vercel.app';
+const baseUrl = isDev ? 'http://localhost:3000' : primaryUrl;
 
 function getIcon() {
   const iconPaths = [
@@ -159,25 +167,42 @@ function createMainWindow() {
     return { action: 'deny' };
   });
 
-  // Strict retry controller to prevent infinite reload loops
+  // Strict retry controller to prevent infinite reload loops with mirror fallback
   let failRetries = 0;
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-    console.log(`[Synaps Electron] Failed to load: ${validatedURL} (Code: ${errorCode})`);
-    if (failRetries < 2) {
+    console.log(`[Causarix Electron] Failed to load: ${validatedURL} (Code: ${errorCode})`);
+    if (failRetries === 0) {
       failRetries++;
       setTimeout(() => {
         if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.loadURL(`${baseUrl}/demo`);
+          console.log('[Causarix Electron] Retrying with primary URL...');
+          mainWindow.loadURL(`${primaryUrl}/demo`);
+        }
+      }, 1000);
+    } else if (failRetries === 1) {
+      failRetries++;
+      setTimeout(() => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          console.log('[Causarix Electron] Falling back to mirror production server...');
+          mainWindow.loadURL(`${mirrorUrl}/demo`);
         }
       }, 1200);
     } else {
-      console.log('[Synaps Electron] Max retries reached. Loading offline fallback.');
+      console.log('[Causarix Electron] Max retries reached. Loading offline fallback.');
       if (mainWindow && !mainWindow.isDestroyed()) {
         const offlinePath = path.join(__dirname, 'offline.html');
         if (fs.existsSync(offlinePath)) {
           mainWindow.loadFile(offlinePath);
         }
       }
+    }
+  });
+
+  // Zero-Blackscreen Render Crash Protection
+  mainWindow.webContents.on('render-process-gone', (event, details) => {
+    console.error('[Causarix Electron] Render process crashed/killed:', details.reason);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.loadURL(`${baseUrl}/demo`);
     }
   });
 
