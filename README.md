@@ -88,7 +88,15 @@ Evaluated across **1,000 standardized test cases** under the Stanford HELM and P
 * **What it does:** Logs every executive decision along with its predicted 30/60/90-day key results.
 * **Bayesian Calibration:** As actual quarterly data streams from QuickBooks/Salesforce webhooks, Causarix calculates the prediction delta ($\Delta$) and auto-tunes future risk weighting.
 
-### 5. 🎫 Bi-Directional Action Dispatch & 1-Click OAuth 2.0
+### 5. 🧠 Team Agent Memory Hub (4-Tier Progressive Pipeline)
+* **What it does:** Provides continuous institutional memory across 10-Agent Boardroom sessions using TencentDB-inspired memory asset extraction.
+* **4 Memory Assets:**
+  * 💬 **Chat Memory (Episodic):** Compresses multi-turn C-Suite debate rounds with temporal decay.
+  * ⚡ **Skill Memory (Procedural):** Automatically distills past contract redlines into executable playbooks.
+  * 📖 **LLM-Wiki (Semantic):** Bi-directional knowledge nodes with `[[Wikilinks]]` documenting corporate covenants.
+  * 🕸️ **Code & Entity Graph (Structural):** Direct graph adjacency synced into KùzuDB for invariant queries.
+
+### 6. 🎫 Bi-Directional Action Dispatch & 1-Click OAuth 2.0
 * **What it does:** 1-Click execution turns boardroom consensus into real-world work across your enterprise stack.
 * **Native Connectors:**
   * 💬 **Slack Bot** (`11623622093636.11857963256533`): Real-time executive briefs & redline alerts.

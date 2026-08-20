@@ -134,6 +134,22 @@ const COMPARISON_DIMENSIONS = [
     withText: "Digital Twin & Monte Carlo Engine. Runs 10,000 probabilistic scenarios stress-testing cash burn and margin risk.",
   },
   {
+    id: "scm",
+    title: "Causal Inference & Do-Calculus",
+    category: "MATHEMATICAL RIGOR",
+    stat: "0.00% Arithmetic Drift",
+    withoutText: "Stochastic LLMs drift by 9–17% on multi-step financial math and invent non-existent legal liabilities.",
+    withText: "Pearl's Structural Causal Models (SCM). Graph surgery G_X with deterministic in-process Pyodide WebAssembly Python.",
+  },
+  {
+    id: "memory",
+    title: "Team-Level Multi-Agent Memory",
+    category: "INSTITUTIONAL KNOWLEDGE",
+    stat: "4-Tier Memory Pipeline",
+    withoutText: "Isolated chat sessions where AI loses context every new conversation, forgetting past board votes.",
+    withText: "TencentDB-inspired 4-Tier Memory Hub: Episodic Chat, Procedural Skills, Semantic LLM-Wiki, and KùzuDB Graph.",
+  },
+  {
     id: "ocr",
     title: "Scanned Documents & Edge Resilience",
     category: "OFFLINE RESILIENCE",
@@ -391,9 +407,10 @@ export default function CausarixEnterpriseLanding() {
 
         {/* Badges Ticker */}
         <ul className="flex items-center justify-center flex-wrap gap-4 font-mono text-xs font-extrabold uppercase tracking-wider text-[#18181b]">
-          <li className="flex items-center gap-2"><span>140MS CAUSAL GRAPH-RAG</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
-          <li className="flex items-center gap-2"><span>99.8% CITATION PRECISION</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
+          <li className="flex items-center gap-2"><span>PEARL DO-CALCULUS SCM</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
+          <li className="flex items-center gap-2"><span>4-TIER AGENT MEMORY HUB</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
           <li className="flex items-center gap-2"><span>10-AGENT BOARDROOM QUORUM</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
+          <li className="flex items-center gap-2"><span>1,000-TEST HELM EVALUATED</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
           <li><span>ZERO HALLUCINATIONS</span></li>
         </ul>
 
