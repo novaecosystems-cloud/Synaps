@@ -56,11 +56,19 @@ import { AuroraBars } from "@/components/ui/AuroraBars";
 import { PixelLiquidBg } from "@/components/ui/PixelLiquidBg";
 import { getGumroadCheckoutUrl } from "@/lib/gumroad";
 import { LAUNCH_PROMO_CONFIG, getLaunchPromoBadgeInfo } from "@/lib/launch-promo";
+import { LaptopMockupHero } from "@/components/landing/LaptopMockupHero";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─── EXACT 4 USER SCREENSHOTS & TITLES DIRECTLY FROM YOUR UPLOADS ──────────────
+// ─── EXACT USER SCREENSHOTS & TITLES DIRECTLY FROM YOUR UPLOADS ──────────────
 const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
+  {
+    label: "Sovereign Executive Operational Console & 60s Simulation Lab",
+    sublabel: "MISSION CONTROL & SIMULATION LAB",
+    image: "/mockups/causarix_laptop_dashboard_hero.png",
+    imageAlt: "Executive Operational Briefing & 60-Second Invariant Simulation Lab Screenshot",
+    description: "Real-time AI COO operational briefings, Delaware DGCL § 141 verification, and 60-second M&A liability audits.",
+  },
   {
     label: "AI Executive Assistant & Document RAG",
     sublabel: "SMART DOCUMENT SEARCH",
@@ -456,6 +464,9 @@ export default function CausarixEnterpriseLanding() {
             <span>View Platform Media</span>
           </a>
         </div>
+
+        {/* ── 3D KINETIC LAPTOP MOCKUP (UTOMIC-STYLE SPRING PHYSICS) ── */}
+        <LaptopMockupHero onCtaClick={() => setIsModalOpen(true)} />
       </section>
 
       {/* ── USP CARDS SECTION TAILORED TO SYNAPS ───────────────────────────── */}
