@@ -51,6 +51,7 @@ const DemoHeaderBadge = dynamic(() => import('@/components/DemoHeaderBadge'), { 
 const DailyWorkdayBriefModal = dynamic(() => import('@/components/DailyWorkdayBriefModal'), { ssr: false });
 const TimedUsagePaywallModal = dynamic(() => import('@/components/TimedUsagePaywallModal'), { ssr: false });
 const DemoSectorSandboxModal = dynamic(() => import('@/components/DemoSectorSandboxModal'), { ssr: false });
+const OrgMemberPresenceStack = dynamic(() => import('@/components/OrgMemberPresenceStack'), { ssr: false });
 
 const PlanAccessGate = dynamic(() => import('@/components/PlanAccessGate'), { ssr: false });
 
@@ -476,6 +477,7 @@ export default function ClientLayout({ children, user }: { children: React.React
               <span className="hidden xs:inline">Wrapped</span>
             </button>
 
+            <OrgMemberPresenceStack className="hidden lg:flex mr-1" />
             <DemoHeaderBadge />
             <AiCreditBadge onOpenPaywall={() => setIsPaywallModalOpen(true)} />
             <ThemeToggle />
