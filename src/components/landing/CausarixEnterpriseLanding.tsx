@@ -237,7 +237,7 @@ export default function CausarixEnterpriseLanding() {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Initialize Lenis Smooth Scroll
+  // Initialize Lenis Smooth Scroll with GSAP Ticker Synchronization
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -245,15 +245,23 @@ export default function CausarixEnterpriseLanding() {
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.5,
     });
 
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
+    lenis.on('scroll', ScrollTrigger.update);
 
-    return () => lenis.destroy();
+    const tickerUpdate = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+
+    gsap.ticker.add(tickerUpdate);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      lenis.destroy();
+      gsap.ticker.remove(tickerUpdate);
+    };
   }, []);
 
   // GSAP ScrollTrigger Animations
