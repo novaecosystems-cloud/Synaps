@@ -487,8 +487,8 @@ export function AdaptiveEnterpriseOnboardingModal() {
     if (typeof window === "undefined") return;
     
     if (provider === "github") {
-      const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback/github`);
-      const url = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo,read:org,user:email&redirect_uri=${redirectUri}`;
+      // Default to registered GitHub App callback URL to prevent redirect_uri mismatch warning
+      const url = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo,read:org,user:email`;
       window.open(url, "github-oauth", "width=600,height=720");
     } else if (provider === "jira") {
       const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback/atlassian`);
@@ -498,7 +498,7 @@ export function AdaptiveEnterpriseOnboardingModal() {
     } else if (provider === "slack") {
       const redirectUri = encodeURIComponent(`${window.location.origin}/api/auth/callback/slack`);
       const state = `causarix_slack_${Date.now()}`;
-      const url = `https://slack.com/oauth/v2/authorize?client_id=${SLACK_CLIENT_ID}&scope=chat:write,channels:read,groups:read,im:write,incoming-webhook&redirect_uri=${redirectUri}&state=${state}`;
+      const url = `https://slack.com/oauth/v2/authorize?client_id=${SLACK_CLIENT_ID}&scope=chat:write,channels:read,incoming-webhook&redirect_uri=${redirectUri}&state=${state}`;
       window.open(url, "slack-oauth", "width=600,height=720");
     }
   };
