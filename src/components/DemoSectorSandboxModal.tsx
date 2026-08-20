@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { FireworksBackground } from '@/components/ui/FireworksBackground';
 
 interface SectorScenario {
   id: string;
@@ -267,8 +268,11 @@ export function DemoSectorSandboxModal() {
                   <motion.div 
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="space-y-4"
+                    className="space-y-4 relative"
                   >
+                    {/* Celebratory Fireworks Canvas */}
+                    <FireworksBackground population={4} autoFadeAfterMs={4500} />
+
                     {/* Aha Header Alert */}
                     <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3">
                       <ShieldAlert className="w-6 h-6 text-rose-400 shrink-0 mt-0.5" />
