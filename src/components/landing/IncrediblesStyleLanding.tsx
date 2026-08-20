@@ -214,10 +214,10 @@ export default function IncrediblesStyleLanding() {
     isValid: boolean;
   }>({
     code: "LAUNCH100",
-    percentage: 30,
+    percentage: 61,
     isValid: true,
   });
-  const [promoMessage, setPromoMessage] = useState("LAUNCH100 applied! Enjoy 30% OFF on Gumroad Checkout.");
+  const [promoMessage, setPromoMessage] = useState("✓ LAUNCH100 applied! Enterprise Pro discounted to $39/mo (61% OFF).");
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -271,17 +271,17 @@ export default function IncrediblesStyleLanding() {
     if (e) e.preventDefault();
     const cleanCode = promoCodeInput.trim().toUpperCase();
     if (cleanCode === "LAUNCH100") {
-      setAppliedDiscount({ code: "LAUNCH100", percentage: 30, isValid: true });
-      setPromoMessage("✓ LAUNCH100 applied! 30% OFF active for Gumroad Checkout.");
+      setAppliedDiscount({ code: "LAUNCH100", percentage: 61, isValid: true });
+      setPromoMessage("✓ LAUNCH100 applied! Enterprise Pro discounted from $100 to $39/mo (61% OFF).");
     } else if (cleanCode === "SYNAPS50") {
       setAppliedDiscount({ code: "SYNAPS50", percentage: 50, isValid: true });
       setPromoMessage("✓ SYNAPS50 applied! 50% OFF active for Gumroad Checkout.");
     } else if (cleanCode.length > 0) {
-      setAppliedDiscount({ code: cleanCode, percentage: 10, isValid: true });
-      setPromoMessage(`✓ ${cleanCode} applied! 10% Promo discount active.`);
+      setAppliedDiscount({ code: cleanCode, percentage: 20, isValid: true });
+      setPromoMessage(`✓ ${cleanCode} applied! Promo discount active.`);
     } else {
       setAppliedDiscount({ code: "", percentage: 0, isValid: false });
-      setPromoMessage("Please enter a valid promo code.");
+      setPromoMessage("Promo code cleared. Standard pricing active.");
     }
   };
 
@@ -296,12 +296,12 @@ export default function IncrediblesStyleLanding() {
 
   // Pricing calculations
   const baseStandard = 29;
-  const baseEnterprise = 99;
-  const standardPrice = appliedDiscount.isValid
+  const baseEnterprise = 100;
+  const standardPrice = appliedDiscount.isValid && appliedDiscount.code !== "LAUNCH100"
     ? Math.round(baseStandard * (1 - appliedDiscount.percentage / 100))
     : baseStandard;
   const enterprisePrice = appliedDiscount.isValid
-    ? Math.round(baseEnterprise * (1 - appliedDiscount.percentage / 100))
+    ? appliedDiscount.code === "LAUNCH100" ? 39 : Math.round(baseEnterprise * (1 - appliedDiscount.percentage / 100))
     : baseEnterprise;
 
   return (
@@ -878,7 +878,7 @@ export default function IncrediblesStyleLanding() {
             <div className="p-5 rounded-2xl bg-[#0f0f11] text-white space-y-3 shadow-lg">
               <div className="flex items-center gap-2 font-mono text-xs text-[#fc4778] uppercase font-bold">
                 <Tag className="w-4 h-4" />
-                <span>30% OFF LAUNCH PROMO</span>
+                <span>61% OFF LAUNCH SPECIAL</span>
               </div>
 
               <div className="space-y-2">
@@ -891,12 +891,12 @@ export default function IncrediblesStyleLanding() {
                   <div className="h-full bg-gradient-to-r from-amber-400 to-[#fc4778] w-[78%] rounded-full" />
                 </div>
                 <p className="text-[11px] text-neutral-300 font-mono">
-                  ⚡ <strong className="text-white">Only 22 slots remaining</strong> before price increases to standard enterprise tier.
+                  ⚡ <strong className="text-white">Only 22 slots remaining</strong> before price increases to standard enterprise tier ($100/mo).
                 </p>
               </div>
 
               <p className="text-xs text-neutral-200 font-sans font-medium">
-                Use code <strong className="font-mono text-amber-300 bg-white/10 px-1.5 py-0.5 rounded font-bold">LAUNCH100</strong> at checkout for 30% OFF lifetime subscription.
+                Use code <strong className="font-mono text-amber-300 bg-white/10 px-1.5 py-0.5 rounded font-bold">LAUNCH100</strong> for Enterprise Pro at <strong className="text-emerald-400">$39/mo</strong> (Save $61/mo).
               </p>
 
               {/* Promo Code Checker Form */}

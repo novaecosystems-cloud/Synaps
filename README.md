@@ -17,12 +17,12 @@
 
 ## 🌐 Live Platform Deployments
 
-* 🚀 **Production Cloud Platform**: [https://synaps-one.vercel.app](https://synaps-one.vercel.app)
-* 🎮 **Zero-Login Interactive Sandbox**: [https://synaps-one.vercel.app/demo](https://synaps-one.vercel.app/demo)
-* 🏢 **Parametric Counterfactual Simulation Studio**: [https://synaps-one.vercel.app/dashboard/simulations](https://synaps-one.vercel.app/dashboard/simulations)
-* 🔌 **Model Context Protocol (MCP) Server**: `https://synaps-one.vercel.app/api/mcp`
-* 📑 **Live Stanford HELM PDF Benchmark Report**: [https://synaps-one.vercel.app/api/benchmark-report](https://synaps-one.vercel.app/api/benchmark-report)
-* 💳 **Billing & Pricing Portal**: [https://synaps-one.vercel.app/dashboard/settings/billing](https://synaps-one.vercel.app/dashboard/settings/billing) *(Pioneer Code: `LAUNCH100`)*
+* 🚀 **Production Cloud Platform**: [https://causarix.vercel.app](https://causarix.vercel.app) *(Mirror: [https://synaps-one.vercel.app](https://synaps-one.vercel.app))*
+* 🎮 **Zero-Login Interactive Sandbox**: [https://causarix.vercel.app/demo](https://causarix.vercel.app/demo)
+* 🏢 **Parametric Counterfactual Simulation Studio**: [https://causarix.vercel.app/dashboard/simulations](https://causarix.vercel.app/dashboard/simulations)
+* 🔌 **Model Context Protocol (MCP) Server**: `https://causarix.vercel.app/api/mcp`
+* 📑 **Live Stanford HELM PDF Benchmark Report**: [https://causarix.vercel.app/api/benchmark-report](https://causarix.vercel.app/api/benchmark-report)
+* 💳 **Billing & Pricing Portal**: [https://causarix.vercel.app/dashboard/settings/billing](https://causarix.vercel.app/dashboard/settings/billing) *(Launch Code: `LAUNCH100`)*
 
 ---
 
@@ -64,9 +64,12 @@
 * **What it does:** Logs every executive decision along with its predicted 30/60/90-day key results.
 * **Bayesian Calibration:** As actual quarterly data streams from QuickBooks/Salesforce webhooks, Causarix calculates the prediction delta ($\Delta$) and auto-tunes future risk weighting.
 
-### 5. 🎫 Bi-Directional Action Dispatch (Atlassian Jira REST API)
-* **What it does:** 1-Click execution turns boardroom consensus into real-world work.
-* **Live Integration:** Creates P0 risk mitigation tickets directly on your Jira board (e.g. `KAN-6: [Causarix Risk Audit] $200M M&A GPLv3 Clean-Room Rewrite`).
+### 5. 🎫 Bi-Directional Action Dispatch & 1-Click OAuth 2.0
+* **What it does:** 1-Click execution turns boardroom consensus into real-world work across your enterprise stack.
+* **Native Connectors:**
+  * 💬 **Slack Bot** (`11623622093636.11857963256533`): Real-time executive briefs & redline alerts.
+  * 🐙 **GitHub OAuth** (`Ov23li5MJdkSTkxXfr8P`): Continuous repository dependency & GPLv3 license scanning.
+  * 🎫 **Jira Cloud** (`5vuAKDnx4cfhpGcYRlSxrDc1GJuPppr1`): Automated P0 mitigation ticket creation.
 
 ---
 
@@ -98,12 +101,12 @@ Evaluated across **500 standardized enterprise trial instances** across 10 missi
 
 ## 💰 Strategic Pricing Architecture
 
-| Tier | Price | Daily Micro-Cost | Target Audience | Core Capabilities |
-| :--- | :--- | :--- | :--- | :--- |
-| **Pro Workspace** | **$19 / month** *(or $1.99/wk)* | **$0.63 / day** | Solo Founders, Boutique Lawyers, Operators | 500 Docs, 10,000 Credits, Daily Chief of Staff Briefs, RAG Search |
-| **Enterprise Pro (Most Popular)** | **$49 / month** *(or $4.99/wk)* | **$1.63 / day** | Funded Startups, M&A Teams, Corporate Boards | Unlimited Docs, 10-Agent Boardroom Quorum, 10 C-Suite Digital Twins, Monte Carlo 10,000 Runs, Jira Dispatch |
+| Tier | Standard Price | Launch Special Price | Daily Micro-Cost | Target Audience | Core Capabilities |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Pro Workspace / Intelligence** | **$29 / month** | **$29 / month** | **$0.96 / day** | Solo Founders, Operators, In-House Counsel | 500 Docs, 10,000 Credits, Daily Chief of Staff Briefs, 10-Agent Boardroom, RAG Search |
+| **Enterprise Pro (Most Popular)** | ~~$100 / month~~ | **$39 / month** *(with code `LAUNCH100`)* | **$1.30 / day** | Funded Startups, M&A Teams, Corporate Boards | Unlimited Docs, 10-Agent Boardroom Quorum, 10 C-Suite Digital Twins, Monte Carlo 10,000 Runs, Jira Dispatch, Pyodide WASM |
 
-*Use promo code **`LAUNCH100`** during checkout for **30% OFF** lifetime access.*
+*Use promo code **`LAUNCH100`** during checkout for **61% OFF** Enterprise Pro ($39/mo instead of $100/mo).*
 
 ---
 
