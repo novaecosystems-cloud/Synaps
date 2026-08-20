@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { HoldToConfirmButton } from '@/components/ui/DqnamoTactileSuite';
+import { HoldToConfirmButton } from '@/components/ui/EnterpriseTactileSuite';
 
 export interface ParametricSimulationState {
   tariffRate: number; // e.g. 15 (%)

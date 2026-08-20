@@ -145,7 +145,7 @@ const Marquee = ({ items, reverse = false, speed = 40 }: { items: string[]; reve
 };
 
 /* ─── MAIN COMPONENT ─────────────────────────────────────────────── */
-export default function FrustratedDeveloperStoryLanding() {
+export default function NarrativeProductLanding() {
   const [videoOpen, setVideoOpen] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
   const [preloaderDone, setPreloaderDone] = useState(false);

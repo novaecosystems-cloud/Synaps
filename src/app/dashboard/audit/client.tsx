@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Loader2, Search, Filter, Download, ChevronLeft, ChevronRight, Activity, Calendar, User, Database, Printer, ShieldCheck } from 'lucide-react';
-import { ThermalReceipt } from '@/components/ui/DqnamoTactileSuite';
+import { ThermalReceipt } from '@/components/ui/EnterpriseTactileSuite';
 
 export default function AuditExplorerClient({ organizationId }: { organizationId: string }) {
   const [logs, setLogs] = useState<any[]>([]);

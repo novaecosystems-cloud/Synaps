@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
-import { TactileButton, ScrambleText } from '@/components/ui/DqnamoTactileSuite';
+import { TactileButton, ScrambleText } from '@/components/ui/EnterpriseTactileSuite';
 
 interface Citation {
   documentId?: string;

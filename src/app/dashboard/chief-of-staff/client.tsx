@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { SkiperLoopLoader } from '@/components/ui/SkiperLoopLoader';
 import { downloadAsPDF } from '@/lib/export-helpers';
-import { CassetteAudioPlayer } from '@/components/ui/DqnamoTactileSuite';
+import { CassetteAudioPlayer } from '@/components/ui/EnterpriseTactileSuite';
 
 interface ProactiveActionRecommendation {
   id: string;

@@ -157,8 +157,8 @@ function TrionnTiltCard({
   );
 }
 
-// ─── MAIN TRIONN STYLE LANDING PAGE ───────────────────────────────────────────
-export default function TrionnStyleLanding() {
+// ─── MAIN EXECUTIVE SHOWCASE LANDING PAGE ─────────────────────────────────────
+export default function ExecutiveShowcaseLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPromptIdx, setSelectedPromptIdx] = useState(0);
   const [typedPrompt, setTypedPrompt] = useState("");

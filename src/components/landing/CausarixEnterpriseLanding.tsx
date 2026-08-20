@@ -50,7 +50,7 @@ import {
   HoldToConfirmButton,
   MagneticDropZone,
   CassetteAudioPlayer,
-} from "@/components/ui/DqnamoTactileSuite";
+} from "@/components/ui/EnterpriseTactileSuite";
 import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
 import { AuroraBars } from "@/components/ui/AuroraBars";
 import { PixelLiquidBg } from "@/components/ui/PixelLiquidBg";
@@ -199,7 +199,7 @@ const FAQ_ITEMS = [
   },
 ];
 
-export default function IncrediblesStyleLanding() {
+export default function CausarixEnterpriseLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [comparisonView, setComparisonView] = useState<"both" | "without" | "with">("both");

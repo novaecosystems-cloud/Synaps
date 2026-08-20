@@ -16,7 +16,7 @@ const FLOATING_CARDS = [
   { id: '6', title: 'Chief of Staff Briefings', desc: 'Automated executive briefings, risk alerts & milestone tracking.', icon: Zap, tag: 'EXECUTIVE INTELLIGENCE', pos: 'bottom-[10%] right-[22%]', rot: 'rotate-[-2deg]' },
 ];
 
-export default function ContraLabsStyleSynapsLanding() {
+export default function MinimalistProductLanding() {
   const [showSignIn, setShowSignIn] = useState(false);
   const [activeCard, setActiveCard] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });

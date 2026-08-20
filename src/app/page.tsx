@@ -2,7 +2,7 @@ import React from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
-import IncrediblesStyleLanding from '@/components/landing/IncrediblesStyleLanding';
+import CausarixEnterpriseLanding from '@/components/landing/CausarixEnterpriseLanding';
 
 export const metadata = {
   title: 'CAUSARIX™ (formerly Synaps) — Causal Decision OS & Enterprise Intelligence Suite',
@@ -20,5 +20,5 @@ export default async function RootPage() {
     }
   }
 
-  return <IncrediblesStyleLanding />;
+  return <CausarixEnterpriseLanding />;
 }

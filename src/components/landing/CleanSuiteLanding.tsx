@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function GoogleStyleSynapsLanding() {
+export default function CleanSuiteLanding() {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Interactive Step State

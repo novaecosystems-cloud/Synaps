@@ -73,8 +73,8 @@ const FAQ_ITEMS: FAQItem[] = [
   },
 ];
 
-// ─── MAIN PONDER EDITORIAL LANDING COMPONENT ───────────────────────────────────
-export default function PonderEditorialSynapsLanding() {
+// ─── MAIN KNOWLEDGE INTELLIGENCE LANDING COMPONENT ───────────────────────────
+export default function KnowledgeIntelligenceLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 

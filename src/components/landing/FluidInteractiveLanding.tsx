@@ -99,8 +99,8 @@ const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
   },
 ];
 
-// ─── MAIN HEYPARKER STYLE LANDING PAGE COMPONENT ─────────────────────────────
-export default function HeyParkerStyleLanding() {
+// ─── MAIN FLUID INTERACTIVE LANDING PAGE COMPONENT ───────────────────────────
+export default function FluidInteractiveLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [selectedPromptIdx, setSelectedPromptIdx] = useState(0);

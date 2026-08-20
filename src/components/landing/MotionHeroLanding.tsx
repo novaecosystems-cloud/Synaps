@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowUpRight, ShieldCheck, Sparkles, Loader2 } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
 
-export default function FramerSynapsLanding() {
+export default function MotionHeroLanding() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
