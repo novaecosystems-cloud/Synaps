@@ -162,8 +162,9 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 4. Run Full Platform Verification & Stanford HELM Suite
+### 4. Run Full Platform Verification & XPRIZE Benchmark Suite
 ```bash
+node scripts/xprize-causal-benchmark-1000.mjs
 node scripts/verify-synaps-full-suite.mjs
 node scripts/helm-enterprise-scale-500.mjs
 node scripts/test-new-engines.mjs
