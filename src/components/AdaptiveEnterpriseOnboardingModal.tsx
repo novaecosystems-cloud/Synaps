@@ -657,6 +657,28 @@ export function AdaptiveEnterpriseOnboardingModal() {
                 );
               })}
             </div>
+
+            {/* Instant 60-Second Test-Drive Shortcut Bar */}
+            <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <span className="text-slate-400 font-mono text-[11px]">
+                ⚡ In a rush? Jump straight to the synthesized executive dossier & live simulation:
+              </span>
+              <button
+                onClick={() => {
+                  setAnswers({
+                    q1: "$50M–$200M Cloud M&A Acquisition & Tech Consolidation",
+                    q2: "Hidden GPLv3 Reciprocal License Traps in Acquired Codebases",
+                    q3: "Signing a $200M Term Sheet with Seller Escrow Carve-outs",
+                    q4: "Hostile Red-Team: Aggressively attack assumptions & expose fatal failure modes"
+                  });
+                  setCurrentStep("synthesis");
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center gap-1.5 shrink-0"
+              >
+                <span>⚡ Instant 60s Test-Drive</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         )}
 

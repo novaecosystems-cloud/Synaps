@@ -5,7 +5,7 @@ import {
   BrainCircuit, ShieldAlert, CheckCircle2, AlertTriangle, Activity, 
   HelpCircle, ChevronRight, FileText, Send, Sparkles, RefreshCw, 
   Layers, ArrowUpRight, Clock, Building2, ExternalLink, X, MessageSquare,
-  TrendingUp, TrendingDown, Info, ShieldCheck, Flame, Scale
+  TrendingUp, TrendingDown, Info, ShieldCheck, Flame, Scale, DollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -94,6 +94,97 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
   const [data, setData] = useState<ExecutiveBriefData>(DEFAULT_DEMO_DATA);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // ─── 60-SECOND AHA SIMULATION LAB STATE ──────────────────────────────────────
+  const [activeAhaScenario, setActiveAhaScenario] = useState<'mna' | 'sla' | 'boardroom'>('mna');
+  const [isAhaAnalyzing, setIsAhaAnalyzing] = useState(false);
+
+  const AHA_SCENARIOS = {
+    mna: {
+      id: 'mna',
+      tag: 'M&A IP DILIGENCE',
+      title: '$200M Cloud SaaS Acquisition — Hidden GPLv3 Contamination',
+      timeSaved: '18 Days Legal Audit Saved',
+      riskScore: '94% CRITICAL RISK',
+      vulnerability: {
+        title: 'Reciprocal AGPL-3.0 License Detected in Core Billing Engine',
+        source: 'Target Repo: /services/billing-v2/lib/crypto_worker.go (Line 142)',
+        detail: 'The acquisition target incorporated AGPL-3.0 licensed code into their proprietary closed-source billing pipeline. Under statutory copyright law, this creates a viral copyleft obligation to open-source the entire enterprise IP.',
+      },
+      financialDrag: {
+        cleanRoomCost: '$42.0M',
+        ebitdaCompression: '$14.5M / yr',
+        runwayImpact: '-6.2 Months',
+        recommendation: 'Reduce acquisition valuation from $200M to $130M + $35M Indemnity Escrow.',
+      },
+      delawareRedline: {
+        statutoryStandard: 'Delaware DGCL § 141(a) Fiduciary Shield',
+        originalClause: 'Seller represents that software is free of material IP defects with liability capped at $2.0M.',
+        redlinedClause: 'Seller warrants zero reciprocal copyleft (GPL/AGPL) contamination. Breach triggers immediate $42.0M special indemnity escrow release.',
+      },
+      boardroomQuorum: [
+        { role: 'CEO Twin', vote: 'PASS WITH COUNTER-OFFER', rationale: 'Core strategic asset remains attractive at $130M price point.' },
+        { role: 'CFO Twin', vote: 'VETO OVERPRICED BID', rationale: '$42M rewrite exceeds cash reserve. Escrow holdback mandatory.' },
+        { role: 'General Counsel', vote: 'RENEGOTIATE WARRANTY', rationale: 'Delaware § 141 liability exposure if closed without IP carve-out.' },
+      ]
+    },
+    sla: {
+      id: 'sla',
+      tag: 'CROSS-SILO INVARIANT',
+      title: 'Commercial 99.99% SLA vs. Cloud Infrastructure 99.9% Ceiling',
+      timeSaved: 'Instant Contract Redline',
+      riskScore: '$1,450,000 EXPOSURE',
+      vulnerability: {
+        title: 'Sales Committed to 99.99% Uptime with Unbudgeted Liquidated Damages',
+        source: 'Customer MSA: Apex_Enterprise_Master_Agreement_2026.pdf (Section 9.4)',
+        detail: 'Sales finalized a 99.99% SLA (< 52 mins downtime/year) with 25% monthly fee clawbacks. However, Engineering infrastructure operates on single-region AWS us-east-1 (99.9% / 8.7 hrs downtime/year).',
+      },
+      financialDrag: {
+        cleanRoomCost: '$1.45M Potential Clawbacks',
+        ebitdaCompression: '-12.8% Margin Compression',
+        runwayImpact: 'Violates CFO Minimum Reserve',
+        recommendation: 'Execute Delaware standard scheduled maintenance carve-outs and cap damages at 1 month MRR.',
+      },
+      delawareRedline: {
+        statutoryStandard: 'Commercial Invariant Defense',
+        originalClause: 'Vendor warrants 99.99% continuous availability. Outages incur 25% gross invoice credits.',
+        redlinedClause: 'Vendor commits to 99.9% availability, excluding scheduled maintenance (max 4 hrs/mo) and third-party cloud infrastructure downtime.',
+      },
+      boardroomQuorum: [
+        { role: 'CTO Twin', vote: 'VETO COMMERCIAL TERMS', rationale: 'Single-region deployment cannot mathematically deliver 99.99% uptime.' },
+        { role: 'CFO Twin', vote: 'VETO UNRESERVED RISK', rationale: '$1.45M liability violates board-approved 5% cash buffer policy.' },
+        { role: 'Legal Counsel', vote: 'SUBMIT AUTO-REDLINE', rationale: 'Replaced with standard DGCL multi-region carve-out clause.' },
+      ]
+    },
+    boardroom: {
+      id: 'boardroom',
+      tag: '10-AGENT QUORUM',
+      title: '10-Agent Boardroom Quorum — Series B Capital Allocation & Margin Pivot',
+      timeSaved: '4-Hour Board Debate in 15s',
+      riskScore: 'UNANIMOUS QUORUM',
+      vulnerability: {
+        title: 'Conflicting Department Directives on Expansion vs Capital Preservation',
+        source: 'Executive Boardroom Simulation: Strategy_Runway_Model_v4.py',
+        detail: 'CEO proposed a $15M European sales hiring sprint while CFO identified a 14-month cash runway threshold under +150 bps interest rates. Causarix resolved the deadlock in real time.',
+      },
+      financialDrag: {
+        cleanRoomCost: 'Zero Capital Waste',
+        ebitdaCompression: 'Preserves +24% EBITDA',
+        runwayImpact: 'Maintains 22 Months Buffer',
+        recommendation: 'Staged release: Release $4.0M tranche only upon reaching $2.5M in Net New ARR.',
+      },
+      delawareRedline: {
+        statutoryStandard: 'Board Resolution Fiduciary Record',
+        originalClause: 'Authorize management to draw $15M from credit facility for European expansion.',
+        redlinedClause: 'Resolved: Authorize conditional $4.0M Tranche 1 tied to milestone verification and monthly CFO audit.',
+      },
+      boardroomQuorum: [
+        { role: 'CEO Twin', vote: 'CONCUR WITH TRANCHES', rationale: 'Staged funding allows market entry while protecting balance sheet.' },
+        { role: 'CFO Twin', vote: 'APPROVE TRANCHE 1', rationale: 'Maintains 22-month cash buffer under pessimistic macro conditions.' },
+        { role: 'Legal Counsel', vote: 'FILE BOARD MINUTES', rationale: 'Meets Business Judgment Rule under Delaware General Corporation Law.' },
+      ]
+    }
+  };
 
   // Active modal inspection states
   const [activeAnswer, setActiveAnswer] = useState<ExecutiveAnswer | null>(null);
@@ -243,6 +334,193 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             </button>
           </div>
         </div>
+      </div>
+
+      {/* ── 60-SECOND EXECUTIVE "AHA!" SIMULATION LAB ─────────────────────────── */}
+      <div className="rounded-3xl border-2 border-indigo-500/40 bg-gradient-to-br from-slate-900 via-[#0b0f19] to-slate-950 p-6 sm:p-8 text-white shadow-2xl space-y-6 relative overflow-hidden">
+        {/* Specular Background Glow */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/15 rounded-full blur-[90px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#fc4778]/10 rounded-full blur-[90px] pointer-events-none" />
+
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10 border-b border-white/10 pb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 font-mono text-xs font-bold text-amber-400 uppercase tracking-widest">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span>Instant 60-Second "AHA!" Simulation Lab</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Test-Drive Causarix on High-Stakes Corporate Scenarios
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300">
+              Select a scenario below to watch Causarix uncover hidden liabilities, model financial drag, and generate Delaware DGCL § 141 redlines in under 15 seconds.
+            </p>
+          </div>
+
+          {/* Preset Tabs */}
+          <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-black/60 border border-white/10">
+            <button
+              onClick={() => {
+                setIsAhaAnalyzing(true);
+                setActiveAhaScenario('mna');
+                setTimeout(() => setIsAhaAnalyzing(false), 500);
+              }}
+              className={cn(
+                "px-3.5 py-2 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5",
+                activeAhaScenario === 'mna'
+                  ? "bg-indigo-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                  : "text-slate-400 hover:text-white"
+              )}
+            >
+              <span>🎯 $200M M&A Audit</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setIsAhaAnalyzing(true);
+                setActiveAhaScenario('sla');
+                setTimeout(() => setIsAhaAnalyzing(false), 500);
+              }}
+              className={cn(
+                "px-3.5 py-2 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5",
+                activeAhaScenario === 'sla'
+                  ? "bg-[#fc4778] text-white shadow-[0_0_15px_rgba(252,71,120,0.5)]"
+                  : "text-slate-400 hover:text-white"
+              )}
+            >
+              <span>⚖️ 99.99% SLA Invariant</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setIsAhaAnalyzing(true);
+                setActiveAhaScenario('boardroom');
+                setTimeout(() => setIsAhaAnalyzing(false), 500);
+              }}
+              className={cn(
+                "px-3.5 py-2 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5",
+                activeAhaScenario === 'boardroom'
+                  ? "bg-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+                  : "text-slate-400 hover:text-white"
+              )}
+            >
+              <span>🏛️ 10-Agent Quorum</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Live Scenario Card */}
+        {isAhaAnalyzing ? (
+          <div className="py-16 flex flex-col items-center justify-center space-y-4">
+            <RefreshCw className="w-8 h-8 text-indigo-400 animate-spin" />
+            <div className="font-mono text-xs text-indigo-300 font-bold uppercase tracking-wider animate-pulse">
+              Traversing KùzuDB Causal Graph & Calculating Delaware Redlines...
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6 relative z-10">
+            {/* Header badges */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 font-mono text-xs font-bold">
+                  // {AHA_SCENARIOS[activeAhaScenario].tag}
+                </span>
+                <h3 className="font-bold text-lg text-white">
+                  {AHA_SCENARIOS[activeAhaScenario].title}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2 font-mono text-xs">
+                <span className="px-2.5 py-1 rounded-md bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold">
+                  {AHA_SCENARIOS[activeAhaScenario].riskScore}
+                </span>
+                <span className="px-2.5 py-1 rounded-md bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold">
+                  ⚡ {AHA_SCENARIOS[activeAhaScenario].timeSaved}
+                </span>
+              </div>
+            </div>
+
+            {/* 3-Pillar Aha Breakdown Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              {/* Pillar 1: Root Vulnerability & Citation */}
+              <div className="p-5 rounded-2xl bg-black/50 border border-rose-500/30 space-y-3">
+                <div className="flex items-center gap-2 font-mono text-xs text-rose-400 font-bold uppercase">
+                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                  <span>1. Detected Vulnerability</span>
+                </div>
+                <h4 className="text-sm font-bold text-white">
+                  {AHA_SCENARIOS[activeAhaScenario].vulnerability.title}
+                </h4>
+                <div className="p-2.5 rounded-lg bg-rose-950/40 border border-rose-500/20 font-mono text-[11px] text-rose-200">
+                  📁 {AHA_SCENARIOS[activeAhaScenario].vulnerability.source}
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  {AHA_SCENARIOS[activeAhaScenario].vulnerability.detail}
+                </p>
+              </div>
+
+              {/* Pillar 2: Financial Model Drag */}
+              <div className="p-5 rounded-2xl bg-black/50 border border-amber-500/30 space-y-3">
+                <div className="flex items-center gap-2 font-mono text-xs text-amber-400 font-bold uppercase">
+                  <DollarSign className="w-4 h-4 text-amber-400" />
+                  <span>2. Mathematical Drag (Pyodide)</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <span className="text-[10px] text-slate-400 block uppercase">Clean-Room Cost</span>
+                    <span className="text-base font-black text-amber-300">
+                      {AHA_SCENARIOS[activeAhaScenario].financialDrag.cleanRoomCost}
+                    </span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <span className="text-[10px] text-slate-400 block uppercase">Runway Impact</span>
+                    <span className="text-base font-black text-rose-400">
+                      {AHA_SCENARIOS[activeAhaScenario].financialDrag.runwayImpact}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  💡 <strong className="text-white">CFO Directive:</strong> {AHA_SCENARIOS[activeAhaScenario].financialDrag.recommendation}
+                </p>
+              </div>
+
+              {/* Pillar 3: Delaware Redline & Counter-Clause */}
+              <div className="p-5 rounded-2xl bg-black/50 border border-emerald-500/30 space-y-3">
+                <div className="flex items-center gap-2 font-mono text-xs text-emerald-400 font-bold uppercase">
+                  <Scale className="w-4 h-4 text-emerald-400" />
+                  <span>3. Delaware DGCL Redline</span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-red-950/30 border border-red-500/30 text-[11px] font-sans text-red-200 line-through">
+                  ❌ {AHA_SCENARIOS[activeAhaScenario].delawareRedline.originalClause}
+                </div>
+                <div className="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-[11px] font-sans text-emerald-200 font-semibold">
+                  ✓ {AHA_SCENARIOS[activeAhaScenario].delawareRedline.redlinedClause}
+                </div>
+              </div>
+            </div>
+
+            {/* Quorum Votes & 1-Click Action Bar */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="font-mono text-xs font-bold text-slate-400 uppercase">10-Agent Consensus:</span>
+                {AHA_SCENARIOS[activeAhaScenario].boardroomQuorum.map((vote, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/40 border border-white/10 font-mono text-[11px]">
+                    <span className="font-bold text-indigo-300">{vote.role}:</span>
+                    <span className="text-emerald-400 font-semibold">{vote.vote}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={() => window.location.href = '/dashboard/simulations'}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center gap-2"
+                >
+                  <span>Open Full Studio</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Active Knowledge Selector Bar */}
