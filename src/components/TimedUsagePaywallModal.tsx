@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Clock, Tag, Check, ShoppingBag, ShieldCheck
+  Clock, Tag, Check, ShoppingBag, ShieldCheck, X
 } from "lucide-react";
 import { getGumroadCheckoutUrl } from "@/lib/gumroad";
 
@@ -16,7 +16,7 @@ interface TimedUsagePaywallModalProps {
 
 const USAGE_LIMIT_SECONDS = 7 * 60; // 7 minutes = 420 seconds
 const STORAGE_KEY = "causarix_active_usage_seconds_v1";
-const EXTENSION_KEY = "causarix_usage_extended_v1";
+const SHOWN_KEY = "causarix_paywall_shown_once_v1";
 
 export default function TimedUsagePaywallModal({
   userPlan = "free",
@@ -25,7 +25,6 @@ export default function TimedUsagePaywallModal({
   onCloseOverride,
 }: TimedUsagePaywallModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasExtended, setHasExtended] = useState(false);
 
   // Discount & Gumroad State
   const [promoCodeInput, setPromoCodeInput] = useState("LAUNCH100");
@@ -39,39 +38,50 @@ export default function TimedUsagePaywallModal({
     isValid: true,
   });
 
-  // Track active time spent on the app
+  // Track active time spent on the app (triggers ONLY ONCE)
   useEffect(() => {
     if (isPremium || userPlan === "max" || userPlan === "enterprise") {
       return; // Never trigger paywall for subscribed premium users
     }
 
+    // If paywall was already shown/dismissed once, never show again
     try {
-      const storedSecs = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
-      const storedExtended = localStorage.getItem(EXTENSION_KEY) === "true";
-      setHasExtended(storedExtended);
-
-      const limit = storedExtended ? USAGE_LIMIT_SECONDS + 180 : USAGE_LIMIT_SECONDS;
-      if (storedSecs >= limit) {
-        setIsOpen(true);
+      const alreadyShown = localStorage.getItem(SHOWN_KEY) === "true";
+      if (alreadyShown) {
+        return;
       }
     } catch (e) {}
 
     const timer = setInterval(() => {
       try {
+        const alreadyShown = localStorage.getItem(SHOWN_KEY) === "true";
+        if (alreadyShown) {
+          clearInterval(timer);
+          return;
+        }
+
         const storedSecs = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
         const next = storedSecs + 1;
         localStorage.setItem(STORAGE_KEY, next.toString());
-        const extended = localStorage.getItem(EXTENSION_KEY) === "true";
-        const currentLimit = extended ? USAGE_LIMIT_SECONDS + 180 : USAGE_LIMIT_SECONDS;
         
-        if (next >= currentLimit && !isOpen) {
+        if (next >= USAGE_LIMIT_SECONDS) {
           setIsOpen(true);
+          localStorage.setItem(SHOWN_KEY, "true"); // Mark as shown so it never pops up again!
+          clearInterval(timer);
         }
       } catch (e) {}
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isPremium, userPlan, isOpen]);
+  }, [isPremium, userPlan]);
+
+  const handleDismiss = () => {
+    try {
+      localStorage.setItem(SHOWN_KEY, "true");
+    } catch (e) {}
+    setIsOpen(false);
+    if (onCloseOverride) onCloseOverride();
+  };
 
   const handleVerifyDiscount = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -96,15 +106,6 @@ export default function TimedUsagePaywallModal({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const handleExtendSession = () => {
-    try {
-      localStorage.setItem(EXTENSION_KEY, "true");
-      setHasExtended(true);
-      setIsOpen(false);
-      if (onCloseOverride) onCloseOverride();
-    } catch (e) {}
-  };
-
   // Pricing calculations
   const baseStandard = 29;
   const baseEnterprise = 100;
@@ -126,6 +127,15 @@ export default function TimedUsagePaywallModal({
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           className="w-full max-w-4xl bg-[#090d16] border-2 border-amber-500/50 rounded-3xl shadow-2xl overflow-hidden relative my-auto text-white p-6 sm:p-10 space-y-8"
         >
+          {/* Top-Right Dismiss [ ✕ ] Button */}
+          <button
+            onClick={handleDismiss}
+            className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-400 hover:text-white transition-all z-20 cursor-pointer"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
           {/* Specular Glows */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#fc4778]/10 rounded-full blur-[100px] pointer-events-none" />
@@ -294,14 +304,12 @@ export default function TimedUsagePaywallModal({
               <span>Processed securely by Gumroad Merchant of Record · 1-Click Cancel Anytime</span>
             </div>
 
-            {!hasExtended && (
-              <button
-                onClick={handleExtendSession}
-                className="text-slate-400 hover:text-white underline text-[11px] transition-colors"
-              >
-                Extend Evaluation Session by 3 Minutes (One-Time) →
-              </button>
-            )}
+            <button
+              onClick={handleDismiss}
+              className="text-slate-400 hover:text-white underline text-[11px] transition-colors cursor-pointer"
+            >
+              Dismiss & Continue Free Exploration →
+            </button>
           </div>
         </motion.div>
       </div>
