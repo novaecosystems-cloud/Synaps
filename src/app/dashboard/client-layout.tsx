@@ -49,6 +49,7 @@ const AiCreditBadge = dynamic(() => import('@/components/AiCreditBadge'), { ssr:
 const AiCreditExhaustedModal = dynamic(() => import('@/components/AiCreditExhaustedModal'), { ssr: false });
 const DemoHeaderBadge = dynamic(() => import('@/components/DemoHeaderBadge'), { ssr: false });
 const DailyWorkdayBriefModal = dynamic(() => import('@/components/DailyWorkdayBriefModal'), { ssr: false });
+const TimedUsagePaywallModal = dynamic(() => import('@/components/TimedUsagePaywallModal'), { ssr: false });
 
 const PlanAccessGate = dynamic(() => import('@/components/PlanAccessGate'), { ssr: false });
 
@@ -510,6 +511,11 @@ export default function ClientLayout({ children, user }: { children: React.React
       <DownloadDesktopModal
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
+      />
+      <TimedUsagePaywallModal 
+        userPlan={user?.isPremium ? 'max' : 'free'} 
+        userEmail={user?.email} 
+        isPremium={user?.isPremium} 
       />
       {pathname !== '/demo' && (
         <>
