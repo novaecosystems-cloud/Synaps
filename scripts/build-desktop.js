@@ -20,10 +20,10 @@ fs.mkdirSync(appDir, { recursive: true });
 
 // 1. Write desktop package.json
 const desktopPkg = {
-  name: 'synaps-desktop',
+  name: 'causarix-desktop',
   version: '1.0.0',
   main: 'main.js',
-  description: 'Synaps AI — Sovereign Enterprise OS',
+  description: 'Causarix AI — Sovereign Enterprise Decision Intelligence OS',
 };
 fs.writeFileSync(
   path.join(appDir, 'package.json'),

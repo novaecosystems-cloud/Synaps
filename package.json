@@ -1,12 +1,13 @@
 {
-  "name": "synaps",
+  "name": "causarix",
   "version": "0.1.0",
-  "description": "Synaps AI - Sovereign Enterprise Knowledge Engine & Multi-Agent OS",
+  "description": "Causarix AI — Sovereign Enterprise Decision Intelligence OS & Multi-Agent Engine",
   "author": "Nova Ecosystems Cloud <contact@novaecosystems.com>",
-  "homepage": "https://synaps-one.vercel.app",
+  "homepage": "https://causarix.vercel.app",
   "private": true,
   "main": "electron/main.js",
   "bin": {
+    "causarix": "./bin/synaps.js",
     "synaps": "./bin/synaps.js",
     "synapse": "./bin/synaps.js"
   },
