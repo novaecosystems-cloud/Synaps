@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { LEGAL_DOCUMENTS } from '@/lib/legal-docs';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://synaps-one.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://causarix.vercel.app';
 
   const legalSlugs = Object.keys(LEGAL_DOCUMENTS);
 
@@ -17,8 +17,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${baseUrl}`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: 'daily',
       priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/demo`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/login`,

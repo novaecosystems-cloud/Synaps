@@ -25,21 +25,22 @@ export interface SEOAuditResult {
   recommendations: string[];
 }
 
-const DEFAULT_TITLE = "Synaps AI — 3D Corporate Memory Graph & 10-Agent AI Boardroom";
-const DEFAULT_DESCRIPTION = "Synaps AI transforms enterprise document libraries into an interactive 3D Knowledge Graph, 10-Agent C-Suite Boardroom, and automated executive operational briefings.";
-const DEFAULT_APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://synaps-one.vercel.app";
-const DEFAULT_OG_IMAGE = `${DEFAULT_APP_URL}/synaps_logo.png`;
+const DEFAULT_TITLE = "CAUSARIX™ — Causal Decision OS, Delaware Contract Redlines & 10-Agent Boardroom";
+const DEFAULT_DESCRIPTION = "CAUSARIX (powered by Synaps Causal Intelligence Core) transforms corporate contracts and document libraries into automated Delaware DGCL § 141 redlines, cross-silo invariant checks, and 10-Agent Boardroom Quorum.";
+const DEFAULT_APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://causarix.vercel.app";
+const DEFAULT_OG_IMAGE = `${DEFAULT_APP_URL}/brand/causarix_benchmark_table.jpg`;
 
 /**
  * Generate OpenSEO standard metadata configuration
  */
 export function getOpenSEOMetadata(options: OpenSEOOptions = {}) {
-  const title = options.title ? `${options.title} | Synaps AI` : DEFAULT_TITLE;
+  const title = options.title ? `${options.title} | CAUSARIX™` : DEFAULT_TITLE;
   const description = options.description || DEFAULT_DESCRIPTION;
   const canonical = options.canonicalUrl || DEFAULT_APP_URL;
   const ogImage = options.ogImage || DEFAULT_OG_IMAGE;
   const keywords = options.keywords || [
-    "Enterprise AI", "3D Knowledge Graph", "Corporate Memory", "AI Boardroom", 
+    "Causarix", "Causarix AI", "Causal Decision OS", "Delaware Contract Redlines",
+    "Judea Pearl SCM", "Enterprise AI", "3D Knowledge Graph", "Corporate Memory", "AI Boardroom", 
     "Multi-Agent System", "Executive Decision Intelligence", "AI COO", "Risk Management"
   ];
 
@@ -54,13 +55,13 @@ export function getOpenSEOMetadata(options: OpenSEOOptions = {}) {
       title,
       description,
       url: canonical,
-      siteName: "Synaps AI",
+      siteName: "CAUSARIX™",
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: "Synaps AI 3D Corporate Memory"
+          alt: "CAUSARIX™ Causal Decision OS & Benchmark"
         }
       ],
       type: options.type || "website"
