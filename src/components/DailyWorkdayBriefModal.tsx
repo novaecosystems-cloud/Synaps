@@ -26,15 +26,14 @@ export default function DailyWorkdayBriefModal({ isOpenOverride, onCloseOverride
   const dateFormatted = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
   useEffect(() => {
-    // Check if this is the first open for a new workday
     if (typeof window !== 'undefined') {
-      const lastBriefDate = localStorage.getItem('synaps_daily_brief_date');
-      if (lastBriefDate !== todayStr || isOpenOverride) {
+      // Only open when explicitly triggered by the user clicking the "Daily Brief" button
+      if (isOpenOverride) {
         setIsOpen(true);
         fetchDailyBrief();
       }
     }
-  }, [todayStr, isOpenOverride]);
+  }, [isOpenOverride]);
 
   const fetchDailyBrief = async () => {
     setLoading(true);
