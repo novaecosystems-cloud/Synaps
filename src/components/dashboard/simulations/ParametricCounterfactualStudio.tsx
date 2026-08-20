@@ -18,7 +18,7 @@ import {
 } from '@/lib/causal/xprize-domains';
 import { StructuralCausalModel } from '@/lib/causal/structural-causal-model';
 
-export type XPrizeScenarioType = 
+export type MacroScenarioType = 
   | 'mna200m' 
   | 'smbSolvency' 
   | 'legalAccess' 
@@ -36,7 +36,7 @@ export interface ParametricSimulationState {
 }
 
 export function ParametricCounterfactualStudio() {
-  const [activeScenario, setActiveScenario] = useState<XPrizeScenarioType>('mna200m');
+  const [activeScenario, setActiveScenario] = useState<MacroScenarioType>('mna200m');
   const [isSimulating, setIsSimulating] = useState(false);
   const [actionDispatched, setActionDispatched] = useState(false);
   const [jiraIssueKey, setJiraIssueKey] = useState<string | null>(null);
@@ -141,7 +141,7 @@ export function ParametricCounterfactualStudio() {
     };
   }, [params]);
 
-  const loadScenario = (scenario: XPrizeScenarioType) => {
+  const loadScenario = (scenario: MacroScenarioType) => {
     setActiveScenario(scenario);
     if (scenario === 'mna200m') {
       setParams(p => ({ ...p, tariffRate: 5, interestRateShift: 50, cloudOutageHours: 0, arrChurnRate: 4, mnaDealSizeUsd: 200 }));
@@ -163,7 +163,7 @@ export function ParametricCounterfactualStudio() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          summary: `[Causarix XPRIZE SCM Dispatch] ${activeScenario.toUpperCase()} - Causal Counterfactual Mitigation`,
+          summary: `[Causarix Macro SCM Dispatch] ${activeScenario.toUpperCase()} - Causal Counterfactual Mitigation`,
           description: `Dispatched from Causarix Pearl Do-Calculus Engine. Intervened with G_{\\overline{X}}. Grounded Causal Delta: ${causalInferenceResult.causalDelta} (${causalInferenceResult.percentChange}%).`
         })
       });
@@ -193,7 +193,7 @@ export function ParametricCounterfactualStudio() {
               PEARL DO-CALCULUS SCM ENGINE
             </span>
             <span className="badge badge-secondary badge-xs font-bold text-[9px]">
-              GEMINI XPRIZE TRACKS
+              INSTITUTIONAL MACRO PRESETS
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-base-content mt-1">

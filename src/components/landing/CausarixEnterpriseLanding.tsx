@@ -383,10 +383,10 @@ export default function CausarixEnterpriseLanding() {
           />
         </div>
 
-        {/* XPRIZE Foundation Competition Entry & Transition Badge */}
+        {/* Sovereign Causal Intelligence OS Transition Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0f0f11] text-white font-mono text-[11px] font-black uppercase tracking-wider shadow-lg">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>XPRIZE FOUNDATION COMPETITION ENTRY · CAUSARIX™ (FORMERLY SYNAPS)</span>
+          <span>SOVEREIGN CAUSAL INTELLIGENCE OS · CAUSARIX™ (FORMERLY SYNAPS)</span>
         </div>
 
         {/* Badges Ticker */}

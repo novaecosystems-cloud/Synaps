@@ -3,32 +3,31 @@
 [![Production Live](https://img.shields.io/badge/Production-Live_v3.5-blue.svg)](https://causarix.vercel.app)
 [![Zero-Login Demo](https://img.shields.io/badge/Demo-Interactive_Sandbox-success.svg)](https://causarix.vercel.app/demo)
 [![SCM: Pearl Do-Calculus](https://img.shields.io/badge/SCM-Pearl_Do--Calculus_Engine-indigo.svg)](https://causarix.vercel.app/dashboard/simulations)
-[![XPRIZE Tracks: 5/5 Aligned](https://img.shields.io/badge/XPRIZE-Gemini_Tracks_100%25_Aligned-orange.svg)](https://www.geminixprize.com/rules)
 [![Benchmark: 1,000 Instances](https://img.shields.io/badge/Benchmark-1,000_Instances_(p<0.0001)-success.svg)](https://causarix.vercel.app/api/benchmark/xprize-1000)
 [![Graph DB: KùzuDB](https://img.shields.io/badge/Graph_DB-KùzuDB_Embedded_GDBMS-orange.svg)](https://github.com/kuzudb/kuzu)
 [![AI Engine: Gemini 2.5](https://img.shields.io/badge/AI-Google_Gemini_2.5_Flash-4285F4.svg)](https://ai.google.dev/)
-[![License: Source Available (XPRIZE Evaluation)](https://img.shields.io/badge/License-Source_Available_(XPRIZE_Evaluation)-red.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
+[![License: Proprietary Commercial](https://img.shields.io/badge/License-Proprietary_Commercial-red.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
 
-> 🏛️ **OFFICIAL GEMINI XPRIZE COMPETITION ENTRY & RESEARCH SPECIFICATION:**  
+> 🏛️ **SOVEREIGN ENTERPRISE DECISION INTELLIGENCE SPECIFICATION:**  
 > **CAUSARIX™** is a hybrid Neuro-Symbolic Decision Intelligence OS built upon formal **Structural Causal Models (SCMs)** and **Judea Pearl’s $do$-Calculus**. It addresses the 3 core failures of raw foundation models—**stochastic hallucination, arithmetic drift, and cross-document blindness**—by combining Google Gemini 2.5 Flash with embedded KùzuDB graph traversal, deterministic Pyodide WebAssembly Python, and line-level SHA-256 cryptographic verification.
 
 ---
 
-## 🌐 Live Platform Deployments & XPRIZE Endpoints
+## 🌐 Live Platform Deployments & API Endpoints
 
 * 🚀 **Production Cloud Platform**: [https://causarix.vercel.app](https://causarix.vercel.app) *(Mirror: [https://synaps-one.vercel.app](https://synaps-one.vercel.app))*
 * 🎮 **Zero-Login Interactive Sandbox**: [https://causarix.vercel.app/demo](https://causarix.vercel.app/demo)
 * 🏢 **Pearl Do-Calculus Causal Studio**: [https://causarix.vercel.app/dashboard/simulations](https://causarix.vercel.app/dashboard/simulations)
-* 📊 **1,000-Instance Blinded XPRIZE Benchmark JSON**: [https://causarix.vercel.app/api/benchmark/xprize-1000](https://causarix.vercel.app/api/benchmark/xprize-1000)
+* 📊 **1,000-Instance Blinded Benchmark JSON**: [https://causarix.vercel.app/api/benchmark/xprize-1000](https://causarix.vercel.app/api/benchmark/xprize-1000)
 * 📑 **Live Stanford HELM PDF Evaluation Dossier**: [https://causarix.vercel.app/api/benchmark-report](https://causarix.vercel.app/api/benchmark-report)
 * 🔌 **Model Context Protocol (MCP) Server**: `https://causarix.vercel.app/api/mcp`
 * 💳 **Billing Portal**: [https://causarix.vercel.app/dashboard/settings/billing](https://causarix.vercel.app/dashboard/settings/billing) *(Launch Code: `LAUNCH100`)*
 
 ---
 
-## 🏆 Official Gemini XPRIZE Track Alignments
+## 🏆 Institutional Causal & Economic Decision Models
 
-| XPRIZE Domain Track | Causarix Implementation & Causal SCM | Ground Truth Verification |
+| Institutional Domain Track | Causarix Implementation & Causal SCM | Ground Truth Verification |
 | :--- | :--- | :--- |
 | **1. Small Business Services** | **Small Business Solvency SCM**: Models micro-capital injection, commercial rent overhang, and revenue elasticity to collapse 12-month default risk. | Deterministic Pyodide WebAssembly balance sheet models. |
 | **2. Professional Services Access** | **Legal Democratization SCM**: Replaces $1,200/hr outside counsel with automated Delaware DGCL § 141 redlines, intercepting predatory indemnity clauses. | SHA-256 line-level coordinates `[Doc, Page, Line]`. |
@@ -162,7 +161,7 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### 4. Run Full Platform Verification & XPRIZE Benchmark Suite
+### 4. Run Full Platform Verification & Causal Benchmark Suite
 ```bash
 node scripts/xprize-causal-benchmark-1000.mjs
 node scripts/verify-synaps-full-suite.mjs
@@ -172,6 +171,6 @@ node scripts/test-new-engines.mjs
 
 ---
 
-## 📜 Intellectual Property & XPRIZE Notice
+## 📜 Intellectual Property & Sovereign Licensing
 © 2026 CAUSARIX INC. (A SYNAPS INTELLIGENCE COMPANY). ALL RIGHTS RESERVED.  
-Evaluation entries submitted under XPRIZE Foundation competition guidelines.
+Sovereign enterprise decision intelligence and evidentiary graph architecture.

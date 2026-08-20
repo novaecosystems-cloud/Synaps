@@ -1,7 +1,7 @@
 /**
- * OFFICIAL GEMINI XPRIZE TRACKS & GRAND CHALLENGE CAUSAL MODELS
+ * INSTITUTIONAL MACRO & ENTERPRISE STRUCTURAL CAUSAL MODELS
  * 
- * Formal Structural Causal Models (SCMs) tailored to the 5 official XPRIZE competition tracks:
+ * Formal Structural Causal Models (SCMs) tailored to mission-critical economic & enterprise domains:
  * 1. Small Business Services & Entrepreneurship Solvency
  * 2. Professional Services Access & Legal Democratization
  * 3. Money & Financial Access (Micro-Capital Counterfactuals)
@@ -12,7 +12,7 @@
 import { StructuralCausalModel } from './structural-causal-model';
 
 /**
- * XPRIZE TRACK 1: Small Business Services & Entrepreneurship Solvency
+ * DOMAIN 1: Small Business Services & Entrepreneurship Solvency
  * Models local merchant cash flow vulnerability, commercial lease overhang, and revenue resilience under macro shifts.
  */
 export function createSmallBusinessSolvencySCM(): StructuralCausalModel {
