@@ -72,6 +72,11 @@ export default function OrganizationModal({ isOpen, onClose }: { isOpen: boolean
   const [searching, setSearching] = useState(false);
   const [joiningOrgId, setJoiningOrgId] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  
+  // Join by Invite Code State
+  const [inviteCodeInput, setInviteCodeInput] = useState('');
+  const [joiningByCode, setJoiningByCode] = useState(false);
 
   const fetchOrgDetails = useCallback(async () => {
     setLoading(true);
@@ -232,12 +237,50 @@ export default function OrganizationModal({ isOpen, onClose }: { isOpen: boolean
     }
   };
 
+  const handleJoinByInviteCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteCodeInput.trim()) return;
+    setJoiningByCode(true);
+    try {
+      const res = await fetch('/api/organizations/join-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteCode: inviteCodeInput.trim() })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast({ title: 'Workspace Joined! 🎉', description: data.message });
+        setInviteCodeInput('');
+        fetchOrgDetails();
+        window.location.reload();
+      } else {
+        toast({ title: 'Join Failed', description: data.error, variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setJoiningByCode(false);
+    }
+  };
+
   const copyInviteCode = () => {
-    if (!orgData?.inviteCode) return;
-    navigator.clipboard.writeText(orgData.inviteCode);
+    const code = orgData?.inviteCode || (orgData?.id ? `CSX-${orgData.id.substring(0, 8).toUpperCase()}` : '');
+    if (!code) return;
+    navigator.clipboard.writeText(code);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
-    toast({ title: 'Copied!', description: 'Invite code copied to clipboard.' });
+    toast({ title: 'Copied!', description: `Invite code ${code} copied to clipboard.` });
+  };
+
+  const copyInviteLink = () => {
+    const code = orgData?.inviteCode || (orgData?.id ? `CSX-${orgData.id.substring(0, 8).toUpperCase()}` : '');
+    if (!code) return;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://causarix.vercel.app';
+    const link = `${origin}/join?code=${encodeURIComponent(code)}`;
+    navigator.clipboard.writeText(link);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+    toast({ title: 'Invite Link Copied! 🔗', description: 'Share this link with team members to join.' });
   };
 
   if (!isOpen) return null;
@@ -341,10 +384,14 @@ export default function OrganizationModal({ isOpen, onClose }: { isOpen: boolean
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 w-full md:w-auto">
-                      <button onClick={copyInviteCode} className="btn btn-outline btn-sm rounded-xl gap-2 w-full md:w-auto">
-                        {copiedCode ? <CheckCircle2 className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                        {copiedCode ? 'Copied' : `Invite Code: ${orgData.inviteCode}`}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+                      <button onClick={copyInviteCode} className="btn btn-primary btn-sm rounded-xl gap-2 shadow-sm">
+                        {copiedCode ? <CheckCircle2 className="h-4 w-4 text-white" /> : <Copy className="h-4 w-4" />}
+                        <span className="font-mono">{copiedCode ? 'Code Copied!' : `Invite Code: ${orgData.inviteCode || `CSX-${orgData.id.substring(0, 8).toUpperCase()}`}`}</span>
+                      </button>
+                      <button onClick={copyInviteLink} className="btn btn-outline btn-sm rounded-xl gap-1.5 text-xs">
+                        {copiedLink ? <CheckCircle2 className="h-3.5 w-3.5 text-success" /> : <Sparkles className="h-3.5 w-3.5 text-primary" />}
+                        {copiedLink ? 'Link Copied' : 'Copy Invite Link'}
                       </button>
                     </div>
                   </div>
@@ -373,9 +420,39 @@ export default function OrganizationModal({ isOpen, onClose }: { isOpen: boolean
                 </div>
               )}
 
-              {/* TAB 2: INSTANT YOUTUBE-STYLE SEARCH */}
+              {/* TAB 2: INSTANT YOUTUBE-STYLE SEARCH & INVITE CODE JOIN */}
               {activeTab === 'SEARCH' && (
                 <div className="space-y-6">
+                  {/* Join with Invite Code Card */}
+                  <div className="card bg-gradient-to-r from-primary/10 via-base-200 to-base-200 border border-primary/30 p-5 rounded-2xl">
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <h4 className="font-bold text-sm text-base-content">Have an Organization Invite Code?</h4>
+                    </div>
+                    <p className="text-xs text-base-content/70 mb-3">
+                      Enter the invite code (e.g. <span className="font-mono text-primary font-bold">CSX-9A4F8B</span>) to gain instant workspace access without waiting for admin approval.
+                    </p>
+                    <form onSubmit={handleJoinByInviteCode} className="flex flex-col sm:flex-row gap-2">
+                      <input 
+                        type="text" 
+                        placeholder="Enter Invite Code (e.g. CSX-XXXXXX)..."
+                        className="input input-bordered input-sm flex-1 rounded-xl font-mono uppercase bg-base-100 focus:input-primary text-xs"
+                        value={inviteCodeInput}
+                        onChange={(e) => setInviteCodeInput(e.target.value.toUpperCase())}
+                      />
+                      <button 
+                        type="submit" 
+                        disabled={joiningByCode || !inviteCodeInput.trim()} 
+                        className="btn btn-primary btn-sm rounded-xl gap-1.5 shadow-md shadow-primary/20 text-xs font-bold"
+                      >
+                        {joiningByCode ? <span className="loading loading-spinner loading-xs"></span> : <UserPlus className="h-3.5 w-3.5" />}
+                        Join Instantly
+                      </button>
+                    </form>
+                  </div>
+
+                  <div className="divider text-xs text-base-content/40 my-2">OR SEARCH DIRECTORY</div>
+
                   <div>
                     <h3 className="text-base font-bold text-base-content mb-1">Instant Organization Search</h3>
                     <p className="text-xs text-base-content/60">Type an organization name to match instantly (autocomplete, logo preview, member count).</p>

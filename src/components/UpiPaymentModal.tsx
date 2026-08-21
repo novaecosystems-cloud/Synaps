@@ -30,13 +30,13 @@ export default function UpiPaymentModal({
 
   // Plan pricing in INR (approx 30% OFF applied)
   const planDetails = planId === 'enterprise' ? {
-    title: 'Synaps Enterprise MAX',
+    title: 'Causarix Enterprise MAX',
     priceInr: '₹899',
     priceUsd: '$10.99',
     rawAmount: 899,
     credits: '10,000 Credits/Day'
   } : {
-    title: 'Synaps Pro Intelligence',
+    title: 'Causarix Pro Intelligence',
     priceInr: '₹599',
     priceUsd: '$7.99',
     rawAmount: 599,
@@ -44,7 +44,7 @@ export default function UpiPaymentModal({
   };
 
   // Generate standard UPI Intent URI
-  const upiIntentUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=Synaps%20AI&am=${planDetails.rawAmount}&cu=INR&tn=${encodeURIComponent(`Synaps ${planId.toUpperCase()} Subscription`)}`;
+  const upiIntentUri = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=Causarix%20AI&am=${planDetails.rawAmount}&cu=INR&tn=${encodeURIComponent(`Causarix ${planId.toUpperCase()} Subscription`)}`;
 
   // Generate QR Code Image URL using public QR Server API
   const qrCodeImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiIntentUri)}&color=000000&bgcolor=ffffff`;

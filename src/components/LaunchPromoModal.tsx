@@ -26,7 +26,7 @@ export default function LaunchPromoModal({ userPlan }: LaunchPromoModalProps) {
     }
 
     // Check if shown in this browser session
-    const sessionDismissed = sessionStorage.getItem('synaps_launch_promo_dismissed');
+    const sessionDismissed = sessionStorage.getItem('causarix_launch_promo_dismissed');
     if (!sessionDismissed) {
       const timer = setTimeout(() => {
         setIsOpen(true);
@@ -36,12 +36,12 @@ export default function LaunchPromoModal({ userPlan }: LaunchPromoModalProps) {
   }, [userPlan, claimedCount]);
 
   const handleDismiss = () => {
-    sessionStorage.setItem('synaps_launch_promo_dismissed', 'true');
+    sessionStorage.setItem('causarix_launch_promo_dismissed', 'true');
     setIsOpen(false);
   };
 
   const handleClaimOffer = () => {
-    sessionStorage.setItem('synaps_launch_promo_dismissed', 'true');
+    sessionStorage.setItem('causarix_launch_promo_dismissed', 'true');
     const checkoutUrl = getGumroadCheckoutUrl('pro', undefined, LAUNCH_PROMO_CONFIG.code);
     window.open(checkoutUrl, '_blank');
     setIsOpen(false);
@@ -72,7 +72,7 @@ export default function LaunchPromoModal({ userPlan }: LaunchPromoModalProps) {
         {/* Headline */}
         <div className="space-y-2">
           <h2 className="font-serif-anthropic text-3xl font-normal text-[#ECE9E3] leading-tight">
-            Claim 30% OFF SYNAPS Pro & Enterprise MAX.
+            Claim 30% OFF CAUSARIX Pro & Enterprise MAX.
           </h2>
           <p className="text-xs font-sans-anthropic text-[#A5A095] leading-relaxed">
             Unlock the 10-Agent Boardroom, Digital Twin OS, and 3D Memory Graph with code <strong className="font-mono text-white bg-[#D96B27] px-2 py-0.5 rounded">{LAUNCH_PROMO_CONFIG.code}</strong>.

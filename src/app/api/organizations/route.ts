@@ -45,6 +45,20 @@ export async function GET(req: NextRequest) {
 
     if (!user) return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
 
+    // Auto-generate invite code if missing in existing organization
+    let inviteCode = user.organization?.inviteCode;
+    if (user.organization && !inviteCode) {
+      inviteCode = `CSX-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+      try {
+        await prisma.organization.update({
+          where: { id: user.organization.id },
+          data: { inviteCode }
+        });
+      } catch (e) {
+        console.warn('[API] Could not backfill inviteCode:', e);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       currentUser: {
@@ -61,7 +75,7 @@ export async function GET(req: NextRequest) {
         description: user.organization.description,
         logoUrl: user.organization.logoUrl,
         slug: user.organization.slug,
-        inviteCode: user.organization.inviteCode,
+        inviteCode: inviteCode || `CSX-${user.organization.id.substring(0, 8).toUpperCase()}`,
         isVerified: user.organization.isVerified,
         ownerId: user.organization.ownerId,
         members: user.organization.users,
@@ -91,10 +105,10 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanName = name.trim();
-    const slugBase = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const slugBase = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'org';
     const randomSuffix = crypto.randomBytes(3).toString('hex');
     const slug = `${slugBase}-${randomSuffix}`;
-    const inviteCode = `SYN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+    const inviteCode = `CSX-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
     // Create Organization and assign creator as OWNER & Leader
     const newOrg = await prisma.organization.create({
