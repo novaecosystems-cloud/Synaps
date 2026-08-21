@@ -118,7 +118,8 @@ export default function OnboardingPage() {
         throw new Error(data.error || 'Failed to save onboarding data');
       }
 
-      router.push('/dashboard');
+      // Full client redirect to ensure server layout recognizes updated organization settings
+      window.location.href = '/dashboard';
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
       setIsSubmitting(false);
