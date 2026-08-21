@@ -51,8 +51,8 @@ const steps: CustomStep[] = [
   // 0: /dashboard
   {
     target: ".tour-dashboard",
-    title: "Welcome to Synaps!",
-    content: "Let's take a comprehensive tour of your new workspace and learn where everything is.",
+    title: "Welcome to Causarix OS!",
+    content: "Your sovereign enterprise decision intelligence platform. Let's take a quick tour of your new executive workspace.",
     placement: "center",
     disableBeacon: true,
   },
