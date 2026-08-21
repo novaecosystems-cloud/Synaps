@@ -1,27 +1,21 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, globalShortcut, nativeImage, desktopCapturer, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, shell, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
+const { spawn } = require('child_process');
 
-// GPU Acceleration & Zero-Blackscreen Flags
-app.commandLine.appendSwitch('enable-gpu-rasterization');
-app.commandLine.appendSwitch('enable-zero-copy');
-app.commandLine.appendSwitch('ignore-gpu-blocklist');
-app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+// 1. Permanently eliminate GPU Compositor Black Screen freezes on Windows
+app.disableHardwareAcceleration();
 
 app.setName('Causarix AI');
 
-// Prevent duplicate instances
 const isSingleInstance = app.requestSingleInstanceLock();
 if (!isSingleInstance) {
   app.quit();
 }
 
 let mainWindow = null;
-let spotlightWindow = null;
-let tray = null;
-
-const isDev = process.env.SYNAPS_DEV !== 'false';
+let serverProcess = null;
 const localUrl = 'http://localhost:3000/dashboard';
 
 function getIcon() {
@@ -30,6 +24,7 @@ function getIcon() {
     path.join(__dirname, 'favicon.ico'),
     path.join(__dirname, '..', 'public', 'favicon.ico'),
     path.join(process.resourcesPath || '', 'app', 'public', 'favicon.ico'),
+    'D:\\Synaps\\public\\favicon.ico'
   ];
   for (const p of iconPaths) {
     if (fs.existsSync(p)) {
@@ -42,75 +37,34 @@ function getIcon() {
   return nativeImage.createEmpty();
 }
 
-function buildMenu() {
-  const isMac = process.platform === 'darwin';
-  const template = [
-    ...(isMac ? [{ role: 'appMenu' }] : []),
-    {
-      label: '⚡ Causarix OS',
-      submenu: [
-        {
-          label: 'Executive Dashboard',
-          accelerator: 'CmdOrCtrl+1',
-          click: () => mainWindow && mainWindow.loadURL(localUrl),
-        },
-        {
-          label: 'Action Board (Jira)',
-          accelerator: 'CmdOrCtrl+2',
-          click: () => mainWindow && mainWindow.loadURL('http://localhost:3000/dashboard/projects'),
-        },
-        {
-          label: 'Team Stream (Slack)',
-          accelerator: 'CmdOrCtrl+3',
-          click: () => mainWindow && mainWindow.loadURL('http://localhost:3000/dashboard/chat'),
-        },
-        {
-          label: 'SCM Simulations',
-          accelerator: 'CmdOrCtrl+4',
-          click: () => mainWindow && mainWindow.loadURL('http://localhost:3000/dashboard/simulations'),
-        },
-        { type: 'separator' },
-        {
-          label: 'Reload App',
-          accelerator: 'CmdOrCtrl+R',
-          click: () => mainWindow && mainWindow.reload(),
-        },
-        {
-          label: 'Quit Causarix',
-          accelerator: 'CmdOrCtrl+Q',
-          click: () => {
-            app.isQuitting = true;
-            app.quit();
-          },
-        },
-      ]
-    },
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectAll' }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' }
-      ]
+function checkServerReady(callback) {
+  const req = http.get('http://localhost:3000/api/offline/status', (res) => {
+    if (res.statusCode === 200 || res.statusCode === 304 || res.statusCode === 307) {
+      callback(true);
+    } else {
+      callback(false);
     }
-  ];
+  });
+  req.on('error', () => callback(false));
+  req.setTimeout(1500, () => {
+    req.destroy();
+    callback(false);
+  });
+}
 
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
+function ensureServerRunning() {
+  checkServerReady((isReady) => {
+    if (!isReady && !serverProcess) {
+      console.log('[Causarix Desktop] Starting local Next.js engine on port 3000...');
+      const rootDir = path.resolve(__dirname, '..');
+      serverProcess = spawn('npm.cmd', ['run', 'dev'], {
+        cwd: fs.existsSync(path.join(rootDir, 'package.json')) ? rootDir : 'D:\\Synaps',
+        shell: true,
+        env: { ...process.env, PORT: '3000' }
+      });
+      serverProcess.stdout?.on('data', (d) => console.log(`[Next.js] ${d.toString().trim()}`));
+    }
+  });
 }
 
 function createMainWindow() {
@@ -122,12 +76,11 @@ function createMainWindow() {
     minWidth: 1080,
     minHeight: 700,
     title: 'Causarix AI — Sovereign Decision OS',
-    backgroundColor: '#070c18',
+    backgroundColor: '#07080B',
     icon: icon,
     show: false,
     autoHideMenuBar: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
     },
@@ -135,34 +88,64 @@ function createMainWindow() {
 
   mainWindow.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 CausarixDesktop/3.0.0');
 
-  // Seamless Auto-Retry when Next.js is warming up on localhost
-  let retryCount = 0;
-  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-    console.log(`[Causarix Electron] Waiting for local engine (${validatedURL}, code: ${errorCode}). Retrying...`);
-    retryCount++;
-    setTimeout(() => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.loadURL(localUrl);
-      }
-    }, 1200);
-  });
-
-  mainWindow.webContents.on('render-process-gone', (event, details) => {
-    console.error('[Causarix Electron] Render crash recovery:', details.reason);
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.loadURL(localUrl);
-    }
-  });
-
-  buildMenu();
+  // Load a sleek initial loading state
+  mainWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Causarix AI</title>
+        <style>
+          body {
+            background-color: %2307080B;
+            color: %23E2E8F0;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            user-select: none;
+          }
+          .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(6, 182, 212, 0.15);
+            border-top-color: %2306B6D4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+          }
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 8px 0; color: %23FFFFFF; }
+          p { font-size: 12px; color: %2364748B; font-family: monospace; margin: 0; }
+        </style>
+      </head>
+      <body>
+        <div class="spinner"></div>
+        <h2>Causarix Sovereign OS</h2>
+        <p>INITIALIZING 100% AIR-GAPPED HARDWARE ENGINE...</p>
+      </body>
+    </html>
+  `)}`);
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     mainWindow.focus();
   });
 
-  // Load the local dashboard
-  mainWindow.loadURL(localUrl);
+  // Poll server until ready then transition seamlessly
+  const pollInterval = setInterval(() => {
+    checkServerReady((isReady) => {
+      if (isReady && mainWindow && !mainWindow.isDestroyed()) {
+        clearInterval(pollInterval);
+        console.log('[Causarix Desktop] Port 3000 ready! Loading dashboard...');
+        mainWindow.loadURL(localUrl);
+      }
+    });
+  }, 1000);
 
   mainWindow.on('close', (event) => {
     if (!app.isQuitting) {
@@ -173,65 +156,9 @@ function createMainWindow() {
   });
 }
 
-function createTray() {
-  const icon = getIcon();
-  if (!icon || icon.isEmpty()) return;
-
-  tray = new Tray(icon);
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Open Causarix Sovereign OS',
-      click: () => {
-        if (mainWindow) {
-          mainWindow.show();
-          mainWindow.focus();
-        }
-      },
-    },
-    {
-      label: 'Action Board (Jira)',
-      click: () => {
-        if (mainWindow) {
-          mainWindow.show();
-          mainWindow.loadURL('http://localhost:3000/dashboard/projects');
-        }
-      },
-    },
-    {
-      label: 'Team Stream (Slack)',
-      click: () => {
-        if (mainWindow) {
-          mainWindow.show();
-          mainWindow.loadURL('http://localhost:3000/dashboard/chat');
-        }
-      },
-    },
-    { type: 'separator' },
-    {
-      label: 'Quit',
-      click: () => {
-        app.isQuitting = true;
-        app.quit();
-      },
-    },
-  ]);
-
-  tray.setToolTip('Causarix AI — Sovereign Decision OS (100% Offline)');
-  tray.setContextMenu(contextMenu);
-  tray.on('click', () => {
-    if (mainWindow) {
-      if (mainWindow.isVisible()) {
-        mainWindow.focus();
-      } else {
-        mainWindow.show();
-      }
-    }
-  });
-}
-
 app.whenReady().then(() => {
+  ensureServerRunning();
   createMainWindow();
-  createTray();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -244,6 +171,11 @@ app.whenReady().then(() => {
 
 app.on('before-quit', () => {
   app.isQuitting = true;
+  if (serverProcess) {
+    try {
+      serverProcess.kill();
+    } catch {}
+  }
 });
 
 app.on('window-all-closed', () => {
