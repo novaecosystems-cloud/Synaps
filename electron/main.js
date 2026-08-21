@@ -63,24 +63,33 @@ function checkServer() {
 function startNextServer() {
   if (serverProcess) return; // already running
 
-  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  serverProcess = spawn(npmCmd, ['run', 'dev'], {
-    cwd: SYNAPS_DIR,
-    shell: false,
-    env: { ...process.env, PORT: '3000', NODE_ENV: 'development' },
-    stdio: 'pipe',
-  });
+  try {
+    // shell:true is required on Windows for npm.cmd to resolve correctly
+    serverProcess = spawn('npm', ['run', 'dev'], {
+      cwd: SYNAPS_DIR,
+      shell: true,
+      env: { ...process.env, PORT: '3000', NODE_ENV: 'development' },
+      stdio: 'pipe',
+    });
 
-  serverProcess.stdout?.on('data', (d) =>
-    console.log('[Next.js]', d.toString().trim())
-  );
-  serverProcess.stderr?.on('data', (d) =>
-    console.error('[Next.js ERR]', d.toString().trim())
-  );
-  serverProcess.on('exit', (code) => {
-    console.log('[Next.js] Process exited with code', code);
+    serverProcess.stdout?.on('data', (d) =>
+      console.log('[Next.js]', d.toString().trim())
+    );
+    serverProcess.stderr?.on('data', (d) =>
+      console.error('[Next.js ERR]', d.toString().trim())
+    );
+    serverProcess.on('exit', (code) => {
+      console.log('[Next.js] Process exited with code', code);
+      serverProcess = null;
+    });
+    serverProcess.on('error', (err) => {
+      console.error('[Next.js] Failed to start:', err.message);
+      serverProcess = null;
+    });
+  } catch (err) {
+    console.error('[Next.js] Spawn exception:', err.message);
     serverProcess = null;
-  });
+  }
 }
 
 // ─── SPLASH HTML ─────────────────────────────────────────────────────────────
