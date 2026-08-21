@@ -8,6 +8,43 @@ interface LLMProvider {
 
 const providers: LLMProvider[] = [];
 
+// ─── 0. LOCAL SOVEREIGN OLLAMA (100% Air-Gapped Local Model on D:\OllamaModels) ──
+const OLLAMA_URL = 'http://127.0.0.1:11434/api/chat';
+
+providers.push({
+  name: 'Local Ollama Sovereign Engine (D:\\OllamaModels)',
+  invoke: async (messages, options) => {
+    const { temperature, max_tokens } = options || {};
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    try {
+      const res = await fetch(OLLAMA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'causarix',
+          messages,
+          stream: false,
+          options: {
+            temperature: temperature ?? 0.2,
+            num_predict: max_tokens ?? 512,
+          }
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error(`Ollama returned HTTP ${res.status}`);
+      const data = await res.json();
+      return data.message?.content || '';
+    } catch (e: any) {
+      clearTimeout(timeout);
+      throw new Error(`Local Ollama offline: ${e.message}`);
+    }
+  },
+});
+
 // ─── 0. COLIBRÌ ON-PREMISE SOVEREIGN MOE (744B NVMe-Streamed MoE Engine) ─────────
 const COLIBRI_URL = process.env.COLIBRI_BASE_URL || 'http://localhost:8080/v1';
 
