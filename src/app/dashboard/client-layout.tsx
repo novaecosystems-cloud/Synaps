@@ -55,6 +55,7 @@ const DemoSectorSandboxModal = dynamic(() => import('@/components/DemoSectorSand
 const OrgMemberPresenceStack = dynamic(() => import('@/components/OrgMemberPresenceStack'), { ssr: false });
 
 const PlanAccessGate = dynamic(() => import('@/components/PlanAccessGate'), { ssr: false });
+const SovereignOfflineModeToggle = dynamic(() => import('@/components/SovereignOfflineModeToggle'), { ssr: false });
 
 type SubMenuItem = {
   name: string;
@@ -442,6 +443,9 @@ export default function ClientLayout({ children, user }: { children: React.React
           {/* Top Actions (Responsive 9:16 Action Bar) */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 max-w-full overflow-x-auto scrollbar-none">
             
+            {/* Sovereign Offline Mode Toggle (Cloud <-> Air-Gapped Local Llama 3.2) */}
+            <SovereignOfflineModeToggle />
+
             {/* Background Task Indicator Widget */}
             <BackgroundTaskWidget />
 
