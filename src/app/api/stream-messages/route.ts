@@ -52,7 +52,7 @@ let inMemoryMessages: Record<string, any[]> = {
 async function queryLocalAi(agentRole: string, userPrompt: string): Promise<string | null> {
   try {
     const payload = {
-      model: "llama3.2:1b",
+      model: "causarix",
       messages: [
         {
           role: "system",
