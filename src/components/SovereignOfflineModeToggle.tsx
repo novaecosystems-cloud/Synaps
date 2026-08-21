@@ -12,9 +12,9 @@ export function SovereignOfflineModeToggle() {
   const checkLocalOllama = async () => {
     setOllamaStatus("checking");
     try {
-      // Test local Ollama endpoint via our server proxy or direct
-      const res = await fetch("http://127.0.0.1:11434/api/tags", { signal: AbortSignal.timeout(2000) });
-      if (res.ok) {
+      const res = await fetch("/api/offline/status");
+      const data = await res.json();
+      if (data.online) {
         setOllamaStatus("online");
       } else {
         setOllamaStatus("offline");

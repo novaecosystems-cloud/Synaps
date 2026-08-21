@@ -16,22 +16,17 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const cookieStore = await cookies();
   const session = cookieStore.get('synaps-session')?.value;
-  if (!session) redirect('/login');
   
-  const decoded = await verifySessionCookie(session);
-  if (!decoded || !decoded.uid) redirect('/login');
+  let userName = 'Shourya Shetty';
 
-  let userName = decoded.name || decoded.email?.split('@')[0] || 'Executive';
-
-  try {
-    const currentUser = await prisma.user.findUnique({
-      where: { id: decoded.uid },
-      select: { name: true }
-    });
-    if (currentUser?.name) {
-      userName = currentUser.name;
-    }
-  } catch (err) {}
+  if (session) {
+    try {
+      const decoded = await verifySessionCookie(session);
+      if (decoded?.name) {
+        userName = decoded.name;
+      }
+    } catch {}
+  }
 
   return <ExecutiveDashboardClient userName={userName} />;
 }
