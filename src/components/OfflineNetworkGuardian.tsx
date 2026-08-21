@@ -93,14 +93,17 @@ export default function OfflineNetworkGuardian() {
   useEffect(() => {
     // Initial state check
     if (typeof window !== 'undefined') {
+      const isSovereign = localStorage.getItem('causarix_execution_mode') === 'offline';
       if (!navigator.onLine) {
         setIsOffline(true);
+        if (isSovereign) setIsMinimized(true);
       }
     }
 
     const handleOffline = () => {
+      const isSovereign = localStorage.getItem('causarix_execution_mode') === 'offline';
       setIsOffline(true);
-      setIsMinimized(false);
+      setIsMinimized(isSovereign);
       setCountdown(15);
     };
 
