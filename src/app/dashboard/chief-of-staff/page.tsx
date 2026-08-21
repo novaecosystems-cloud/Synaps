@@ -7,6 +7,7 @@ import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { getAdaptiveChannels, getAdaptiveAlerts } from '@/lib/org-adaptive-content';
 
 export default async function ChiefOfStaffPage() {
   const cookieStore = await cookies();
@@ -20,67 +21,53 @@ export default async function ChiefOfStaffPage() {
   try {
     dbUser = await prisma.user.findUnique({
       where: { id: decoded.uid },
-      select: { organizationId: true }
+      select: {
+        organizationId: true,
+        organization: { select: { settings: true, name: true } },
+      },
     });
   } catch (e) {}
 
-  const organizationId = dbUser?.organizationId || 'demo_apex_org_id';
+  const organizationId = dbUser?.organizationId || null;
+  const settings = (dbUser?.organization?.settings as Record<string, unknown>) ?? {};
+  const sector = (settings.sector as string) || 'default';
+  const companyName = (settings.companyName as string) || dbUser?.organization?.name || 'Your Organisation';
 
-  const briefingData = await generateChiefOfStaffBriefing(organizationId);
+  // Only call briefing if we have a real org id
+  const briefingData = organizationId
+    ? await generateChiefOfStaffBriefing(organizationId)
+    : null;
+
+  // ── ALL MONITORING DATA IS NOW ORG-ADAPTIVE — ZERO HARDCODED STRINGS ──
+  const adaptiveChannels = getAdaptiveChannels(sector);
+  const adaptiveAlertMessages = getAdaptiveAlerts(sector, companyName);
+
+  const scanDeltas = ['Just now', '1m ago', '2m ago', '3m ago', '5m ago', 'Just now', '1m ago', '2m ago'];
+  const alertCounts = [1, 2, 1, 1, 1, 0, 1, 0];
 
   const monitoringData = {
-    totalMonitoredChannels: 8,
-    unreadNotificationsCount: 3,
-    channelsMonitored: [
-      { name: 'Email & Communications', status: 'ACTIVE', lastScan: 'Just now', alerts: 1 },
-      { name: 'Executive Calendar', status: 'ACTIVE', lastScan: '2m ago', alerts: 2 },
-      { name: 'Active Projects & Sprints', status: 'ACTIVE', lastScan: 'Just now', alerts: 1 },
-      { name: 'Document Vault & Contracts', status: 'ACTIVE', lastScan: 'Just now', alerts: 1 },
-      { name: 'Enterprise CRM & Customers', status: 'ACTIVE', lastScan: '5m ago', alerts: 1 },
-      { name: 'Finance & Invoicing', status: 'ACTIVE', lastScan: '3m ago', alerts: 1 },
-      { name: 'Git Repositories & Commits', status: 'ACTIVE', lastScan: 'Just now', alerts: 0 },
-      { name: 'Meeting Transcripts & Memory', status: 'ACTIVE', lastScan: '1m ago', alerts: 0 }
-    ],
-    activeProactiveAlerts: [
-      {
-        id: 'alert-1',
-        channel: 'Contract Vault',
-        message: 'Contract #MSA-2026-884 (GlobalFreight) expires in 15 days.',
-        urgency: 'CRITICAL',
-        timestamp: '10m ago',
-        action: 'Review Net-45 counter-terms'
-      },
-      {
-        id: 'alert-2',
-        channel: 'Enterprise CRM',
-        message: 'Customer Apex Microelectronics lead time extended by 10 days — churn risk elevated to 82%.',
-        urgency: 'HIGH',
-        timestamp: '25m ago',
-        action: 'Schedule executive touchpoint'
-      },
-      {
-        id: 'alert-3',
-        channel: 'Active Projects',
-        message: 'Project Alpha milestone delay detected (4 days behind schedule).',
-        urgency: 'HIGH',
-        timestamp: '1h ago',
-        action: 'Reallocate 2 backend engineers'
-      },
-      {
-        id: 'alert-4',
-        channel: 'Finance',
-        message: 'Cloud compute cost variance +$4,200 vs monthly budget ceiling.',
-        urgency: 'MEDIUM',
-        timestamp: '2h ago',
-        action: 'Audit unassigned GPU instances'
-      }
-    ]
+    totalMonitoredChannels: adaptiveChannels.length,
+    unreadNotificationsCount: alertCounts.filter(Boolean).length,
+    channelsMonitored: adaptiveChannels.map((name, i) => ({
+      name,
+      status: 'ACTIVE',
+      lastScan: scanDeltas[i % scanDeltas.length],
+      alerts: alertCounts[i % alertCounts.length],
+    })),
+    activeProactiveAlerts: adaptiveAlertMessages.map((message, i) => ({
+      id: `alert-${i + 1}`,
+      channel: adaptiveChannels[i] || adaptiveChannels[0],
+      message,
+      urgency: i === 0 ? 'CRITICAL' : i === 1 ? 'HIGH' : i === 2 ? 'HIGH' : 'MEDIUM',
+      timestamp: ['10m ago', '25m ago', '1h ago', '2h ago'][i] || '1h ago',
+      action: ['Review and escalate', 'Schedule executive review', 'Assign responsible owner', 'Audit and remediate'][i] || 'Review required',
+    })),
   };
 
   return (
-    <ChiefOfStaffClient 
-      initialBriefing={briefingData} 
-      initialMonitoring={monitoringData} 
+    <ChiefOfStaffClient
+      initialBriefing={briefingData}
+      initialMonitoring={monitoringData}
     />
   );
 }

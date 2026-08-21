@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
+import { useOrgProfile } from '@/context/OrgProfileContext';
+import { getAdaptiveMissionPresets, getAdaptiveAgents } from '@/lib/org-adaptive-content';
 
 const AGENT_TYPE_ICONS: Record<string, any> = {
   RESEARCH: Sparkles,
@@ -30,21 +32,25 @@ function ScaleIcon(props: any) { return <span {...props}>⚖️</span>; }
 function FolderKanbanIcon(props: any) { return <span {...props}>📋</span>; }
 
 export default function MissionControlClient() {
+  const { profile } = useOrgProfile();
+
+  // ── ADAPTIVE CONTENT — ZERO HARDCODED STRINGS ─────────────────────────────
+  const sector = profile?.sector || 'default';
+  const adaptivePresets = getAdaptiveMissionPresets(sector);
+  const adaptivePersonas = getAdaptiveAgents(sector, profile?.customAgents);
+
+  const presetMissions = adaptivePresets.map((p) => ({
+    title: p.title,
+    objective: p.description,
+  }));
+
   const [missionTitle, setMissionTitle] = useState('');
   const [missionObjective, setMissionObjective] = useState('');
-  const [digitalTwinPersona, setDigitalTwinPersona] = useState('Enterprise CEO');
-  
+  const [digitalTwinPersona, setDigitalTwinPersona] = useState(adaptivePersonas[0] || 'CEO Digital Twin');
   const [activeMission, setActiveMission] = useState<any | null>(null);
   const [launching, setLaunching] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<any | null>(null);
-
-  // Preset Mission Examples
-  const presetMissions = [
-    { title: "Prepare Enterprise Acquisition Report", objective: "Synthesize financial valuation, legal liability, technical debt, and team capacity for target company acquisition." },
-    { title: "Conduct Q4 Regulatory & Infosec Audit", objective: "Verify GDPR/CCPA data privacy compliance, Zero Data Training policies, and vendor MSA risk clauses." },
-    { title: "Formulate GTM & Revenue Scaling Plan", objective: "Evaluate pricing strategy, market segmentation, sales channel performance, and ROI targets." }
-  ];
 
   // Poll active mission flight status every 1 second when RUNNING
   useEffect(() => {
@@ -173,10 +179,9 @@ export default function MissionControlClient() {
                   onChange={(e) => setDigitalTwinPersona(e.target.value)}
                   className="bg-base-200 border border-base-300 rounded-xl px-3 py-1.5 text-xs text-base-content outline-none font-medium"
                 >
-                  <option value="Enterprise CEO">Enterprise CEO</option>
-                  <option value="General Counsel">General Counsel</option>
-                  <option value="Chief Risk Officer">Chief Risk Officer</option>
-                  <option value="VP Finance">VP Finance</option>
+                  {adaptivePersonas.slice(0, 6).map((persona) => (
+                    <option key={persona} value={persona}>{persona}</option>
+                  ))}
                 </select>
               </div>
 

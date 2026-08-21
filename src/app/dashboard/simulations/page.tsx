@@ -10,24 +10,29 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ParametricCounterfactualStudio } from '@/components/dashboard/simulations/ParametricCounterfactualStudio';
+import { useOrgProfile } from '@/context/OrgProfileContext';
+import { getAdaptiveMissionPresets, getAdaptiveDepartments, getSectorContent } from '@/lib/org-adaptive-content';
 
 export default function SimulationsPage() {
-  const [selectedPreset, setSelectedPreset] = useState('Increase Prices');
+  const { profile } = useOrgProfile();
+
+  const sector = profile?.sector || 'default';
+  const adaptivePresetData = getAdaptiveMissionPresets(sector);
+  const adaptiveDepts = getAdaptiveDepartments(sector);
+  const decisionTypes = getSectorContent(sector).simulationDecisionTypes;
+
+  const presets = decisionTypes.map((label, i) => ({
+    label,
+    icon: [DollarSign, Users, Globe, UserMinus, Rocket, Building, Briefcase][i % 7],
+    example: adaptivePresetData[i % adaptivePresetData.length]?.description || label,
+  }));
+
+  const [selectedPreset, setSelectedPreset] = useState(presets[0]?.label || '');
   const [decisionDetails, setDecisionDetails] = useState('');
   const [simulating, setSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState<any | null>(null);
   const [activeScenarioTab, setActiveScenarioTab] = useState<'expected' | 'optimistic' | 'worstCase'>('expected');
   const [activeStudioMode, setActiveStudioMode] = useState<'parametric' | 'nlp'>('parametric');
-
-  const presets = [
-    { label: 'Increase Prices', icon: DollarSign, example: 'Increase enterprise tier prices by 15% across all global regions.' },
-    { label: 'Hire Employees', icon: Users, example: 'Hire 25 senior engineers & 10 account executives to accelerate product roadmap.' },
-    { label: 'Expand Internationally', icon: Globe, example: 'Open sales & customer support operations in Tokyo & Frankfurt.' },
-    { label: 'Reduce Staff', icon: UserMinus, example: 'Reduce operating overhead by 12% across non-core business units.' },
-    { label: 'Launch Products', icon: Rocket, example: 'Launch new AI Workflow Automation module as an add-on product.' },
-    { label: 'Open Offices', icon: Building, example: 'Establish a new regional headquarters in London.' },
-    { label: 'Acquire Companies', icon: Briefcase, example: 'Acquire a 30-person analytics startup to expand machine learning IP.' },
-  ];
 
   const handleRunSimulation = async (typeOverride?: string, detailsOverride?: string) => {
     const activeType = typeOverride || selectedPreset;

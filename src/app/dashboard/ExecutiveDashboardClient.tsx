@@ -14,6 +14,14 @@ import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
 import { TactileButton, ScrambleText } from '@/components/ui/EnterpriseTactileSuite';
+import { useOrgProfile } from '@/context/OrgProfileContext';
+import {
+  getSectorContent,
+  getAdaptiveDepartments,
+  getAdaptiveAgents,
+  buildAdaptiveDemoData,
+  buildAdaptiveAhaScenarios,
+} from '@/lib/org-adaptive-content';
 
 interface Citation {
   documentId?: string;
@@ -62,129 +70,30 @@ export interface ExecutiveBriefData {
 
 export default function ExecutiveDashboardClient({ userName }: { userName: string }) {
   const isDemoMode = typeof window !== 'undefined' && (window.location.pathname === '/demo' || window.location.search.includes('demo=true'));
+  const { profile } = useOrgProfile();
 
-  const DEFAULT_DEMO_DATA: ExecutiveBriefData = {
-    executiveBrief: "Operational health across all 15 system nodes is operating at 96.4% stability. AI Boardroom agents report strong alignment on Q3 strategic initiatives with zero critical risk vulnerabilities detected.",
-    healthScore: 96,
-    knowledgeCoverage: 99,
-    riskLevel: 'LOW',
-    decisionConfidence: 98,
-    executiveAnswers: [
-      { id: '1', question: 'What is our Q3 APAC Cloud Expansion risk exposure?', answer: 'APAC Cloud Expansion risk is minimal (2.1%). Financial reserves are allocated at $4.2M, and compliance matrices for ISO 27001 & SOC 2 Type II are 100% verified across all regional nodes.', status: 'HEALTHY', citations: [{ documentName: 'Q3_APAC_Cloud_Expansion_Plan.pdf', snippet: 'Budget allocated: $4.2M. Regulatory approval cleared.' }] },
-      { id: '2', question: 'Are there any unexecuted vendor agreements for H2?', answer: 'Zero unsigned agreements. All 28 vendor contracts and SLAs for H2 2026 have been fully executed with counter-party signatures verified.', status: 'HEALTHY', citations: [{ documentName: 'H2_Vendor_Contract_Register.xlsx', snippet: '28/28 contracts executed with digital signatures.' }] }
-    ],
-    departmentHealth: [
-      { department: 'Engineering & AI Labs', healthScore: 98, riskLevel: 'LOW', summary: '18 microservices deployed; latency < 12ms', activeIssuesCount: 0, citations: [] },
-      { department: 'Legal & Governance', healthScore: 99, riskLevel: 'LOW', summary: '100% contract compliance; 0 open disputes', activeIssuesCount: 0, citations: [] },
-      { department: 'Finance & Capital Strategy', healthScore: 95, riskLevel: 'LOW', summary: 'Q2 revenue +28% YoY; $14.2M ARR', activeIssuesCount: 0, citations: [] }
-    ],
-    aiRecommendations: [
-      { id: 'r1', priority: 'HIGH', title: 'Automate Disruption Testing in APAC Cloud Region', recommendation: 'Run quarterly automated Digital Twin stress simulations on regional node latency.', rationale: 'Preemptively mitigates potential bandwidth bottlenecks during peak Q4 sales volume.', citations: [{ documentName: 'APAC_Load_Testing_SOP.pdf', snippet: 'Quarterly stress testing recommended.' }] }
-    ],
-    recentEvents: [
-      { date: 'Today, 09:30 AM', title: 'AI Boardroom Unanimous Vote', category: 'Strategy', description: 'All 10 AI Executive Agents voted in favor of Q3 APAC expansion.' },
-      { date: 'Yesterday, 04:15 PM', title: 'Digital Twin Simulation Passed', category: 'Operations', description: 'Stress-tested 15 core nodes against 50% simulated server outage with zero data loss.' }
-    ],
-    timelineHighlights: [
-      { date: 'Q3 2026', milestone: 'Causarix OS v4.2 Upgrade', impact: 'Completed' },
-      { date: 'Q4 2026', milestone: 'Global Multi-Region Node Expansion', impact: 'In Progress' }
-    ]
-  };
+  // ── ALL CONTENT IS ORG-ADAPTIVE — ZERO HARDCODED STRINGS ─────────────────
+  const sector = profile?.sector || 'default';
+  const companyName = profile?.companyName || 'Your Organisation';
+  const sectorContent = getSectorContent(sector);
+  const adaptiveDepts = getAdaptiveDepartments(sector);
+  const adaptiveAgents = getAdaptiveAgents(sector, profile?.customAgents);
 
+  // Demo data is built dynamically from org profile (no sector/company hardcoding)
+  const DEFAULT_DEMO_DATA: ExecutiveBriefData = buildAdaptiveDemoData(sector, companyName, adaptiveDepts, adaptiveAgents);
+
+  // AHA scenarios built from sector (labels, file names, roles all adaptive)
+  const AHA_SCENARIOS = buildAdaptiveAhaScenarios(sector, companyName, adaptiveAgents);
+
+
+  // ── RUNTIME STATE ─────────────────────────────────────────────────────────
   const [data, setData] = useState<ExecutiveBriefData>(DEFAULT_DEMO_DATA);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ─── 60-SECOND AHA SIMULATION LAB STATE ──────────────────────────────────────
+  // ─── 60-SECOND AHA SIMULATION LAB STATE ──────────────────────────────────
   const [activeAhaScenario, setActiveAhaScenario] = useState<'mna' | 'sla' | 'boardroom'>('mna');
   const [isAhaAnalyzing, setIsAhaAnalyzing] = useState(false);
-
-  const AHA_SCENARIOS = {
-    mna: {
-      id: 'mna',
-      tag: 'M&A IP DILIGENCE',
-      title: '$200M Cloud SaaS Acquisition — Hidden GPLv3 Contamination',
-      timeSaved: '18 Days Legal Audit Saved',
-      riskScore: '94% CRITICAL RISK',
-      vulnerability: {
-        title: 'Reciprocal AGPL-3.0 License Detected in Core Billing Engine',
-        source: 'Target Repo: /services/billing-v2/lib/crypto_worker.go (Line 142)',
-        detail: 'The acquisition target incorporated AGPL-3.0 licensed code into their proprietary closed-source billing pipeline. Under statutory copyright law, this creates a viral copyleft obligation to open-source the entire enterprise IP.',
-      },
-      financialDrag: {
-        cleanRoomCost: '$42.0M',
-        ebitdaCompression: '$14.5M / yr',
-        runwayImpact: '-6.2 Months',
-        recommendation: 'Reduce acquisition valuation from $200M to $130M + $35M Indemnity Escrow.',
-      },
-      delawareRedline: {
-        statutoryStandard: 'Delaware DGCL § 141(a) Fiduciary Shield',
-        originalClause: 'Seller represents that software is free of material IP defects with liability capped at $2.0M.',
-        redlinedClause: 'Seller warrants zero reciprocal copyleft (GPL/AGPL) contamination. Breach triggers immediate $42.0M special indemnity escrow release.',
-      },
-      boardroomQuorum: [
-        { role: 'CEO Twin', vote: 'PASS WITH COUNTER-OFFER', rationale: 'Core strategic asset remains attractive at $130M price point.' },
-        { role: 'CFO Twin', vote: 'VETO OVERPRICED BID', rationale: '$42M rewrite exceeds cash reserve. Escrow holdback mandatory.' },
-        { role: 'General Counsel', vote: 'RENEGOTIATE WARRANTY', rationale: 'Delaware § 141 liability exposure if closed without IP carve-out.' },
-      ]
-    },
-    sla: {
-      id: 'sla',
-      tag: 'CROSS-SILO INVARIANT',
-      title: 'Commercial 99.99% SLA vs. Cloud Infrastructure 99.9% Ceiling',
-      timeSaved: 'Instant Contract Redline',
-      riskScore: '$1,450,000 EXPOSURE',
-      vulnerability: {
-        title: 'Sales Committed to 99.99% Uptime with Unbudgeted Liquidated Damages',
-        source: 'Customer MSA: Apex_Enterprise_Master_Agreement_2026.pdf (Section 9.4)',
-        detail: 'Sales finalized a 99.99% SLA (< 52 mins downtime/year) with 25% monthly fee clawbacks. However, Engineering infrastructure operates on single-region AWS us-east-1 (99.9% / 8.7 hrs downtime/year).',
-      },
-      financialDrag: {
-        cleanRoomCost: '$1.45M Potential Clawbacks',
-        ebitdaCompression: '-12.8% Margin Compression',
-        runwayImpact: 'Violates CFO Minimum Reserve',
-        recommendation: 'Execute Delaware standard scheduled maintenance carve-outs and cap damages at 1 month MRR.',
-      },
-      delawareRedline: {
-        statutoryStandard: 'Commercial Invariant Defense',
-        originalClause: 'Vendor warrants 99.99% continuous availability. Outages incur 25% gross invoice credits.',
-        redlinedClause: 'Vendor commits to 99.9% availability, excluding scheduled maintenance (max 4 hrs/mo) and third-party cloud infrastructure downtime.',
-      },
-      boardroomQuorum: [
-        { role: 'CTO Twin', vote: 'VETO COMMERCIAL TERMS', rationale: 'Single-region deployment cannot mathematically deliver 99.99% uptime.' },
-        { role: 'CFO Twin', vote: 'VETO UNRESERVED RISK', rationale: '$1.45M liability violates board-approved 5% cash buffer policy.' },
-        { role: 'Legal Counsel', vote: 'SUBMIT AUTO-REDLINE', rationale: 'Replaced with standard DGCL multi-region carve-out clause.' },
-      ]
-    },
-    boardroom: {
-      id: 'boardroom',
-      tag: '10-AGENT QUORUM',
-      title: '10-Agent Boardroom Quorum — Series B Capital Allocation & Margin Pivot',
-      timeSaved: '4-Hour Board Debate in 15s',
-      riskScore: 'UNANIMOUS QUORUM',
-      vulnerability: {
-        title: 'Conflicting Department Directives on Expansion vs Capital Preservation',
-        source: 'Executive Boardroom Simulation: Strategy_Runway_Model_v4.py',
-        detail: 'CEO proposed a $15M European sales hiring sprint while CFO identified a 14-month cash runway threshold under +150 bps interest rates. Causarix resolved the deadlock in real time.',
-      },
-      financialDrag: {
-        cleanRoomCost: 'Zero Capital Waste',
-        ebitdaCompression: 'Preserves +24% EBITDA',
-        runwayImpact: 'Maintains 22 Months Buffer',
-        recommendation: 'Staged release: Release $4.0M tranche only upon reaching $2.5M in Net New ARR.',
-      },
-      delawareRedline: {
-        statutoryStandard: 'Board Resolution Fiduciary Record',
-        originalClause: 'Authorize management to draw $15M from credit facility for European expansion.',
-        redlinedClause: 'Resolved: Authorize conditional $4.0M Tranche 1 tied to milestone verification and monthly CFO audit.',
-      },
-      boardroomQuorum: [
-        { role: 'CEO Twin', vote: 'CONCUR WITH TRANCHES', rationale: 'Staged funding allows market entry while protecting balance sheet.' },
-        { role: 'CFO Twin', vote: 'APPROVE TRANCHE 1', rationale: 'Maintains 22-month cash buffer under pessimistic macro conditions.' },
-        { role: 'Legal Counsel', vote: 'FILE BOARD MINUTES', rationale: 'Meets Business Judgment Rule under Delaware General Corporation Law.' },
-      ]
-    }
-  };
 
   // Active modal inspection states
   const [activeAnswer, setActiveAnswer] = useState<ExecutiveAnswer | null>(null);

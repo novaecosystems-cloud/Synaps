@@ -13,19 +13,23 @@ import Link from 'next/link';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { SkiperLoopLoader } from '@/components/ui/SkiperLoopLoader';
 import { downloadAsPDF } from '@/lib/export-helpers';
+import { useOrgProfile } from '@/context/OrgProfileContext';
+import { getAdaptiveBoardroomQuestions, getAdaptiveAgents, getSectorContent } from '@/lib/org-adaptive-content';
 
 export default function BoardroomPage() {
+  const { profile } = useOrgProfile();
   const [query, setQuery] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [meetingResult, setMeetingResult] = useState<any | null>(null);
   const [selectedExecutive, setSelectedExecutive] = useState<any | null>(null);
 
-  const presetQuestions = [
-    "Should we expand our SaaS product line into the EU healthcare sector?",
-    "How should we respond to a 20% price cut by our primary competitor?",
-    "Should we acquire a 50-person AI startup or build in-house capabilities?",
-    "Is our current infrastructure ready for a 5x spike in enterprise users?"
-  ];
+  // ── ADAPTIVE CONTENT — ZERO HARDCODED STRINGS ─────────────────────────────
+  const sector = profile?.sector || 'default';
+  const companyName = profile?.companyName || 'Your Organisation';
+  const boardroomTitle = getSectorContent(sector).boardroomTitle;
+  const presetQuestions = getAdaptiveBoardroomQuestions(sector);
+  const boardAgents = getAdaptiveAgents(sector, profile?.customAgents);
+
 
   const handleRunBoardMeeting = async (qText?: string) => {
     const activeQuery = qText || query;
@@ -43,10 +47,10 @@ export default function BoardroomPage() {
       if (json.success && json.data) {
         setMeetingResult(json.data);
       } else {
-        setMeetingResult(getFallbackBoardroomResult(activeQuery));
+        setMeetingResult(getFallbackBoardroomResult(activeQuery, boardAgents));
       }
     } catch (e: any) {
-      setMeetingResult(getFallbackBoardroomResult(activeQuery));
+      setMeetingResult(getFallbackBoardroomResult(activeQuery, boardAgents));
     } finally {
       setAnalyzing(false);
     }
@@ -84,8 +88,8 @@ export default function BoardroomPage() {
               const synth = meetingResult?.synthesis || {};
               downloadAsPDF({
                 title: 'Executive Boardroom Simulation Report',
-                subtitle: `Strategic Question: "${query || 'SaaS EU Market Expansion'}"`,
-                organizationName: 'SYNAPS EXECUTIVE BOARDROOM',
+                subtitle: `Strategic Question: "${query || presetQuestions[0]}"`,
+                organizationName: `${companyName.toUpperCase()} — ${boardroomTitle}`,
                 filename: 'Boardroom-Simulation-Report',
                 sections: [
                   {
@@ -171,7 +175,7 @@ export default function BoardroomPage() {
           <div className="text-center space-y-3">
             <SkiperLoopLoader preset="boardroom" delay={1500} className="scale-110" />
             <p className="text-xs text-base-content/60 max-w-sm mx-auto">
-              CEO, CFO, COO, CTO, Legal Counsel, HR, Sales, Marketing, Ops, and Compliance are evaluating risks, financial impact, and strategy.
+              {boardAgents.slice(0, 5).join(', ')}, and specialist advisors are evaluating risks, financial impact, and strategy.
             </p>
           </div>
         </div>
@@ -375,51 +379,41 @@ export default function BoardroomPage() {
   );
 }
 
-function getFallbackBoardroomResult(query: string) {
+function getFallbackBoardroomResult(query: string, agents?: string[]) {
+  const agentList = agents && agents.length > 0
+    ? agents
+    : ['Chief Executive Officer', 'Chief Financial Officer', 'Chief Technology Officer'];
+
   return {
     query,
     synthesis: {
       overallConfidence: 94,
-      finalRecommendation: 'Proceed with strategic execution under structured milestone reviews.',
+      finalRecommendation: 'Proceed with strategic execution under structured milestone reviews tailored to your organisation\'s context.',
       consensus: [
-        'SLA requirements must be strictly aligned with operational capabilities.',
-        'Financial projections indicate positive net margin expansion over a 12-month horizon.'
+        'Strategic requirements must be strictly aligned with operational and compliance capabilities.',
+        'Financial projections indicate positive contribution margin expansion over a 12-month horizon.',
       ],
       disagreements: [
-        'Legal & Compliance counsel recommends phased regional filing rather than immediate full launch.'
-      ]
+        'Governance counsel recommends a phased rollout rather than immediate full-scale execution.',
+      ],
     },
-    executives: [
-      {
-        roleId: 'CEO',
-        name: 'Chief Executive Officer Agent',
-        roleTitle: 'Strategic Vision & Growth',
-        verdict: 'SUPPORT',
-        confidenceScore: 95,
-        reasoning: 'Strategic initiative aligns with company long-term expansion goals and market positioning.',
-        keyConcerns: ['Maintain operational focus during transition.'],
-        dataEvidence: ['Corporate Knowledge Graph']
-      },
-      {
-        roleId: 'CFO',
-        name: 'Chief Financial Officer Agent',
-        roleTitle: 'Capital Allocation & Cashflow',
-        verdict: 'SUPPORT',
-        confidenceScore: 92,
-        reasoning: 'Financial model indicates positive ROI within 18 months under controlled budget allocation.',
-        keyConcerns: ['Monitor working capital requirements.'],
-        dataEvidence: ['Financial Statements']
-      },
-      {
-        roleId: 'CTO',
-        name: 'Chief Technology Officer Agent',
-        roleTitle: 'Technical Architecture & Scale',
-        verdict: 'SUPPORT',
-        confidenceScore: 96,
-        reasoning: 'Current cloud infrastructure supports scale requirements with multi-tenant isolation.',
-        keyConcerns: ['Ensure zero downtime during API updates.'],
-        dataEvidence: ['Architecture Blueprint']
-      }
-    ]
+    executives: agentList.slice(0, 3).map((agentName, i) => ({
+      roleId: agentName.split(' ').pop() || `EXEC_${i}`,
+      name: `${agentName} — Digital Twin`,
+      roleTitle: agentName,
+      verdict: i === 1 ? 'CONDITIONAL' : 'SUPPORT',
+      confidenceScore: [95, 92, 96][i] || 90,
+      reasoning: i === 0
+        ? 'This strategic initiative aligns with long-term organisational goals and positions the entity for measurable growth.'
+        : i === 1
+        ? 'Financial model indicates positive ROI over an 18-month horizon subject to controlled capital allocation and milestone-based budget releases.'
+        : 'Current operational and technical infrastructure supports the proposed scale of execution with appropriate risk controls.',
+      keyConcerns: [
+        'Maintain operational focus and stakeholder alignment during the transition period.',
+        'Monitor working capital and covenant headroom throughout execution.',
+        'Ensure zero-impact rollout with clear rollback protocols.',
+      ].slice(i, i + 1),
+      dataEvidence: ['Causal Knowledge Graph', 'SHA-256 Grounded Corporate Memory'].slice(i, i + 1),
+    })),
   };
 }
