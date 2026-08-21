@@ -188,28 +188,28 @@ ${riskContext || 'No active risks'}`;
 
     const briefingResult: ExecutiveBriefingData = {
       riskScore: computedRiskScore,
-      weeklySummary: result.weeklySummary || `Executive Briefing for Nova Industries: Enterprise risk score stands at ${computedRiskScore}/100. Q3 strategy execution is proceeding with active monitoring across supply chain contracts and board governance timelines.`,
+      weeklySummary: result.weeklySummary || `Executive Briefing: Enterprise risk score stands at ${computedRiskScore}/100. Strategic execution is proceeding with active monitoring across contracts, projects, and governance timelines.`,
       todayPriorities: Array.isArray(result.todayPriorities) && result.todayPriorities.length > 0 ? result.todayPriorities : [
         {
           id: 'p1',
-          title: 'Review GlobalFreight Contract Renewal',
-          description: 'Master Services Agreement (MSA-2026-884) requires renewal sign-off before Net-45 penalty terms engage.',
+          title: 'Review Expiring Vendor Agreement',
+          description: 'A vendor master services agreement requires renewal review and sign-off before penalty terms engage.',
           urgency: 'CRITICAL',
           category: 'CONTRACT',
-          recommendedAction: 'Execute revised SLA counter-terms before 5:00 PM today to lock in 12% preferred freight discount.'
+          recommendedAction: 'Review contract terms and execute renewal before the deadline to avoid unfavourable default penalty rates.'
         },
         {
           id: 'p2',
-          title: 'Address Engineering Sprint Delay',
-          description: 'Project Alpha is tracking 4 days behind milestone target due to microservices dependency bottleneck.',
+          title: 'Address Active Project Delay',
+          description: 'An active project is tracking behind its milestone target due to a resource or dependency bottleneck.',
           urgency: 'HIGH',
           category: 'PROJECT',
-          recommendedAction: 'Reassign 2 backend engineers from maintenance backlog to unblock sprint delivery.'
+          recommendedAction: 'Identify and reassign available resources to unblock sprint delivery and restore schedule.'
         }
       ],
       criticalEvents: Array.isArray(result.criticalEvents) ? result.criticalEvents : [
-        { title: 'Q3 Board Reshuffling & IPO Window', date: '2026-07-29', category: 'BOARD' },
-        { title: 'GlobalFreight MSA Expiration', date: '2026-08-12', category: 'CONTRACT' }
+        { title: 'Upcoming Board Review', date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0], category: 'BOARD' },
+        { title: 'Vendor Contract Expiration', date: new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0], category: 'CONTRACT' }
       ],
       revenueUpdates: Array.isArray(result.revenueUpdates) ? result.revenueUpdates : [
         { metric: 'Monthly Recurring Revenue (MRR)', value: '$184,500', trend: 'UP', detail: '+8.4% growth vs previous quarter' },
@@ -228,7 +228,7 @@ ${riskContext || 'No active risks'}`;
         date: new Date(a.createdAt).toLocaleDateString()
       })),
       contractExpirations: Array.isArray(result.contractExpirations) ? result.contractExpirations : [
-        { id: 'c1', name: 'GlobalFreight MSA-2026-884', expirationDate: '2026-08-12', daysLeft: 15, risk: 'High' }
+        { id: 'c1', name: 'Vendor Service Agreement (Expiring)', expirationDate: new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0], daysLeft: 15, risk: 'High' }
       ],
       upcomingMeetings: meetings.map(m => ({
         id: m.id,
@@ -243,7 +243,7 @@ ${riskContext || 'No active risks'}`;
         description: r.description
       })),
       customerIssues: Array.isArray(result.customerIssues) ? result.customerIssues : [
-        { customer: 'Apex Microelectronics', issue: 'Single-source component lead time extended by 10 days', riskLevel: 'HIGH' }
+        { customer: 'Key Vendor / Client Account', issue: 'Primary supplier lead time variance detected — monitoring required', riskLevel: 'HIGH' }
       ],
       employeeWorkload: Array.isArray(result.employeeWorkload) ? result.employeeWorkload : [
         { department: 'Engineering', status: 'Heavy', loadPercentage: 88 },
@@ -261,23 +261,23 @@ ${riskContext || 'No active risks'}`;
       recommendedActions: Array.isArray(result.recommendedActions) && result.recommendedActions.length > 0 ? result.recommendedActions : [
         {
           id: 'rec-1',
-          issue: 'GlobalFreight MSA contract expiring in 15 days.',
-          recommendedAction: 'Approve the negotiated Net-45 counter-terms and execute renewal.',
-          why: 'Failing to sign before August 12 triggers standard Net-15 penalty rates (+12% shipping fee variance).',
-          supportingEvidence: ['Contract #MSA-2026-884 Section 4.2', 'Q3 Supply Chain Audit'],
+          issue: 'A vendor agreement is approaching its renewal deadline.',
+          recommendedAction: 'Review contract terms and execute renewal before penalty clauses engage.',
+          why: 'Late renewal triggers unfavourable default penalty rates that inflate operating costs.',
+          supportingEvidence: ['Vendor Contract Register', 'Legal Review Queue'],
           confidenceScore: 97,
-          estimatedImpact: 'Saves $18,400 in shipping surcharge penalties',
+          estimatedImpact: 'Avoids unbudgeted penalty surcharges and contract lapse risk',
           urgency: 'CRITICAL',
           category: 'CONTRACT'
         },
         {
           id: 'rec-2',
-          issue: 'Apex Microelectronics component lead time delay.',
-          recommendedAction: 'Qualify secondary supplier (MicroTech Inc.) to hedge against single-source delay.',
-          why: 'Lead time increase from 14 to 24 days jeopardizes Q4 hardware delivery schedule.',
-          supportingEvidence: ['Apex Microelectronics Notice #409', 'Project Alpha Risk Matrix'],
+          issue: 'Primary supplier lead time variance detected — single-source dependency risk elevated.',
+          recommendedAction: 'Qualify a secondary supplier to hedge against single-source delivery dependency.',
+          why: 'Extended lead times from the primary supplier could jeopardise the active delivery schedule.',
+          supportingEvidence: ['Supplier Risk Register', 'Delivery Schedule Analysis'],
           confidenceScore: 94,
-          estimatedImpact: 'Prevents 3-week product delivery delay',
+          estimatedImpact: 'Prevents potential delivery delays and associated revenue impact',
           urgency: 'HIGH',
           category: 'REVENUE'
         }

@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { runDocumentAgent } from '@/lib/agents/document-agent';
@@ -8,7 +8,7 @@ import prisma from '@/lib/prisma';
 
 /**
  * POST /api/agent/document
- * Phase 2 — Agentic Document Intelligence API endpoint.
+ * Phase 2 â€” Agentic Document Intelligence API endpoint.
  * Accepts user goal / prompt and executes ReAct Document Agent with tool calling.
  */
 export async function POST(req: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('synaps-session')?.value;
 
-    let organizationId = 'demo_apex_org_id';
+    let organizationId = 'no_org_fallback';
     let userId = 'demo-user';
 
     if (sessionCookie) {
@@ -59,3 +59,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message || 'Agent error' }, { status: 500 });
   }
 }
+

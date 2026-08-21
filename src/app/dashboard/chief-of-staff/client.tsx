@@ -14,6 +14,7 @@ import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { SkiperLoopLoader } from '@/components/ui/SkiperLoopLoader';
 import { downloadAsPDF } from '@/lib/export-helpers';
 import { CassetteAudioPlayer } from '@/components/ui/EnterpriseTactileSuite';
+import { useOrgProfile } from '@/context/OrgProfileContext';
 
 interface ProactiveActionRecommendation {
   id: string;
@@ -48,6 +49,9 @@ interface ChiefOfStaffClientProps {
 }
 
 export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring }: ChiefOfStaffClientProps) {
+  const { profile } = useOrgProfile();
+  const companyName = profile?.companyName || 'Your Organisation';
+
   const [briefing, setBriefing] = useState<any>(initialBriefing);
   const [monitoring, setMonitoring] = useState<any>(initialMonitoring);
   const [loading, setLoading] = useState(false);
@@ -58,15 +62,17 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
     setLoading(true);
     try {
       const [resBrief, resMon] = await Promise.all([
-        fetch('/api/chief-of-staff/brief'),
+        fetch('/api/chief-of-staff/briefing'),
         fetch('/api/chief-of-staff/monitor')
       ]);
-      const jsonBrief = await resBrief.json();
-      const jsonMon = await resMon.json();
-      if (jsonBrief.success) setBriefing(jsonBrief.data);
-      if (jsonMon.success) setMonitoring(jsonMon.data);
+      const [dataBrief, dataMon] = await Promise.all([
+        resBrief.json(),
+        resMon.json()
+      ]);
+      if (dataBrief.success) setBriefing(dataBrief.data);
+      if (dataMon.success) setMonitoring(dataMon.data);
     } catch (e) {
-      console.error("Failed to refresh Chief of Staff briefing:", e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -75,6 +81,10 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
   const handleExecuteAction = (id: string) => {
     setExecutedRecs(prev => new Set(prev).add(id));
   };
+  const handleExecute = handleExecuteAction;
+
+  const criticalIssues = briefing?.todayPriorities?.filter((p: any) => p.urgency === 'CRITICAL') || [];
+  const urgentActions = briefing?.proactiveRecommendations?.filter((r: any) => r.urgency === 'CRITICAL' || r.urgency === 'HIGH') || [];
 
   const getUrgencyBadge = (urgency: string) => {
     switch (urgency) {
@@ -122,8 +132,8 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
                 const recs = briefing?.proactiveRecommendations || [];
                 downloadAsPDF({
                   title: 'Chief of Staff Daily Executive Briefing',
-                  subtitle: `Generated for Organization: Apex Global Enterprises · Risk Score: ${briefing?.riskScore || 38}/100`,
-                  organizationName: 'SYNAPS CHIEF OF STAFF',
+                  subtitle: `Generated for Organization: ${companyName} · Risk Score: ${briefing?.riskScore || 38}/100`,
+                  organizationName: `${companyName.toUpperCase()} — CHIEF OF STAFF`,
                   filename: 'Chief-of-Staff-Briefing-Report',
                   sections: [
                     {

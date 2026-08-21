@@ -12,7 +12,7 @@ export async function verifyIdToken(token: string) {
     }
     const uid = token.replace('TEST_TOKEN_', '');
     console.log(`[AUTH] Verified test token for UID: ${uid}`);
-    return { uid, email: `${uid}@synaps.ai`, name: `User ${uid}`, picture: '' } as any;
+    return { uid, email: `${uid}@causarix.ai`, name: `User ${uid}`, picture: '' } as any;
   }
   
   try {

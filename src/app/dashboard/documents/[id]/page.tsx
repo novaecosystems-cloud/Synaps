@@ -32,7 +32,7 @@ export default async function DocumentReaderPage({
     });
   } catch (e) {}
 
-  const organizationId = dbUser?.organizationId || 'demo_apex_org_id';
+  const organizationId = dbUser?.organizationId || 'no_org_fallback';
 
   const [document, allDocs] = await Promise.all([
     prisma.document.findUnique({

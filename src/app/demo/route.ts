@@ -13,7 +13,7 @@ import prisma from '@/lib/prisma';
 export async function GET(req: NextRequest) {
   const cookieStore = await cookies();
   const demoUserId = 'demo-user';
-  const demoOrgId = 'demo_apex_org_id';
+  const demoOrgId = 'no_org_fallback';
 
   // 1. Ensure Demo Organization exists in Database with Enterprise Max settings
   try {
@@ -157,7 +157,7 @@ Page 2: Cybersecurity & Zero-Trust Authentication. Use of unvetted public AI too
             organizationId: demoOrgId,
             pageNumber: 1,
             section: 'Code of Conduct',
-            text: 'Employee Code of Conduct for Nova Industries and Apex Global. Guidelines for workplace ethics and hybrid work protocols.'
+            text: 'Employee Code of Conduct. Guidelines for workplace ethics and hybrid work protocols.'
           },
           {
             documentId: doc2.id,
@@ -231,3 +231,4 @@ Page 3: Risk Assessment for Jaipur and Delhi Hotel Property Renovations.`
   // 5. Redirect to Dashboard with active demo session
   return NextResponse.redirect(new URL('/dashboard', req.url));
 }
+

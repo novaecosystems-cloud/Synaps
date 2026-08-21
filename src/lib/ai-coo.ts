@@ -138,7 +138,7 @@ export async function generateExecutiveBriefData(organizationId: string): Promis
   const isDemo = organizationId.includes('demo');
   if (documents.length === 0 && !isDemo && projects.length === 0 && decisions.length === 0) {
     return {
-      executiveBrief: "Welcome to your Synaps Executive Workspace. No organizational documents have been ingested yet. Ingest your first contract, financial report, or operational SOP in Documents & Knowledge to activate real-time AI COO briefing, health scores, and memory graph extraction.",
+      executiveBrief: "Welcome to your Causarix Executive Workspace. No organizational documents have been ingested yet. Ingest your first contract, financial report, or operational SOP in Documents & Knowledge to activate real-time AI COO briefing, health scores, and memory graph extraction.",
       healthScore: 0,
       knowledgeCoverage: 0,
       riskLevel: 'LOW',
@@ -151,7 +151,7 @@ export async function generateExecutiveBriefData(organizationId: string): Promis
           priority: 'HIGH',
           title: 'Ingest Organizational Knowledge Records',
           recommendation: 'Upload PDF, DOCX, or XLSX documents to your Knowledge Vault to initialize AI analysis.',
-          rationale: 'Synaps uses zero-hallucination grounded RAG to extract compliance, revenue, and operational data directly from your verified documents.',
+          rationale: 'Causarix uses zero-hallucination grounded RAG to extract compliance, revenue, and operational data directly from your verified documents.',
           citations: []
         }
       ],
@@ -372,7 +372,7 @@ Generate the complete JSON executive briefing based on the above data context.`;
     }));
 
     return {
-      executiveBrief: data.executiveBrief || "Synaps Executive Intelligence Engine is active. Organizational metrics and document indexes are synced and healthy.",
+      executiveBrief: data.executiveBrief || "Causarix Executive Intelligence Engine is active. Organizational metrics and document indexes are synced and healthy.",
       healthScore: typeof data.healthScore === 'number' ? data.healthScore : 88,
       knowledgeCoverage: typeof data.knowledgeCoverage === 'number' ? data.knowledgeCoverage : 94,
       riskLevel: data.riskLevel || 'MODERATE',
@@ -519,7 +519,7 @@ function getFallbackRecommendations(isDemo: boolean = false): AIRecommendationIt
 function getFallbackExecutiveBrief(documentsList: any[] = [], isDemo: boolean = false): ExecutiveBriefData {
   if (!isDemo && (!documentsList || documentsList.length === 0)) {
     return {
-      executiveBrief: "Welcome to your Synaps Executive Workspace. No organizational documents have been ingested yet. Ingest your first contract, financial report, or operational SOP in Documents & Knowledge to activate real-time AI COO briefing, health scores, and memory graph extraction.",
+      executiveBrief: "Welcome to your Causarix Executive Workspace. No organizational documents have been ingested yet. Ingest your first contract, financial report, or operational SOP in Documents & Knowledge to activate real-time AI COO briefing, health scores, and memory graph extraction.",
       healthScore: 0,
       knowledgeCoverage: 0,
       riskLevel: 'LOW',

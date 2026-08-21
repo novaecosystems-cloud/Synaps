@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -8,7 +8,7 @@ import { calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export async function GET(req: NextRequest) {
   try {
-    let organizationId = 'demo_apex_org_id';
+    let organizationId = 'no_org_fallback';
     let docCount = 12;
     let totalDecisions = 6;
     let approvedDecisions = 6;
@@ -103,7 +103,7 @@ export async function GET(req: NextRequest) {
         totalQueries: totalQueries,
         rlmProof: {
           formula: 'T_saved = (D * 0.8h) + (Q * 0.25h) + (P * 0.05h)',
-          entropyFormula: 'ΔH = -Σ p_i log2(p_i)',
+          entropyFormula: 'Î”H = -Î£ p_i log2(p_i)',
           accuracyScore: '99.4%',
           framework: 'Recursive Language Model (RLM v4.0)',
           iterations: 14,
@@ -128,7 +128,7 @@ export async function GET(req: NextRequest) {
         totalQueries: 28,
         rlmProof: {
           formula: 'T_saved = (D * 0.8h) + (Q * 0.25h) + (P * 0.05h)',
-          entropyFormula: 'ΔH = -Σ p_i log2(p_i)',
+          entropyFormula: 'Î”H = -Î£ p_i log2(p_i)',
           accuracyScore: '99.4%',
           framework: 'Recursive Language Model (RLM v4.0)',
           iterations: 14,
@@ -137,3 +137,4 @@ export async function GET(req: NextRequest) {
     });
   }
 }
+

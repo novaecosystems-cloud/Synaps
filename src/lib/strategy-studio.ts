@@ -1,4 +1,4 @@
-﻿import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import crypto from 'crypto';
 import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
@@ -97,25 +97,25 @@ export async function generateEnterpriseStrategy(
 
   const docSummaries = docs.length > 0 
     ? docs.map(d => {
-        const text = d.processedDoc?.textContent?.slice(0, 800) || d.chunks?.map((c: any) => c.text).join(' ') || 'Nova Industries Business Document.';
-        return `â€¢ Document [${d.name}]: ${text}`;
+        const text = d.processedDoc?.textContent?.slice(0, 800) || d.chunks?.map((c: any) => c.text).join(' ') || 'Organisation Business Document.';
+        return `• Document [${d.name}]: ${text}`;
       }).join('\n\n')
-    : `â€¢ Document [Q3 Supply Chain Risk Report.pdf]: Risk score 78/100. Taiwan single-source MCU dependency on Apex Microelectronics (68% volume). $14.2M Q4 revenue exposure.
-â€¢ Document [Vendor Contract Analysis.pdf]: GlobalFreight Logistics MSA-2026-884 caps delay liability at $50,000 against $1.2M/day plant stoppage loss.
-â€¢ Document [Q3-Q4 Financial Forecast.pdf]: Q3 Revenue $148.5M, Gross Margin 43.3%. $4.8M ocean freight cost overrun. $12.5M capital budget allocated for Quantum Semi dual-sourcing.
-â€¢ Document [Board Meeting Minutes Q3 2026.pdf]: Board Resolution RES-2026-41 approved $12.5M Quantum Semi European dual-sourcing expansion.`;
+    : `• Document [Vendor Agreement Review.pdf]: Review vendor SLA terms and identify material obligations before sign-off.
+• Document [Financial Forecast.pdf]: Revenue projections, margin analysis, and capital budget summary.
+• Document [Risk Register.pdf]: Enterprise risk items ranked by severity with recommended mitigations.
+• Document [Board Resolution.pdf]: Latest board resolutions and approved strategic initiatives.`;
 
-  const contextText = `NOVA INDUSTRIES INGESTED ENTERPRISE DATA & DOCUMENTS:
+  const contextText = `ORGANISATION INGESTED ENTERPRISE DATA & DOCUMENTS:
 ${docSummaries}
 
 Past Corporate Decisions:
-${decisions.map(d => `â€¢ ${d.title}: ${d.status} (${d.recommendation}) â€” ${d.executiveSummary || ''}`).join('\n') || 'Resolution RES-2026-41: Approved $12.5M budget for European dual-sourcing.'}`;
+${decisions.map(d => `• ${d.title}: ${d.status} (${d.recommendation}) — ${d.executiveSummary || ''}`).join('\n') || 'No historical decisions on record yet.'}`;
 
-  const systemPrompt = `You are the AI Strategy Studio Engine for Synaps.
-Generate a comprehensive, end-to-end strategic document for the user's business objective, strictly grounded in Nova Industries' ingested enterprise documents and financial data.
+  const systemPrompt = `You are the AI Strategy Studio Engine for Causarix.
+Generate a comprehensive, end-to-end strategic document for the user's business objective, strictly grounded in the organisation's ingested enterprise documents and financial data.
 
 You MUST perform:
-1. Executive Summary & Research (referencing real document facts like Taiwan MCU dependency, GlobalFreight contract, Quantum Semi dual-sourcing)
+1. Executive Summary & Research (referencing specific facts from the organisation's ingested documents)
 2. Competitor Analysis
 3. Market Analysis
 4. Risk Analysis
@@ -129,67 +129,67 @@ You MUST perform:
 
 You MUST return valid JSON matching:
 {
-  "executiveSummary": "2-3 sentence executive summary referencing Nova Industries documents",
+  "executiveSummary": "2-3 sentence executive summary referencing the organisation's documents",
   "research": "Comprehensive research notes on the strategic objective grounded in company files",
   "competitorAnalysis": {
-    "keyCompetitors": ["CyberCorp Dynamics", "OmniTech Systems"],
+    "keyCompetitors": ["Primary Competitor", "Secondary Competitor"],
     "marketDisruption": "Analysis of competitive advantage"
   },
   "marketAnalysis": {
-    "addressableMarket": "$420B TAM by 2028",
-    "targetDemographic": "Enterprise Manufacturing & Robotics Clients",
-    "growthRate": "+16.4% CAGR"
+    "addressableMarket": "Market sizing based on organisation sector",
+    "targetDemographic": "Enterprise clients in the organisation's target sector",
+    "growthRate": "Growth rate per sector analysis"
   },
   "riskAnalysis": [
-    { "risk": "Taiwan port congestion & single-source MCU delay", "impact": "HIGH", "mitigation": "Execute Quantum Semi Munich dual-sourcing" }
+    { "risk": "Primary supplier or single-source dependency risk", "impact": "HIGH", "mitigation": "Qualify secondary supplier as backup source" }
   ],
   "financialPlanning": {
-    "estimatedBudget": "$12,500,000",
-    "projectedRevenue": "$165.2M Q4 Revenue",
-    "roiEstimate": "320% over 24 months",
+    "estimatedBudget": "Budget per organisation financials",
+    "projectedRevenue": "Revenue projection per financial model",
+    "roiEstimate": "ROI estimate per scenario analysis",
     "budgetBreakdown": [
-      { "category": "Quantum Semi Dual-Sourcing Tooling", "amount": "$7,500,000" },
-      { "category": "Synaps AI OS Plant Rollout", "amount": "$3,200,000" },
-      { "category": "Logistics Buffer Inventory Expansion", "amount": "$1,800,000" }
+      { "category": "Strategic Initiative Execution", "amount": "Budget allocation TBD" },
+      { "category": "Causarix OS Enterprise Rollout", "amount": "Budget allocation TBD" },
+      { "category": "Operational Buffer & Contingency", "amount": "Budget allocation TBD" }
     ]
   },
   "complianceReview": [
-    { "regulatoryRequirement": "GlobalFreight MSA Amendment #3", "status": "REQUIRED", "recommendation": "Execute updated SLA penalty clauses" }
+    { "regulatoryRequirement": "Vendor Agreement Review", "status": "REQUIRED", "recommendation": "Execute updated SLA terms before renewal deadline" }
   ],
   "hiringPlan": [
-    { "role": "Munich Logistics Hub Director", "headcount": 1, "priority": "HIGH" }
+    { "role": "Regional Operations Lead", "headcount": 1, "priority": "HIGH" }
   ],
   "gtmStrategy": {
-    "positioning": "Enterprise AI Intelligence & Robotics OS",
-    "distributionChannels": ["Direct Enterprise Sales", "European Distribution Hub"],
+    "positioning": "Enterprise AI Decision Intelligence OS",
+    "distributionChannels": ["Direct Enterprise Sales", "Target Market Channel"],
     "pricingStrategy": "Enterprise Tiered Subscription"
   },
   "swotAnalysis": {
-    "strengths": ["Synaps AI Integration", "Board Approval for RES-2026-41"],
-    "weaknesses": ["68% MCU dependency on Taiwan"],
-    "opportunities": ["Munich European expansion"],
-    "threats": ["Global ocean freight rate surcharges"]
+    "strengths": ["Causarix AI Integration", "Board-approved strategic initiatives"],
+    "weaknesses": ["Single-source supplier dependency"],
+    "opportunities": ["New market expansion opportunity"],
+    "threats": ["Supply chain and macro cost pressures"]
   },
   "redTeamChallenges": [
     {
       "agentRole": "Risk Auditor Agent",
-      "challenge": "GlobalFreight delay liability is capped at $50,000 under current MSA-2026-884.",
+      "challenge": "Vendor liability is capped below actual exposure under current contract terms.",
       "severity": "CRITICAL",
-      "mitigationSuggestion": "Execute Amendment #3 immediately before Q4 shipping volume surges."
+      "mitigationSuggestion": "Execute contract amendment before the peak operational period."
     }
   ],
   "implementationPhases": [
     {
       "phase": 1,
-      "phaseName": "Phase 1: Dual-Sourcing & Legal Execution",
+      "phaseName": "Phase 1: Strategic Initiative & Legal Execution",
       "duration": "Months 1-2",
-      "milestones": ["Sign Quantum Semi SOW", "Execute GlobalFreight Amendment #3"]
+      "milestones": ["Execute primary vendor agreements", "Secure legal sign-off on key contracts"]
     },
     {
       "phase": 2,
-      "phaseName": "Phase 2: Plant Rollout & Buffer Expansion",
+      "phaseName": "Phase 2: Operational Rollout & Capacity Build",
       "duration": "Months 3-4",
-      "milestones": ["Deploy Synaps AI across 8 plants", "Expand Munich inventory buffer"]
+      "milestones": ["Deploy Causarix OS across key operational nodes", "Expand operational capacity per plan"]
     }
   ]
 }`;
@@ -219,16 +219,16 @@ You MUST return valid JSON matching:
     return {
       id: proposalId,
       objective,
-      executiveSummary: parsed.executiveSummary || `Grounded Enterprise Strategy for ${objective} based on Nova Industries documents.`,
+      executiveSummary: parsed.executiveSummary || `Grounded Enterprise Strategy for ${objective} based on the organisation's ingested documents.`,
       research: parsed.research || 'Grounded document analysis.',
-      competitorAnalysis: parsed.competitorAnalysis || { keyCompetitors: ['CyberCorp Dynamics', 'OmniTech Systems'], marketDisruption: 'Synaps AI Integration' },
-      marketAnalysis: parsed.marketAnalysis || { addressableMarket: '$420B TAM', targetDemographic: 'Enterprise Clients', growthRate: '+16.4% CAGR' },
+      competitorAnalysis: parsed.competitorAnalysis || { keyCompetitors: ['Primary Competitor', 'Secondary Competitor'], marketDisruption: 'Causarix AI Integration' },
+      marketAnalysis: parsed.marketAnalysis || { addressableMarket: 'Market sizing per sector', targetDemographic: 'Enterprise Clients', growthRate: 'Sector growth rate' },
       riskAnalysis: Array.isArray(parsed.riskAnalysis) ? parsed.riskAnalysis : [],
-      financialPlanning: parsed.financialPlanning || { estimatedBudget: '$12.5M', projectedRevenue: '$165.2M Q4', roiEstimate: '320%', budgetBreakdown: [] },
+      financialPlanning: parsed.financialPlanning || { estimatedBudget: 'Per organisation financials', projectedRevenue: 'Revenue projection per model', roiEstimate: 'Per scenario analysis', budgetBreakdown: [] },
       complianceReview: Array.isArray(parsed.complianceReview) ? parsed.complianceReview : [],
       hiringPlan: Array.isArray(parsed.hiringPlan) ? parsed.hiringPlan : [],
-      gtmStrategy: parsed.gtmStrategy || { positioning: 'Enterprise AI OS', distributionChannels: ['Direct Sales'], pricingStrategy: 'Subscription' },
-      swotAnalysis: parsed.swotAnalysis || { strengths: ['Synaps AI Integration'], weaknesses: ['Taiwan MCU dependency'], opportunities: ['Munich Expansion'], threats: ['Freight inflation'] },
+      gtmStrategy: parsed.gtmStrategy || { positioning: 'Enterprise AI Decision Intelligence OS', distributionChannels: ['Direct Enterprise Sales'], pricingStrategy: 'Enterprise Tiered Subscription' },
+      swotAnalysis: parsed.swotAnalysis || { strengths: ['Causarix AI Integration', 'Board-approved initiatives'], weaknesses: ['Single-source supplier dependency'], opportunities: ['New market expansion'], threats: ['Supply chain cost pressures'] },
       redTeamChallenges: Array.isArray(parsed.redTeamChallenges) ? parsed.redTeamChallenges : [],
       implementationPhases: Array.isArray(parsed.implementationPhases) ? parsed.implementationPhases : [],
       createdAt: new Date().toISOString()

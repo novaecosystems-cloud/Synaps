@@ -1,4 +1,4 @@
-﻿import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
@@ -169,10 +169,10 @@ ${combinedText || doc.name}`;
   // Fallback defaults if LLM generation was incomplete
   const documentType = result.documentType || 'Contract';
   const extractedEntities = result.extractedEntities || {
-    organizations: ['Apex Microelectronics', 'Nova Systems'],
+    organizations: [],
     dates: [new Date().toISOString().split('T')[0]],
-    monetaryValues: ['$45,000'],
-    departments: ['Legal', 'Finance', 'Engineering']
+    monetaryValues: [],
+    departments: ['Legal', 'Finance', 'Operations']
   };
 
   const summaries: MultiAudienceSummaries = result.summaries || {

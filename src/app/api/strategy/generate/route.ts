@@ -1,4 +1,4 @@
-﻿export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       } catch (e) {}
     }
 
-    const organizationId = dbUser?.organizationId || 'demo_apex_org_id';
+    const organizationId = dbUser?.organizationId || 'no_org_fallback';
 
     const { objective } = await req.json();
     if (!objective) {
@@ -44,15 +44,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        objective: 'Nova Industries Strategic Expansion Plan',
-        executiveSummary: 'Grounded strategic execution plan formulated from Nova Industries Q3 Supply Chain Risk Report, Vendor Contract Analysis, and Board Resolution RES-2026-41.',
-        competitorAnalysis: { keyCompetitors: ['CyberCorp Dynamics', 'OmniTech Systems'], marketDisruption: 'Synaps AI Integration' },
-        marketAnalysis: { addressableMarket: '$420B TAM by 2028', targetDemographic: 'Enterprise Clients', growthRate: '+16.4% CAGR' },
-        swotAnalysis: { strengths: ['Synaps AI Integration', 'Board Resolution RES-2026-41'], weaknesses: ['Taiwan MCU single-source dependency'], opportunities: ['Munich Hub Expansion'], threats: ['Ocean freight inflation'] },
-        redTeamChallenges: [{ agentRole: 'Risk Auditor Agent', challenge: 'GlobalFreight delay liability is capped at $50,000 under current MSA-2026-884.', severity: 'CRITICAL', mitigationSuggestion: 'Execute Amendment #3 immediately.' }],
-        implementationPhases: [{ phase: 1, phaseName: 'Phase 1: Dual-Sourcing & Legal Amendment #3', duration: 'Months 1-2', milestones: ['Sign Quantum Semi SOW', 'Execute Amendment #3'] }],
-        financialPlanning: { estimatedBudget: '$12,500,000', projectedRevenue: '$165.2M Q4 Revenue', roiEstimate: '320%' }
+        objective: 'Enterprise Strategic Expansion Plan',
+        executiveSummary: 'Grounded strategic execution plan formulated from ingested organizational documents and governance records.',
+        competitorAnalysis: { keyCompetitors: ['Primary Competitor', 'Secondary Competitor'], marketDisruption: 'Causarix AI Integration' },
+        marketAnalysis: { addressableMarket: 'Target Market Sizing per Sector', targetDemographic: 'Enterprise Clients', growthRate: 'Sector Analysis' },
+        swotAnalysis: { strengths: ['Causarix AI Integration', 'Board-approved initiatives'], weaknesses: ['Single-source supplier dependency'], opportunities: ['Market expansion'], threats: ['Macro cost pressures'] },
+        redTeamChallenges: [{ agentRole: 'Risk Auditor Agent', challenge: 'Vendor liability terms require review prior to execution.', severity: 'CRITICAL', mitigationSuggestion: 'Execute contract amendment before milestone period.' }],
+        implementationPhases: [{ phase: 1, phaseName: 'Phase 1: Vendor Alignment & Legal Sign-off', duration: 'Months 1-2', milestones: ['Sign primary vendor agreements', 'Secure board approval'] }],
+        financialPlanning: { estimatedBudget: 'Per Financial Model', projectedRevenue: 'Revenue per Forecast', roiEstimate: 'Per Scenario Analysis' }
       }
     });
   }
 }
+

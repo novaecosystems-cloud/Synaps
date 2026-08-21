@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 import { cookies } from 'next/headers';
 import { verifySessionCookie } from '@/lib/auth-server';
 import RequirementsClient from './client';
@@ -8,7 +8,7 @@ import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 export default async function RequirementsPage() {
   const cookieStore = await cookies();
   const session = cookieStore.get('synaps-session')?.value;
-  let organizationId = 'demo_apex_org_id';
+  let organizationId = 'no_org_fallback';
 
   if (session) {
     const decoded = await verifySessionCookie(session);
@@ -40,4 +40,5 @@ export default async function RequirementsPage() {
     </div>
   );
 }
+
 

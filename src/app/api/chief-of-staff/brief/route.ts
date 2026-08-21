@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       });
     } catch (e) {}
 
-    const organizationId = dbUser?.organizationId || 'demo_apex_org_id';
+    const organizationId = dbUser?.organizationId || 'no_org_fallback';
 
     const briefing = await generateChiefOfStaffBriefing(organizationId);
 
@@ -37,3 +37,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message || 'Server error' }, { status: 500 });
   }
 }
+

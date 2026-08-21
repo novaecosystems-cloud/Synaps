@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { TeamAgentMemoryHub } from '@/lib/memory/team-agent-memory-hub';
 
 export const dynamic = 'force-dynamic';
@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const orgId = searchParams.get('orgId') || 'demo_apex_org_id';
+    const orgId = searchParams.get('orgId') || 'no_org_fallback';
     const q = searchParams.get('q') || '';
     const domain = searchParams.get('domain') || undefined;
 
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { organizationId = 'demo_apex_org_id', sessionId = `sess_${Date.now()}`, topic, deliberationLogs = [], consensusDossier } = body;
+    const { organizationId = 'no_org_fallback', sessionId = `sess_${Date.now()}`, topic, deliberationLogs = [], consensusDossier } = body;
 
     if (!topic || !consensusDossier) {
       return NextResponse.json({ success: false, error: 'Missing topic or consensusDossier' }, { status: 400 });
@@ -44,3 +44,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+

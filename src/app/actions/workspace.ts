@@ -27,10 +27,10 @@ export async function getWorkspaceDocuments() {
     console.warn('[WORKSPACE] Could not fetch DB documents, using default demo set:', e);
   }
 
-  // Fallback to Nova Industries Enterprise Demo documents if DB docs are empty
+  // Fallback to Enterprise Demo documents if DB docs are empty
   if (!docs || docs.length === 0) {
     docs = NOVA_DEMO_DOCUMENTS.map((d, i) => ({
-      id: `nova-demo-doc-${i}`,
+      id: `enterprise-demo-doc-${i}`,
       name: d.name,
       createdAt: new Date(Date.now() - (i + 1) * 60 * 1000).toISOString(),
       mimeType: 'application/pdf',

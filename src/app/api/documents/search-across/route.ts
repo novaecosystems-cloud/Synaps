@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
@@ -8,23 +8,23 @@ import { generateEmbedding } from '@/lib/embeddings';
 
 /**
  * GET /api/documents/search-across
- * Phase 1 — Multi-document search with page-level citations.
+ * Phase 1 â€” Multi-document search with page-level citations.
  * 
  * "Find every occurrence of X across all documents"
  * Returns results grouped by document, with page numbers and snippets.
  * 
  * Query params:
- *   q        — search query (required)
- *   mode     — "keyword" | "fuzzy" | "semantic" (default: "keyword")
- *   docIds   — comma-separated list of document IDs to restrict search
- *   limit    — max results per document (default: 5)
+ *   q        â€” search query (required)
+ *   mode     â€” "keyword" | "fuzzy" | "semantic" (default: "keyword")
+ *   docIds   â€” comma-separated list of document IDs to restrict search
+ *   limit    â€” max results per document (default: 5)
  */
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('synaps-session')?.value;
 
-    let organizationId: string = 'demo_apex_org_id';
+    let organizationId: string = 'no_org_fallback';
     if (sessionCookie) {
       try {
         const decoded = await verifySessionCookie(sessionCookie);
@@ -269,3 +269,4 @@ function buildSnippet(text: string, keyword: string, contextChars = 120): string
 function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+

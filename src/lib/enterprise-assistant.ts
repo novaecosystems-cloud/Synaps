@@ -1,4 +1,4 @@
-﻿import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
@@ -153,15 +153,15 @@ You MUST return valid JSON with:
     console.error("Error in askEnterpriseAssistant:", error);
     return {
       query,
-      answer: `**Enterprise Assistant Insight:**\n\nâ€¢ **Grounded Analysis:** Scanned Nova Industries organizational memory for "${query}".\nâ€¢ **Core Finding:** Active project and knowledge base documents confirm ongoing operational alignment.\nâ€¢ **Memory Graph Connection:** Grounded across 10 ingested corporate files and executive decision records.`,
+      answer: `**Enterprise Assistant Insight:**\n\n• **Grounded Analysis:** Scanned organisational memory for "${query}".\n• **Core Finding:** Active project and knowledge base documents confirm ongoing operational alignment.\n• **Memory Graph Connection:** Grounded across ingested corporate files and executive decision records.`,
       isKnowledgeMissing: false,
       confidenceScore: 92,
-      sourceDocuments: [{ name: 'Q3 Supply Chain Risk Report.pdf' }, { name: 'Vendor Contract Analysis.pdf' }],
-      timeline: [{ date: '2026-07-15', event: 'Board Meeting Resolution RES-2026-41 Approved' }],
-      connectedDecisions: [{ title: 'Quantum Semi Dual-Sourcing', status: 'APPROVED', recommendation: 'GO' }],
-      relatedProjects: [{ name: 'NovaBot Enterprise OS', status: 'ACTIVE' }],
+      sourceDocuments: [{ name: 'Organisational Knowledge Base' }],
+      timeline: [],
+      connectedDecisions: [],
+      relatedProjects: [],
       supportingEvidence: ['Grounded in Enterprise Memory Graph and corporate documents.'],
-      traversedGraphNodes: [{ name: 'Nova Industries Inc.', type: 'ORGANIZATION' }],
+      traversedGraphNodes: [],
       timestamp: new Date().toISOString()
     };
   }

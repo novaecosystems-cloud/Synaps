@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
+import { getAdaptiveChannels, getAdaptiveAlerts } from '@/lib/org-adaptive-content';
 
 export async function GET(req: NextRequest) {
   try {
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
       });
     } catch (e) {}
 
-    const organizationId = dbUser?.organizationId || 'demo_apex_org_id';
+    const organizationId = dbUser?.organizationId || 'no_org_fallback';
 
     // Monitor channels for changes across Organization context
     let unreadNotificationsCount = 0;
@@ -32,51 +33,49 @@ export async function GET(req: NextRequest) {
       });
     } catch (e) {}
 
-    const channelsMonitored = [
-      { name: 'Email & Communications', status: 'ACTIVE', lastScan: 'Just now', alerts: 1 },
-      { name: 'Executive Calendar', status: 'ACTIVE', lastScan: '2m ago', alerts: 2 },
-      { name: 'Active Projects & Sprints', status: 'ACTIVE', lastScan: 'Just now', alerts: 1 },
-      { name: 'Document Vault & Contracts', status: 'ACTIVE', lastScan: 'Just now', alerts: 1 },
-      { name: 'Enterprise CRM & Customers', status: 'ACTIVE', lastScan: '5m ago', alerts: 1 },
-      { name: 'Finance & Invoicing', status: 'ACTIVE', lastScan: '3m ago', alerts: 1 },
-      { name: 'Git Repositories & Commits', status: 'ACTIVE', lastScan: 'Just now', alerts: 0 },
-      { name: 'Meeting Transcripts & Memory', status: 'ACTIVE', lastScan: '1m ago', alerts: 0 }
+    let sector = 'default';
+    let companyName = 'Your Organisation';
+
+    if (dbUser?.organizationId) {
+      try {
+        const org = await prisma.organization.findUnique({
+          where: { id: dbUser.organizationId },
+          select: { name: true, settings: true }
+        });
+        if (org) {
+          const settings = (org.settings as any) || {};
+          companyName = settings.companyName || org.name || companyName;
+          sector = settings.sector || 'default';
+        }
+      } catch (e) {}
+    }
+
+    const adaptiveChannels = getAdaptiveChannels(sector);
+    const adaptiveAlerts = getAdaptiveAlerts(sector, companyName);
+
+    const channelsMonitored = adaptiveChannels.slice(0, 8).map((channel, i) => ({
+      name: channel,
+      status: 'ACTIVE',
+      lastScan: ['Just now', '2m ago', 'Just now', 'Just now', '5m ago', '3m ago', 'Just now', '1m ago'][i] || 'Just now',
+      alerts: i < adaptiveAlerts.length ? 1 : 0
+    }));
+
+    const urgencies = ['CRITICAL', 'HIGH', 'HIGH', 'MEDIUM'];
+    const actions = [
+      'Review contract terms and execute renewal',
+      'Review operational SLA and schedule touchpoint',
+      'Reallocate resources to unblock milestone',
+      'Audit operational variances vs budget'
     ];
 
-    const activeProactiveAlerts = [
-      {
-        id: 'alert-1',
-        channel: 'Contract Vault',
-        message: 'Contract #MSA-2026-884 (GlobalFreight) expires in 15 days.',
-        urgency: 'CRITICAL',
-        timestamp: '10m ago',
-        action: 'Review Net-45 counter-terms'
-      },
-      {
-        id: 'alert-2',
-        channel: 'Enterprise CRM',
-        message: 'Customer Apex Microelectronics lead time extended by 10 days — churn risk elevated to 82%.',
-        urgency: 'HIGH',
-        timestamp: '25m ago',
-        action: 'Schedule executive touchpoint'
-      },
-      {
-        id: 'alert-3',
-        channel: 'Active Projects',
-        message: 'Project Alpha milestone delay detected (4 days behind schedule).',
-        urgency: 'HIGH',
-        timestamp: '1h ago',
-        action: 'Reallocate 2 backend engineers'
-      },
-      {
-        id: 'alert-4',
-        channel: 'Finance',
-        message: 'Cloud compute cost variance +$4,200 vs monthly budget ceiling.',
-        urgency: 'MEDIUM',
-        timestamp: '2h ago',
-        action: 'Audit unassigned GPU instances'
-      }
-    ];
+    const activeProactiveAlerts = adaptiveAlerts.slice(0, 4).map((msg, i) => ({
+      id: `alert-${i + 1}`,
+      channel: adaptiveChannels[i] || 'Operational Monitor',
+      message: msg,
+      urgency: urgencies[i] || 'MEDIUM',
+      timestamp: ['10m ago', '25m ago', '1h ago', '2h ago'][i] || '1h ago',
+      action: actions[i] || 'Review operational alert'
+    }));
 
     return NextResponse.json({
       success: true,
@@ -93,3 +92,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message || 'Server error' }, { status: 500 });
   }
 }
+

@@ -22,7 +22,7 @@ const otpMap = new Map<string, OtpRecord>();
  */
 export function generateOTP(email: string, idToken?: string): { code: string; expiresAt: number; isDemo: boolean } {
   const cleanEmail = email.trim().toLowerCase();
-  const isDemo = cleanEmail === 'guest.demo@synaps.ai';
+  const isDemo = cleanEmail === 'guest.demo@causarix.ai' || cleanEmail === 'guest.demo@synaps.ai';
   
   // Generate cryptographically secure random 6-digit code for real emails (100000 - 999999)
   const code = isDemo ? '123456' : crypto.randomInt(100000, 999999).toString();

@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { runReasoningAgent } from '@/lib/agents/reasoning-agent';
@@ -8,7 +8,7 @@ import prisma from '@/lib/prisma';
 
 /**
  * POST /api/agent/research
- * Phase 3 — Web + Document + Autonomous Research Endpoint.
+ * Phase 3 â€” Web + Document + Autonomous Research Endpoint.
  * Executes multi-agent synthesis combining internal vault documents + external web search.
  */
 export async function POST(req: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('synaps-session')?.value;
 
-    let organizationId = 'demo_apex_org_id';
+    let organizationId = 'no_org_fallback';
     let userId = 'demo-user';
 
     if (sessionCookie) {
@@ -62,3 +62,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message || 'Research agent error' }, { status: 500 });
   }
 }
+

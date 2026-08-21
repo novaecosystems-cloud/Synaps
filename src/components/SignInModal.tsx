@@ -167,7 +167,7 @@ export default function SignInModal({ isOpen, onClose, onOpenLegalDoc }: SignInM
     e.preventDefault();
     setLoading(true);
     localStorage.setItem('synaps_demo_usage_count', '0');
-    await send2FACode('guest.demo@synaps.ai', 'TEST_TOKEN_enterprise_guest_demo');
+    await send2FACode('guest.demo@causarix.ai', 'TEST_TOKEN_enterprise_guest_demo');
   };
 
   return (

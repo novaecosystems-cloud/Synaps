@@ -28,7 +28,7 @@ export async function GET(
       });
     } catch (e) {}
 
-    const organizationId = dbUser?.organizationId || 'demo_apex_org_id';
+    const organizationId = dbUser?.organizationId || 'no_org_fallback';
 
     const intelligence = await analyzeEnterpriseDocument(id, organizationId);
 

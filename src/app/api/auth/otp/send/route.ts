@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const email = (body.email || 'guest.demo@synaps.ai').trim().toLowerCase();
+    const email = (body.email || 'guest.demo@causarix.ai').trim().toLowerCase();
     const idToken = body.idToken;
 
     const { code, expiresAt, isDemo } = generateOTP(email, idToken);
