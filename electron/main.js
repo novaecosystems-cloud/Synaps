@@ -1,185 +1,244 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, shell, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, shell, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const { spawn } = require('child_process');
 
-// 1. Permanently eliminate GPU Compositor Black Screen freezes on Windows
+// CRITICAL: Disable GPU hardware acceleration to eliminate black screen
+// on Intel Iris Xe / Windows 11 DirectX compositor freeze bug
 app.disableHardwareAcceleration();
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('disable-software-rasterizer');
 
 app.setName('Causarix AI');
 
-const isSingleInstance = app.requestSingleInstanceLock();
-if (!isSingleInstance) {
+// Prevent duplicate app instances
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
   app.quit();
+  process.exit(0);
 }
 
 let mainWindow = null;
+let tray = null;
 let serverProcess = null;
-const localUrl = 'http://localhost:3000/dashboard';
+let pollTimer = null;
 
+const DASHBOARD_URL = 'http://localhost:3000/dashboard';
+const HEALTH_URL = 'http://localhost:3000/api/offline/status';
+const SYNAPS_DIR = 'D:\\Synaps';
+
+// ─── ICON ───────────────────────────────────────────────────────────────────
 function getIcon() {
-  const iconPaths = [
-    path.join(__dirname, 'public', 'favicon.ico'),
-    path.join(__dirname, 'favicon.ico'),
+  const candidates = [
+    path.join(__dirname, 'causarix.ico'),
     path.join(__dirname, '..', 'public', 'favicon.ico'),
-    path.join(process.resourcesPath || '', 'app', 'public', 'favicon.ico'),
-    'D:\\Synaps\\public\\favicon.ico'
+    'D:\\Synaps\\electron\\causarix.ico',
+    'D:\\Synaps\\public\\favicon.ico',
   ];
-  for (const p of iconPaths) {
+  for (const p of candidates) {
     if (fs.existsSync(p)) {
       try {
         const img = nativeImage.createFromPath(p);
         if (!img.isEmpty()) return img;
-      } catch (e) {}
+      } catch (_) {}
     }
   }
   return nativeImage.createEmpty();
 }
 
-function checkServerReady(callback) {
-  const req = http.get('http://localhost:3000/api/offline/status', (res) => {
-    if (res.statusCode === 200 || res.statusCode === 304 || res.statusCode === 307) {
-      callback(true);
-    } else {
-      callback(false);
-    }
-  });
-  req.on('error', () => callback(false));
-  req.setTimeout(1500, () => {
-    req.destroy();
-    callback(false);
+// ─── SERVER HEALTH CHECK ─────────────────────────────────────────────────────
+function checkServer() {
+  return new Promise((resolve) => {
+    const req = http.get(HEALTH_URL, (res) => {
+      res.resume(); // drain
+      resolve(res.statusCode >= 200 && res.statusCode < 500);
+    });
+    req.on('error', () => resolve(false));
+    req.setTimeout(2000, () => { req.destroy(); resolve(false); });
   });
 }
 
-function ensureServerRunning() {
-  checkServerReady((isReady) => {
-    if (!isReady && !serverProcess) {
-      console.log('[Causarix Desktop] Starting local Next.js engine on port 3000...');
-      const rootDir = path.resolve(__dirname, '..');
-      serverProcess = spawn('npm.cmd', ['run', 'dev'], {
-        cwd: fs.existsSync(path.join(rootDir, 'package.json')) ? rootDir : 'D:\\Synaps',
-        shell: true,
-        env: { ...process.env, PORT: '3000' }
-      });
-      serverProcess.stdout?.on('data', (d) => console.log(`[Next.js] ${d.toString().trim()}`));
-    }
+// ─── START NEXT.JS SERVER ────────────────────────────────────────────────────
+function startNextServer() {
+  if (serverProcess) return; // already running
+
+  const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+  serverProcess = spawn(npmCmd, ['run', 'dev'], {
+    cwd: SYNAPS_DIR,
+    shell: false,
+    env: { ...process.env, PORT: '3000', NODE_ENV: 'development' },
+    stdio: 'pipe',
+  });
+
+  serverProcess.stdout?.on('data', (d) =>
+    console.log('[Next.js]', d.toString().trim())
+  );
+  serverProcess.stderr?.on('data', (d) =>
+    console.error('[Next.js ERR]', d.toString().trim())
+  );
+  serverProcess.on('exit', (code) => {
+    console.log('[Next.js] Process exited with code', code);
+    serverProcess = null;
   });
 }
 
-function createMainWindow() {
+// ─── SPLASH HTML ─────────────────────────────────────────────────────────────
+function getSplashHTML() {
+  return `data:text/html;charset=utf-8,${encodeURIComponent(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Causarix AI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #07080B;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      color: #E2E8F0;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+    .logo {
+      width: 72px; height: 72px; border-radius: 16px;
+      background: linear-gradient(135deg, #0EA5E9 0%, #6366F1 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; margin-bottom: 24px;
+      box-shadow: 0 0 40px rgba(99,102,241,0.4);
+    }
+    h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; }
+    .sub { font-size: 11px; color: #475569; font-family: 'Courier New', monospace;
+           letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 32px; }
+    .bar-wrap { width: 220px; height: 2px; background: #1E293B; border-radius: 99px; overflow: hidden; }
+    .bar { height: 100%; background: linear-gradient(90deg, #0EA5E9, #6366F1);
+           border-radius: 99px; animation: load 2.4s ease-in-out infinite; }
+    @keyframes load {
+      0%   { width: 0%;   margin-left: 0%; }
+      50%  { width: 70%;  margin-left: 15%; }
+      100% { width: 0%;   margin-left: 100%; }
+    }
+    .status { margin-top: 16px; font-size: 11px; color: #334155; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="logo">⚡</div>
+  <h1>Causarix AI</h1>
+  <p class="sub">Sovereign Offline Decision OS</p>
+  <div class="bar-wrap"><div class="bar"></div></div>
+  <p class="status">Initializing local engine...</p>
+</body>
+</html>`)}`;
+}
+
+// ─── MAIN WINDOW ─────────────────────────────────────────────────────────────
+function createWindow() {
   const icon = getIcon();
 
   mainWindow = new BrowserWindow({
     width: 1440,
-    height: 920,
+    height: 900,
     minWidth: 1080,
-    minHeight: 700,
+    minHeight: 680,
     title: 'Causarix AI — Sovereign Decision OS',
     backgroundColor: '#07080B',
-    icon: icon,
-    show: false,
-    autoHideMenuBar: false,
+    icon,
+    show: false,            // shown only after ready-to-show
+    frame: true,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
     },
   });
 
-  mainWindow.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 CausarixDesktop/3.0.0');
-
-  // Load a sleek initial loading state
-  mainWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Causarix AI</title>
-        <style>
-          body {
-            background-color: %2307080B;
-            color: %23E2E8F0;
-            font-family: system-ui, -apple-system, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            user-select: none;
-          }
-          .spinner {
-            width: 48px;
-            height: 48px;
-            border: 3px solid rgba(6, 182, 212, 0.15);
-            border-top-color: %2306B6D4;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 24px;
-          }
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
-          h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 8px 0; color: %23FFFFFF; }
-          p { font-size: 12px; color: %2364748B; font-family: monospace; margin: 0; }
-        </style>
-      </head>
-      <body>
-        <div class="spinner"></div>
-        <h2>Causarix Sovereign OS</h2>
-        <p>INITIALIZING 100% AIR-GAPPED HARDWARE ENGINE...</p>
-      </body>
-    </html>
-  `)}`);
-
+  // Show window as soon as first paint is done
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     mainWindow.focus();
   });
 
-  // Poll server until ready then transition seamlessly
-  const pollInterval = setInterval(() => {
-    checkServerReady((isReady) => {
-      if (isReady && mainWindow && !mainWindow.isDestroyed()) {
-        clearInterval(pollInterval);
-        console.log('[Causarix Desktop] Port 3000 ready! Loading dashboard...');
-        mainWindow.loadURL(localUrl);
-      }
-    });
-  }, 1000);
+  // Load the animated splash immediately — no black frame ever
+  mainWindow.loadURL(getSplashHTML());
 
-  mainWindow.on('close', (event) => {
+  // ── Poll loop: every 1.5 s check if Next.js is up ────────────────────────
+  let polls = 0;
+  pollTimer = setInterval(async () => {
+    polls++;
+    const ready = await checkServer();
+    if (ready && mainWindow && !mainWindow.isDestroyed()) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+      console.log(`[Causarix Desktop] Server ready after ${polls} polls — loading dashboard`);
+      mainWindow.loadURL(DASHBOARD_URL);
+    } else {
+      console.log(`[Causarix Desktop] Poll #${polls}: waiting for port 3000...`);
+    }
+  }, 1500);
+
+  mainWindow.on('close', (e) => {
     if (!app.isQuitting) {
-      event.preventDefault();
+      e.preventDefault();
       mainWindow.hide();
     }
-    return false;
   });
 }
 
+// ─── TRAY ────────────────────────────────────────────────────────────────────
+function createTray() {
+  try {
+    const icon = getIcon();
+    tray = new Tray(icon);
+    tray.setToolTip('Causarix AI — Sovereign Offline OS');
+    tray.setContextMenu(Menu.buildFromTemplate([
+      {
+        label: '⚡ Open Causarix Dashboard',
+        click: () => { mainWindow?.show(); mainWindow?.focus(); }
+      },
+      { type: 'separator' },
+      {
+        label: 'Quit',
+        click: () => { app.isQuitting = true; app.quit(); }
+      },
+    ]));
+    tray.on('click', () => { mainWindow?.show(); mainWindow?.focus(); });
+  } catch (e) {
+    console.error('[Tray] Failed to create tray:', e.message);
+  }
+}
+
+// ─── APP LIFECYCLE ────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
-  ensureServerRunning();
-  createMainWindow();
+  startNextServer();   // fire Next.js in background
+  createWindow();      // show splash immediately
+  createTray();
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow();
-    } else if (mainWindow) {
-      mainWindow.show();
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    else mainWindow?.show();
   });
 });
 
 app.on('before-quit', () => {
   app.isQuitting = true;
+  if (pollTimer) clearInterval(pollTimer);
   if (serverProcess) {
-    try {
-      serverProcess.kill();
-    } catch {}
+    try { serverProcess.kill('SIGTERM'); } catch (_) {}
   }
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
+  if (process.platform !== 'darwin') app.quit();
+});
+
+// Bring window to front if user tries to open a second instance
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
   }
 });
