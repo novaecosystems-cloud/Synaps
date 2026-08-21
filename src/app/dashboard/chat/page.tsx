@@ -1,636 +1,458 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Send, Hash, Plus, Users, Bot, Shield, Sparkles, 
+  Paperclip, Search, ChevronRight, RefreshCw, X, 
+  MessageSquare, AlertTriangle, ArrowRight, Check,
+  AtSign, Terminal, FileText, Lock
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import {
-  Send, Globe, Plus, Trash2, Clock,
-  Loader2, BookOpen, ExternalLink,
-  AlignLeft, Paperclip, Sparkles,
-  MessageSquare, ArrowRight, ChevronRight,
-} from "lucide-react";
-import { PromptInput } from "@/components/ui/PromptInput";
-import { SkiperLoopLoader } from "@/components/ui/SkiperLoopLoader";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-interface WebSource {
-  title: string;
-  url: string;
-  snippet: string;
-  favicon: string;
-  domain: string;
-}
-
-interface Citation {
-  document_id?: string;
-  page?: number;
-  snippet?: string;
-}
-
-interface Message {
+interface Channel {
   id: string;
-  role: "user" | "assistant";
+  name: string;
+  description: string;
+  isPrivate: boolean;
+  memberCount: number;
+  unreadCount: number;
+}
+
+interface StreamMessage {
+  id: string;
+  channelId: string;
+  authorName: string;
+  authorRole: string;
+  authorType: "AI" | "HUMAN";
+  avatar: string;
   content: string;
-  isWebSearch?: boolean;
-  webSources?: WebSource[];
-  citations?: Citation[];
-  thinking?: string[];
-  isStreaming?: boolean;
+  citation?: string;
+  timestamp: string;
 }
 
-interface Chat {
-  id: string;
-  title: string;
-  messages: Message[];
-  createdAt: string;
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-const uid = () => Math.random().toString(36).slice(2, 10);
-
-const SUGGESTED = [
-  "What are the key risks in the latest uploaded contracts?",
-  "Summarise all compliance obligations due this quarter",
-  "Search the web for recent AI regulation changes in the EU",
-  "Compare the financial terms across all active agreements",
+const AI_AGENTS = [
+  { tag: "@CFO", name: "CFO Twin", role: "Financial Modeling & EBITDA", icon: "💰" },
+  { tag: "@GeneralCounsel", name: "General Counsel", role: "Delaware DGCL § 141", icon: "⚖️" },
+  { tag: "@CTO", name: "CTO Twin", role: "SCM Microservice DAG Surgery", icon: "⚡" },
+  { tag: "@RedTeam", name: "Red Team", role: "Adversarial Stress-Testing", icon: "🛡️" },
+  { tag: "@CEO", name: "CEO Twin", role: "Executive Strategy Quorum", icon: "🏛️" }
 ];
 
-const LOCAL_STORAGE_CHATS_KEY = "synaps_saved_chats_v2";
-const LOCAL_STORAGE_ACTIVE_ID_KEY = "synaps_active_chat_id_v2";
+export default function TeamStreamChatPage() {
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [activeChannelId, setActiveChannelId] = useState<string>("p0-incidents");
+  const [messages, setMessages] = useState<StreamMessage[]>([]);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [isSending, setIsSending] = useState<boolean>(false);
+  const [isNewChannelModalOpen, setIsNewChannelModalOpen] = useState<boolean>(false);
+  const [newChannelName, setNewChannelName] = useState<string>("");
+  const [newChannelDesc, setNewChannelDesc] = useState<string>("");
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-// ─── Markdown Renderer ────────────────────────────────────────────────────────
-function MarkdownContent({ content }: { content: string }) {
-  return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={{
-        h1: ({ children }) => (
-          <h1 className="text-xl font-semibold text-white mt-5 mb-2 leading-snug">{children}</h1>
-        ),
-        h2: ({ children }) => (
-          <h2 className="text-lg font-semibold text-white mt-4 mb-2 leading-snug">{children}</h2>
-        ),
-        h3: ({ children }) => (
-          <h3 className="text-base font-semibold text-white/90 mt-3 mb-1.5">{children}</h3>
-        ),
-        p: ({ children }) => (
-          <p className="text-[15px] text-white/85 leading-[1.8] mb-3 font-normal">{children}</p>
-        ),
-        strong: ({ children }) => (
-          <strong className="font-semibold text-white">{children}</strong>
-        ),
-        em: ({ children }) => (
-          <em className="italic text-white/80">{children}</em>
-        ),
-        ul: ({ children }) => (
-          <ul className="list-none space-y-1.5 mb-3 ml-0">{children}</ul>
-        ),
-        ol: ({ children }) => (
-          <ol className="list-decimal list-inside space-y-1.5 mb-3 ml-1">{children}</ol>
-        ),
-        li: ({ children }) => (
-          <li className="flex gap-2 text-[15px] text-white/85 leading-relaxed">
-            <span className="text-cyan-400 mt-1 shrink-0">•</span>
-            <span>{children}</span>
-          </li>
-        ),
-        blockquote: ({ children }) => (
-          <blockquote className="border-l-2 border-cyan-500/50 pl-4 my-3 text-white/60 italic text-[14px]">
-            {children}
-          </blockquote>
-        ),
-        code: ({ inline, children, ...props }: any) =>
-          inline ? (
-            <code className="bg-white/10 text-cyan-200 px-1.5 py-0.5 rounded text-[13px] font-mono">
-              {children}
-            </code>
-          ) : (
-            <pre className="bg-[#0b1320] border border-cyan-500/20 rounded-xl p-4 overflow-x-auto my-3">
-              <code className="text-[13px] text-cyan-100 font-mono leading-relaxed">{children}</code>
-            </pre>
-          ),
-        a: ({ href, children }) => (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-cyan-400 underline underline-offset-2 hover:text-cyan-300 transition-colors"
-          >
-            {children}
-          </a>
-        ),
-        hr: () => <hr className="border-cyan-500/20 my-4" />,
-        table: ({ children }) => (
-          <div className="overflow-x-auto my-4">
-            <table className="w-full text-[13px] border-collapse">{children}</table>
-          </div>
-        ),
-        th: ({ children }) => (
-          <th className="text-left px-3 py-2 bg-cyan-950/40 text-cyan-200 font-semibold border border-cyan-500/20">
-            {children}
-          </th>
-        ),
-        td: ({ children }) => (
-          <td className="px-3 py-2 text-white/75 border border-cyan-500/10">{children}</td>
-        ),
-      }}
-    >
-      {content}
-    </ReactMarkdown>
-  );
-}
-
-// ─── Source Card ─────────────────────────────────────────────────────────────
-function SourceCard({ source, idx }: { source: WebSource; idx: number }) {
-  return (
-    <a
-      href={source.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex flex-col gap-1.5 p-3 rounded-xl
-                 bg-white/5 hover:bg-white/10
-                 border border-white/10 hover:border-cyan-400/40
-                 transition-all min-w-[200px] max-w-[220px] shrink-0"
-    >
-      <div className="flex items-center gap-2">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={source.favicon}
-          alt=""
-          className="w-4 h-4 rounded-sm"
-          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-        />
-        <span className="text-[11px] text-white/50 font-medium truncate">{source.domain}</span>
-        <ExternalLink className="w-3 h-3 text-white/30 ml-auto shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-      </div>
-      <p className="text-[12px] text-white/90 font-medium leading-snug line-clamp-2">{source.title}</p>
-      {source.snippet && (
-        <p className="text-[11px] text-white/45 leading-relaxed line-clamp-2">{source.snippet}</p>
-      )}
-    </a>
-  );
-}
-
-// ─── Thinking Indicator ───────────────────────────────────────────────────────
-function ThinkingIndicator({ webSearch }: { webSearch: boolean }) {
-  return (
-    <div className="py-1">
-      <SkiperLoopLoader
-        preset="chat"
-        messages={
-          webSearch
-            ? [
-                "Querying Live Search Index...",
-                "Retrieving Web Source Cards...",
-                "Synthesising Grounded Answer...",
-                "Formatting Citation Links...",
-              ]
-            : undefined
-        }
-        delay={1300}
-      />
-    </div>
-  );
-}
-
-// ─── Empty State ──────────────────────────────────────────────────────────────
-function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-full gap-8 text-center px-6 pb-20">
-      <div>
-        <div className="w-14 h-14 rounded-2xl bg-cyan-600/20 border border-cyan-500/30
-                        flex items-center justify-center mx-auto mb-5">
-          <Sparkles className="w-7 h-7 text-cyan-400" />
-        </div>
-        <h2 className="text-[22px] font-semibold text-white mb-2">How can I help?</h2>
-        <p className="text-white/45 text-[14px] max-w-xs mx-auto leading-relaxed">
-          Ask about your documents or search the web for live information.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-lg">
-        {SUGGESTED.map((q) => (
-          <button
-            key={q}
-            onClick={() => onSuggest(q)}
-            className="text-left px-4 py-3.5 rounded-2xl bg-white/5 hover:bg-white/10
-                       border border-white/10 hover:border-white/20 transition-all group"
-          >
-            <p className="text-[13px] text-white/70 group-hover:text-white/90 leading-snug transition-colors">{q}</p>
-            <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-cyan-400 mt-2 transition-colors" />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Main Chat Page ───────────────────────────────────────────────────────────
-export default function ChatPage() {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [webSearch, setWebSearch] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const endRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // 1. Persistent Storage: Load saved chats from localStorage on initial mount
-  useEffect(() => {
+  const fetchChannels = async () => {
     try {
-      const savedChats = localStorage.getItem(LOCAL_STORAGE_CHATS_KEY);
-      const savedActiveId = localStorage.getItem(LOCAL_STORAGE_ACTIVE_ID_KEY);
-      if (savedChats) {
-        const parsed: Chat[] = JSON.parse(savedChats);
-        if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-          setChats(parsed);
-          if (savedActiveId && parsed.some(c => c.id === savedActiveId)) {
-            setActiveChatId(savedActiveId);
-          } else {
-            setActiveChatId(parsed[0].id);
-          }
-        }
+      const res = await fetch("/api/stream-channels");
+      const data = await res.json();
+      if (data.success && data.channels) {
+        setChannels(data.channels);
       }
-    } catch (e) {
-      console.warn("Failed to load saved chats from localStorage:", e);
-    }
-  }, []);
-
-  // 2. Persistent Storage: Save chats to localStorage on change so history NEVER vanishes on refresh
-  useEffect(() => {
-    try {
-      if (chats.length > 0) {
-        localStorage.setItem(LOCAL_STORAGE_CHATS_KEY, JSON.stringify(chats));
-      }
-      if (activeChatId) {
-        localStorage.setItem(LOCAL_STORAGE_ACTIVE_ID_KEY, activeChatId);
-      }
-    } catch (e) {
-      console.warn("Failed to save chats to localStorage:", e);
-    }
-  }, [chats, activeChatId]);
-
-  const activeChat = chats.find(c => c.id === activeChatId) ?? null;
-
-  useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeChat?.messages]);
-
-  const resizeTextarea = useCallback(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 180) + "px";
-  }, []);
-
-  useEffect(() => { resizeTextarea(); }, [input, resizeTextarea]);
-
-  // Start new chat handler
-  const startNewChat = useCallback(() => {
-    const id = uid();
-    const newChat: Chat = {
-      id,
-      title: "New conversation",
-      messages: [],
-      createdAt: new Date().toISOString()
-    };
-    setChats(prev => [newChat, ...prev]);
-    setActiveChatId(id);
-  }, []);
-
-  const send = useCallback(async (textToSubmit?: string, meta?: { model?: string; effort?: string; responseLength?: string }) => {
-    const q = (textToSubmit ?? input).trim();
-    if (!q || isLoading) return;
-
-    let chatId = activeChatId;
-    if (!chatId || !chats.some(c => c.id === chatId)) {
-      chatId = uid();
-      const chat: Chat = { id: chatId, title: q.slice(0, 50), messages: [], createdAt: new Date().toISOString() };
-      setChats(prev => [chat, ...prev]);
-      setActiveChatId(chatId);
-    }
-
-    const userMsg: Message = { id: uid(), role: "user", content: q };
-    const aId = uid();
-    const isWebQuery = webSearch || /search the web|google|latest|recent news|current|today|2024|2025|2026/i.test(q);
-
-    setChats(prev => prev.map(c =>
-      c.id === chatId
-        ? {
-            ...c,
-            title: c.messages.length === 0 ? q.slice(0, 50) : c.title,
-            messages: [...c.messages, userMsg, {
-              id: aId, role: "assistant", content: "",
-              isStreaming: true, isWebSearch: isWebQuery,
-            }],
-          }
-        : c
-    ));
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      if (isWebQuery) {
-        const res = await fetch("/api/web-search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            query: q,
-            effort: meta?.effort || "Medium",
-            responseLength: meta?.responseLength || "Standard"
-          }),
-        });
-        const data = await res.json();
-        if (data.credits) {
-          window.dispatchEvent(new CustomEvent('synaps:credits_updated', { detail: data.credits }));
-        }
-        setChats(prev => prev.map(c =>
-          c.id === chatId
-            ? { ...c, messages: c.messages.map(m =>
-                m.id === aId
-                  ? { ...m, content: data.answer || "No answer returned.", webSources: data.sources || [], isStreaming: false }
-                  : m
-              )}
-            : c
-        ));
-      } else {
-        const currentChat = chats.find(c => c.id === chatId);
-        const messages = (currentChat?.messages ?? [])
-          .filter(m => !m.isStreaming)
-          .map(m => ({ role: m.role, content: m.content }))
-          .concat({ role: "user", content: q });
-
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages }),
-        });
-        const data = await res.json();
-        if (data.credits) {
-          window.dispatchEvent(new CustomEvent('synaps:credits_updated', { detail: data.credits }));
-        }
-        setChats(prev => prev.map(c =>
-          c.id === chatId
-            ? { ...c, messages: c.messages.map(m =>
-                m.id === aId
-                  ? {
-                      ...m,
-                      content: data.answer || data.error || "No response.",
-                      citations: data.evidence?.slice(0, 5).map((e: any) => ({
-                        document_id: e.name || e.documentId,
-                        page: e.pageNumber,
-                        snippet: e.text?.slice(0, 60),
-                      })) || [],
-                      isStreaming: false,
-                    }
-                  : m
-              )}
-            : c
-        ));
-      }
-    } catch {
-      setChats(prev => prev.map(c =>
-        c.id === chatId
-          ? { ...c, messages: c.messages.map(m =>
-              m.id === aId
-                ? { ...m, content: "Something went wrong. Please try again.", isStreaming: false }
-                : m
-            )}
-          : c
-      ));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [input, isLoading, activeChatId, chats, webSearch]);
-
-  const deleteChat = (id: string) => {
-    setChats(prev => {
-      const next = prev.filter(c => c.id !== id);
-      try {
-        localStorage.setItem(LOCAL_STORAGE_CHATS_KEY, JSON.stringify(next));
-      } catch (e) {}
-      return next;
-    });
-    if (activeChatId === id) {
-      setActiveChatId(null);
-      localStorage.removeItem(LOCAL_STORAGE_ACTIVE_ID_KEY);
+    } catch (err) {
+      console.error("Failed to load channels:", err);
     }
   };
 
-  return (
-    <div className="flex h-screen bg-[#111118] text-white overflow-hidden"
-         style={{ fontFamily: "'Inter', 'Google Sans', system-ui, -apple-system, sans-serif" }}>
+  const fetchMessages = async (channelId: string) => {
+    try {
+      const res = await fetch(`/api/stream-messages?channelId=${channelId}`);
+      const data = await res.json();
+      if (data.success && data.messages) {
+        setMessages(data.messages);
+      }
+    } catch (err) {
+      console.error("Failed to load messages:", err);
+    }
+  };
 
-      {/* ── SIDEBAR (PERSISTENT CONVERSATION HISTORY & NEW CHAT) ───────────── */}
-      <aside className={`flex flex-col shrink-0 bg-[#18181f] border-r border-white/5
-                         transition-all duration-200 overflow-hidden
-                         ${sidebarOpen ? "w-64" : "w-0"}`}>
-        {/* Start New Chat Action */}
-        <div className="p-3">
+  useEffect(() => {
+    fetchChannels();
+    fetchMessages(activeChannelId);
+  }, []);
+
+  useEffect(() => {
+    fetchMessages(activeChannelId);
+  }, [activeChannelId]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSendMessage = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!inputValue.trim() || isSending) return;
+
+    const messageText = inputValue.trim();
+    setInputValue("");
+    setIsSending(true);
+
+    // Optimistic user message update
+    const optimisticMsg: StreamMessage = {
+      id: `msg-${Date.now()}`,
+      channelId: activeChannelId,
+      authorName: "Shourya S.",
+      authorRole: "Lead Architect",
+      authorType: "HUMAN",
+      avatar: "👤",
+      content: messageText,
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, optimisticMsg]);
+
+    try {
+      const res = await fetch("/api/stream-messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channelId: activeChannelId,
+          authorName: "Shourya S.",
+          authorRole: "Lead Architect",
+          authorType: "HUMAN",
+          content: messageText
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.messages) {
+        setMessages(data.messages);
+      }
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleCreateChannel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newChannelName.trim()) return;
+
+    try {
+      const res = await fetch("/api/stream-channels", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newChannelName,
+          description: newChannelDesc,
+          isPrivate: false
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.channel) {
+        setChannels(prev => [...prev, data.channel]);
+        setActiveChannelId(data.channel.id);
+        setIsNewChannelModalOpen(false);
+        setNewChannelName("");
+        setNewChannelDesc("");
+      }
+    } catch (err) {
+      console.error("Failed to create channel:", err);
+    }
+  };
+
+  const insertMention = (tag: string) => {
+    setInputValue(prev => prev ? `${prev} ${tag} ` : `${tag} `);
+  };
+
+  const activeChannel = channels.find(c => c.id === activeChannelId) || {
+    id: activeChannelId,
+    name: activeChannelId,
+    description: "Sovereign Incident & Decision Stream",
+    memberCount: 10
+  };
+
+  return (
+    <div className="flex h-[calc(100vh-4rem)] bg-[#07080B] text-slate-100 font-sans overflow-hidden">
+      {/* ── LEFT SIDEBAR (SLACK-STYLE CHANNELS & DMS) ────────────────────── */}
+      <div className="w-64 sm:w-72 bg-[#0D0F17] border-r border-slate-800/80 flex flex-col shrink-0">
+        {/* Workspace Title */}
+        <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <h2 className="text-sm font-extrabold text-white tracking-tight">
+                Causarix Stream
+              </h2>
+            </div>
+            <span className="text-[10px] font-mono text-cyan-400">100% AIR-GAPPED OFFLINE</span>
+          </div>
           <button
-            onClick={startNewChat}
-            className="w-full flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl
-                       bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300
-                       text-xs font-bold uppercase tracking-wider transition-all shadow-md"
+            onClick={() => setIsNewChannelModalOpen(true)}
+            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+            title="Create Channel"
           >
-            <Plus className="w-4 h-4 text-cyan-300" />
-            <span>+ Start New Chat</span>
+            <Plus className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Section Header */}
-        <div className="px-4 py-2 flex items-center justify-between text-[11px] font-mono font-bold uppercase text-white/40 tracking-wider">
-          <span className="flex items-center gap-1.5">
-            <Clock className="w-3 h-3 text-cyan-400" />
-            Previous Chats
-          </span>
-          <span className="text-[10px] text-white/30">{chats.length} saved</span>
-        </div>
-
-        {/* List of Saved Previous Conversations */}
-        <div className="flex-1 overflow-y-auto px-2 pb-3 space-y-1">
-          {chats.length === 0 && (
-            <p className="text-center text-white/30 text-xs py-8 font-mono">No previous chats stored</p>
-          )}
-          {chats.map(chat => (
-            <div key={chat.id} className="group relative">
-              <button
-                onClick={() => setActiveChatId(chat.id)}
-                className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] truncate transition-all flex items-center gap-2
-                  ${activeChatId === chat.id
-                    ? "bg-white/10 text-white font-medium border border-white/15"
-                    : "text-white/60 hover:bg-white/5 hover:text-white/90"
-                  }`}
-              >
-                <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${activeChatId === chat.id ? "text-cyan-400" : "text-white/30"}`} />
-                <span className="truncate">{chat.title || "New conversation"}</span>
-              </button>
-              <button
-                onClick={() => deleteChat(chat.id)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg
-                           opacity-0 group-hover:opacity-100 hover:bg-red-900/40 text-red-400/70
-                           hover:text-red-400 transition-all"
-                title="Delete Chat"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+        {/* Channel & DMs List Feed */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-6">
+          {/* CHANNELS SECTION */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-mono font-bold text-slate-400 px-2 uppercase tracking-wider flex items-center justify-between mb-2">
+              <span># Channels ({channels.length})</span>
             </div>
-          ))}
-        </div>
-      </aside>
-
-      {/* ── MAIN AREA ───────────────────────────────────────────────────────── */}
-      <main className="flex-1 flex flex-col min-w-0 relative">
-
-        {/* Header */}
-        <header className="shrink-0 h-14 flex items-center justify-between px-4 border-b border-white/5">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen(v => !v)}
-              className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-white/70 transition-colors"
-            >
-              <AlignLeft className="w-4 h-4" />
-            </button>
-            <span className="text-[15px] font-bold text-white/90 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
-              Synaps Executive AI Chat
-            </span>
+            {channels.map(channel => (
+              <button
+                key={channel.id}
+                onClick={() => setActiveChannelId(channel.id)}
+                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium transition-all ${
+                  activeChannelId === channel.id
+                    ? "bg-primary text-white font-bold shadow-[0_0_15px_rgba(45,78,255,0.25)]"
+                    : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+                }`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Hash className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                  <span className="truncate">{channel.name}</span>
+                </div>
+                {channel.unreadCount > 0 && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-rose-500 text-white">
+                    {channel.unreadCount}
+                  </span>
+                )}
+              </button>
+            ))}
           </div>
 
-          {/* Web Search Toggle */}
-          <button
-            onClick={() => setWebSearch(v => !v)}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[13px] font-medium
-                        border transition-all
-                        ${webSearch
-                          ? "bg-cyan-500/25 border-cyan-500/60 text-cyan-300"
-                          : "bg-transparent border-white/10 text-white/40 hover:border-white/20 hover:text-white/60"
-                        }`}
-          >
-            <Globe className={`w-3.5 h-3.5 ${webSearch ? "animate-pulse" : ""}`} />
-            Web Search
-          </button>
-        </header>
+          {/* AI EXECUTIVES (DIRECT ASSISTANTS) */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-mono font-bold text-slate-400 px-2 uppercase tracking-wider mb-2">
+              <span>🤖 AI C-Suite Twins</span>
+            </div>
+            {AI_AGENTS.map(agent => (
+              <button
+                key={agent.tag}
+                onClick={() => insertMention(agent.tag)}
+                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs text-slate-400 hover:text-cyan-300 hover:bg-slate-800/40 transition-colors group"
+                title={`Click to @mention ${agent.name} in chat`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <span className="text-sm">{agent.icon}</span>
+                  <span className="text-xs font-medium text-slate-300 group-hover:text-white truncate">
+                    {agent.name}
+                  </span>
+                </div>
+                <span className="text-[9px] font-mono text-cyan-400/80 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-800/40">
+                  {agent.tag}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto">
-          {!activeChat || activeChat.messages.length === 0 ? (
-            <EmptyState onSuggest={(q) => send(q)} />
-          ) : (
-            <div className="max-w-2xl mx-auto py-8 px-4 space-y-6">
-              {activeChat.messages.map((msg) => (
-                <div key={msg.id}>
-                  {msg.role === "user" ? (
-                    /* ── User bubble ── */
-                    <div className="flex justify-end">
-                      <div className="max-w-[80%] bg-[#2a2a35] text-white/90 px-5 py-3.5
-                                      rounded-2xl rounded-tr-md text-[15px] leading-relaxed font-normal">
-                        {msg.content}
-                      </div>
-                    </div>
-                  ) : (
-                    /* ── Assistant message ── */
-                    <div className="flex gap-3">
-                      {/* Avatar */}
-                      <div className="w-8 h-8 shrink-0 rounded-full bg-cyan-500/20 border border-cyan-500/30
-                                      flex items-center justify-center mt-0.5">
-                        {msg.isWebSearch
-                          ? <Globe className="w-3.5 h-3.5 text-cyan-400" />
-                          : <Sparkles className="w-3.5 h-3.5 text-cyan-400" />}
-                      </div>
+      {/* ── MAIN STREAM CHAT AREA ────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col bg-[#07080B] overflow-hidden">
+        {/* Channel Header */}
+        <div className="h-16 px-6 border-b border-slate-800/80 flex items-center justify-between bg-[#0A0C13] shrink-0">
+          <div>
+            <div className="flex items-center gap-2">
+              <Hash className="w-4 h-4 text-primary" />
+              <h2 className="text-base font-extrabold text-white tracking-tight">
+                {activeChannel.name}
+              </h2>
+            </div>
+            <p className="text-xs text-slate-400 truncate max-w-xl">
+              {activeChannel.description}
+            </p>
+          </div>
 
-                      <div className="flex-1 min-w-0 space-y-4 pt-0.5">
-                        {/* Thinking / Loading */}
-                        {msg.isStreaming && msg.content === "" ? (
-                          <ThinkingIndicator webSearch={!!msg.isWebSearch} />
-                        ) : (
-                          <>
-                            {/* Web Search label */}
-                            {msg.isWebSearch && (
-                              <div className="flex items-center gap-1.5 text-[11px] text-cyan-400/80 font-mono font-bold uppercase tracking-wider">
-                                <Globe className="w-3 h-3" />
-                                Live Web Search Verified
-                              </div>
-                            )}
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+              <Users className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{activeChannel.memberCount || 10} Active</span>
+            </div>
+          </div>
+        </div>
 
-                            {/* Sources */}
-                            {msg.webSources && msg.webSources.length > 0 && (
-                              <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-1 px-1">
-                                {msg.webSources.map((src, i) => (
-                                  <SourceCard key={i} source={src} idx={i} />
-                                ))}
-                              </div>
-                            )}
+        {/* Messages Stream Feed */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          {messages.map((msg) => {
+            const isAi = msg.authorType === "AI";
 
-                            {/* Answer — rendered markdown */}
-                            <div className="text-[15px] leading-[1.8] font-normal">
-                              {msg.isStreaming ? (
-                                <span className="text-white/85">{msg.content}
-                                  <span className="inline-block w-0.5 h-4 bg-cyan-400 animate-pulse ml-0.5 align-middle" />
-                                </span>
-                              ) : (
-                                <MarkdownContent content={msg.content} />
-                              )}
-                            </div>
+            return (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex gap-3.5 p-4 rounded-2xl border transition-all ${
+                  isAi
+                    ? "bg-[#0D101E] border-cyan-900/40 shadow-[0_4px_20px_rgba(6,182,212,0.06)]"
+                    : "bg-[#0D0F17] border-slate-800/80"
+                }`}
+              >
+                {/* Avatar Icon */}
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 ${
+                  isAi ? "bg-cyan-950/80 border border-cyan-700/60 text-cyan-300" : "bg-slate-800 text-white"
+                }`}>
+                  {msg.avatar || (isAi ? "🤖" : "👤")}
+                </div>
 
-                            {/* Document Citations */}
-                            {msg.citations && msg.citations.length > 0 && (
-                              <div className="flex flex-wrap gap-2 pt-1">
-                                {msg.citations.map((cit, i) => (
-                                  <span key={i}
-                                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full
-                                               bg-white/5 border border-white/10
-                                               text-[11px] text-white/50"
-                                  >
-                                    <BookOpen className="w-3 h-3 text-cyan-400/70" />
-                                    {cit.document_id ? `${cit.document_id} · p.${cit.page}` : cit.snippet}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
+                {/* Message Body */}
+                <div className="flex-1 space-y-1.5 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold ${isAi ? "text-cyan-300" : "text-white"}`}>
+                      {msg.authorName}
+                    </span>
+                    {msg.authorRole && (
+                      <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                        isAi ? "bg-cyan-950 text-cyan-400 border border-cyan-800/40" : "bg-slate-800 text-slate-400"
+                      }`}>
+                        {msg.authorRole}
+                      </span>
+                    )}
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+
+                  {/* Message Content with Markdown */}
+                  <div className="text-xs sm:text-[13px] text-slate-200 leading-relaxed prose prose-invert prose-p:my-1 prose-pre:my-1 prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
+
+                  {/* Causal Citation / Proof Badge */}
+                  {msg.citation && (
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#07090F] border border-cyan-900/50 text-[10px] font-mono text-cyan-400">
+                      <Sparkles className="w-3 h-3 text-cyan-400" />
+                      <span>{msg.citation}</span>
                     </div>
                   )}
                 </div>
-              ))}
-              <div ref={endRef} />
-            </div>
-          )}
+              </motion.div>
+            );
+          })}
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* ── Input Bar ───────────────────────────────────────────────────────── */}
-        <div className="shrink-0 px-4 pb-5 pt-3">
-          <div className="max-w-2xl mx-auto space-y-2">
-            {/* Web active pill */}
-            {webSearch && (
-              <div className="flex items-center justify-center gap-2 px-1 text-[12px] text-cyan-400/80 font-mono font-semibold">
-                <Globe className="w-3.5 h-3.5 animate-pulse" />
-                Live Web Search Active — Querying real-time internet data
-              </div>
-            )}
+        {/* Quick Mention Action Bar & Input */}
+        <div className="p-4 border-t border-slate-800/80 bg-[#0A0C13] space-y-2 shrink-0">
+          {/* AI Quick Mentions Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] font-mono text-slate-400">
+            <span className="text-slate-500 flex items-center gap-1 shrink-0">
+              <AtSign className="w-3 h-3" /> Summon AI:
+            </span>
+            {AI_AGENTS.map(agent => (
+              <button
+                key={agent.tag}
+                onClick={() => insertMention(agent.tag)}
+                className="px-2 py-0.5 rounded-md bg-slate-900 hover:bg-cyan-950 hover:text-cyan-300 border border-slate-800 hover:border-cyan-700/50 transition-colors shrink-0"
+              >
+                {agent.tag} ({agent.name})
+              </button>
+            ))}
+          </div>
 
-            <PromptInput
-              value={input}
-              onChange={(val) => setInput(val)}
-              onSubmit={(val, meta) => {
-                send(val, meta);
-              }}
-              webSearch={webSearch}
-              onToggleWebSearch={() => setWebSearch((v) => !v)}
-              placeholder={webSearch ? "Search the web or ask about documents…" : "Ask about your documents…"}
-              models={["Gemini 3.5 Flash", "GPT 5.5", "Opus 4.8", "Composer 2.5", "GLM 5.2"]}
-              efforts={["Low", "Medium", "Max Effort"]}
+          {/* Input Box */}
+          <form onSubmit={handleSendMessage} className="flex items-center gap-2 bg-[#12141F] border border-slate-800 rounded-2xl p-2 focus-within:border-primary transition-all">
+            <input
+              type="text"
+              placeholder={`Message #${activeChannel.name} or type @CFO, @GeneralCounsel to summon executive AI...`}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              disabled={isSending}
+              className="flex-1 bg-transparent px-3 py-1.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none"
             />
 
-            <p className="text-center mt-2.5 text-[11px] text-white/30 font-mono">
-              Synaps Executive AI Engine · 100% Evidence Grounded & Zero Hallucinations.
-            </p>
-          </div>
+            <button
+              type="submit"
+              disabled={!inputValue.trim() || isSending}
+              className="p-2.5 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-50 text-white font-bold transition-all shadow-[0_0_15px_rgba(45,78,255,0.3)]"
+            >
+              {isSending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </button>
+          </form>
         </div>
-      </main>
+      </div>
+
+      {/* ── CREATE CHANNEL MODAL ─────────────────────────────────────────── */}
+      <AnimatePresence>
+        {isNewChannelModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md bg-[#0D0F17] border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5"
+            >
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                  <h3 className="text-base font-bold text-white">Create New Channel</h3>
+                  <p className="text-xs text-slate-400">Zero-fixation sovereign team stream channel.</p>
+                </div>
+                <button 
+                  onClick={() => setIsNewChannelModalOpen(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateChannel} className="space-y-4">
+                <div>
+                  <label className="text-xs font-mono font-bold text-slate-400 block mb-1">
+                    CHANNEL NAME *
+                  </label>
+                  <div className="relative">
+                    <Hash className="absolute left-3 top-2.5 w-4 h-4 text-slate-500" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. security-quarantine"
+                      value={newChannelName}
+                      onChange={(e) => setNewChannelName(e.target.value)}
+                      className="w-full bg-[#12141F] border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-primary"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-mono font-bold text-slate-400 block mb-1">
+                    CHANNEL PURPOSE & DESCRIPTION
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="What is this channel for? e.g. Cross-silo database leak investigation"
+                    value={newChannelDesc}
+                    onChange={(e) => setNewChannelDesc(e.target.value)}
+                    className="w-full bg-[#12141F] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsNewChannelModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg"
+                  >
+                    Create Channel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

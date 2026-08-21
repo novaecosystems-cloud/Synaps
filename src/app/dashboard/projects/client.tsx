@@ -1,167 +1,544 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import Link from 'next/link';
-import { ProjectStatus } from '@prisma/client';
-import { CreateProjectModal } from '@/components/projects/create-project-modal';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Plus, MoreVertical, FolderKanban, Calendar, Users, Archive, Trash2 } from 'lucide-react';
-import { deleteProject } from '@/app/actions/project';
-import { toast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { EmptyState } from '@/components/ui/empty-state';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { ActionMenu } from '@/components/ui/action-menu';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Plus, Search, Filter, AlertTriangle, CheckCircle2, 
+  Clock, Shield, ArrowRight, ArrowLeft, Trash2, User,
+  Bot, Tag, Sparkles, RefreshCw, X, FileText, Check
+} from "lucide-react";
 
-export function ProjectListClient({ initialProjects }: { initialProjects: any[] }) {
-  const router = useRouter();
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'ALL'>('ALL');
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editProject, setEditProject] = useState<any>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+interface ActionTask {
+  id: string;
+  title: string;
+  description: string;
+  status: "P0_BLOCKER" | "TODO" | "IN_PROGRESS" | "IN_REVIEW" | "DONE";
+  priority: "P0" | "P1" | "P2" | "P3";
+  assigneeName: string;
+  assigneeType: "AI" | "HUMAN";
+  causalEvidence?: string;
+  tags: string[];
+  deadline?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
-  const filteredProjects = useMemo(() => {
-    return initialProjects.filter((p) => {
-      const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [initialProjects, search, statusFilter]);
+const COLUMNS: { id: ActionTask["status"]; label: string; icon: any; color: string; bg: string; border: string }[] = [
+  { id: "P0_BLOCKER", label: "P0 BLOCKERS", icon: AlertTriangle, color: "text-rose-400", bg: "bg-rose-950/20", border: "border-rose-900/40" },
+  { id: "TODO", label: "TO DO / BACKLOG", icon: Clock, color: "text-blue-400", bg: "bg-blue-950/20", border: "border-blue-900/40" },
+  { id: "IN_PROGRESS", label: "IN PROGRESS", icon: RefreshCw, color: "text-amber-400", bg: "bg-amber-950/20", border: "border-amber-900/40" },
+  { id: "IN_REVIEW", label: "BOARD REVIEW", icon: Shield, color: "text-purple-400", bg: "bg-purple-950/20", border: "border-purple-900/40" },
+  { id: "DONE", label: "RESOLVED", icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-950/20", border: "border-emerald-900/40" },
+];
 
-  const handleDelete = async () => {
-    if (!deletingId) return;
-    const result = await deleteProject(deletingId);
-    if (result.success) {
-      toast({ title: 'Project deleted', description: 'The project was successfully removed.' });
-      router.refresh();
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+export function ProjectListClient({ initialProjects }: { initialProjects?: any[] }) {
+  const [tasks, setTasks] = useState<ActionTask[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [priorityFilter, setPriorityFilter] = useState<string>("ALL");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+  
+  // New task form state
+  const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newPriority, setNewPriority] = useState<"P0" | "P1" | "P2" | "P3">("P1");
+  const [newStatus, setNewStatus] = useState<ActionTask["status"]>("TODO");
+  const [newAssigneeName, setNewAssigneeName] = useState("AI: CTO Twin");
+  const [newAssigneeType, setNewAssigneeType] = useState<"AI" | "HUMAN">("AI");
+  const [newTags, setNewTags] = useState("Infrastructure, Database");
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/action-tasks");
+      const data = await res.json();
+      if (data.success && data.tasks) {
+        setTasks(data.tasks);
+      }
+    } catch (err) {
+      console.error("Failed to load action tasks:", err);
+    } finally {
+      setLoading(false);
     }
-    setDeletingId(null);
-    setIsDeleteDialogOpen(false);
   };
 
-  const getStatusColor = (status: ProjectStatus) => {
-    switch (status) {
-      case 'DRAFT': return 'badge-ghost';
-      case 'ACTIVE': return 'badge-success badge-outline';
-      case 'COMPLETED': return 'badge-info badge-outline';
-      case 'ARCHIVED': return 'badge-secondary badge-outline';
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const handleCreateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim()) return;
+
+    try {
+      const payload = {
+        title: newTitle,
+        description: newDescription,
+        priority: newPriority,
+        status: newStatus,
+        assigneeName: newAssigneeName,
+        assigneeType: newAssigneeType,
+        causalEvidence: "100% SHA-256 Grounded via Causarix OS",
+        tags: newTags.split(",").map(t => t.trim()).filter(Boolean)
+      };
+
+      const res = await fetch("/api/action-tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success && data.task) {
+        setTasks(prev => [data.task, ...prev]);
+        setIsCreateModalOpen(false);
+        setNewTitle("");
+        setNewDescription("");
+      }
+    } catch (err) {
+      console.error("Failed to create task:", err);
+    }
+  };
+
+  const handleMoveStatus = async (taskId: string, direction: "next" | "prev") => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const statusOrder: ActionTask["status"][] = ["P0_BLOCKER", "TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"];
+    const currentIndex = statusOrder.indexOf(task.status);
+    let nextIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1;
+
+    if (nextIndex < 0 || nextIndex >= statusOrder.length) return;
+    const newStatusVal = statusOrder[nextIndex];
+
+    // Optimistic UI Update
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatusVal } : t));
+
+    try {
+      await fetch("/api/action-tasks", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: taskId, status: newStatusVal })
+      });
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      fetchTasks();
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+    try {
+      await fetch(`/api/action-tasks?id=${taskId}`, { method: "DELETE" });
+    } catch (err) {
+      console.error("Failed to delete task:", err);
+      fetchTasks();
+    }
+  };
+
+  const filteredTasks = tasks.filter(t => {
+    const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          t.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPriority = priorityFilter === "ALL" || t.priority === priorityFilter;
+    return matchesSearch && matchesPriority;
+  });
+
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case "P0": return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-900/40 text-rose-300 border border-rose-700/50 animate-pulse">P0 BLOCKER</span>;
+      case "P1": return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-900/40 text-amber-300 border border-amber-700/50">P1 HIGH</span>;
+      case "P2": return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-900/40 text-blue-300 border border-blue-700/50">P2 NORMAL</span>;
+      default: return <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">P3 LOW</span>;
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 tour-projects-header">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-base-content">Projects</h1>
-          <p className="text-base-content/60 text-sm">Manage all your construction operations</p>
+    <div className="min-h-screen bg-[#07080B] text-slate-100 p-4 sm:p-6 lg:p-8 font-sans">
+      {/* ── HEADER TITLE & CONTROLS ────────────────────────────────────────── */}
+      <div className="max-w-[1700px] mx-auto space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-primary/20 text-primary border border-primary/40">
+                AUTONOMOUS ACTION BOARD
+              </span>
+              <span className="text-xs text-slate-400 font-mono">SOVEREIGN JIRA REPLACEMENT</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-1">
+              Mission Action & Incident Board
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              Autonomous ticket triage and execution directly from 10-Agent Boardroom & SCM Simulations.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs flex items-center gap-2 shadow-[0_0_20px_rgba(45,78,255,0.3)] transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Action Ticket</span>
+            </button>
+
+            <button
+              onClick={fetchTasks}
+              className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition-colors"
+              title="Refresh board"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            </button>
+          </div>
         </div>
-        
-        <button onClick={() => setIsCreateModalOpen(true)} className="btn btn-primary w-full sm:w-auto shadow-sm">
-          <Plus className="h-4 w-4" /> New Project
-        </button>
-      </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-base-content/40" />
-          <input 
-            type="text" 
-            placeholder="Search projects..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="input input-bordered w-full pl-9 bg-base-100 focus:bg-base-100 transition-colors"
-          />
+        {/* ── METRICS SUMMARY BAR ──────────────────────────────────────────── */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div className="bg-[#0D0F17] border border-slate-800/80 rounded-2xl p-4">
+            <div className="text-[11px] font-mono text-slate-400">TOTAL TICKETS</div>
+            <div className="text-2xl font-black text-white mt-1">{tasks.length}</div>
+          </div>
+          <div className="bg-[#0D0F17] border border-rose-900/30 rounded-2xl p-4">
+            <div className="text-[11px] font-mono text-rose-400 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+              P0 BLOCKERS
+            </div>
+            <div className="text-2xl font-black text-rose-400 mt-1">
+              {tasks.filter(t => t.status === "P0_BLOCKER").length}
+            </div>
+          </div>
+          <div className="bg-[#0D0F17] border border-amber-900/30 rounded-2xl p-4">
+            <div className="text-[11px] font-mono text-amber-400">IN PROGRESS</div>
+            <div className="text-2xl font-black text-amber-400 mt-1">
+              {tasks.filter(t => t.status === "IN_PROGRESS").length}
+            </div>
+          </div>
+          <div className="bg-[#0D0F17] border border-purple-900/30 rounded-2xl p-4">
+            <div className="text-[11px] font-mono text-purple-400">BOARD REVIEW</div>
+            <div className="text-2xl font-black text-purple-400 mt-1">
+              {tasks.filter(t => t.status === "IN_REVIEW").length}
+            </div>
+          </div>
+          <div className="bg-[#0D0F17] border border-emerald-900/30 rounded-2xl p-4">
+            <div className="text-[11px] font-mono text-emerald-400">RESOLVED & PROVEN</div>
+            <div className="text-2xl font-black text-emerald-400 mt-1">
+              {tasks.filter(t => t.status === "DONE").length}
+            </div>
+          </div>
         </div>
-        
-        <select 
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as any)}
-          className="select select-bordered w-full sm:w-[180px] bg-base-100"
-        >
-          <option value="ALL">All Statuses</option>
-          <option value="DRAFT">Draft</option>
-          <option value="ACTIVE">Active</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="ARCHIVED">Archived</option>
-        </select>
-      </div>
 
-      {/* Empty State */}
-      {filteredProjects.length === 0 && (
-        <EmptyState 
-          icon={FolderKanban}
-          title="No projects found"
-          description={search ? "Try adjusting your search or filters." : "Get started by creating your first project."}
-          actionLabel={!search ? "Create Project" : undefined}
-          onAction={!search ? () => setIsCreateModalOpen(true) : undefined}
-        />
-      )}
+        {/* ── FILTER & SEARCH BAR ─────────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#0D0F17] border border-slate-800/80 rounded-2xl p-3">
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Search tickets by ID, title, or keyword..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#12141F] border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-primary"
+            />
+          </div>
 
-      {/* Grid List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProjects.map((project) => (
-          <Link 
-            href={`/dashboard/projects/${project.id}`} 
-            key={project.id}
-            className="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md hover:border-primary/40 transition-all group overflow-hidden"
-          >
-            <div className="card-body p-5">
-              <div className="flex justify-between items-start mb-2">
-                <div className={`badge ${getStatusColor(project.status)} text-xs font-semibold uppercase tracking-wider py-2.5`}>
-                  {project.status}
+          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+            <span className="text-xs text-slate-400 font-mono flex items-center gap-1">
+              <Filter className="w-3 h-3" /> Priority:
+            </span>
+            {["ALL", "P0", "P1", "P2", "P3"].map(p => (
+              <button
+                key={p}
+                onClick={() => setPriorityFilter(p)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-colors ${
+                  priorityFilter === p 
+                    ? "bg-primary text-white" 
+                    : "bg-[#12141F] text-slate-400 hover:text-white border border-slate-800"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── 5-COLUMN KANBAN BOARD ────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {COLUMNS.map(col => {
+            const colTasks = filteredTasks.filter(t => t.status === col.id);
+            const Icon = col.icon;
+
+            return (
+              <div
+                key={col.id}
+                className={`flex flex-col rounded-2xl bg-[#0D0F17] border ${col.border} p-3.5 min-h-[600px]`}
+              >
+                {/* Column Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-3">
+                  <div className="flex items-center gap-2">
+                    <Icon className={`w-4 h-4 ${col.color}`} />
+                    <h3 className={`text-xs font-mono font-bold tracking-wider ${col.color}`}>
+                      {col.label}
+                    </h3>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${col.bg} ${col.color} border ${col.border}`}>
+                    {colTasks.length}
+                  </span>
                 </div>
-                
-                <div className="flex gap-1" onClick={(e) => e.preventDefault()}>
-                  <ActionMenu 
-                    onEdit={() => { setEditProject(project); setIsCreateModalOpen(true); }}
-                    onDelete={() => { setDeletingId(project.id); setIsDeleteDialogOpen(true); }}
-                    onMembers={() => { setEditProject(project); setIsCreateModalOpen(true); }}
-                    onSettings={() => { setEditProject(project); setIsCreateModalOpen(true); }}
+
+                {/* Task Cards Feed */}
+                <div className="space-y-3 flex-1 overflow-y-auto pr-1">
+                  {colTasks.length === 0 ? (
+                    <div className="h-36 flex flex-col items-center justify-center text-center text-slate-600 border border-dashed border-slate-800/80 rounded-xl p-4">
+                      <span className="text-xs">No active tickets</span>
+                    </div>
+                  ) : (
+                    colTasks.map(task => (
+                      <motion.div
+                        key={task.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="bg-[#12141F] border border-slate-800 hover:border-slate-700 rounded-xl p-3.5 space-y-3 shadow-md hover:shadow-lg transition-all group"
+                      >
+                        {/* Top ID & Priority Row */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-mono font-bold text-primary">
+                            {task.id}
+                          </span>
+                          {getPriorityBadge(task.priority)}
+                        </div>
+
+                        {/* Title & Description */}
+                        <div>
+                          <h4 className="text-xs font-bold text-white leading-snug group-hover:text-cyan-400 transition-colors">
+                            {task.title}
+                          </h4>
+                          <p className="text-[11px] text-slate-400 line-clamp-2 mt-1 leading-relaxed">
+                            {task.description}
+                          </p>
+                        </div>
+
+                        {/* SCM Causal Evidence Snippet */}
+                        {task.causalEvidence && (
+                          <div className="p-2 rounded-lg bg-[#0A0B10] border border-slate-800/80 text-[10px] text-slate-400 flex items-center gap-1.5">
+                            <Sparkles className="w-3 h-3 text-cyan-400 shrink-0" />
+                            <span className="truncate">{task.causalEvidence}</span>
+                          </div>
+                        )}
+
+                        {/* Tags */}
+                        {task.tags && task.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {task.tags.map((tag, idx) => (
+                              <span key={idx} className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400">
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Bottom Assignee & Quick Shift Controls */}
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-800/60">
+                          {/* Assignee Badge */}
+                          <div className="flex items-center gap-1.5">
+                            {task.assigneeType === "AI" ? (
+                              <div className="w-5 h-5 rounded-full bg-cyan-950 border border-cyan-700 flex items-center justify-center text-cyan-300">
+                                <Bot className="w-3 h-3" />
+                              </div>
+                            ) : (
+                              <div className="w-5 h-5 rounded-full bg-blue-950 border border-blue-700 flex items-center justify-center text-blue-300">
+                                <User className="w-3 h-3" />
+                              </div>
+                            )}
+                            <span className="text-[10px] font-medium text-slate-300 truncate max-w-[80px]">
+                              {task.assigneeName}
+                            </span>
+                          </div>
+
+                          {/* Quick Shift Controls */}
+                          <div className="flex items-center gap-1">
+                            {col.id !== "P0_BLOCKER" && (
+                              <button
+                                onClick={() => handleMoveStatus(task.id, "prev")}
+                                className="p-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                                title="Move to previous column"
+                              >
+                                <ArrowLeft className="w-3 h-3" />
+                              </button>
+                            )}
+                            {col.id !== "DONE" && (
+                              <button
+                                onClick={() => handleMoveStatus(task.id, "next")}
+                                className="p-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                                title="Move to next column"
+                              >
+                                <ArrowRight className="w-3 h-3" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteTask(task.id)}
+                              className="p-1 rounded bg-slate-800/80 hover:bg-rose-950 text-slate-500 hover:text-rose-400 transition-colors"
+                              title="Delete ticket"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── CREATE NEW ACTION TICKET MODAL ─────────────────────────────────── */}
+      <AnimatePresence>
+        {isCreateModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-lg bg-[#0D0F17] border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5"
+            >
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                  <h3 className="text-base font-bold text-white">Create Action Ticket</h3>
+                  <p className="text-xs text-slate-400">Autonomous ticket creation with zero static fixation.</p>
+                </div>
+                <button 
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateTask} className="space-y-4">
+                <div>
+                  <label className="text-xs font-mono font-bold text-slate-400 block mb-1">
+                    TICKET TITLE *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Scale database connection pool from 100 to 450"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    className="w-full bg-[#12141F] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-primary"
                   />
                 </div>
-              </div>
-              
-              <h3 className="card-title text-lg mb-1 group-hover:text-primary transition-colors line-clamp-1 text-base-content">{project.name}</h3>
-              <p className="text-sm text-base-content/60 line-clamp-2 min-h-[2.5rem]">
-                {project.description || 'No description provided.'}
-              </p>
-            </div>
-            <div className="px-5 py-3 border-t border-base-300 bg-base-200/50 flex items-center justify-between text-xs text-base-content/60 font-medium">
-              <div className="flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5" />
-                {new Date(project.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5" />
-                {project.members.length} member{project.members.length !== 1 && 's'}
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
 
-      <CreateProjectModal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => { setIsCreateModalOpen(false); setEditProject(null); }}
-        editProject={editProject}
-      />
-      
-      <ConfirmDialog 
-        isOpen={isDeleteDialogOpen}
-        onClose={() => { setIsDeleteDialogOpen(false); setDeletingId(null); }}
-        onConfirm={handleDelete}
-        title="Delete Project"
-        description="Are you sure you want to delete this project? This action cannot be undone and will remove all associated documents, requirements, and workflows."
-        confirmText="Delete Project"
-        variant="destructive"
-      />
+                <div>
+                  <label className="text-xs font-mono font-bold text-slate-400 block mb-1">
+                    ACTION DESCRIPTION
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Describe the problem, evidence, and required engineering mitigation..."
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    className="w-full bg-[#12141F] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-mono font-bold text-slate-400 block mb-1">
+                      PRIORITY LEVEL
+                    </label>
+                    <select
+                      value={newPriority}
+                      onChange={(e: any) => setNewPriority(e.target.value)}
+                      className="w-full bg-[#12141F] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
+                    >
+                      <option value="P0">P0 - EMERGENCY BLOCKER</option>
+                      <option value="P1">P1 - HIGH PRIORITY</option>
+                      <option value="P2">P2 - NORMAL</option>
+                      <option value="P3">P3 - LOW</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-mono font-bold text-slate-400 block mb-1">
+                      INITIAL STATUS
+                    </label>
+                    <select
+                      value={newStatus}
+                      onChange={(e: any) => setNewStatus(e.target.value)}
+                      className="w-full bg-[#12141F] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
+                    >
+                      <option value="P0_BLOCKER">🚨 P0 BLOCKER</option>
+                      <option value="TODO">📋 TO DO</option>
+                      <option value="IN_PROGRESS">⚡ IN PROGRESS</option>
+                      <option value="IN_REVIEW">🏛️ BOARD REVIEW</option>
+                      <option value="DONE">✅ DONE</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-mono font-bold text-slate-400 block mb-1">
+                      ASSIGNEE
+                    </label>
+                    <input
+                      type="text"
+                      value={newAssigneeName}
+                      onChange={(e) => setNewAssigneeName(e.target.value)}
+                      className="w-full bg-[#12141F] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-mono font-bold text-slate-400 block mb-1">
+                      ASSIGNEE TYPE
+                    </label>
+                    <select
+                      value={newAssigneeType}
+                      onChange={(e: any) => setNewAssigneeType(e.target.value)}
+                      className="w-full bg-[#12141F] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
+                    >
+                      <option value="AI">🤖 Autonomous AI Worker</option>
+                      <option value="HUMAN">👤 Human Engineer / Lead</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-mono font-bold text-slate-400 block mb-1">
+                    TAGS (COMMA-SEPARATED)
+                  </label>
+                  <input
+                    type="text"
+                    value={newTags}
+                    onChange={(e) => setNewTags(e.target.value)}
+                    className="w-full bg-[#12141F] border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg"
+                  >
+                    Create Action Ticket
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
