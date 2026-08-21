@@ -136,14 +136,14 @@ function buildMenu(url) {
 
 function createMainWindow() {
   const icon = getIcon();
-  const startUrl = `${baseUrl}/demo`;
+  const startUrl = isDev ? 'http://localhost:3000/dashboard' : `${baseUrl}/dashboard`;
 
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 920,
     minWidth: 1080,
     minHeight: 700,
-    title: 'Synaps AI - Sovereign Enterprise OS',
+    title: 'Causarix AI — Sovereign Decision OS',
     backgroundColor: '#070c18',
     icon: icon,
     show: false,
