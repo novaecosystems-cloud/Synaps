@@ -45,6 +45,7 @@ const OnboardingHints = dynamic(() => import('@/components/onboarding').then(mod
 const TourGuide = dynamic(() => import('@/components/TourGuide'), { ssr: false });
 const OrganizationModal = dynamic(() => import('@/components/OrganizationModal'), { ssr: false });
 const AdaptiveEnterpriseOnboardingModal = dynamic(() => import('@/components/AdaptiveEnterpriseOnboardingModal'), { ssr: false });
+const SubdashboardIntroModal = dynamic(() => import('@/components/SubdashboardIntroModal'), { ssr: false });
 const AiCreditBadge = dynamic(() => import('@/components/AiCreditBadge'), { ssr: false });
 const AiCreditExhaustedModal = dynamic(() => import('@/components/AiCreditExhaustedModal'), { ssr: false });
 const DemoHeaderBadge = dynamic(() => import('@/components/DemoHeaderBadge'), { ssr: false });
@@ -527,6 +528,7 @@ export default function ClientLayout({ children, user }: { children: React.React
           <TourGuide />
           <OrganizationModal isOpen={isOrgModalOpen} onClose={() => setIsOrgModalOpen(false)} />
           <AdaptiveEnterpriseOnboardingModal />
+          <SubdashboardIntroModal />
           <AiCreditExhaustedModal />
         </>
       )}
