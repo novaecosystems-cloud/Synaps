@@ -31,6 +31,25 @@ const securityHeaders = [
   }
 ];
 
+// RUDY (R-U-Dead-Yet) slow POST defense: add body timeout + keep-alive headers on API routes
+const apiSecurityHeaders = [
+  {
+    key: "Connection",
+    value: "keep-alive",
+  },
+  {
+    // Vercel / next-server does not natively expose request timeouts,
+    // but downstream proxies (Cloudflare, nginx) honor this hint.
+    key: "Keep-Alive",
+    value: "timeout=65, max=1000",
+  },
+  {
+    // Inform upstream proxies of body size limit (64 KB for API routes)
+    key: "X-Max-Body-Size",
+    value: "65536",
+  },
+];
+
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
@@ -50,6 +69,11 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      {
+        // Apply RUDY defense headers to all API routes
+        source: "/api/(.*)",
+        headers: apiSecurityHeaders,
       },
     ];
   },

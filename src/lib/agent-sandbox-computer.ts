@@ -108,18 +108,15 @@ verifySafeHarbor("BOARD-M42-Q3", 88.5, 10);
     {
       path: "/workspace/cash_runway_forecast.json",
       name: "cash_runway_forecast.json",
-      sizeBytes: 640,
+      sizeBytes: 128,
       lastModified: new Date().toISOString(),
       author: "@CFO Twin",
       type: "file",
       content: JSON.stringify({
-        organization: "Apex Enterprise Hospitality",
-        burnRateMonthly: 420000,
-        cashReserve: 6800000,
-        baselineRunwayMonths: 16.2,
-        counterfactualRunwayWithHiringFreeze: 24.8,
-        leverageRatio: 1.15,
-        liquidityStressScore: "HEALTHY_A+"
+        note: "Add your organization's financial data here. This file is a blank template.",
+        burnRateMonthly: null,
+        cashReserve: null,
+        baselineRunwayMonths: null
       }, null, 2)
     }
   ];
@@ -185,25 +182,39 @@ export async function executeInAgentSandbox(
           .map(f => `${f.type === "directory" ? "d" : "-"}rw-r--r-- 1 agent agent ${f.sizeBytes.toString().padStart(6)} ${f.lastModified.slice(0, 10)} ${f.name} [by ${f.author}]`)
           .join("\n");
       } else if (trimmed.startsWith("cat ")) {
-        const targetPath = trimmed.replace("cat ", "").trim();
-        const fullPath = targetPath.startsWith("/") ? targetPath : `/workspace/${targetPath}`;
-        const f = virtualFileSystem.get(fullPath);
-        if (f) {
-          stdout = f.content;
-        } else {
-          stderr = `cat: ${targetPath}: No such file or directory`;
+        const rawTarget = trimmed.slice(4).trim();
+        // Normalize path — only /workspace/ prefix allowed, block traversal
+        const normalizedTarget = rawTarget.startsWith("/") ? rawTarget : `/workspace/${rawTarget}`;
+        const resolvedPath = normalizedTarget.replace(/\/\.\.\//g, "/").replace(/\.\.$/, "");
+        if (!resolvedPath.startsWith("/workspace/") || resolvedPath.includes("..")) {
+          stderr = `cat: ${rawTarget}: Permission denied (path traversal blocked)`;
           exitCode = 1;
+        } else {
+          const f = virtualFileSystem.get(resolvedPath);
+          if (f) {
+            stdout = f.content;
+          } else {
+            stderr = `cat: ${rawTarget}: No such file or directory`;
+            exitCode = 1;
+          }
         }
       } else if (trimmed.startsWith("echo ") && trimmed.includes(" > ")) {
-        const parts = trimmed.replace("echo ", "").split(" > ");
+        const parts = trimmed.slice(5).split(" > ");
         const textContent = parts[0].replace(/['"]/g, "");
-        const targetFile = parts[1].trim();
-        const fullPath = targetFile.startsWith("/") ? targetFile : `/workspace/${targetFile}`;
-        writeVirtualFile(fullPath, textContent, "@Agent Sandbox");
-        stdout = `Wrote ${textContent.length} bytes to ${fullPath}`;
-        producedArtifacts.push(fullPath);
+        const rawTarget = parts[1].trim();
+        const normalizedTarget = rawTarget.startsWith("/") ? rawTarget : `/workspace/${rawTarget}`;
+        const resolvedPath = normalizedTarget.replace(/\/\.\.\//g, "/").replace(/\.\.$/, "");
+        if (!resolvedPath.startsWith("/workspace/") || resolvedPath.includes("..")) {
+          stderr = `echo: ${rawTarget}: Permission denied (path traversal blocked)`;
+          exitCode = 1;
+        } else {
+          writeVirtualFile(resolvedPath, textContent, "@Agent Sandbox");
+          stdout = `Wrote ${textContent.length} bytes to ${resolvedPath}`;
+          producedArtifacts.push(resolvedPath);
+        }
       } else {
-        stdout = `[Cloudflare Computer Shell]\nExecuted: ${trimmed}\nStatus: 0 (OK)\nWorking directory: /workspace\nFUSE Mount: SQLite Authoritative Durable Object`;
+        stderr = `shell: ${trimmed.split(" ")[0]}: command not found. Allowed commands: ls, cat <file>, echo <text> > <file>`;
+        exitCode = 127;
       }
     } else if (backend === "scm_python") {
       // Deterministic SCM Python solver simulation
@@ -216,25 +227,58 @@ export async function executeInAgentSandbox(
         stdout = `=== PYTHON 3.12 SCM ISOLATE EXECUTION ===\nSource execution completed.\nResult: Invariant constraint validated.\nExit code: 0`;
       }
     } else {
-      // Isolate JavaScript Execution Sandbox
+      // Restricted JavaScript Execution Sandbox
+      // new Function() is NOT used — it grants access to Node.js globals.
+      // Instead, we run a strict allowlist-based interpreter.
       let logs: string[] = [];
-      const customConsole = {
-        log: (...args: any[]) => logs.push(args.map(a => typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)).join(" ")),
-        error: (...args: any[]) => logs.push("[ERROR] " + args.join(" ")),
-        warn: (...args: any[]) => logs.push("[WARN] " + args.join(" "))
-      };
 
-      try {
-        // Safe evaluation wrapper
-        const runFn = new Function("console", "virtualFs", source);
-        runFn(customConsole, {
-          readFile: (path: string) => getVirtualFile(path)?.content,
-          writeFile: (path: string, content: string) => writeVirtualFile(path, content, "@Isolate JS")
-        });
-        stdout = logs.join("\n");
-      } catch (evalErr: any) {
-        stderr = evalErr.message || String(evalErr);
+      // Block dangerous identifiers
+      const BLOCKED_PATTERNS = [
+        /\bprocess\b/, /\brequire\b/, /\bglobal\b/, /\beval\b/,
+        /\bFunction\b/, /\b__dirname\b/, /\b__filename\b/,
+        /\bBuffer\b/, /\bsetTimeout\b/, /\bsetInterval\b/,
+        /\bimport\b/, /\bexports\b/, /\bmodule\b/,
+        /\bchild_process\b/, /\bfs\b/, /\bnet\b/, /\bhttp\b/,
+      ];
+
+      const blockedMatch = BLOCKED_PATTERNS.find(p => p.test(source));
+      if (blockedMatch) {
+        stderr = `SecurityError: Blocked access to restricted identifier. Only console.log() and arithmetic operations are permitted in isolate_js mode.`;
         exitCode = 1;
+      } else {
+        // Safe: only allow console.log and arithmetic by running in a frozen scope
+        try {
+          // Capture console.log output line by line
+          const lines = source.split("\n").map(l => l.trim()).filter(Boolean);
+          for (const line of lines) {
+            if (/^console\.log\(/.test(line)) {
+              // Extract the argument expression (simple strings and numbers only)
+              const argMatch = line.match(/^console\.log\((.+)\)$/);
+              if (argMatch) {
+                try {
+                  // Evaluate only pure arithmetic expressions (no identifiers)
+                  const arg = argMatch[1].trim();
+                  if (/^["'`]/.test(arg)) {
+                    // String literal
+                    logs.push(arg.replace(/^["'`]/, "").replace(/["'`]$/, ""));
+                  } else if (/^[\d\s+\-*/().%]+$/.test(arg)) {
+                    // Pure arithmetic — safe to evaluate via Function with no scope
+                    const result = Function(`"use strict"; return (${arg})`)();
+                    logs.push(String(result));
+                  } else {
+                    logs.push(`[Sandbox] Expression evaluated: ${arg}`);
+                  }
+                } catch {
+                  logs.push(`[Sandbox Error] Could not evaluate expression`);
+                }
+              }
+            }
+          }
+          stdout = logs.length > 0 ? logs.join("\n") : "(Script ran with no console output)";
+        } catch (evalErr: any) {
+          stderr = evalErr.message || String(evalErr);
+          exitCode = 1;
+        }
       }
     }
   } catch (err: any) {

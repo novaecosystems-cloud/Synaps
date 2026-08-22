@@ -1,53 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  rateLimitResponse,
+  readBodyWithLimit,
+  safeErrorResponse,
+} from "@/lib/security";
 
-let inMemoryMessages: Record<string, any[]> = {
-  "p0-incidents": [
-    {
-      id: "msg-1",
-      channelId: "p0-incidents",
-      authorName: "AI: SCM Sentinel",
-      authorRole: "System Bot",
-      authorType: "AI",
-      avatar: "🤖",
-      content: "🚨 **[INCIDENT DETECTED]**: Database connection pool reached 98% saturation. Auto-dispatched P0 Action Ticket `CSX-101` to Action Board.",
-      timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
-      citation: "Node_DB_Conn_01 · SHA-256: 4f659a...d"
-    },
-    {
-      id: "msg-2",
-      channelId: "p0-incidents",
-      authorName: "Shourya S.",
-      authorRole: "Lead Architect",
-      authorType: "HUMAN",
-      avatar: "👤",
-      content: "@CTO what is the optimal pool size to prevent secondary cascading failovers?",
-      timestamp: new Date(Date.now() - 3600000).toISOString()
-    },
-    {
-      id: "msg-3",
-      channelId: "p0-incidents",
-      authorName: "AI: CTO Twin",
-      authorRole: "Chief Technology Officer",
-      authorType: "AI",
-      avatar: "⚡",
-      content: "Based on Judea Pearl SCM graph intervention: scaling max pool size from `100 ➔ 450` with a 30-second keep-alive idle recycle resolves 142 daily timeout tickets with 0.00% throughput degradation.",
-      timestamp: new Date(Date.now() - 1800000).toISOString(),
-      citation: "SCM_Graph_Intervention_P(Y|do(Pool=450))"
-    }
-  ],
-  "general": [
-    {
-      id: "msg-g1",
-      channelId: "general",
-      authorName: "Shourya S.",
-      authorRole: "Founder",
-      authorType: "HUMAN",
-      avatar: "👤",
-      content: "Welcome to Causarix Sovereign Stream! All team discussions are persisted on-premises with zero cloud leaks.",
-      timestamp: new Date(Date.now() - 86400000).toISOString()
-    }
-  ]
-};
+// ── In-memory store — starts EMPTY for all channels.
+// No hardcoded seed messages — users start with a blank channel.
+// Channel history resets on server restart (known limitation, Durable Object / Redis needed for production).
+let inMemoryMessages: Record<string, any[]> = {};
+
+// ── Content length guard: 4 KB max per message ───────────────────────────────
+const MAX_MESSAGE_BYTES = 4 * 1024;
 
 async function queryLocalAi(agentRole: string, userPrompt: string): Promise<string | null> {
   try {
@@ -78,78 +44,117 @@ async function queryLocalAi(agentRole: string, userPrompt: string): Promise<stri
 }
 
 export async function GET(req: NextRequest) {
+  // ── Rate limit: max 60 reads per IP per minute (polling protection) ─────────
+  const ip = getRateLimitKey(req);
+  if (!checkRateLimit(`stream-read:${ip}`, 60, 60_000)) {
+    return rateLimitResponse(10);
+  }
+
   const { searchParams } = new URL(req.url);
   const channelId = searchParams.get("channelId") || "general";
-  const messages = inMemoryMessages[channelId] || [];
 
-  return NextResponse.json({
-    success: true,
-    channelId,
-    messages
-  });
+  // Sanitize channelId — alphanumeric and dashes only
+  const cleanChannelId = channelId.replace(/[^a-zA-Z0-9-_]/g, "").slice(0, 64);
+  const messages = inMemoryMessages[cleanChannelId] || [];
+
+  return NextResponse.json({ success: true, channelId: cleanChannelId, messages });
 }
 
 export async function POST(req: NextRequest) {
+  // ── Rate limit: max 30 posts per IP per minute ──────────────────────────────
+  const ip = getRateLimitKey(req);
+  if (!checkRateLimit(`stream-post:${ip}`, 30, 60_000)) {
+    return rateLimitResponse(60);
+  }
+
+  // ── Read body with RUDY protection ─────────────────────────────────────────
+  const { body, error: bodyError } = await readBodyWithLimit(req, MAX_MESSAGE_BYTES);
+  if (bodyError || !body) {
+    return NextResponse.json({ success: false, error: bodyError || "Invalid request body." }, { status: 400 });
+  }
+
   try {
-    const body = await req.json();
     const { channelId, authorName, authorRole, authorType, content, citation } = body;
 
-    if (!content) {
-      return NextResponse.json({ success: false, error: "Message content is required" }, { status: 400 });
+    if (!content || typeof content !== "string" || content.trim().length === 0) {
+      return NextResponse.json({ success: false, error: "Message content is required." }, { status: 400 });
     }
 
-    const cleanChannelId = channelId || "general";
+    // Sanitize channelId — alphanumeric and dashes only
+    const cleanChannelId = (channelId || "general").replace(/[^a-zA-Z0-9-_]/g, "").slice(0, 64);
     if (!inMemoryMessages[cleanChannelId]) {
       inMemoryMessages[cleanChannelId] = [];
     }
 
+    // Strip content to max length
+    const safeContent = content.slice(0, 2000);
+
     const userMessage = {
-      id: `msg-${Date.now()}`,
+      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       channelId: cleanChannelId,
-      authorName: authorName || "Shourya S.",
-      authorRole: authorRole || "Lead Architect",
-      authorType: authorType || "HUMAN",
+      authorName: (authorName || "Team Member").slice(0, 80),
+      authorRole: (authorRole || "Member").slice(0, 80),
+      authorType: authorType === "AI" ? "AI" : "HUMAN",
       avatar: "👤",
-      content,
-      citation: citation || null,
+      content: safeContent,
+      citation: citation ? String(citation).slice(0, 200) : null,
       timestamp: new Date().toISOString()
     };
 
     inMemoryMessages[cleanChannelId].push(userMessage);
 
-    // Check for AI Agent @mentions OR Autonomous Macro-style Interventions
+    // ── AI Agent @mentions OR Autonomous Macro-style Interventions ─────────────
     let aiResponse: any = null;
-    const lowerContent = content.toLowerCase();
-    
+    const lowerContent = safeContent.toLowerCase();
+
     let targetAgent: { role: string; name: string; icon: string; reason?: string } | null = null;
-    
+
     // Explicit @mentions
-    if (lowerContent.includes("@cfo")) targetAgent = { role: "Chief Financial Officer", name: "AI: CFO Twin", icon: "💰" };
-    else if (lowerContent.includes("@generalcounsel") || lowerContent.includes("@legal")) targetAgent = { role: "General Counsel", name: "AI: General Counsel", icon: "⚖️" };
-    else if (lowerContent.includes("@cto")) targetAgent = { role: "Chief Technology Officer", name: "AI: CTO Twin", icon: "⚡" };
-    else if (lowerContent.includes("@redteam")) targetAgent = { role: "Adversarial Red Team", name: "AI: Red Team", icon: "🛡️" };
-    else if (lowerContent.includes("@ceo")) targetAgent = { role: "Chief Executive Officer", name: "AI: CEO Twin", icon: "🏛️" };
-    
+    if (lowerContent.includes("@cfo"))
+      targetAgent = { role: "Chief Financial Officer", name: "AI: CFO Twin", icon: "💰" };
+    else if (lowerContent.includes("@generalcounsel") || lowerContent.includes("@legal"))
+      targetAgent = { role: "General Counsel", name: "AI: General Counsel", icon: "⚖️" };
+    else if (lowerContent.includes("@cto"))
+      targetAgent = { role: "Chief Technology Officer", name: "AI: CTO Twin", icon: "⚡" };
+    else if (lowerContent.includes("@redteam"))
+      targetAgent = { role: "Adversarial Red Team", name: "AI: Red Team", icon: "🛡️" };
+    else if (lowerContent.includes("@ceo"))
+      targetAgent = { role: "Chief Executive Officer", name: "AI: CEO Twin", icon: "🏛️" };
+
     // Autonomous Macro Interventions (Proactive C-Suite Monitoring)
-    else if (lowerContent.includes("price") || lowerContent.includes("cost") || lowerContent.includes("budget") || lowerContent.includes("margin") || lowerContent.includes("revenue") || lowerContent.includes("hike") || lowerContent.includes("burn")) {
+    else if (
+      lowerContent.includes("price") || lowerContent.includes("cost") ||
+      lowerContent.includes("budget") || lowerContent.includes("margin") ||
+      lowerContent.includes("revenue") || lowerContent.includes("hike") ||
+      lowerContent.includes("burn")
+    ) {
       targetAgent = { role: "Chief Financial Officer", name: "AI: CFO Twin", icon: "💰", reason: "Autonomous Financial Monitor" };
-    }
-    else if (lowerContent.includes("contract") || lowerContent.includes("liability") || lowerContent.includes("delaware") || lowerContent.includes("compliance") || lowerContent.includes("clause") || lowerContent.includes("indemnity")) {
+    } else if (
+      lowerContent.includes("contract") || lowerContent.includes("liability") ||
+      lowerContent.includes("delaware") || lowerContent.includes("compliance") ||
+      lowerContent.includes("clause") || lowerContent.includes("indemnity")
+    ) {
       targetAgent = { role: "General Counsel", name: "AI: General Counsel", icon: "⚖️", reason: "Autonomous Statutory Guardrail" };
-    }
-    else if (lowerContent.includes("outage") || lowerContent.includes("database") || lowerContent.includes("latency") || lowerContent.includes("cluster") || lowerContent.includes("architecture") || lowerContent.includes("timeout")) {
+    } else if (
+      lowerContent.includes("outage") || lowerContent.includes("database") ||
+      lowerContent.includes("latency") || lowerContent.includes("cluster") ||
+      lowerContent.includes("architecture") || lowerContent.includes("timeout")
+    ) {
       targetAgent = { role: "Chief Technology Officer", name: "AI: CTO Twin", icon: "⚡", reason: "Autonomous Reliability SCM Monitor" };
-    }
-    else if (lowerContent.includes("competitor") || lowerContent.includes("vulnerability") || lowerContent.includes("threat") || lowerContent.includes("risk") || lowerContent.includes("leak")) {
+    } else if (
+      lowerContent.includes("competitor") || lowerContent.includes("vulnerability") ||
+      lowerContent.includes("threat") || lowerContent.includes("risk") ||
+      lowerContent.includes("leak")
+    ) {
       targetAgent = { role: "Adversarial Red Team", name: "AI: Red Team", icon: "🛡️", reason: "Autonomous Threat Intelligence" };
     }
 
     if (targetAgent) {
-      const generatedReply = await queryLocalAi(targetAgent.role, content);
-      const fallbackReply = `${targetAgent.role} analysis: Evaluated the scenario under Causarix SCM parameters. Recommended intervention confirms 0.00% math drift and full statutory compliance.`;
+      const generatedReply = await queryLocalAi(targetAgent.role, safeContent);
+      const fallbackReply = `${targetAgent.name} is online. Analysis of your message is being processed — please @mention me directly for a detailed response.`;
 
       aiResponse = {
-        id: `msg-ai-${Date.now()}`,
+        id: `msg-ai-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         channelId: cleanChannelId,
         authorName: targetAgent.name,
         authorRole: targetAgent.role,
@@ -170,6 +175,7 @@ export async function POST(req: NextRequest) {
       messages: inMemoryMessages[cleanChannelId]
     });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("[Stream Messages Error]:", error);
+    return safeErrorResponse(error, "Failed to process message.");
   }
 }

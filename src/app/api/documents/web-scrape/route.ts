@@ -1,37 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verifySessionCookie } from "@/lib/auth-server";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  rateLimitResponse,
+  readBodyWithLimit,
+  resolveAuthContext,
+  safeErrorResponse,
+  validateScrapeUrl,
+} from "@/lib/security";
 import prisma from "@/lib/prisma";
 import { scrapeUrlToMarkdown } from "@/lib/firecrawl-scraper";
 
 export async function POST(req: NextRequest) {
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  const auth = await resolveAuthContext(req);
+
+  // ── Rate limit: max 10 scrapes per IP per minute ────────────────────────────
+  const ip = getRateLimitKey(req);
+  if (!checkRateLimit(`scrape:${ip}`, 10, 60_000)) {
+    return rateLimitResponse(60);
+  }
+
+  // ── Read body with RUDY protection (4 KB max – just a URL) ─────────────────
+  const { body, error: bodyError } = await readBodyWithLimit(req, 4 * 1024);
+  if (bodyError || !body) {
+    return NextResponse.json({ success: false, error: bodyError || "Invalid request body." }, { status: 400 });
+  }
+
+  const { url } = body;
+
+  if (!url || typeof url !== "string") {
+    return NextResponse.json({ success: false, error: "A valid URL is required." }, { status: 400 });
+  }
+
+  // ── URL Sanitization: block SSRF, localhost, internal networks ──────────────
+  const urlCheck = validateScrapeUrl(url);
+  if (!urlCheck.valid) {
+    return NextResponse.json({ success: false, error: urlCheck.error }, { status: 400 });
+  }
+
   try {
-    const cookieStore = await cookies();
-    const session = cookieStore.get("synaps-session")?.value;
-
-    let userId = "demo-user";
-    let orgId = "no_org_fallback";
-
-    if (session && !session.startsWith("TEST_TOKEN_")) {
-      const decoded = await verifySessionCookie(session);
-      if (decoded?.uid) {
-        userId = decoded.uid;
-        const u = await prisma.user.findUnique({ where: { id: userId } });
-        if (u?.organizationId) {
-          orgId = u.organizationId;
-        }
-      }
-    }
-
-    const body = await req.json();
-    const { url } = body;
-
-    if (!url || typeof url !== "string") {
-      return NextResponse.json({ success: false, error: "A valid URL is required." }, { status: 400 });
-    }
-
     // 1. Scrape real URL to Clean Markdown
-    const scrapeResult = await scrapeUrlToMarkdown(url.trim());
+    const scrapeResult = await scrapeUrlToMarkdown(urlCheck.cleanUrl!);
 
     // 2. Format a clean document name
     let cleanHostname = "";
@@ -47,8 +57,8 @@ export async function POST(req: NextRequest) {
     const doc = await prisma.document.create({
       data: {
         name: docName,
-        organizationId: orgId,
-        ownerId: userId,
+        organizationId: auth.orgId,
+        ownerId: auth.userId,
         mimeType: "text/markdown",
         sizeBytes: scrapeResult.sizeBytes,
         scanStatus: "CLEAN",
@@ -60,7 +70,7 @@ export async function POST(req: NextRequest) {
     await prisma.processedDocument.create({
       data: {
         documentId: doc.id,
-        organizationId: orgId,
+        organizationId: auth.orgId,
         pageCount,
         detectedType: "WEB_CRAWL",
         textContent: scrapeResult.markdown,
@@ -84,7 +94,7 @@ export async function POST(req: NextRequest) {
           text: chunks[i],
           positionIdx: i,
           tokenCount: Math.ceil(chunks[i].length / 4),
-          organizationId: orgId,
+          organizationId: auth.orgId,
         },
       });
     }
@@ -103,6 +113,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     console.error("[Web Scrape Error]:", err);
-    return NextResponse.json({ success: false, error: err.message || "Failed to scrape and index web document." }, { status: 500 });
+    return safeErrorResponse(err, "Failed to scrape and index web document.");
   }
 }
