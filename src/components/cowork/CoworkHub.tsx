@@ -502,9 +502,43 @@ extensions:
     tools:
       - query_boardroom_verdict
       - run_scm_monte_carlo
-      - search_causarix_memory`;
-
   const gooseCliCommand = `goose mcp add causarix ${mcpBaseUrl}`;
+
+  const semanticKernelPython = `# Semantic Kernel Python Integration
+from semantic_kernel import Kernel
+from semantic_kernel.connectors.mcp import ModelContextProtocolPlugin
+
+kernel = Kernel()
+
+# Connect Causarix Decision OS to Semantic Kernel
+causarix_plugin = await ModelContextProtocolPlugin.from_endpoint(
+    name="Causarix",
+    endpoint="${mcpBaseUrl}",
+    headers={"Authorization": "Bearer causarix_enterprise_key"}
+)
+kernel.add_plugin(causarix_plugin)
+
+# Run SCM deliberation with Semantic Kernel Planner
+result = await kernel.invoke(
+    causarix_plugin["query_boardroom_verdict"],
+    query="Evaluate DGCL 141 safe harbor"
+)`;
+
+  const semanticKernelCSharp = `// Microsoft Semantic Kernel C# (.NET)
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Plugins.Mcp;
+
+var builder = Kernel.CreateBuilder();
+
+// Register Causarix Sovereign Decision Engine Plugin
+builder.Plugins.AddMcpEndpoint(
+    pluginName: "Causarix",
+    endpointUri: new Uri("${mcpBaseUrl}"),
+    apiKey: "causarix_enterprise_key"
+);
+
+var kernel = builder.Build();
+var result = await kernel.InvokeAsync("Causarix", "run_scm_monte_carlo");`;
 
   const handleRunMcpTool = async () => {
     setTestingTool(true);
@@ -976,8 +1010,8 @@ extensions:
             </div>
           </div>
 
-          {/* 4-COLUMN MCP SERVER REGISTRY GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 5-COLUMN MCP SERVER & ENTERPRISE PLUGIN REGISTRY GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
 
             {/* Goose (by Block / Linux Foundation) */}
             <div className="p-5 bg-base-100 border border-cyan-500/40 rounded-3xl space-y-3 shadow-md flex flex-col justify-between relative overflow-hidden">
@@ -1086,6 +1120,45 @@ extensions:
                 {copiedType === 'antigravity' ? <Check className="w-3.5 h-3.5 mr-1" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
                 {copiedType === 'antigravity' ? 'Copied Antigravity Config' : 'Copy Antigravity Config'}
               </Button>
+            </div>
+
+            {/* Microsoft Semantic Kernel (Python & C# .NET) */}
+            <div className="p-6 bg-base-100 border border-purple-500/40 rounded-3xl space-y-4 shadow-md flex flex-col justify-between relative overflow-hidden">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">⚛️</span>
+                    <h3 className="font-bold text-sm text-white">Semantic Kernel</h3>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[9px] font-mono font-extrabold uppercase">
+                    C# & Python
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Mount Causarix SCM & Boardroom intelligence as an enterprise plugin inside Microsoft Semantic Kernel.
+                </p>
+                <pre className="p-2.5 bg-black/60 rounded-xl text-[10px] font-mono text-purple-200 border border-slate-800 overflow-x-auto max-h-32">
+                  {semanticKernelPython}
+                </pre>
+              </div>
+
+              <div className="space-y-1.5 pt-2">
+                <Button
+                  onClick={() => copyConfig('sk-python', semanticKernelPython)}
+                  className="btn-xs rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-[10px] uppercase w-full py-2"
+                >
+                  {copiedType === 'sk-python' ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
+                  {copiedType === 'sk-python' ? 'Copied Python SDK' : 'Copy Python Plugin'}
+                </Button>
+                <Button
+                  onClick={() => copyConfig('sk-csharp', semanticKernelCSharp)}
+                  variant="outline"
+                  className="btn-xs rounded-xl border-slate-800 text-slate-300 hover:text-white text-[10px] w-full"
+                >
+                  {copiedType === 'sk-csharp' ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
+                  {copiedType === 'sk-csharp' ? 'Copied C# .NET' : 'Copy C# / .NET Plugin'}
+                </Button>
+              </div>
             </div>
           </div>
 
