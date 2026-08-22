@@ -34,6 +34,8 @@ import LaunchPromoModal from '@/components/LaunchPromoModal';
 import SynapsWrappedModal from '@/components/SynapsWrappedModal';
 import DownloadDesktopModal from '@/components/DownloadDesktopModal';
 import CausarixGuidedTourModal from '@/components/CausarixGuidedTourModal';
+import CausarixCinematicSplash from '@/components/CausarixCinematicSplash';
+import DashboardSkeleton from '@/components/DashboardSkeleton';
 import { BackgroundTaskProvider } from '@/context/BackgroundTaskContext';
 import { SynapsVectorLogo } from '@/components/SynapsVectorLogo';
 
@@ -273,6 +275,16 @@ export default function ClientLayout({ children, user }: { children: React.React
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [isDailyBriefOpen, setIsDailyBriefOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const [showSkeleton, setShowSkeleton] = useState(false);
+
+    const handleSplashComplete = () => {
+    setShowSplash(false);
+    setShowSkeleton(true);
+    setTimeout(() => {
+      setShowSkeleton(false);
+    }, 700);
+  };
 
   const handleLogout = async () => {
     await logoutAction();
@@ -304,6 +316,7 @@ export default function ClientLayout({ children, user }: { children: React.React
 
   return (
     <BackgroundTaskProvider>
+      {showSplash && <CausarixCinematicSplash onComplete={handleSplashComplete} />}
       <div className="flex h-screen w-full bg-background overflow-hidden relative tour-dashboard">
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
@@ -495,9 +508,13 @@ export default function ClientLayout({ children, user }: { children: React.React
           </div>
         </header>
 
-        {/* Page Content (Scrollable for 9:16 Vertical Mobile Screens) */}
+        {/* Page Content with Smooth Skeleton Transition */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 custom-scrollbar">
-          <PlanAccessGate>{children}</PlanAccessGate>
+          {showSkeleton ? (
+            <DashboardSkeleton />
+          ) : (
+            <PlanAccessGate>{children}</PlanAccessGate>
+          )}
         </div>
       </main>
 
