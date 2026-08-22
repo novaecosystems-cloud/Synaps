@@ -6,6 +6,8 @@ import {
   HeartHandshake, ShieldAlert, Award, CheckCircle2, BrainCircuit, CreditCard, ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useOrgProfile } from '@/context/OrgProfileContext';
+import { Building2 } from 'lucide-react';
 import { getLemonSqueezyCheckoutUrl, triggerLemonSqueezyApiRefund } from '@/lib/lemonsqueezy';
 import { generateIdempotencyKey } from '@/lib/idempotency';
 import UpiPaymentModal from '@/components/UpiPaymentModal';
@@ -53,6 +55,7 @@ export default function MultiStepPaywallModal({
 }: MultiStepPaywallProps) {
   const [step, setStep] = useState<number>(initialStep);
   const [selectedPlan, setSelectedPlan] = useState<'pro' | 'enterprise'>(defaultPlan);
+  const { profile } = useOrgProfile();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [userEmail, setUserEmail] = useState('');
   const [refundUserEmail, setRefundUserEmail] = useState('');
@@ -366,6 +369,23 @@ export default function MultiStepPaywallModal({
               {/* STEP 2: PRICING */}
               {step === 2 && (
                 <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+                  {/* PERSONALIZED ORG CALLOUT (FREDDY +15% CONVERSION PRINCIPLE) */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-cyan-950/60 via-slate-900 to-indigo-950/60 border border-cyan-500/40 flex items-center gap-3 shadow-md">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center justify-center shrink-0">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <div className="text-xs">
+                      <span className="text-slate-400 font-mono text-[10px] uppercase tracking-wider block">Calibrated Intelligence Workspace</span>
+                      <strong className="text-white text-sm">{profile?.companyName || 'Your Organization'}</strong>
+                      {profile?.sector && profile.sector !== 'default' && (
+                        <span className="text-cyan-400 font-mono text-xs ml-1.5">[{profile.sector.toUpperCase()} EDITION]</span>
+                      )}
+                      <p className="text-[11px] text-slate-300/80 mt-0.5">
+                        10-Agent C-Suite quorum and SCM Monte Carlo engines calibrated for your exact operational risk profile.
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-base-200 pb-4">
                     <div>
                       <h3 className="text-xl font-extrabold text-base-content">Select Your Discounted Upgrade</h3>
@@ -375,16 +395,36 @@ export default function MultiStepPaywallModal({
                     <div className="flex items-center gap-1 bg-base-200 p-1 rounded-2xl border border-base-300 text-xs font-bold">
                       <button
                         onClick={() => setBillingCycle('monthly')}
-                        className={cn("px-3 py-1 rounded-xl transition-all", billingCycle === 'monthly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
+                        className={cn("px-3 py-1 rounded-xl transition-all cursor-pointer", billingCycle === 'monthly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
                       >
                         Monthly
                       </button>
                       <button
                         onClick={() => setBillingCycle('yearly')}
-                        className={cn("px-3 py-1 rounded-xl transition-all flex items-center gap-1", billingCycle === 'yearly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
+                        className={cn("px-3 py-1 rounded-xl transition-all flex items-center gap-1 cursor-pointer", billingCycle === 'yearly' ? "bg-base-100 shadow text-base-content" : "text-base-content/60")}
                       >
                         Yearly <span className="px-1.5 py-0.5 rounded-full bg-success/20 text-success text-[9px] font-extrabold">-50% OFF</span>
                       </button>
+                    </div>
+                  </div>
+
+                  {/* PRICE ANCHORING & ROI COMPARISON CARD */}
+                  <div className="p-3.5 rounded-2xl bg-base-200/80 border border-base-300 space-y-2">
+                    <div className="flex justify-between items-center text-[10px] font-mono font-bold text-base-content/60 uppercase">
+                      <span>Traditional Strategy Advisory vs. Causarix OS</span>
+                      <span className="text-emerald-500 font-extrabold">99.8% Cost Elimination</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                      <div className="p-2.5 rounded-xl bg-rose-950/10 border border-rose-900/30 space-y-0.5">
+                        <div className="text-rose-400 font-bold text-xs">Human C-Suite Advisors</div>
+                        <div className="text-base font-extrabold text-base-content/80">$25,000 / month</div>
+                        <p className="text-[10px] text-base-content/60">Slow memos, human bias & meeting fatigue.</p>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-emerald-950/10 border border-emerald-800/30 space-y-0.5">
+                        <div className="text-emerald-400 font-bold text-xs">10-Agent Causarix Intelligence</div>
+                        <div className="text-base font-extrabold text-emerald-400">$29 / month</div>
+                        <p className="text-[10px] text-emerald-500/90 font-medium">Instant debate, 0.00% math drift & 24/7 access.</p>
+                      </div>
                     </div>
                   </div>
 
