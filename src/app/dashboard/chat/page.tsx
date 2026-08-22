@@ -89,6 +89,29 @@ export default function TeamStreamChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+    const [taskCreatedMap, setTaskCreatedMap] = useState<Record<string, boolean>>({});
+
+  const handleConvertToTask = async (msg: StreamMessage) => {
+    try {
+      await fetch("/api/action-tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: `[Stream Task] ${msg.content.slice(0, 48)}...`,
+          description: `Dispatched directly from Team Stream (#${activeChannel.name})\nAuthor: ${msg.authorName} (${msg.authorRole})\n\n${msg.content}`,
+          priority: "P0",
+          status: "TODO",
+          assigneeName: msg.authorType === "AI" ? msg.authorName : "Lead Architect",
+          assigneeType: msg.authorType,
+          tags: ["Stream", "Macro", activeChannel.name]
+        })
+      });
+      setTaskCreatedMap(prev => ({ ...prev, [msg.id]: true }));
+    } catch (e) {
+      console.error("Failed to convert message to task:", e);
+    }
+  };
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!inputValue.trim() || isSending) return;

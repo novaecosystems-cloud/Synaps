@@ -117,16 +117,32 @@ export async function POST(req: NextRequest) {
 
     inMemoryMessages[cleanChannelId].push(userMessage);
 
-    // Check for AI Agent @mentions
+    // Check for AI Agent @mentions OR Autonomous Macro-style Interventions
     let aiResponse: any = null;
     const lowerContent = content.toLowerCase();
     
-    let targetAgent: { role: string; name: string; icon: string } | null = null;
+    let targetAgent: { role: string; name: string; icon: string; reason?: string } | null = null;
+    
+    // Explicit @mentions
     if (lowerContent.includes("@cfo")) targetAgent = { role: "Chief Financial Officer", name: "AI: CFO Twin", icon: "💰" };
     else if (lowerContent.includes("@generalcounsel") || lowerContent.includes("@legal")) targetAgent = { role: "General Counsel", name: "AI: General Counsel", icon: "⚖️" };
     else if (lowerContent.includes("@cto")) targetAgent = { role: "Chief Technology Officer", name: "AI: CTO Twin", icon: "⚡" };
     else if (lowerContent.includes("@redteam")) targetAgent = { role: "Adversarial Red Team", name: "AI: Red Team", icon: "🛡️" };
     else if (lowerContent.includes("@ceo")) targetAgent = { role: "Chief Executive Officer", name: "AI: CEO Twin", icon: "🏛️" };
+    
+    // Autonomous Macro Interventions (Proactive C-Suite Monitoring)
+    else if (lowerContent.includes("price") || lowerContent.includes("cost") || lowerContent.includes("budget") || lowerContent.includes("margin") || lowerContent.includes("revenue") || lowerContent.includes("hike") || lowerContent.includes("burn")) {
+      targetAgent = { role: "Chief Financial Officer", name: "AI: CFO Twin", icon: "💰", reason: "Autonomous Financial Monitor" };
+    }
+    else if (lowerContent.includes("contract") || lowerContent.includes("liability") || lowerContent.includes("delaware") || lowerContent.includes("compliance") || lowerContent.includes("clause") || lowerContent.includes("indemnity")) {
+      targetAgent = { role: "General Counsel", name: "AI: General Counsel", icon: "⚖️", reason: "Autonomous Statutory Guardrail" };
+    }
+    else if (lowerContent.includes("outage") || lowerContent.includes("database") || lowerContent.includes("latency") || lowerContent.includes("cluster") || lowerContent.includes("architecture") || lowerContent.includes("timeout")) {
+      targetAgent = { role: "Chief Technology Officer", name: "AI: CTO Twin", icon: "⚡", reason: "Autonomous Reliability SCM Monitor" };
+    }
+    else if (lowerContent.includes("competitor") || lowerContent.includes("vulnerability") || lowerContent.includes("threat") || lowerContent.includes("risk") || lowerContent.includes("leak")) {
+      targetAgent = { role: "Adversarial Red Team", name: "AI: Red Team", icon: "🛡️", reason: "Autonomous Threat Intelligence" };
+    }
 
     if (targetAgent) {
       const generatedReply = await queryLocalAi(targetAgent.role, content);
