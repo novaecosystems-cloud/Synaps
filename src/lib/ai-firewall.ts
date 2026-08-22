@@ -65,11 +65,11 @@ const PROBING_PATTERNS = [
 
 // Control Token & Delimiter Escapes
 const CONTROL_TOKEN_PATTERNS = [
-  /<\/?system>/i,
-  /\[INST\]|\[\/INST\]/i,
-  /<\|im_start\|>|<\|im_end\|>/i,
-  /```system/i,
-  /\x00/i,
+  /<\/?system>/gi,
+  /\[INST\]|\[\/INST\]/gi,
+  /<\|im_start\|>|<\|im_end\|>/gi,
+  /```system/gi,
+  /\x00/g,
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -171,11 +171,12 @@ export function inspectPrompt(prompt: string): IngressCheckResult {
     }
   }
 
-  // Sanitize prompt: strip control tokens and dangerous sequences
+  // Sanitize prompt: strip control tokens and dangerous sequences, then normalize spacing
   let sanitized = prompt;
   for (const pattern of CONTROL_TOKEN_PATTERNS) {
     sanitized = sanitized.replace(pattern, "");
   }
+  sanitized = sanitized.replace(/\s+/g, " ");
 
   const isAllowed = riskLevel !== "CRITICAL" && riskLevel !== "HIGH";
 
