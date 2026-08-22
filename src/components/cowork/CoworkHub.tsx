@@ -481,15 +481,30 @@ Format your response with large, clean, professional structure:
   const antigravityConfig = JSON.stringify(
     {
       'antigravity.mcpServers': {
-        synaps: {
+        causarix: {
           endpoint: mcpBaseUrl,
-          capabilities: ['search_synaps_memory', 'query_boardroom_verdict', 'execute_playbook_skill'],
+          capabilities: ['search_causarix_memory', 'query_boardroom_verdict', 'run_scm_monte_carlo', 'execute_playbook_skill'],
         },
       },
     },
     null,
     2
   );
+
+  const gooseConfigYaml = `# ~/.config/goose/config.yaml
+extensions:
+  causarix:
+    name: "Causarix Decision OS"
+    type: "sse"
+    uri: "${mcpBaseUrl}"
+    headers:
+      Authorization: "Bearer causarix_live_enterprise_key"
+    tools:
+      - query_boardroom_verdict
+      - run_scm_monte_carlo
+      - search_causarix_memory`;
+
+  const gooseCliCommand = `goose mcp add causarix ${mcpBaseUrl}`;
 
   const handleRunMcpTool = async () => {
     setTestingTool(true);
@@ -912,7 +927,98 @@ Format your response with large, clean, professional structure:
       {/* TAB 2: Universal Remote MCP Bridge */}
       {activeTab === 'mcp' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* 🧸 EXPLAIN MCP LIKE I'M 5 YEARS OLD (ELI5 CARD) */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-amber-500/10 via-cyan-500/10 to-indigo-500/10 border border-cyan-500/30 space-y-4 shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-400 text-black flex items-center justify-center font-bold text-xl shadow-md shrink-0">
+                🧸
+              </div>
+              <div>
+                <span className="text-[10px] font-mono font-black tracking-widest text-cyan-400 uppercase bg-cyan-950/80 px-2.5 py-0.5 rounded-full border border-cyan-700/50">
+                  EXPLAIN IT TO A 5-YEAR-OLD
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-white mt-1">
+                  What is MCP and why should you care?
+                </h3>
+              </div>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-4xl">
+              Imagine an AI is like a brilliant brain 🧠 inside a jar. It can think, but it doesn't have arms or hands to reach your computer files or run math. 
+              <strong> MCP (Model Context Protocol) is like a magic USB cable 🔌.</strong> When you plug Causarix into apps like <strong>Goose</strong>, <strong>Claude</strong>, or <strong>Cursor</strong>, you give their AI the superpowers to talk to your 10-Agent Boardroom, read your contracts, and run 10,000 Monte Carlo calculations!
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <div className="p-3 rounded-2xl bg-black/40 border border-slate-800 text-xs space-y-1">
+                <div className="font-bold text-amber-400 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-mono font-bold flex items-center justify-center">1</span>
+                  Copy the Cable Code
+                </div>
+                <p className="text-[11px] text-slate-400">Click "Copy Config" on any box below (Goose, Claude, or Cursor).</p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-black/40 border border-slate-800 text-xs space-y-1">
+                <div className="font-bold text-cyan-400 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-cyan-400/20 text-cyan-300 text-[11px] font-mono font-bold flex items-center justify-center">2</span>
+                  Paste into Your App
+                </div>
+                <p className="text-[11px] text-slate-400">Paste it into your Goose terminal, Claude Desktop, or Cursor settings.</p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-black/40 border border-slate-800 text-xs space-y-1">
+                <div className="font-bold text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-400/20 text-emerald-300 text-[11px] font-mono font-bold flex items-center justify-center">3</span>
+                  Enjoy Superpowers!
+                </div>
+                <p className="text-[11px] text-slate-400">Ask your AI to run Causarix simulations without leaving your editor!</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 4-COLUMN MCP SERVER REGISTRY GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            {/* Goose (by Block / Linux Foundation) */}
+            <div className="p-5 bg-base-100 border border-cyan-500/40 rounded-3xl space-y-3 shadow-md flex flex-col justify-between relative overflow-hidden">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🦆</span>
+                    <h3 className="font-bold text-sm text-white">Goose (Block / AAIF)</h3>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[9px] font-mono font-extrabold uppercase">
+                    CLI & Desktop
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Connect Causarix to the open-source Goose agent. Run 1-click CLI setup or YAML config.
+                </p>
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-mono text-cyan-300 font-bold">1-Click CLI Setup:</div>
+                  <pre className="p-2.5 bg-black/60 rounded-xl text-[10px] font-mono text-cyan-200 border border-slate-800 overflow-x-auto">
+                    {gooseCliCommand}
+                  </pre>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 pt-2">
+                <Button
+                  onClick={() => copyConfig('goose-cli', gooseCliCommand)}
+                  className="btn-xs rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-[10px] uppercase w-full py-2"
+                >
+                  {copiedType === 'goose-cli' ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
+                  {copiedType === 'goose-cli' ? 'Copied CLI Command' : 'Copy 1-Click Command'}
+                </Button>
+                <Button
+                  onClick={() => copyConfig('goose-yaml', gooseConfigYaml)}
+                  variant="outline"
+                  className="btn-xs rounded-xl border-slate-800 text-slate-300 hover:text-white text-[10px] w-full"
+                >
+                  {copiedType === 'goose-yaml' ? 'Copied YAML' : 'Copy config.yaml'}
+                </Button>
+              </div>
+            </div>
             {/* Claude Desktop Config */}
             <div className="p-6 bg-base-100 border border-base-300 rounded-3xl space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-2">
