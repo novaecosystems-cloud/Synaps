@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { DocumentUploadDropzone } from '@/components/documents/document-upload-dropzone';
+import { WebScrapeModal } from '@/components/documents/WebScrapeModal';
 import { DocumentList } from '@/components/documents/document-list';
 import {
   Plus, X, Search, Loader2, Globe, FileText, ChevronRight,
@@ -39,6 +40,7 @@ interface CrossDocResult {
 export function DocumentsClient({ organizationId, initialDocuments }: DocumentsClientProps) {
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
+  const [isWebScrapeOpen, setIsWebScrapeOpen] = useState(false);
 
   // Cross-document search
   const [crossQuery, setCrossQuery] = useState('');
@@ -120,10 +122,19 @@ export function DocumentsClient({ organizationId, initialDocuments }: DocumentsC
               Cross-Doc Search
             </button>
             <button
+              onClick={() => setIsWebScrapeOpen(true)}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 hover:from-cyan-500/30 hover:to-indigo-500/30 border border-cyan-500/40 text-cyan-300 text-sm font-semibold transition-all shadow-sm cursor-pointer"
+              title="Ingest any live website or competitor domain via Firecrawl engine"
+            >
+              <Globe className="h-4 w-4 text-cyan-400" />
+              <span>Ingest Web (Firecrawl)</span>
+            </button>
+
+            <button
               onClick={() => setIsUploading(!isUploading)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors"
             >
-              {isUploading ? <><X className="h-4 w-4" /> Cancel</> : <><Plus className="h-4 w-4" /> Upload</>}
+              {isUploading ? <><X className="h-4 w-4" /> Cancel</> : <><Plus className="h-4 w-4" /> Upload File</>}
             </button>
           </div>
         </div>
@@ -285,6 +296,11 @@ export function DocumentsClient({ organizationId, initialDocuments }: DocumentsC
           <DocumentList documents={initialDocuments} />
         </div>
       </div>
+      <WebScrapeModal
+        isOpen={isWebScrapeOpen}
+        onClose={() => setIsWebScrapeOpen(false)}
+        onSuccess={() => router.refresh()}
+      />
     </div>
   );
 }
