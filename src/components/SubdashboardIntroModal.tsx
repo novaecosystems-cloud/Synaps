@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -27,27 +27,14 @@ export function SubdashboardIntroModal() {
       if (parentPath) {
         matchedGuide = SUBDASHBOARD_GUIDES[parentPath];
       }
-    }
-
     if (!matchedGuide) {
       setIsOpen(false);
       return;
     }
 
     setActiveGuide(matchedGuide);
-
-    // Check if user has already seen the intro for THIS specific subdashboard
-    const storageKey = `causarix_seen_guide_${matchedGuide.routeKey}_v1`;
-    const hasSeen = localStorage.getItem(storageKey);
-
-    if (!hasSeen) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 450);
-      return () => clearTimeout(timer);
-    } else {
-      setIsOpen(false);
-    }
+    // Modal will ONLY open when the user explicitly triggers it (e.g. clicking the Help/Tour icon)
+    setIsOpen(false);
   }, [pathname]);
 
   // Support manual trigger from any page via custom event

@@ -118,6 +118,16 @@ export default function OnboardingPage() {
         throw new Error(data.error || 'Failed to save onboarding data');
       }
 
+      // Mark once-per-user onboarding complete permanently
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("causarix_onboarding_completed", "true");
+        localStorage.setItem("causarix_user_onboarded_permanently", "true");
+        localStorage.setItem("causarix_mobile_card_onboarding_v3", "true");
+        localStorage.setItem("causarix_dashboard_intro_completed_v2", "true");
+        localStorage.setItem("synaps_onboarding_search_dismissed", "true");
+        localStorage.setItem("synaps_tour_completed", "true");
+      }
+
       // Full client redirect to ensure server layout recognizes updated organization settings
       window.location.href = '/dashboard';
     } catch (err: any) {

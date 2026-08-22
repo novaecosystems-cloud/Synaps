@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,20 +15,37 @@ export function AdaptiveEnterpriseOnboardingModal() {
     const isGuest = window.location.search.includes('demo') || document.cookie.includes('TEST_TOKEN_');
     if (isGuest) return;
 
-    const isCompleted = localStorage.getItem("causarix_mobile_card_onboarding_v3");
+    const isCompleted = 
+      localStorage.getItem("causarix_onboarding_completed") === "true" ||
+      localStorage.getItem("causarix_user_onboarded_permanently") === "true" ||
+      localStorage.getItem("causarix_mobile_card_onboarding_v3") === "true";
+
     if (!isCompleted) {
       const timer = setTimeout(() => {
         setIsOpen(true);
-      }, 350);
+      }, 800);
       return () => clearTimeout(timer);
     }
   }, []);
 
   const handleComplete = (redirectPath?: string) => {
+    localStorage.setItem("causarix_onboarding_completed", "true");
+    localStorage.setItem("causarix_user_onboarded_permanently", "true");
     localStorage.setItem("causarix_mobile_card_onboarding_v3", "true");
     localStorage.setItem("causarix_dashboard_intro_completed_v2", "true");
-    localStorage.setItem("causarix_onboarding_completed", "true");
+    localStorage.setItem("synaps_onboarding_search_dismissed", "true");
+    localStorage.setItem("synaps_tour_completed", "true");
     setIsOpen(false);
+
+    // Persist to user's organization in database so it never asks on other devices
+    try {
+      fetch('/api/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ onboardingCompleted: true })
+      }).catch(() => {});
+    } catch {}
+
     if (redirectPath) {
       router.push(redirectPath);
     }
