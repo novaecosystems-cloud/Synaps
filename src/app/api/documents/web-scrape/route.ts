@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { verifySessionCookie } from "@/lib/auth-server";
 import prisma from "@/lib/prisma";
 import { scrapeUrlToMarkdown } from "@/lib/firecrawl-scraper";
-import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -82,7 +81,9 @@ export async function POST(req: NextRequest) {
           documentId: doc.id,
           pageNumber: Math.floor(i / 2) + 1,
           section: `Web Scrape Chunk ${i + 1}`,
-          content: chunks[i],
+          text: chunks[i],
+          positionIdx: i,
+          tokenCount: Math.ceil(chunks[i].length / 4),
           organizationId: orgId,
         },
       });
