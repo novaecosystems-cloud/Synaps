@@ -33,6 +33,7 @@ import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
 import LaunchPromoModal from '@/components/LaunchPromoModal';
 import SynapsWrappedModal from '@/components/SynapsWrappedModal';
 import DownloadDesktopModal from '@/components/DownloadDesktopModal';
+import CausarixGuidedTourModal from '@/components/CausarixGuidedTourModal';
 import { BackgroundTaskProvider } from '@/context/BackgroundTaskContext';
 import { SynapsVectorLogo } from '@/components/SynapsVectorLogo';
 
@@ -271,6 +272,7 @@ export default function ClientLayout({ children, user }: { children: React.React
   const [isWrappedModalOpen, setIsWrappedModalOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [isDailyBriefOpen, setIsDailyBriefOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
 
   const handleLogout = async () => {
     await logoutAction();
@@ -440,51 +442,50 @@ export default function ClientLayout({ children, user }: { children: React.React
             </div>
           </div>
 
-          {/* Top Actions (Responsive 9:16 Action Bar) */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 max-w-full overflow-x-auto scrollbar-none">
+          {/* Top Actions (Clean, Non-Overflowing Header Bar) */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 max-w-full">
             
-            {/* Sovereign Offline Mode Toggle (Cloud <-> Air-Gapped Local Llama 3.2) */}
+            {/* 60-Second Interactive Guided Tour Button */}
+            <button
+              onClick={() => setIsTourOpen(true)}
+              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 border border-cyan-500/40 text-cyan-300 hover:text-white font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-[0_0_12px_rgba(6,182,212,0.2)] hover:scale-[1.03] cursor-pointer"
+              title="60-Second Interactive Tour of Causarix OS"
+            >
+              <Zap className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <span className="hidden md:inline">60s Tour</span>
+            </button>
+
+            {/* Sovereign Offline Mode / Cloud Gateway Toggle */}
             <SovereignOfflineModeToggle />
 
             {/* Background Task Indicator Widget */}
             <BackgroundTaskWidget />
 
             {/* Master Export Reports Dropdown */}
-            <MasterExportButton />
+            <div className="hidden lg:block">
+              <MasterExportButton />
+            </div>
+
+            {/* Daily Morning Workday Briefing Button */}
+            <button
+              onClick={() => setIsDailyBriefOpen(true)}
+              className="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20 font-bold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1 transition-all hover:scale-[1.03] cursor-pointer"
+              title="Open Today's Daily Workday Executive Brief"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0 animate-pulse" />
+              <span className="hidden xl:inline">Daily Brief</span>
+            </button>
 
             {/* Desktop App Download Button */}
             <button
               onClick={() => setIsDownloadModalOpen(true)}
-              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20 font-bold text-[11px] sm:text-xs flex items-center gap-1.5 transition-all hover:scale-[1.03]"
+              className="hidden xl:flex px-2.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20 font-bold text-xs items-center gap-1.5 transition-all hover:scale-[1.03] cursor-pointer"
               title="Download Native Desktop App for Windows, macOS & Linux"
             >
               <Laptop className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-              <span className="hidden sm:inline">Desktop App</span>
-            </button>
-            
-            {/* Daily Morning Workday Briefing Button */}
-            <button
-              onClick={() => setIsDailyBriefOpen(true)}
-              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all hover:scale-[1.03]"
-              title="Open Today's Daily Workday Executive Brief"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0 animate-pulse" />
-              <span className="hidden sm:inline">Daily Brief</span>
+              <span>Desktop App</span>
             </button>
 
-            {/* Spotify-Wrapped Style Executive Progress Card Button */}
-            <button
-              onClick={() => setIsWrappedModalOpen(true)}
-              className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider flex items-center gap-1 transition-all hover:scale-[1.03]"
-              title="View & Share Spotify-Wrapped Executive Progress Card"
-            >
-              <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="hidden xs:inline">Wrapped</span>
-            </button>
-
-            <OrgMemberPresenceStack className="hidden lg:flex mr-1" />
-            <DemoHeaderBadge />
-            <AiCreditBadge onOpenPaywall={() => setIsPaywallModalOpen(true)} />
             <ThemeToggle />
             <NotificationDropdown userId={user?.id} organizationId={user?.organizationId} />
             
@@ -502,6 +503,7 @@ export default function ClientLayout({ children, user }: { children: React.React
 
       {/* Global Modals & Hints */}
       <GlobalSearch />
+      <CausarixGuidedTourModal isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
       <DailyWorkdayBriefModal 
         isOpenOverride={isDailyBriefOpen} 
         onCloseOverride={() => setIsDailyBriefOpen(false)} 

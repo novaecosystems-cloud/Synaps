@@ -14,7 +14,7 @@ export const SUBDASHBOARD_GUIDES: Record<string, SubdashboardGuide> = {
     routeKey: 'dashboard_overview',
     badge: 'MISSION CONTROL',
     title: 'Executive Mission Control',
-    tagline: 'High-Altitude Sovereign Intelligence at a Glance',
+    tagline: 'Your command center for company health, daily priorities, and executive AI briefing.',
     whatItDoes: 'Provides real-time visibility over organizational health, critical risk alerts, active simulations, and daily AI COO executive briefings.',
     howItHelps: [
       'Gives founders and C-suite leaders instant cross-silo status without reading dozens of reports.',
@@ -28,7 +28,7 @@ export const SUBDASHBOARD_GUIDES: Record<string, SubdashboardGuide> = {
     routeKey: 'boardroom',
     badge: '10-AGENT ADVERSARIAL ARENA',
     title: 'Executive Boardroom',
-    tagline: 'Multi-Agent Consensus & Dialectic Stress-Testing',
+    tagline: 'Your virtual C-suite. 10 specialized AI executives debate your hardest business decisions.',
     whatItDoes: 'Simulates a full 10-Agent C-suite boardroom (General Counsel, CFO, CTO, Red Team, etc.) to debate and stress-test high-stakes decisions.',
     howItHelps: [
       'Shields directors under Delaware DGCL § 141 with formal fiduciary evidentiary records.',
@@ -42,7 +42,7 @@ export const SUBDASHBOARD_GUIDES: Record<string, SubdashboardGuide> = {
     routeKey: 'simulations',
     badge: 'PEARL DO-CALCULUS SCM',
     title: 'Counterfactual SCM Studio',
-    tagline: 'Deterministic Causal "What-If" Simulation Engine',
+    tagline: 'Test business decisions before execution with 0.00% math drift and 10,000 Monte Carlo runs.',
     whatItDoes: 'Computes formal Judea Pearl structural causal models P(Y | do(X=x)) over Directed Acyclic Graphs with zero arithmetic drift.',
     howItHelps: [
       'Models exact EBITDA compression and cash runway impact of price wars, tariffs, and outages.',
@@ -56,7 +56,7 @@ export const SUBDASHBOARD_GUIDES: Record<string, SubdashboardGuide> = {
     routeKey: 'documents',
     badge: 'EVIDENTIARY VAULT',
     title: 'Document Vault & Memory Ingestion',
-    tagline: 'Grounded Organizational Memory with SHA-256 Provenance',
+    tagline: 'Upload contracts and reports. All AI reasoning is grounded in line-level document citations.',
     whatItDoes: 'Securely ingests, classifies, and indexes your contracts, MSAs, financial models, and SOPs into your living organizational graph.',
     howItHelps: [
       'Eliminates hallucinations by grounding all AI reasoning in exact line-level page citations.',
@@ -70,7 +70,7 @@ export const SUBDASHBOARD_GUIDES: Record<string, SubdashboardGuide> = {
     routeKey: 'digital_twin',
     badge: 'COGNITIVE REPLICAS',
     title: 'C-Suite Digital Twins',
-    tagline: 'Autonomous Executive Clones Tailored to Your Leadership',
+    tagline: 'Digital replicas of your CEO, CFO, and leadership team aligned to your risk tolerance.',
     whatItDoes: 'Maintains personalized AI replicas of your CEO, CFO, General Counsel, and team leaders trained on your firm\'s governance policies and risk tolerance.',
     howItHelps: [
       'Delegates routine contract reviews and financial sanity checks to your digital counterparts.',
@@ -84,7 +84,7 @@ export const SUBDASHBOARD_GUIDES: Record<string, SubdashboardGuide> = {
     routeKey: 'graph',
     badge: '3D MEMORY GRAPH',
     title: 'Organizational Memory Graph',
-    tagline: 'Interactive 3D Visual Brain of Your Enterprise',
+    tagline: 'A visual 3D map connecting contracts, suppliers, and operational dependencies.',
     whatItDoes: 'Renders an interactive 3D knowledge graph connecting companies, legal entities, contracts, covenants, and operational dependencies.',
     howItHelps: [
       'Reveals hidden cross-silo dependency chains invisible in flat folder structures.',
