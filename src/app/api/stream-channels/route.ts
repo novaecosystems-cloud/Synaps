@@ -7,49 +7,12 @@ import {
   safeErrorResponse,
 } from "@/lib/security";
 
-// ── Default channels — no fake memberCount or fabricated unreadCount ──────────
-// memberCount/unreadCount start at 0; clients compute real values from DB if needed.
+// ── Default channels — starts with only #general. No hardcoded mock channels.
 let inMemoryChannels: any[] = [
   {
     id: "general",
     name: "general",
-    description: "Company-wide executive strategy and operations.",
-    isPrivate: false,
-    memberCount: 0,
-    unreadCount: 0,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "p0-incidents",
-    name: "p0-incidents",
-    description: "Emergency operational blockers and SLA risk triage.",
-    isPrivate: false,
-    memberCount: 0,
-    unreadCount: 0,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "boardroom-deliberation",
-    name: "boardroom-deliberation",
-    description: "Dialectic deliberation arena for the Causarix AI board.",
-    isPrivate: false,
-    memberCount: 0,
-    unreadCount: 0,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "financial-reviews",
-    name: "financial-reviews",
-    description: "CFO cash runway hedging and EBITDA modeling.",
-    isPrivate: false,
-    memberCount: 0,
-    unreadCount: 0,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "legal-statutory",
-    name: "legal-statutory",
-    description: "General Counsel contract redlines and compliance.",
+    description: "General workspace discussion and AI executive collaboration.",
     isPrivate: false,
     memberCount: 0,
     unreadCount: 0,

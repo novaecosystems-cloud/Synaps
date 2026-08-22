@@ -8,39 +8,29 @@ import {
 } from "@/lib/security";
 import { inspectPrompt, inspectResponse } from "@/lib/ai-firewall";
 
-// ── In-memory store — starts EMPTY for all channels.
-// No hardcoded seed messages — users start with a blank channel.
-// Channel history resets on server restart (known limitation, Durable Object / Redis needed for production).
+import { invokeLLMWithFallback } from "@/lib/llm-router";
+
+// ── In-memory store — starts 100% EMPTY for all channels.
+// ZERO hardcoded seed messages — users start with a clean, blank channel.
 let inMemoryMessages: Record<string, any[]> = {};
 
 // ── Content length guard: 4 KB max per message ───────────────────────────────
 const MAX_MESSAGE_BYTES = 4 * 1024;
 
-async function queryLocalAi(agentRole: string, userPrompt: string): Promise<string | null> {
+async function queryAgentReply(agentRole: string, userPrompt: string, channelName: string): Promise<string> {
   try {
-    const payload = {
-      model: "causarix",
-      messages: [
-        {
-          role: "system",
-          content: `You are the ${agentRole} in Causarix Autonomous Boardroom. Provide a sharp, concise, 2-3 sentence executive answer with mathematical or statutory grounding.`
-        },
-        { role: "user", content: userPrompt }
-      ],
-      stream: false,
-      options: { temperature: 0.2, num_predict: 128 }
-    };
+    const systemPrompt = `You are the ${agentRole} in the Causarix Enterprise C-Suite Boardroom.
+You are replying to a live team stream message in the #${channelName} channel.
+Provide a sharp, direct, professional executive response grounded in real analysis. If the user asks to analyze documents and none are attached, inform them to upload documents to the Document Vault.`;
 
-    const res = await fetch("http://127.0.0.1:11434/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    const reply = await invokeLLMWithFallback([
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ]);
 
-    const data = await res.json();
-    return data?.message?.content || null;
-  } catch {
-    return null;
+    return reply.trim();
+  } catch (err: any) {
+    return `${agentRole} received your inquiry: "${userPrompt.slice(0, 80)}". (AI Generation offline: ${err.message || 'LLM provider unreachable'}).`;
   }
 }
 
@@ -120,7 +110,7 @@ export async function POST(req: NextRequest) {
 
     let targetAgent: { role: string; name: string; icon: string; reason?: string } | null = null;
 
-    // Explicit @mentions
+    // Explicit AI Agent @mentions
     if (lowerContent.includes("@cfo"))
       targetAgent = { role: "Chief Financial Officer", name: "AI: CFO Twin", icon: "💰" };
     else if (lowerContent.includes("@generalcounsel") || lowerContent.includes("@legal"))
@@ -132,40 +122,11 @@ export async function POST(req: NextRequest) {
     else if (lowerContent.includes("@ceo"))
       targetAgent = { role: "Chief Executive Officer", name: "AI: CEO Twin", icon: "🏛️" };
 
-    // Autonomous Macro Interventions (Proactive C-Suite Monitoring)
-    else if (
-      lowerContent.includes("price") || lowerContent.includes("cost") ||
-      lowerContent.includes("budget") || lowerContent.includes("margin") ||
-      lowerContent.includes("revenue") || lowerContent.includes("hike") ||
-      lowerContent.includes("burn")
-    ) {
-      targetAgent = { role: "Chief Financial Officer", name: "AI: CFO Twin", icon: "💰", reason: "Autonomous Financial Monitor" };
-    } else if (
-      lowerContent.includes("contract") || lowerContent.includes("liability") ||
-      lowerContent.includes("delaware") || lowerContent.includes("compliance") ||
-      lowerContent.includes("clause") || lowerContent.includes("indemnity")
-    ) {
-      targetAgent = { role: "General Counsel", name: "AI: General Counsel", icon: "⚖️", reason: "Autonomous Statutory Guardrail" };
-    } else if (
-      lowerContent.includes("outage") || lowerContent.includes("database") ||
-      lowerContent.includes("latency") || lowerContent.includes("cluster") ||
-      lowerContent.includes("architecture") || lowerContent.includes("timeout")
-    ) {
-      targetAgent = { role: "Chief Technology Officer", name: "AI: CTO Twin", icon: "⚡", reason: "Autonomous Reliability SCM Monitor" };
-    } else if (
-      lowerContent.includes("competitor") || lowerContent.includes("vulnerability") ||
-      lowerContent.includes("threat") || lowerContent.includes("risk") ||
-      lowerContent.includes("leak")
-    ) {
-      targetAgent = { role: "Adversarial Red Team", name: "AI: Red Team", icon: "🛡️", reason: "Autonomous Threat Intelligence" };
-    }
-
     if (targetAgent) {
-      const generatedReply = await queryLocalAi(targetAgent.role, cleanContent);
-      const fallbackReply = `${targetAgent.name} is online. Analysis of your message is being processed — please @mention me directly for a detailed response.`;
+      const generatedReply = await queryAgentReply(targetAgent.role, cleanContent, cleanChannelId);
       
       // Egress Inspection: Sanitize secrets & HTML before posting AI reply
-      const egressCheck = inspectResponse(generatedReply || fallbackReply);
+      const egressCheck = inspectResponse(generatedReply);
 
       aiResponse = {
         id: `msg-ai-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -175,7 +136,7 @@ export async function POST(req: NextRequest) {
         authorType: "AI",
         avatar: targetAgent.icon,
         content: egressCheck.sanitizedOutput,
-        citation: "Causarix_Sovereign_SCM_Node · SHA-256 Verified",
+        citation: "Causarix Live LLM Deliberation",
         timestamp: new Date().toISOString()
       };
 

@@ -42,7 +42,7 @@ const AI_AGENTS = [
 
 export default function TeamStreamChatPage() {
   const [channels, setChannels] = useState<Channel[]>([]);
-  const [activeChannelId, setActiveChannelId] = useState<string>("p0-incidents");
+  const [activeChannelId, setActiveChannelId] = useState<string>("general");
   const [messages, setMessages] = useState<StreamMessage[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
   const [isSending, setIsSending] = useState<boolean>(false);
@@ -124,8 +124,8 @@ export default function TeamStreamChatPage() {
     const optimisticMsg: StreamMessage = {
       id: `msg-${Date.now()}`,
       channelId: activeChannelId,
-      authorName: "Shourya S.",
-      authorRole: "Lead Architect",
+      authorName: "Executive",
+      authorRole: "Team Member",
       authorType: "HUMAN",
       avatar: "👤",
       content: messageText,
@@ -140,8 +140,8 @@ export default function TeamStreamChatPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           channelId: activeChannelId,
-          authorName: "Shourya S.",
-          authorRole: "Lead Architect",
+          authorName: "Executive",
+          authorRole: "Team Member",
           authorType: "HUMAN",
           content: messageText
         })
@@ -191,8 +191,8 @@ export default function TeamStreamChatPage() {
   const activeChannel = channels.find(c => c.id === activeChannelId) || {
     id: activeChannelId,
     name: activeChannelId,
-    description: "Sovereign Incident & Decision Stream",
-    memberCount: 10
+    description: "Sovereign Executive & AI Stream",
+    memberCount: 0
   };
 
   return (
@@ -302,63 +302,75 @@ export default function TeamStreamChatPage() {
 
         {/* Messages Stream Feed */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
-          {messages.map((msg) => {
-            const isAi = msg.authorType === "AI";
+          {messages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-3 opacity-60">
+              <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-xl">
+                <Hash className="w-6 h-6 text-slate-500" />
+              </div>
+              <h4 className="text-sm font-bold text-white">#{activeChannel.name} is blank</h4>
+              <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
+                No messages in this channel yet. Type a message below or @mention an AI C-Suite agent (@CFO, @GeneralCounsel, @CTO, @RedTeam, @CEO) to begin.
+              </p>
+            </div>
+          ) : (
+            messages.map((msg) => {
+              const isAi = msg.authorType === "AI";
 
-            return (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`flex gap-3.5 p-4 rounded-2xl border transition-all ${
-                  isAi
-                    ? "bg-[#0D101E] border-cyan-900/40 shadow-[0_4px_20px_rgba(6,182,212,0.06)]"
-                    : "bg-[#0D0F17] border-slate-800/80"
-                }`}
-              >
-                {/* Avatar Icon */}
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 ${
-                  isAi ? "bg-cyan-950/80 border border-cyan-700/60 text-cyan-300" : "bg-slate-800 text-white"
-                }`}>
-                  {msg.avatar || (isAi ? "🤖" : "👤")}
-                </div>
+              return (
+                <motion.div
+                  key={msg.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex gap-3.5 p-4 rounded-2xl border transition-all ${
+                    isAi
+                      ? "bg-[#0D101E] border-cyan-900/40 shadow-[0_4px_20px_rgba(6,182,212,0.06)]"
+                      : "bg-[#0D0F17] border-slate-800/80"
+                  }`}
+                >
+                  {/* Avatar Icon */}
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 ${
+                    isAi ? "bg-cyan-950/80 border border-cyan-700/60 text-cyan-300" : "bg-slate-800 text-white"
+                  }`}>
+                    {msg.avatar || (isAi ? "🤖" : "👤")}
+                  </div>
 
-                {/* Message Body */}
-                <div className="flex-1 space-y-1.5 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-bold ${isAi ? "text-cyan-300" : "text-white"}`}>
-                      {msg.authorName}
-                    </span>
-                    {msg.authorRole && (
-                      <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
-                        isAi ? "bg-cyan-950 text-cyan-400 border border-cyan-800/40" : "bg-slate-800 text-slate-400"
-                      }`}>
-                        {msg.authorRole}
+                  {/* Message Body */}
+                  <div className="flex-1 space-y-1.5 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-bold ${isAi ? "text-cyan-300" : "text-white"}`}>
+                        {msg.authorName}
                       </span>
-                    )}
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-
-                  {/* Message Content with Markdown */}
-                  <div className="text-xs sm:text-[13px] text-slate-200 leading-relaxed prose prose-invert prose-p:my-1 prose-pre:my-1 prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {msg.content}
-                    </ReactMarkdown>
-                  </div>
-
-                  {/* Causal Citation / Proof Badge */}
-                  {msg.citation && (
-                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#07090F] border border-cyan-900/50 text-[10px] font-mono text-cyan-400">
-                      <Sparkles className="w-3 h-3 text-cyan-400" />
-                      <span>{msg.citation}</span>
+                      {msg.authorRole && (
+                        <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                          isAi ? "bg-cyan-950 text-cyan-400 border border-cyan-800/40" : "bg-slate-800 text-slate-400"
+                        }`}>
+                          {msg.authorRole}
+                        </span>
+                      )}
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
+
+                    {/* Message Content with Markdown */}
+                    <div className="text-xs sm:text-[13px] text-slate-200 leading-relaxed prose prose-invert prose-p:my-1 prose-pre:my-1 prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 max-w-none">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+
+                    {/* Causal Citation / Proof Badge */}
+                    {msg.citation && (
+                      <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#07090F] border border-cyan-900/50 text-[10px] font-mono text-cyan-400">
+                        <Sparkles className="w-3 h-3 text-cyan-400" />
+                        <span>{msg.citation}</span>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
           <div ref={messagesEndRef} />
         </div>
 
