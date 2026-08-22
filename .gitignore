@@ -5,6 +5,7 @@
 
 # Testing & Scratch
 /scratch
+/.context/
 test-*.js
 test-*.ts
 fix-*.js
