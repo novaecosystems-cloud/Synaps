@@ -11,6 +11,10 @@ export function AdaptiveEnterpriseOnboardingModal() {
   const router = useRouter();
 
   useEffect(() => {
+    // If guest demo or unlogged visitor, do not auto-force onboarding modal
+    const isGuest = window.location.search.includes('demo') || document.cookie.includes('TEST_TOKEN_');
+    if (isGuest) return;
+
     const isCompleted = localStorage.getItem("causarix_mobile_card_onboarding_v3");
     if (!isCompleted) {
       const timer = setTimeout(() => {

@@ -393,11 +393,20 @@ export default function CausarixEnterpriseLanding() {
             Pricing
           </a>
 
+          <Link
+            href="/demo"
+            className="px-4 py-2.5 rounded-full bg-[#00e5ff]/20 hover:bg-[#00e5ff] text-[#0f0f11] hover:text-black border border-[#00e5ff]/50 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+            title="Try Live Interactive Demo with No Login Required"
+          >
+            <Zap className="w-3.5 h-3.5 text-[#00e5ff] group-hover:text-black shrink-0" />
+            <span>Try Free Demo (2 Runs)</span>
+          </Link>
+
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-6 py-2.5 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-[#fafafa] font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-1.5"
+            className="px-6 py-2.5 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-[#fafafa] font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
           >
-            <span>Launch Workspace</span>
+            <span>Sign In</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
         </nav>
@@ -441,11 +450,20 @@ export default function CausarixEnterpriseLanding() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <Link
+            href="/demo"
+            className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#00e5ff] to-cyan-400 hover:from-cyan-300 hover:to-[#00e5ff] text-black font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl hover:scale-[1.03] cursor-pointer"
+            title="Try 60-Second Live Demo Without Signing In"
+          >
+            <Zap className="w-4 h-4 text-black fill-black" />
+            <span>⚡ Try Live Demo (No Login · 2 Free Runs)</span>
+          </Link>
+
           <button
             onClick={() => setIsModalOpen(true)}
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg"
+            className="w-full sm:w-auto px-8 py-4 rounded-full bg-[#0f0f11] hover:bg-[#fc4778] text-white font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
           >
-            <span>Enter C-Suite Platform</span>
+            <span>Sign In to Full Workspace</span>
             <ArrowUpRight className="w-4 h-4" />
           </button>
 

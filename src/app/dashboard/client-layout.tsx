@@ -35,6 +35,7 @@ import SynapsWrappedModal from '@/components/SynapsWrappedModal';
 import DownloadDesktopModal from '@/components/DownloadDesktopModal';
 import CausarixGuidedTourModal from '@/components/CausarixGuidedTourModal';
 import CausarixCinematicSplash from '@/components/CausarixCinematicSplash';
+import GuestDemoRequestBanner from '@/components/GuestDemoRequestBanner';
 import DashboardSkeleton from '@/components/DashboardSkeleton';
 import { BackgroundTaskProvider } from '@/context/BackgroundTaskContext';
 import { SynapsVectorLogo } from '@/components/SynapsVectorLogo';
@@ -425,6 +426,9 @@ export default function ClientLayout({ children, user }: { children: React.React
 
       {/* Main Content Area (Responsive 9:16 Support) */}
       <main className="flex-1 flex flex-col overflow-hidden bg-muted/20 relative print:overflow-visible print:bg-white print:text-black">
+        {/* Guest Demo 2-Request Limiter Banner */}
+        <GuestDemoRequestBanner isGuest={user?.email?.includes('guest') || user?.email?.includes('demo') || user?.email?.includes('apex')} />
+
         {/* Top Navigation Bar */}
         <header className="h-16 border-b border-base-300 bg-base-100 flex items-center justify-between px-3 sm:px-6 shrink-0 print:hidden gap-2 sm:gap-4 shadow-sm z-30">
           
