@@ -74,7 +74,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               (function(c,l,a,r,i,t,y){
-                  c[a]=c[a]||function(){(c[a].q=c[a]||[]).push(arguments)};
+                  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
                   t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
                   y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
               })(window, document, "clarity", "script", "xuccocifvr");
@@ -92,7 +92,7 @@ export default function RootLayout({
       <body className="antialiased selection:bg-blue-600 selection:text-white min-h-screen overflow-x-hidden" style={{ fontFamily: "'Sora', sans-serif" }}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <AuthProvider>
-            <MicrosoftClarity />
+            {/* <MicrosoftClarity /> */}
             {children}
             <Toaster />
             <Analytics />

@@ -5,7 +5,6 @@ const http = require('http');
 const { spawn } = require('child_process');
 
 // CRITICAL: Disable GPU hardware acceleration to eliminate black screen
-// on Intel Iris Xe / Windows 11 DirectX compositor freeze bug
 app.disableHardwareAcceleration();
 app.commandLine.appendSwitch('disable-gpu');
 app.commandLine.appendSwitch('disable-software-rasterizer');
@@ -32,7 +31,7 @@ const SYNAPS_DIR = 'D:\\Synaps';
 function getIcon() {
   const candidates = [
     path.join(__dirname, 'causarix.ico'),
-    path.join(__dirname, '..', 'public', 'favicon.ico'),
+    path.join(__dirname, '..', 'public', 'causarix.ico'),
     'D:\\Synaps\\electron\\causarix.ico',
     'D:\\Synaps\\public\\favicon.ico',
   ];
@@ -51,7 +50,7 @@ function getIcon() {
 function checkServer() {
   return new Promise((resolve) => {
     const req = http.get(HEALTH_URL, (res) => {
-      res.resume(); // drain
+      res.resume();
       resolve(res.statusCode >= 200 && res.statusCode < 500);
     });
     req.on('error', () => resolve(false));
@@ -61,10 +60,9 @@ function checkServer() {
 
 // ─── START NEXT.JS SERVER ────────────────────────────────────────────────────
 function startNextServer() {
-  if (serverProcess) return; // already running
+  if (serverProcess) return;
 
   try {
-    // shell:true is required on Windows for npm.cmd to resolve correctly
     serverProcess = spawn('npm', ['run', 'dev'], {
       cwd: SYNAPS_DIR,
       shell: true,
@@ -111,33 +109,39 @@ function getSplashHTML() {
       user-select: none;
       -webkit-app-region: drag;
     }
-    .logo {
-      width: 72px; height: 72px; border-radius: 16px;
-      background: linear-gradient(135deg, #0EA5E9 0%, #6366F1 100%);
+    .logo-box {
+      width: 80px; height: 80px; border-radius: 20px;
+      background: #0D1117;
+      border: 1px solid #1E293B;
       display: flex; align-items: center; justify-content: center;
-      font-size: 32px; margin-bottom: 24px;
-      box-shadow: 0 0 40px rgba(99,102,241,0.4);
+      margin-bottom: 24px;
+      box-shadow: 0 0 50px rgba(6, 182, 212, 0.25);
     }
-    h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; }
-    .sub { font-size: 11px; color: #475569; font-family: 'Courier New', monospace;
+    .logo-box img {
+      width: 64px; height: 64px; object-fit: contain; border-radius: 12px;
+    }
+    h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 6px; color: #FFFFFF; }
+    .sub { font-size: 11px; color: #64748B; font-family: 'Courier New', monospace;
            letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 32px; }
-    .bar-wrap { width: 220px; height: 2px; background: #1E293B; border-radius: 99px; overflow: hidden; }
-    .bar { height: 100%; background: linear-gradient(90deg, #0EA5E9, #6366F1);
+    .bar-wrap { width: 220px; height: 3px; background: #1E293B; border-radius: 99px; overflow: hidden; }
+    .bar { height: 100%; background: linear-gradient(90deg, #06B6D4, #6366F1, #EF4444);
            border-radius: 99px; animation: load 2.4s ease-in-out infinite; }
     @keyframes load {
       0%   { width: 0%;   margin-left: 0%; }
       50%  { width: 70%;  margin-left: 15%; }
       100% { width: 0%;   margin-left: 100%; }
     }
-    .status { margin-top: 16px; font-size: 11px; color: #334155; font-family: monospace; }
+    .status { margin-top: 16px; font-size: 11px; color: #475569; font-family: monospace; }
   </style>
 </head>
 <body>
-  <div class="logo">⚡</div>
-  <h1>Causarix AI</h1>
-  <p class="sub">Sovereign Offline Decision OS</p>
+  <div class="logo-box">
+    <img src="file:///D:/Synaps/public/synaps_logo.png" onerror="this.style.display='none'; this.parentElement.innerText='⚡';" />
+  </div>
+  <h1>CAUSARIX</h1>
+  <p class="sub">Advanced Causal AI Technologies</p>
   <div class="bar-wrap"><div class="bar"></div></div>
-  <p class="status">Initializing local engine...</p>
+  <p class="status">INITIALIZING ENTERPRISE DECISION OS...</p>
 </body>
 </html>`)}`;
 }
@@ -151,29 +155,59 @@ function createWindow() {
     height: 900,
     minWidth: 1080,
     minHeight: 680,
-    title: 'Causarix AI — Sovereign Decision OS',
+    title: 'Causarix AI — Advanced Causal AI Technologies',
     backgroundColor: '#07080B',
     icon,
-    show: false,            // shown only after ready-to-show
+    show: false,
     frame: true,
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: true,
+      sandbox: false,
     },
   });
 
-  // Show window as soon as first paint is done
+  // Standard Chrome User-Agent to avoid Google OAuth "disallowed_useragent" 403 error
+  mainWindow.webContents.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36');
+
+  // ── GOOGLE & OAUTH POPUP WINDOW HANDLER ────────────────────────────────────
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    // Allow Google, Firebase & OAuth login popups inside secure Electron popup frame
+    if (
+      url.includes('accounts.google.com') ||
+      url.includes('firebaseapp.com') ||
+      url.includes('googleapis.com') ||
+      url.includes('google.com/auth') ||
+      url.includes('github.com/login/oauth')
+    ) {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          width: 520,
+          height: 680,
+          autoHideMenuBar: true,
+          title: 'Sign in with Google — Causarix AI',
+          icon: getIcon(),
+          webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+          }
+        }
+      };
+    }
+    // Open external browser for non-auth external links
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
+
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     mainWindow.focus();
   });
 
-  // Load the animated splash immediately — no black frame ever
   mainWindow.loadURL(getSplashHTML());
 
-  // ── Poll loop: every 1.5 s check if Next.js is up ────────────────────────
   let polls = 0;
   pollTimer = setInterval(async () => {
     polls++;
@@ -201,11 +235,19 @@ function createTray() {
   try {
     const icon = getIcon();
     tray = new Tray(icon);
-    tray.setToolTip('Causarix AI — Sovereign Offline OS');
+    tray.setToolTip('Causarix AI — Advanced Causal AI Technologies');
     tray.setContextMenu(Menu.buildFromTemplate([
       {
         label: '⚡ Open Causarix Dashboard',
         click: () => { mainWindow?.show(); mainWindow?.focus(); }
+      },
+      {
+        label: 'Action Board (Jira)',
+        click: () => { mainWindow?.show(); mainWindow?.loadURL('http://localhost:3000/dashboard/projects'); }
+      },
+      {
+        label: 'Team Stream (Slack)',
+        click: () => { mainWindow?.show(); mainWindow?.loadURL('http://localhost:3000/dashboard/chat'); }
       },
       { type: 'separator' },
       {
@@ -221,8 +263,8 @@ function createTray() {
 
 // ─── APP LIFECYCLE ────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
-  startNextServer();   // fire Next.js in background
-  createWindow();      // show splash immediately
+  startNextServer();
+  createWindow();
   createTray();
 
   app.on('activate', () => {
@@ -243,7 +285,6 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-// Bring window to front if user tries to open a second instance
 app.on('second-instance', () => {
   if (mainWindow) {
     if (mainWindow.isMinimized()) mainWindow.restore();
