@@ -20,23 +20,25 @@ export async function GET(req: NextRequest) {
     await prisma.organization.upsert({
       where: { id: demoOrgId },
       update: { 
-        name: 'Apex Global Hospitality & Hotel Operations',
+        name: 'Causarix Sovereign Enterprise Demo',
         settings: {
           plan: 'ENTERPRISE',
           tier: 'MAX',
           unlockedFeatures: ['boardroom', 'redline', 'digital_twin', 'graph', 'mcp', 'proposals'],
           dailyCredits: 10000,
+          onboardingCompleted: true,
         }
       },
       create: {
         id: demoOrgId,
-        name: 'Apex Global Hospitality & Hotel Operations',
-        description: 'Hospitality & Luxury Hotels Enterprise Demo',
+        name: 'Causarix Sovereign Enterprise Demo',
+        description: 'Causarix Sovereign Enterprise Intelligence Suite Demo',
         settings: {
           plan: 'ENTERPRISE',
           tier: 'MAX',
           unlockedFeatures: ['boardroom', 'redline', 'digital_twin', 'graph', 'mcp', 'proposals'],
           dailyCredits: 10000,
+          onboardingCompleted: true,
         }
       }
     });

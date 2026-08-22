@@ -10,15 +10,6 @@ export const metadata = {
 };
 
 export default async function RootPage() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('synaps-session')?.value;
-
-  if (session && !session.startsWith('TEST_TOKEN_')) {
-    const decoded = await verifySessionCookie(session);
-    if (decoded?.uid) {
-      redirect('/dashboard');
-    }
-  }
-
+  // Always render the Landing Page first when visiting root URL /
   return <CausarixEnterpriseLanding />;
 }

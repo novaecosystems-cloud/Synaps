@@ -59,16 +59,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const isSuperAdmin = userEmail.toLowerCase() === 'novaecosystems@gmail.com' || true;
   const isPremium = true;
 
-  // ── ONBOARDING GUARD ─────────────────────────────────────────────────────
-  // If the user has an org but hasn't completed onboarding, send them to /onboarding
-  if (organizationId && user?.organization) {
-    const settings = (user.organization.settings as Record<string, unknown>) ?? {};
-    const onboardingCompleted = settings.onboardingCompleted === true;
-    if (!onboardingCompleted) {
-      redirect('/onboarding');
-    }
-  }
-  // If the user has no org at all, still allow access (they can create one from settings)
+  // ── ONBOARDING IS OPTIONAL (NO FORCED HIJACK) ──────────────────────────
+  // Users have full unrestricted access to their dashboard.
+  // Onboarding can be accessed on-demand without blocking navigation.
 
   return (
     <OrgProfileProvider>
