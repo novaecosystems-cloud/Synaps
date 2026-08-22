@@ -107,6 +107,7 @@ const sidebarSections: MenuSection[] = [
           { name: 'Cowork & MCP Den', href: '/dashboard/cowork', badge: 'PRO' },
           { name: 'Enterprise Assistant', href: '/dashboard/assistant' },
           { name: 'AI Workflows', href: '/dashboard/workspace' },
+          { name: 'Agent Computer (Sandbox)', href: '/dashboard/computer', badge: 'PRO' },
         ]
       },
     ]
