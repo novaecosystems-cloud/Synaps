@@ -9,27 +9,27 @@ export function SovereignOfflineModeToggle() {
 
   return (
     <>
-      {/* ── HEADER BADGE / COMING SOON PILL ───────────────────────────── */}
-      <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#0D0F17] border border-slate-800 text-xs">
+      {/* ── HEADER BADGE / COMING SOON PILL (RESPONSIVE FOR LAPTOP & MOBILE) ── */}
+      <div className="flex items-center gap-1 p-0.5 sm:p-1 rounded-xl bg-[#0D0F17] border border-slate-800 text-xs shrink-0">
         {/* Active Cloud Gateway */}
         <div
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold bg-primary text-white shadow-[0_0_12px_rgba(45,78,255,0.3)]"
+          className="flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-lg font-mono text-[10px] sm:text-[11px] font-bold bg-primary text-white shadow-[0_0_12px_rgba(45,78,255,0.3)] shrink-0"
           title="Cloud Multi-LLM Gateway (Gemini 2.5 / Groq Llama 3.3 / DeepSeek)"
         >
-          <Globe className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Cloud Gateway</span>
+          <Globe className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden md:inline">Cloud</span>
         </div>
 
         {/* Sovereign Offline Mode - COMING SOON */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono text-[11px] font-semibold text-slate-400 hover:text-cyan-300 hover:bg-slate-900/60 transition-all cursor-pointer border border-transparent hover:border-cyan-800/40"
+          className="flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-lg font-mono text-[10px] sm:text-[11px] font-semibold text-slate-400 hover:text-cyan-300 hover:bg-slate-900/60 transition-all cursor-pointer border border-transparent hover:border-cyan-800/40 shrink-0"
           title="100% Air-Gapped Sovereign Hardware Mode (Coming Soon)"
         >
-          <Shield className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Sovereign Offline</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-cyan-950/80 text-cyan-400 border border-cyan-700/50">
-            Coming Soon
+          <Shield className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+          <span className="hidden lg:inline">Offline</span>
+          <span className="px-1 py-0.2 rounded-full text-[8px] font-extrabold uppercase tracking-wider bg-cyan-950/80 text-cyan-400 border border-cyan-700/50">
+            Soon
           </span>
         </button>
       </div>
@@ -37,7 +37,7 @@ export function SovereignOfflineModeToggle() {
       {/* ── COMING SOON PREVIEW MODAL ────────────────────────────────────── */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

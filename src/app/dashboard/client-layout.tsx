@@ -425,18 +425,18 @@ export default function ClientLayout({ children, user }: { children: React.React
               <Menu className="h-5 w-5 text-base-content/70" />
             </button>
 
-            {/* Search Button (Adapts to Mobile 9:16) */}
-            <div className="relative flex-1 md:w-80 lg:w-96 tour-search">
+            {/* Search Button (Ultra-responsive for Mobile & Laptop) */}
+            <div className="relative w-28 xs:w-36 sm:w-48 md:w-56 lg:w-64 shrink-0 tour-search">
               <button 
                 onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-                className="w-full flex items-center justify-between px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-muted-foreground bg-muted/50 border border-input rounded-lg hover:bg-muted transition-colors"
+                className="w-full flex items-center justify-between px-2.5 sm:px-3 py-1.5 text-xs text-muted-foreground bg-muted/50 border border-input rounded-xl hover:bg-muted transition-colors cursor-pointer"
               >
-                <span className="flex items-center gap-1.5 sm:gap-2 truncate">
-                  <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="flex items-center gap-1.5 truncate">
+                  <Search className="h-3.5 w-3.5 shrink-0" />
                   <span className="truncate">Search...</span>
                 </span>
-                <kbd className="pointer-events-none hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-                  <span className="text-xs">⌘</span>K
+                <kbd className="pointer-events-none hidden md:inline-flex h-4 select-none items-center gap-0.5 rounded border bg-background px-1 font-mono text-[9px] font-medium text-muted-foreground">
+                  ⌘K
                 </kbd>
               </button>
             </div>
