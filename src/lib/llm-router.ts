@@ -236,6 +236,30 @@ if (process.env.MISTRAL_API_KEY) {
   });
 }
 
+// ─── 5. MOONSHOT AI / KIMI-K3 (2.8T Parameter Frontier MoE & Long-Context) ──
+const kimiApiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY;
+if (kimiApiKey && !kimiApiKey.includes('placeholder')) {
+  const kimiModels = ['kimi-k3', 'kimi-k3-preview', 'moonshot-v1-128k', 'moonshot-v1-32k'];
+  kimiModels.forEach((modelName) => {
+    providers.push({
+      name: `Moonshot AI (${modelName})`,
+      invoke: async (messages, options) => {
+        const { response_format, ...safeOptions } = options || {};
+        const client = new OpenAI({
+          baseURL: process.env.MOONSHOT_BASE_URL || 'https://api.moonshot.cn/v1',
+          apiKey: kimiApiKey,
+        });
+        const result = await client.chat.completions.create({
+          messages,
+          model: modelName,
+          ...safeOptions
+        });
+        return result.choices[0]?.message?.content || '';
+      }
+    });
+  });
+}
+
 /**
  * Checks if Colibrì Sovereign On-Premise MoE daemon is running locally
  */

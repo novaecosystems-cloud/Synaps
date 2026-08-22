@@ -51,6 +51,18 @@ function getAvailableLanguageModels(): { name: string; model: LanguageModel }[] 
     models.push({ name: 'OpenAI GPT-4o Mini', model: openai('gpt-4o-mini') });
   }
 
+  // 6. Moonshot AI / Kimi-K3 Models (2.8T Parameter Frontier MoE & Long-Context Reasoning)
+  const kimiKey = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY;
+  if (kimiKey && !kimiKey.includes('placeholder')) {
+    const moonshot = createOpenAI({
+      baseURL: process.env.MOONSHOT_BASE_URL || 'https://api.moonshot.cn/v1',
+      apiKey: kimiKey,
+    });
+    models.push({ name: 'Moonshot Kimi-K3 (Frontier Reasoning)', model: moonshot('kimi-k3') });
+    models.push({ name: 'Moonshot Kimi-K3 Preview', model: moonshot('kimi-k3-preview') });
+    models.push({ name: 'Moonshot Kimi Chat (128k)', model: moonshot('moonshot-v1-128k') });
+  }
+
   // Fallback if no specific keys found (e.g. OpenRouter or default Gemini)
   if (models.length === 0 && geminiKey) {
     const google = createGoogleGenerativeAI({ apiKey: geminiKey });

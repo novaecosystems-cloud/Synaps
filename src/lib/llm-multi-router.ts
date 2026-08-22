@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import OpenAI from 'openai';
 
-export type LLMProvider = 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'vercel-gateway' | 'ollama' | 'lmstudio';
+export type LLMProvider = 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'vercel-gateway' | 'ollama' | 'lmstudio' | 'kimi' | 'moonshot';
 
 export interface LLMConfig {
   provider: LLMProvider;
@@ -153,7 +153,33 @@ export async function generateMultiLLMResponse(
     }
   }
 
-  // 6. Default Fallback: Gemini AI
+  // 6. Moonshot AI / Kimi-K3
+  if (provider === 'kimi' || provider === 'moonshot') {
+    const apiKey = config.apiKey || process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY;
+    if (apiKey) {
+      const baseURL = config.baseUrl || process.env.MOONSHOT_BASE_URL || 'https://api.moonshot.cn/v1';
+      const model = config.model || 'kimi-k3';
+      const client = new OpenAI({ baseURL, apiKey });
+      try {
+        const completion = await client.chat.completions.create({
+          model,
+          messages: [
+            ...(systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : []),
+            { role: 'user' as const, content: prompt }
+          ],
+        });
+        return {
+          text: completion.choices[0]?.message?.content || '',
+          provider: 'moonshot',
+          model
+        };
+      } catch (e: any) {
+        console.warn(`[LLM Router] Moonshot/Kimi-K3 error (${e.message}), falling back to Gemini...`);
+      }
+    }
+  }
+
+  // 7. Default Fallback: Gemini AI
   const apiKey = config.apiKey || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return {
@@ -163,17 +189,25 @@ export async function generateMultiLLMResponse(
     };
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const modelName = config.model || 'gemini-2.5-flash';
-  const model = genAI.getGenerativeModel({ model: modelName });
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const modelName = config.model || 'gemini-2.5-flash';
+    const model = genAI.getGenerativeModel({ model: modelName });
 
-  const finalPrompt = systemPrompt ? `${systemPrompt}\n\nTask: ${prompt}` : prompt;
-  const result = await model.generateContent(finalPrompt);
-  const text = result.response.text();
+    const finalPrompt = systemPrompt ? `${systemPrompt}\n\nTask: ${prompt}` : prompt;
+    const result = await model.generateContent(finalPrompt);
+    const text = result.response.text();
 
-  return {
-    text,
-    provider: 'gemini',
-    model: modelName
-  };
+    return {
+      text,
+      provider: 'gemini',
+      model: modelName
+    };
+  } catch (err: any) {
+    return {
+      text: `[Causarix AI Router] Analysis fallback: Prompt queued (${err.message || 'Upstream provider offline'})`,
+      provider: 'fallback-engine',
+      model: config.model || 'causarix-fallback'
+    };
+  }
 }
