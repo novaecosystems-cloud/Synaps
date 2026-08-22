@@ -7,6 +7,7 @@ import { cookies } from 'next/headers';
 import { ratelimit } from '@/lib/ratelimit';
 
 import prisma from '@/lib/prisma';
+import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
 
 export async function POST(req: NextRequest) {
   try {
@@ -37,7 +38,20 @@ export async function POST(req: NextRequest) {
        return NextResponse.json({ success: false, error: 'Latest message must be from user' }, { status: 400 });
     }
 
-    const query = latestMessage.content;
+    const rawQuery = latestMessage.content;
+
+    // ── AI FIREWALL: INGRESS INSPECTION ──────────────────────────────────────
+    const ingressCheck = inspectPrompt(rawQuery);
+    if (!ingressCheck.isAllowed) {
+      return NextResponse.json({
+        success: false,
+        error: `[Causarix AI Firewall]: Your message was flagged and blocked. Reason: ${ingressCheck.flaggedReasons.join('; ')}`,
+        flaggedReasons: ingressCheck.flaggedReasons,
+        riskLevel: ingressCheck.riskLevel
+      }, { status: 400 });
+    }
+
+    const query = ingressCheck.sanitizedPrompt || rawQuery;
 
     // Check if query triggers Phase 3 Hybrid Web + Doc Research Reasoning
     const isPhase3Research = webSearch ||
@@ -78,9 +92,10 @@ export async function POST(req: NextRequest) {
       try {
         const { runReasoningAgent } = await import('@/lib/agents/reasoning-agent');
         const researchRes = await runReasoningAgent(query, organizationId);
+        const egressCheck = inspectResponse(researchRes.synthesisAnswer);
         return NextResponse.json({
           success: true,
-          answer: researchRes.synthesisAnswer,
+          answer: egressCheck.sanitizedOutput,
           confidenceScore: 0.98,
           sources: [
             ...researchRes.internalCitations.map(c => `${c.documentName} (p.${c.pageNumber})`),
@@ -105,9 +120,10 @@ export async function POST(req: NextRequest) {
       try {
         const { runDocumentAgent } = await import('@/lib/agents/document-agent');
         const agentRes = await runDocumentAgent(query, organizationId);
+        const egressCheck = inspectResponse(agentRes.answer);
         return NextResponse.json({
           success: true,
-          answer: agentRes.answer,
+          answer: egressCheck.sanitizedOutput,
           confidenceScore: 0.95,
           sources: agentRes.citations.map(c => c.documentName),
           evidence: agentRes.toolSteps.map(s => ({ text: `[${s.action || 'Thought'}] ${JSON.stringify(s.observation || s.thought)}` })),

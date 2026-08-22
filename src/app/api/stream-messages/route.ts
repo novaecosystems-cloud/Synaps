@@ -6,6 +6,7 @@ import {
   readBodyWithLimit,
   safeErrorResponse,
 } from "@/lib/security";
+import { inspectPrompt, inspectResponse } from "@/lib/ai-firewall";
 
 // ── In-memory store — starts EMPTY for all channels.
 // No hardcoded seed messages — users start with a blank channel.
@@ -86,8 +87,18 @@ export async function POST(req: NextRequest) {
       inMemoryMessages[cleanChannelId] = [];
     }
 
-    // Strip content to max length
-    const safeContent = content.slice(0, 2000);
+    // ── AI FIREWALL: INGRESS INSPECTION ────────────────────────────────────
+    const ingressCheck = inspectPrompt(safeContent);
+    if (!ingressCheck.isAllowed) {
+      return NextResponse.json({
+        success: false,
+        error: `[Causarix AI Firewall]: Message rejected. Reason: ${ingressCheck.flaggedReasons.join('; ')}`,
+        flaggedReasons: ingressCheck.flaggedReasons,
+        riskLevel: ingressCheck.riskLevel
+      }, { status: 400 });
+    }
+
+    const cleanContent = ingressCheck.sanitizedPrompt || safeContent;
 
     const userMessage = {
       id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -96,7 +107,7 @@ export async function POST(req: NextRequest) {
       authorRole: (authorRole || "Member").slice(0, 80),
       authorType: authorType === "AI" ? "AI" : "HUMAN",
       avatar: "👤",
-      content: safeContent,
+      content: cleanContent,
       citation: citation ? String(citation).slice(0, 200) : null,
       timestamp: new Date().toISOString()
     };
@@ -105,7 +116,7 @@ export async function POST(req: NextRequest) {
 
     // ── AI Agent @mentions OR Autonomous Macro-style Interventions ─────────────
     let aiResponse: any = null;
-    const lowerContent = safeContent.toLowerCase();
+    const lowerContent = cleanContent.toLowerCase();
 
     let targetAgent: { role: string; name: string; icon: string; reason?: string } | null = null;
 
@@ -150,8 +161,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (targetAgent) {
-      const generatedReply = await queryLocalAi(targetAgent.role, safeContent);
+      const generatedReply = await queryLocalAi(targetAgent.role, cleanContent);
       const fallbackReply = `${targetAgent.name} is online. Analysis of your message is being processed — please @mention me directly for a detailed response.`;
+      
+      // Egress Inspection: Sanitize secrets & HTML before posting AI reply
+      const egressCheck = inspectResponse(generatedReply || fallbackReply);
 
       aiResponse = {
         id: `msg-ai-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -160,7 +174,7 @@ export async function POST(req: NextRequest) {
         authorRole: targetAgent.role,
         authorType: "AI",
         avatar: targetAgent.icon,
-        content: generatedReply || fallbackReply,
+        content: egressCheck.sanitizedOutput,
         citation: "Causarix_Sovereign_SCM_Node · SHA-256 Verified",
         timestamp: new Date().toISOString()
       };
