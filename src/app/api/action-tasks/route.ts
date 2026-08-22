@@ -3,79 +3,8 @@ import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { verifySessionCookie } from "@/lib/auth-server";
 
-// Fallback in-memory store for offline demo/sandbox sessions
-let inMemoryTasks: any[] = [
-  {
-    id: "CSX-101",
-    title: "Database Connection Pool Starvation (Node_DB_Conn_01)",
-    description: "Scale DB connection pool size from 100 to 450 with keep-alive recycling to prevent timeout cascades.",
-    status: "P0_BLOCKER",
-    priority: "P0",
-    assigneeName: "AI: CTO Twin",
-    assigneeType: "AI",
-    causalEvidence: "Resolves 57% of daily timeouts and customer checkout failures. SHA-256: 4f659a...d",
-    tags: ["Infrastructure", "Database", "P0"],
-    deadline: new Date(Date.now() + 86400000).toISOString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "CSX-102",
-    title: "Third-Party Payment Gateway Rate-Limit Circuit Breaker",
-    description: "Deploy exponential backoff retry middleware to eliminate payment retry storms during high traffic.",
-    status: "IN_PROGRESS",
-    priority: "P1",
-    assigneeName: "Shourya S. (Lead)",
-    assigneeType: "HUMAN",
-    causalEvidence: "Eliminates duplicate chargebacks and banking SLA dispute claims.",
-    tags: ["Payments", "API", "Gateway"],
-    deadline: new Date(Date.now() + 172800000).toISOString(),
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "CSX-103",
-    title: "Delaware DGCL 141 Statutory Fiduciary Safe-Harbor Filing",
-    description: "Export SHA-256 signed boardroom evidentiary record to protect directors against personal liability.",
-    status: "IN_REVIEW",
-    priority: "P1",
-    assigneeName: "AI: General Counsel",
-    assigneeType: "AI",
-    causalEvidence: "Statutory safe harbor for board minutes under DGCL 141.",
-    tags: ["Legal", "Compliance", "Delaware"],
-    deadline: new Date(Date.now() + 259200000).toISOString(),
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "CSX-104",
-    title: "Stale Cache Invalidation in Microservice Edge Proxy",
-    description: "Synchronize inventory cache invalidation across distributed edge clusters.",
-    status: "TODO",
-    priority: "P2",
-    assigneeName: "Backend Team",
-    assigneeType: "HUMAN",
-    causalEvidence: "Prevents cross-silo inventory desynchronization.",
-    tags: ["Cache", "Edge", "Microservices"],
-    deadline: new Date(Date.now() + 345600000).toISOString(),
-    createdAt: new Date(Date.now() - 14400000).toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "CSX-105",
-    title: "Audit Logging Pipeline Upgrade to SHA-256 Merkle Tree",
-    description: "Completed cryptographic verification pipeline for all executive decisions.",
-    status: "DONE",
-    priority: "P2",
-    assigneeName: "AI: Red Team",
-    assigneeType: "AI",
-    causalEvidence: "100% line-level tamper proofing verified across all logs.",
-    tags: ["Security", "Audit", "Merkle"],
-    deadline: new Date().toISOString(),
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-];
+// In-memory store for offline demo/sandbox sessions — starts 100% blank.
+let inMemoryTasks: any[] = [];
 
 async function getUserContext() {
   try {

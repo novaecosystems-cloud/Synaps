@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
       });
     } catch (errRel) {}
 
-    // If entities are empty in database, generate rich enterprise memory nodes & explicit relationship links!
+    // If entities are empty in database, construct graph strictly from real documents & projects
     if (entities.length === 0) {
       let docs: any[] = [];
       let projects: any[] = [];
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
       try {
         docs = await prisma.document.findMany({
           where: { organizationId, isDeleted: false },
-          take: 10,
+          take: 20,
           select: { id: true, name: true, mimeType: true, sizeBytes: true }
         });
       } catch (e) {}
@@ -66,62 +66,43 @@ export async function GET(req: NextRequest) {
       try {
         projects = await prisma.project.findMany({
           where: { organizationId, isDeleted: false },
-          take: 5,
+          take: 10,
           select: { id: true, name: true, status: true }
         });
       } catch (e) {}
 
+      if (docs.length === 0 && projects.length === 0) {
+        return NextResponse.json({
+          success: true,
+          nodes: [],
+          links: [],
+          stats: {
+            totalNodes: 0,
+            totalLinks: 0,
+            avgDegree: 0,
+            density: 0,
+            categories: []
+          }
+        });
+      }
+
+      const orgNode = {
+        id: 'org-root',
+        name: 'Enterprise Knowledge Vault',
+        type: 'ORGANIZATION',
+        description: 'Root Knowledge & Governance Memory Graph',
+        metadata: { category: 'Core Vault' },
+        confidenceScore: 1.0,
+        val: 18
+      };
+
       const nodes = [
-        {
-          id: 'org-root',
-          name: 'SYNAPS Enterprise Vault',
-          type: 'ORGANIZATION',
-          description: 'Root Enterprise Knowledge & Governance Memory Graph',
-          metadata: { category: 'Core Vault' },
-          confidenceScore: 1.0,
-          val: 18
-        },
-        {
-          id: 'contract-master-01',
-          name: 'Master Enterprise SLA & MSA',
-          type: 'CONTRACT',
-          description: 'Legal Binding MSA Contract specifying $450K annual liability and 99.9% uptime SLA.',
-          metadata: { amount: '$450,000', effectiveDate: '2026-01-01' },
-          confidenceScore: 0.98,
-          val: 14
-        },
-        {
-          id: 'vendor-acme-corp',
-          name: 'Acme Cloud Technologies',
-          type: 'VENDOR',
-          description: 'Primary cloud infrastructure vendor governing database hosting & zero-retention SLA.',
-          metadata: { category: 'Cloud Hosting', riskScore: 'Low' },
-          confidenceScore: 0.96,
-          val: 13
-        },
-        {
-          id: 'policy-gdpr-dpdp',
-          name: 'DPDP & GDPR Compliance Protocol',
-          type: 'POLICY',
-          description: 'Regulatory data privacy policy requiring zero-retention AI model training and 256-bit encryption.',
-          metadata: { region: 'Global / India', complianceLevel: 'Strict' },
-          confidenceScore: 0.99,
-          val: 14
-        },
-        {
-          id: 'budget-q4-engineering',
-          name: 'Q4 AI Infrastructure Budget',
-          type: 'BUDGET',
-          description: 'Allocated operational capital ($300K ARR) for multi-agent LLM routing & serverless GPU clusters.',
-          metadata: { cap: '$300,000', status: 'Approved' },
-          confidenceScore: 0.94,
-          val: 12
-        },
-        ...docs.map((d, i) => ({
+        orgNode,
+        ...docs.map((d) => ({
           id: `doc-node-${d.id}`,
           name: d.name,
           type: 'DOCUMENT',
-          description: `Ingested corporate document (${d.mimeType || 'PDF'}) indexed with line-level source provenance.`,
+          description: `Ingested corporate document (${d.mimeType || 'PDF'}) indexed in vault.`,
           metadata: { sizeBytes: d.sizeBytes },
           confidenceScore: 0.95,
           documentId: d.id,
@@ -132,68 +113,31 @@ export async function GET(req: NextRequest) {
           id: `proj-node-${p.id}`,
           name: p.name,
           type: 'PROJECT',
-          description: `Strategic enterprise transformation initiative (${p.status}).`,
+          description: `Strategic enterprise initiative (${p.status}).`,
           metadata: {},
           confidenceScore: 0.92,
           val: 10
         }))
       ];
 
-      // Explicit, human-readable relationship links explaining WHY they are connected!
       const links = [
-        {
-          id: 'link-contract-vendor',
-          source: 'vendor-acme-corp',
-          target: 'contract-master-01',
-          type: 'GOVERNED_BY_CONTRACT',
-          description: 'Vendor Acme Cloud is legally bound by Master MSA Section 4.2 requiring 99.9% uptime and $450K liability indemnity.',
-          evidence: 'Master MSA Contract Section 4.2 — SLA & Liability Clause',
-          confidenceScore: 0.98
-        },
-        {
-          id: 'link-contract-policy',
-          source: 'contract-master-01',
-          target: 'policy-gdpr-dpdp',
-          type: 'ENFORCES_COMPLIANCE',
-          description: 'Master MSA Contract incorporates DPDP & GDPR data privacy regulations prohibiting third-party model training.',
-          evidence: 'Privacy Addendum B — Zero Data Retention Guarantee',
-          confidenceScore: 0.99
-        },
-        {
-          id: 'link-budget-contract',
-          source: 'budget-q4-engineering',
-          target: 'contract-master-01',
-          type: 'FINANCES_CONTRACT',
-          description: 'Q4 AI Infrastructure Budget ($300K) funds the recurring annual commitments under Master MSA Section 8.1.',
-          evidence: 'Financial Schedule C — Recurring Vendor Payouts',
-          confidenceScore: 0.95
-        },
-        {
-          id: 'link-org-vendor',
+        ...docs.map((d) => ({
+          id: `link-org-doc-${d.id}`,
           source: 'org-root',
-          target: 'vendor-acme-corp',
-          type: 'STRATEGIC_PARTNER',
-          description: 'Synaps Vault maintains active tier-1 vendor relationship with Acme Cloud for multi-region hosting.',
-          evidence: 'Vendor Register 2026',
-          confidenceScore: 0.97
-        },
-        ...docs.map((d, i) => ({
-          id: `link-doc-${d.id}`,
-          source: 'contract-master-01',
           target: `doc-node-${d.id}`,
-          type: 'CITES_DOCUMENT',
-          description: `Document '${d.name}' serves as empirical evidence supporting contractual compliance obligations.`,
+          type: 'CONTAINS_DOCUMENT',
+          description: `Vault contains verified document '${d.name}'.`,
           evidence: `Indexed File: ${d.name}`,
-          confidenceScore: 0.94
+          confidenceScore: 0.99
         })),
         ...projects.map(p => ({
-          id: `link-proj-${p.id}`,
-          source: 'budget-q4-engineering',
+          id: `link-org-proj-${p.id}`,
+          source: 'org-root',
           target: `proj-node-${p.id}`,
-          type: 'ALLOCATED_TO_PROJECT',
-          description: `Capital allocation from Q4 AI Budget assigned to execute project '${p.name}'.`,
-          evidence: 'Executive Boardroom Approval Minute #104',
-          confidenceScore: 0.93
+          type: 'GOVERNS_PROJECT',
+          description: `Vault tracks enterprise project '${p.name}'.`,
+          evidence: 'Active Project Registry',
+          confidenceScore: 0.95
         }))
       ];
 
