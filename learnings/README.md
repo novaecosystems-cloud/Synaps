@@ -17,6 +17,7 @@ This folder explains every feature, engine, and technical superpower inside **Ca
 | **[Chapter 05](./05_ENTERPRISE_CONNECTORS_ELI5.md)** | 🚂 The Toy Train Tracks to Other Apps | How Google Drive, Jira tickets, and WhatsApp connect seamlessly. |
 | **[Chapter 06](./06_SECURITY_AND_DELAWARE_MERKLE_ELI5.md)** | 🛡️ The Castle Shield & Wax Seal | Delaware DGCL § 141 and Merkle trees explained as unbreakable wax stamps. |
 | **[Chapter 07](./07_HOW_WE_MADE_IT_LIGHTNING_FAST_ELI5.md)** | 🚀 How We Made the Rocket Fly Fast | How we made the app open in milliseconds on mobile phones and computers. |
+| **[Chapter 08](./08_THE_BRAIN_THAT_NEVER_FORGETS_ELI5.md)** | 🧠 The Brain That Never Forgets | How the AI remembers accepted/rejected decisions and learns company tactics. |
 
 ---
 
