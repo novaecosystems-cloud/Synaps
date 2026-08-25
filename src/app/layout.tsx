@@ -4,14 +4,8 @@ import { Fraunces, Sora, JetBrains_Mono, Source_Serif_4 } from "next/font/google
 import "./globals.css";
 
 import { AuthProvider } from "@/context/AuthContext";
-import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Analytics } from "@vercel/analytics/react";
-import MicrosoftClarity from "@/components/MicrosoftClarity";
-import AppUpdateNotifier from "@/components/AppUpdateNotifier";
-import OfflineNetworkGuardian from "@/components/OfflineNetworkGuardian";
-import GlobalHotkeys from "@/components/GlobalHotkeys";
-import CommandPalette from "@/components/CommandPalette";
+import { ClientLayoutWidgets } from "@/components/layout/ClientLayoutWidgets";
 import { getOpenSEOMetadata, getSoftwareApplicationJsonLd } from "@/lib/openseo";
 
 const fraunces = Fraunces({
@@ -59,22 +53,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${sourceSerif.variable} ${sora.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
-        {/* Load Fraunces, Source Serif 4, Sora, JetBrains Mono, Modak & Mouse Memoirs with preconnect & preload to eliminate CLS and optimize LCP */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="preload"
-          as="style"
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Sora:wght@100..800&family=JetBrains+Mono:wght@400;500;700&family=Modak&family=Mouse+Memoirs&display=swap"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Sora:wght@100..800&family=JetBrains+Mono:wght@400;500;700&family=Modak&family=Mouse+Memoirs&display=swap"
-          rel="stylesheet"
-        />
-        {/* Microsoft Clarity Analytics Script */}
+        {/* Microsoft Clarity Analytics Script with lazyOnload to eliminate main-thread blocking */}
         <Script
           id="microsoft-clarity"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               (function(c,l,a,r,i,t,y){
@@ -107,12 +89,7 @@ export default function RootLayout({
             <div id="main-content">
               {children}
             </div>
-            <CommandPalette />
-            <GlobalHotkeys />
-            <Toaster />
-            <Analytics />
-            <AppUpdateNotifier />
-            <OfflineNetworkGuardian />
+            <ClientLayoutWidgets />
           </AuthProvider>
         </ThemeProvider>
       </body>

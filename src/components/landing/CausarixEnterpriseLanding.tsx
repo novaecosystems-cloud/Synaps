@@ -35,15 +35,19 @@ import {
   CheckCheck,
   Download
 } from "lucide-react";
-import SignInModal from "@/components/SignInModal";
-import DesktopDownloadModal from "@/components/landing/DesktopDownloadModal";
-import { LegalDialogModal, LegalDocType } from "@/components/landing/LegalDialogModal";
 import Link from "next/link";
 import Lenis from "lenis";
-
-import { FluidCanvas } from "@/components/ui/FluidCanvas";
 import dynamic from "next/dynamic";
-import { CustomCursor } from "@/components/ui/CustomCursor";
+import { type LegalDocType } from "@/components/landing/LegalDialogModal";
+
+const SignInModal = dynamic(() => import("@/components/SignInModal"), { ssr: false });
+const DesktopDownloadModal = dynamic(() => import("@/components/landing/DesktopDownloadModal"), { ssr: false });
+const LegalDialogModal = dynamic(() => import("@/components/landing/LegalDialogModal").then(m => m.LegalDialogModal), { ssr: false });
+const FluidCanvas = dynamic(() => import("@/components/ui/FluidCanvas").then(m => m.FluidCanvas), { ssr: false });
+const CustomCursor = dynamic(() => import("@/components/ui/CustomCursor").then(m => m.CustomCursor), { ssr: false });
+const AuroraBars = dynamic(() => import("@/components/ui/AuroraBars").then(m => m.AuroraBars), { ssr: false });
+const PixelLiquidBg = dynamic(() => import("@/components/ui/PixelLiquidBg").then(m => m.PixelLiquidBg), { ssr: false });
+
 import {
   TactileButton,
   ScrambleText,
@@ -53,15 +57,9 @@ import {
   CassetteAudioPlayer,
 } from "@/components/ui/EnterpriseTactileSuite";
 import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
-import { AuroraBars } from "@/components/ui/AuroraBars";
 import { getGumroadCheckoutUrl } from "@/lib/gumroad";
 import { LAUNCH_PROMO_CONFIG, getLaunchPromoBadgeInfo } from "@/lib/launch-promo";
 import { LaptopMockupHero } from "@/components/landing/LaptopMockupHero";
-
-const PixelLiquidBg = dynamic(
-  () => import("@/components/ui/PixelLiquidBg").then(m => m.PixelLiquidBg),
-  { ssr: false }
-);
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -234,6 +232,7 @@ export default function CausarixEnterpriseLanding() {
   const [comparisonView, setComparisonView] = useState<"both" | "without" | "with">("both");
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
   const [legalDoc, setLegalDoc] = useState<LegalDocType | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Discount & Gumroad State
   const [promoCodeInput, setPromoCodeInput] = useState("LAUNCH100");
@@ -250,8 +249,13 @@ export default function CausarixEnterpriseLanding() {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Initialize Lenis Smooth Scroll with GSAP Ticker Synchronization
+  // Initialize Lenis Smooth Scroll with GSAP Ticker Synchronization on desktop only
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const desktopCheck = window.innerWidth >= 1024;
+    setIsDesktop(desktopCheck);
+    if (!desktopCheck) return;
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -346,21 +350,23 @@ export default function CausarixEnterpriseLanding() {
       ref={containerRef}
       className="relative min-h-screen bg-[#f1f1f1] text-[#2b2b2b] font-sans selection:bg-[#fc4778] selection:text-white antialiased overflow-x-hidden"
     >
-      {/* ── FULL-PAGE NAVIER-STOKES PIXEL LIQUID FLUID BACKGROUND ───────────── */}
-      <PixelLiquidBg
-        className="fixed inset-0 z-0 pointer-events-none opacity-20"
-        pixelSize={18}
-        resolution={0.4}
-        mouseForce={9}
-        cursorSize={110}
-        autoDemo={true}
-        darkPalette={["#070709", "#031b33", "#0284c7", "#fc4778", "#ff85b3"]}
-        lightPalette={["#ffffff", "#f1f1f1", "#e0f2fe", "#fc4778", "#ff85b3"]}
-      />
-
-      {/* ── WEBGEL FLUID CANVAS & CUSTOM FOLLOW CURSOR ──────────────────────── */}
-      <FluidCanvas />
-      <CustomCursor />
+      {/* ── FULL-PAGE NAVIER-STOKES PIXEL LIQUID FLUID BACKGROUND (Desktop only) ───────────── */}
+      {isDesktop && (
+        <>
+          <PixelLiquidBg
+            className="fixed inset-0 z-0 pointer-events-none opacity-20"
+            pixelSize={18}
+            resolution={0.4}
+            mouseForce={9}
+            cursorSize={110}
+            autoDemo={true}
+            darkPalette={["#070709", "#031b33", "#0284c7", "#fc4778", "#ff85b3"]}
+            lightPalette={["#ffffff", "#f1f1f1", "#e0f2fe", "#fc4778", "#ff85b3"]}
+          />
+          <FluidCanvas />
+          <CustomCursor />
+        </>
+      )}
 
       {/* ── SITE HEAD NAVIGATION ────────────────────────────────────────────── */}
       <header className="fixed top-6 left-0 z-50 w-full px-6 sm:px-12 flex items-center justify-between pointer-events-none">
