@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { generateEmbedding } from '@/lib/embeddings';
 import { logDataInput } from '@/lib/dpdp-compliance';
 

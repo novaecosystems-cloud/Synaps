@@ -10,9 +10,19 @@ interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenLegalDoc?: (type: 'terms' | 'privacy' | 'security') => void;
+  title?: string;
+  subtitle?: string;
+  promptIntent?: string;
 }
 
-export default function SignInModal({ isOpen, onClose, onOpenLegalDoc }: SignInModalProps) {
+export default function SignInModal({
+  isOpen,
+  onClose,
+  onOpenLegalDoc,
+  title,
+  subtitle,
+  promptIntent,
+}: SignInModalProps) {
   const [email, setEmail] = useState('');
   const [activeEmail, setActiveEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -414,8 +424,8 @@ export default function SignInModal({ isOpen, onClose, onOpenLegalDoc }: SignInM
           /* ── STEP 1: INITIAL SELECTION ── */
           <>
             <p>
-              Welcome to SYNAPS
-              <span>Sign in to access your Enterprise Memory OS</span>
+              {title || 'Welcome to SYNAPS'}
+              <span>{subtitle || promptIntent || 'Sign in to access your Enterprise Memory OS'}</span>
             </p>
 
             {/* INSTANT DEMO BUTTON */}

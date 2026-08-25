@@ -71,6 +71,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Message content is required." }, { status: 400 });
     }
 
+    const safeContent = content.trim().slice(0, MAX_MESSAGE_BYTES);
+
     // Sanitize channelId — alphanumeric and dashes only
     const cleanChannelId = (channelId || "general").replace(/[^a-zA-Z0-9-_]/g, "").slice(0, 64);
     if (!inMemoryMessages[cleanChannelId]) {

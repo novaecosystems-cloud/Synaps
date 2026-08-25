@@ -1,10 +1,9 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
-import { requireAuth } from '@/lib/api-security';
+import { requireAuth, assertOrgAccess } from '@/lib/api-security';
 
 export async function GET(req: NextRequest) {
   const _auth = await requireAuth(req);
@@ -20,6 +19,11 @@ export async function GET(req: NextRequest) {
     const summary = await prisma.executiveSummary.findUnique({
       where: { documentId }
     });
+
+    if (summary) {
+      const orgCheck = assertOrgAccess(_auth.organizationId, summary.organizationId);
+      if (orgCheck) return orgCheck;
+    }
 
     return NextResponse.json({ success: true, summary });
   } catch (error: any) {

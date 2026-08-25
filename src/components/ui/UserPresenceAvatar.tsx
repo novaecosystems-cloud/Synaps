@@ -69,7 +69,7 @@ export function UserPresenceAvatar({
         )}
       >
         {avatarUrl ? (
-          <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+          <img src={avatarUrl} alt={name} width={40} height={40} loading="lazy" decoding="async" className="h-full w-full object-cover" />
         ) : isAi ? (
           <Bot className="w-3.5 h-3.5" />
         ) : (

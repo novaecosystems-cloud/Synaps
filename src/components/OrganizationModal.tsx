@@ -368,7 +368,7 @@ export default function OrganizationModal({ isOpen, onClose }: { isOpen: boolean
                   <div className="card bg-base-200/50 border border-base-300 p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       {orgData.logoUrl ? (
-                        <img src={orgData.logoUrl} alt={orgData.name} className="h-16 w-16 rounded-2xl object-cover border border-base-300 shadow-md" />
+                        <img src={orgData.logoUrl} alt={orgData.name} width={64} height={64} loading="lazy" decoding="async" className="h-16 w-16 rounded-2xl object-cover border border-base-300 shadow-md" />
                       ) : (
                         <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center text-primary-content font-extrabold text-2xl shadow-md">
                           {orgData.name.substring(0, 2).toUpperCase()}
@@ -477,7 +477,7 @@ export default function OrganizationModal({ isOpen, onClose }: { isOpen: boolean
                       <div key={org.id} className="card bg-base-200/40 border border-base-300 p-4 rounded-2xl flex flex-row items-center justify-between hover:bg-base-200 transition-colors">
                         <div className="flex items-center gap-3">
                           {org.logoUrl ? (
-                            <img src={org.logoUrl} alt={org.name} className="h-12 w-12 rounded-xl object-cover border border-base-300" />
+                            <img src={org.logoUrl} alt={org.name} width={48} height={48} loading="lazy" decoding="async" className="h-12 w-12 rounded-xl object-cover border border-base-300" />
                           ) : (
                             <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
                               {org.name.substring(0, 2).toUpperCase()}
@@ -582,7 +582,7 @@ export default function OrganizationModal({ isOpen, onClose }: { isOpen: boolean
                       <div key={m.id} className="card bg-base-200/40 border border-base-300 p-3.5 rounded-2xl flex flex-row items-center justify-between">
                         <div className="flex items-center gap-3">
                           {m.avatarUrl ? (
-                            <img src={m.avatarUrl} alt={m.name || m.email} className="h-10 w-10 rounded-full object-cover border border-base-300" />
+                            <img src={m.avatarUrl} alt={m.name || m.email} width={40} height={40} loading="lazy" decoding="async" className="h-10 w-10 rounded-full object-cover border border-base-300" />
                           ) : (
                             <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
                               {(m.name || m.email).substring(0, 2).toUpperCase()}
@@ -648,7 +648,7 @@ export default function OrganizationModal({ isOpen, onClose }: { isOpen: boolean
                         <div key={reqItem.id} className="card bg-base-200/50 border border-base-300 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                           <div className="flex items-center gap-3">
                             {reqItem.user.avatarUrl ? (
-                              <img src={reqItem.user.avatarUrl} alt={reqItem.user.name || reqItem.user.email} className="h-10 w-10 rounded-full object-cover" />
+                              <img src={reqItem.user.avatarUrl} alt={reqItem.user.name || reqItem.user.email} width={40} height={40} loading="lazy" decoding="async" className="h-10 w-10 rounded-full object-cover" />
                             ) : (
                               <div className="h-10 w-10 rounded-full bg-warning/20 text-warning flex items-center justify-center font-bold text-sm">
                                 {(reqItem.user.name || reqItem.user.email).substring(0, 2).toUpperCase()}

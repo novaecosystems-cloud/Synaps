@@ -31,11 +31,10 @@ export default function TeamClient({ initialMembers, initialInvitations, current
   const canManageRoles = currentUserRole === 'OWNER';
   const canInvite = currentUserRole === 'OWNER' || currentUserRole === 'ADMIN';
 
-  // For testing, we just generate a random link to show the UI
-  const mockLink = 'synaps.app/team/invite/SisyphusVentures-x8F2k';
+  const inviteLink = typeof window !== 'undefined' ? `${window.location.origin}/join` : 'https://causarix.vercel.app/join';
 
   const copyLink = () => {
-    navigator.clipboard.writeText(mockLink);
+    navigator.clipboard.writeText(inviteLink);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -125,7 +124,7 @@ export default function TeamClient({ initialMembers, initialInvitations, current
                   <div className="flex-1 flex items-center gap-3 px-3">
                     <Link2 className="h-4 w-4 text-primary" />
                     <div className="flex flex-col justify-center py-2">
-                      <span className="text-sm font-medium text-primary leading-none mb-1">{mockLink}</span>
+                      <span className="text-sm font-medium text-primary leading-none mb-1">{inviteLink}</span>
                     </div>
                   </div>
                   <button onClick={copyLink} className="btn btn-sm btn-ghost h-9 gap-2 mr-1">
@@ -167,7 +166,7 @@ export default function TeamClient({ initialMembers, initialInvitations, current
                   <div className="flex items-center gap-5">
                     <div className="h-12 w-12 rounded-full flex items-center justify-center font-bold uppercase overflow-hidden border border-base-300 bg-base-200">
                       {member.avatarUrl ? (
-                        <img src={member.avatarUrl} alt={member.name || 'Avatar'} className="w-full h-full object-cover" />
+                        <img src={member.avatarUrl} alt={member.name || 'Avatar'} width={48} height={48} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       ) : (
                         (member.name?.[0] || member.email[0]).toUpperCase()
                       )}
@@ -216,7 +215,11 @@ export default function TeamClient({ initialMembers, initialInvitations, current
 
                     <div className="flex flex-col items-end min-w-[100px]">
                       <span className="text-[10px] text-base-content/50 uppercase">Joined</span>
-                      <span className="text-xs font-medium">12 May 2024</span>
+                      <span className="text-xs font-medium">
+                        {member.createdAt
+                          ? new Date(member.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                          : 'Active'}
+                      </span>
                     </div>
                     
                     <div className="flex items-center justify-center w-8">

@@ -9,6 +9,7 @@ import { Download, FileText, Calendar, Activity, FolderKanban, AlertTriangle, Sh
 import { cn } from '@/lib/utils';
 import { Label, ProgressBar, RangeCalendar } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
+import { IsolatedErrorBoundary } from '@/components/ui/error-boundary';
 
 // Colors for charts
 const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#6366f1'];
@@ -260,24 +261,31 @@ export default function AnalyticsClient({ organizationId }: { organizationId: st
               </div>
             </div>
 
-            <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-              <h3 className="text-sm font-semibold text-foreground mb-4">Risk Distribution</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data.charts.riskDistribution} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} horizontal={false} />
-                    <XAxis type="number" stroke={CHART_TEXT} fontSize={12} hide />
-                    <YAxis dataKey="name" type="category" stroke={CHART_TEXT} fontSize={12} axisLine={false} tickLine={false} />
-                    <Tooltip cursor={{fill: '#334155'}} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }} />
-                    <Bar dataKey="value" fill="#f59e0b" radius={[0, 4, 4, 0]} >
-                      {data.charts.riskDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.name === 'CRITICAL' ? '#ef4444' : entry.name === 'HIGH' ? '#f97316' : entry.name === 'MEDIUM' ? '#f59e0b' : '#3b82f6'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+            <IsolatedErrorBoundary
+              name="Risk Distribution Chart"
+              fallbackTitle="Risk Chart Isolated"
+              fallbackDescription="An error occurred rendering the risk distribution chart."
+              compact
+            >
+              <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+                <h3 className="text-sm font-semibold text-foreground mb-4">Risk Distribution</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data.charts.riskDistribution} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} horizontal={false} />
+                      <XAxis type="number" stroke={CHART_TEXT} fontSize={12} hide />
+                      <YAxis dataKey="name" type="category" stroke={CHART_TEXT} fontSize={12} axisLine={false} tickLine={false} />
+                      <Tooltip cursor={{fill: '#334155'}} contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }} />
+                      <Bar dataKey="value" fill="#f59e0b" radius={[0, 4, 4, 0]} >
+                        {data.charts.riskDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.name === 'CRITICAL' ? '#ef4444' : entry.name === 'HIGH' ? '#f97316' : entry.name === 'MEDIUM' ? '#f59e0b' : '#3b82f6'} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-            </div>
+            </IsolatedErrorBoundary>
 
             <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
               <h3 className="text-sm font-semibold text-foreground mb-4">Requirement Coverage</h3>

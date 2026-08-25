@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard, 
@@ -25,20 +25,20 @@ import {
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { logoutAction } from '@/app/actions/auth';
-import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
-import LaunchPromoModal from '@/components/LaunchPromoModal';
-import SynapsWrappedModal from '@/components/SynapsWrappedModal';
-import DownloadDesktopModal from '@/components/DownloadDesktopModal';
-import CausarixGuidedTourModal from '@/components/CausarixGuidedTourModal';
-import CausarixCinematicSplash from '@/components/CausarixCinematicSplash';
-import GuestDemoRequestBanner from '@/components/GuestDemoRequestBanner';
 import DashboardSkeleton from '@/components/DashboardSkeleton';
 import { BackgroundTaskProvider } from '@/context/BackgroundTaskContext';
 import { SynapsVectorLogo } from '@/components/SynapsVectorLogo';
+
+const MultiStepPaywallModal = dynamic(() => import('@/components/MultiStepPaywallModal'), { ssr: false });
+const LaunchPromoModal = dynamic(() => import('@/components/LaunchPromoModal'), { ssr: false });
+const SynapsWrappedModal = dynamic(() => import('@/components/SynapsWrappedModal'), { ssr: false });
+const DownloadDesktopModal = dynamic(() => import('@/components/DownloadDesktopModal'), { ssr: false });
+const CausarixGuidedTourModal = dynamic(() => import('@/components/CausarixGuidedTourModal'), { ssr: false });
+const CausarixCinematicSplash = dynamic(() => import('@/components/CausarixCinematicSplash'), { ssr: false });
+const GuestDemoRequestBanner = dynamic(() => import('@/components/GuestDemoRequestBanner'), { ssr: false });
 
 const MasterExportButton = dynamic(() => import('@/components/MasterExportButton'), { ssr: false });
 const BackgroundTaskWidget = dynamic(() => import('@/components/BackgroundTaskWidget'), { ssr: false });
@@ -316,6 +316,22 @@ export default function ClientLayout({ children, user }: { children: React.React
     }
   }, [pathname, user?.email, user?.isPremium]);
 
+  // Global ESC / causarix-close-modals listener
+  useEffect(() => {
+    const handleCloseAll = () => {
+      setIsMobileMenuOpen(false);
+      setIsOrgModalOpen(false);
+      setIsPaywallModalOpen(false);
+      setIsWrappedModalOpen(false);
+      setIsDownloadModalOpen(false);
+      setIsDailyBriefOpen(false);
+      setIsTourOpen(false);
+    };
+
+    window.addEventListener('causarix-close-modals', handleCloseAll);
+    return () => window.removeEventListener('causarix-close-modals', handleCloseAll);
+  }, []);
+
   return (
     <BackgroundTaskProvider>
       {showSplash && <CausarixCinematicSplash onComplete={handleSplashComplete} />}
@@ -446,7 +462,7 @@ export default function ClientLayout({ children, user }: { children: React.React
             {/* Search Button (Ultra-responsive for Mobile & Laptop) */}
             <div className="relative w-28 xs:w-36 sm:w-48 md:w-56 lg:w-64 shrink-0 tour-search">
               <button 
-                onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+                onClick={() => window.dispatchEvent(new CustomEvent('causarix-open-command-palette'))}
                 className="w-full flex items-center justify-between px-2.5 sm:px-3 py-1.5 text-xs text-muted-foreground bg-muted/50 border border-input rounded-xl hover:bg-muted transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-1.5 truncate">

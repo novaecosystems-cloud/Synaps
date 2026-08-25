@@ -77,8 +77,13 @@ export function CausarixCinematicSplash({
               className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl p-1.5 bg-[#0D111A]/80 border border-cyan-500/40 shadow-[0_0_50px_rgba(6,182,212,0.4)] flex items-center justify-center backdrop-blur-md"
             >
               <img
-                src="/synaps_logo.png"
+                src="/synaps_logo.webp"
                 alt="Causarix"
+                width={112}
+                height={112}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
                 className="w-full h-full object-contain rounded-2xl drop-shadow-[0_0_20px_rgba(6,182,212,0.8)]"
               />
             </motion.div>

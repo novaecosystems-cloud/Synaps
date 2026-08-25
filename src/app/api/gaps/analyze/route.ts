@@ -2,7 +2,6 @@
 export const maxDuration = 60;
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { analyzeGaps } from '@/lib/embeddings';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';

@@ -83,6 +83,9 @@ const SECRET_PATTERNS: Array<{ name: string; pattern: RegExp }> = [
   { name: "Twilio SID/Key", pattern: /(?:AC|SK)[a-f0-9]{32}/g },
   { name: "Jira API Token", pattern: /ATATT3x[A-Za-z0-9_-]{20,}/g },
   { name: "GitHub Token", pattern: /(?:ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{50,})/g },
+  { name: "Slack Token", pattern: /(?:xoxb|xoxp|xoxr|xoxa)-[A-Za-z0-9-]{20,}/g },
+  { name: "WhatsApp/Meta Access Token", pattern: /(?:EAAB|EAAG|EAAI)[A-Za-z0-9]{30,}/g },
+  { name: "AWS Access Key", pattern: /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g },
   { name: "Bearer JWT", pattern: /Bearer\s+eyJ[A-Za-z0-9._-]{20,}/g },
   { name: "Database URL", pattern: /(?:postgres(?:ql)?|mongodb(?:\+srv)?|mysql|redis):\/\/[^\s"'<>]+/gi },
   { name: "Private Key", pattern: /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----([\s\S]*?)-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g },
@@ -118,6 +121,7 @@ export function inspectPrompt(prompt: string): IngressCheckResult {
 
   // 1. Check Malicious "Act as a..." / Persona Hijacking
   for (const pattern of MALICIOUS_ACT_AS_PATTERNS) {
+    pattern.lastIndex = 0;
     if (pattern.test(prompt)) {
       flaggedReasons.push("Malicious persona hijacking ('Act as an unrestricted/evil entity' detected)");
       riskLevel = "CRITICAL";
@@ -127,6 +131,7 @@ export function inspectPrompt(prompt: string): IngressCheckResult {
 
   // 2. Check Direct Jailbreaks
   for (const pattern of DIRECT_JAILBREAK_PATTERNS) {
+    pattern.lastIndex = 0;
     if (pattern.test(prompt)) {
       flaggedReasons.push("Direct prompt injection (Instruction override / safety bypass detected)");
       riskLevel = "CRITICAL";
@@ -136,6 +141,7 @@ export function inspectPrompt(prompt: string): IngressCheckResult {
 
   // 3. Check System Prompt & Credential Probing
   for (const pattern of PROBING_PATTERNS) {
+    pattern.lastIndex = 0;
     if (pattern.test(prompt)) {
       flaggedReasons.push("System prompt or credential extraction probing detected");
       if (riskLevel !== "CRITICAL") riskLevel = "HIGH";
@@ -145,6 +151,7 @@ export function inspectPrompt(prompt: string): IngressCheckResult {
 
   // 4. Check Control Tokens
   for (const pattern of CONTROL_TOKEN_PATTERNS) {
+    pattern.lastIndex = 0;
     if (pattern.test(prompt)) {
       flaggedReasons.push("Control token or delimiter escape sequence detected");
       if (riskLevel === "CLEAN") riskLevel = "MEDIUM";
@@ -159,6 +166,7 @@ export function inspectPrompt(prompt: string): IngressCheckResult {
       try {
         const decoded = Buffer.from(b64, "base64").toString("utf-8");
         for (const pattern of [...MALICIOUS_ACT_AS_PATTERNS, ...DIRECT_JAILBREAK_PATTERNS, ...PROBING_PATTERNS]) {
+          pattern.lastIndex = 0;
           if (pattern.test(decoded)) {
             flaggedReasons.push("Obfuscated Base64 prompt injection payload detected");
             riskLevel = "CRITICAL";
@@ -174,6 +182,7 @@ export function inspectPrompt(prompt: string): IngressCheckResult {
   // Sanitize prompt: strip control tokens and dangerous sequences, then normalize spacing
   let sanitized = prompt;
   for (const pattern of CONTROL_TOKEN_PATTERNS) {
+    pattern.lastIndex = 0;
     sanitized = sanitized.replace(pattern, "");
   }
   sanitized = sanitized.replace(/\s+/g, " ");
@@ -202,25 +211,35 @@ export function inspectResponse(output: string): EgressCheckResult {
 
   // 1. Redact Secrets & API Keys
   for (const { name, pattern } of SECRET_PATTERNS) {
-    if (pattern.test(sanitized)) {
-      sanitized = sanitized.replace(pattern, (match) => {
-        redactedCount++;
-        return `[REDACTED_${name.toUpperCase().replace(/[^A-Z0-9]/g, "_")}]`;
-      });
+    pattern.lastIndex = 0;
+    let matchFound = false;
+    sanitized = sanitized.replace(pattern, () => {
+      matchFound = true;
+      redactedCount++;
+      return `[REDACTED_${name.toUpperCase().replace(/[^A-Z0-9]/g, "_")}]`;
+    });
+    if (matchFound) {
       flaggedReasons.push(`Secret leak prevented: ${name}`);
     }
   }
 
   // 2. Strip Markdown Image Data Exfiltration Beacons
+  MARKDOWN_EXFIL_PATTERN.lastIndex = 0;
   if (MARKDOWN_EXFIL_PATTERN.test(sanitized)) {
+    MARKDOWN_EXFIL_PATTERN.lastIndex = 0;
     sanitized = sanitized.replace(MARKDOWN_EXFIL_PATTERN, "[External Tracking Image Removed by AI Firewall]");
     flaggedReasons.push("Markdown image exfiltration beacon neutralized");
   }
 
   // 3. Strip Injected HTML / XSS Scripts
   for (const pattern of DANGEROUS_HTML_PATTERNS) {
-    if (pattern.test(sanitized)) {
-      sanitized = sanitized.replace(pattern, "");
+    pattern.lastIndex = 0;
+    let matchFound = false;
+    sanitized = sanitized.replace(pattern, () => {
+      matchFound = true;
+      return "";
+    });
+    if (matchFound) {
       flaggedReasons.push("Injected HTML/XSS script removed");
     }
   }

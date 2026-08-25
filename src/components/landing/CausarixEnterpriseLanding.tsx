@@ -42,6 +42,7 @@ import Link from "next/link";
 import Lenis from "lenis";
 
 import { FluidCanvas } from "@/components/ui/FluidCanvas";
+import dynamic from "next/dynamic";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import {
   TactileButton,
@@ -53,10 +54,14 @@ import {
 } from "@/components/ui/EnterpriseTactileSuite";
 import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
 import { AuroraBars } from "@/components/ui/AuroraBars";
-import { PixelLiquidBg } from "@/components/ui/PixelLiquidBg";
 import { getGumroadCheckoutUrl } from "@/lib/gumroad";
 import { LAUNCH_PROMO_CONFIG, getLaunchPromoBadgeInfo } from "@/lib/launch-promo";
 import { LaptopMockupHero } from "@/components/landing/LaptopMockupHero";
+
+const PixelLiquidBg = dynamic(
+  () => import("@/components/ui/PixelLiquidBg").then(m => m.PixelLiquidBg),
+  { ssr: false }
+);
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -65,35 +70,35 @@ const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
   {
     label: "Sovereign Executive Operational Console & 60s Simulation Lab",
     sublabel: "MISSION CONTROL & SIMULATION LAB",
-    image: "/mockups/causarix_laptop_dashboard_hero.png",
+    image: "/mockups/causarix_laptop_dashboard_hero.webp",
     imageAlt: "Executive Operational Briefing & 60-Second Invariant Simulation Lab Screenshot",
     description: "Real-time AI COO operational briefings, Delaware DGCL § 141 verification, and 60-second M&A liability audits.",
   },
   {
     label: "AI Executive Assistant & Document RAG",
     sublabel: "SMART DOCUMENT SEARCH",
-    image: "/upscaled/01_AI_Executive_Chat.png",
+    image: "/upscaled/01_AI_Executive_Chat.webp",
     imageAlt: "AI Executive Assistant & Document RAG Interface Screenshot",
     description: "Ask about your documents or search the web for live information, compliance, contract risks, and financial terms.",
   },
   {
     label: "Daily Executive Briefing & Action Plan",
     sublabel: "AUTONOMOUS ENTERPRISE CHIEF OF STAFF",
-    image: "/upscaled/02_Chief_Of_Staff_Briefing.png",
+    image: "/upscaled/02_Chief_Of_Staff_Briefing.webp",
     imageAlt: "Daily Executive Briefing & Action Plan Interface Screenshot",
     description: "Continuously monitors 8 enterprise channels to deliver proactive recommendations with full business impact & evidence traceability.",
   },
   {
     label: "Enterprise Memory AI Assistant",
     sublabel: "ORGANIZATIONAL MEMORY GRAPH",
-    image: "/upscaled/03_Enterprise_Memory_Assistant.png",
+    image: "/upscaled/03_Enterprise_Memory_Assistant.webp",
     imageAlt: "Enterprise Memory AI Assistant Interface Screenshot",
     description: "Ask natural language questions. Reasons across the Enterprise Memory Graph with zero hallucinations and full historical decision context.",
   },
   {
     label: "Executive Digital Twins & Boardroom Simulation Engine",
     sublabel: "EXECUTIVE DIGITAL TWIN PLATFORM",
-    image: "/upscaled/04_Boardroom_Simulation_Engine.png",
+    image: "/upscaled/04_Boardroom_Simulation_Engine.webp",
     imageAlt: "Executive Digital Twins & Boardroom Simulation Engine Interface Screenshot",
     description: "Simulate strategic decisions across your C-suite (CEO, CFO, CTO, COO, Legal). Every twin grounds recommendations in historical company memory.",
   },
@@ -1171,6 +1176,7 @@ export default function CausarixEnterpriseLanding() {
             <button onClick={() => setLegalDoc('terms')} className="hover:text-[#fc4778] transition-colors uppercase">Terms of Service</button>
             <button onClick={() => setLegalDoc('privacy')} className="hover:text-[#fc4778] transition-colors uppercase">Privacy Policy</button>
             <button onClick={() => setLegalDoc('security')} className="hover:text-[#fc4778] transition-colors uppercase">DPDP Act Compliance SLA</button>
+            <Link href="/accessibility" className="hover:text-[#fc4778] transition-colors uppercase">Accessibility Statement</Link>
           </div>
         </div>
 

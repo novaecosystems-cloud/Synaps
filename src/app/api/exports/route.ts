@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { exportDocument } from '@/lib/services/export';
 
 import { verifySessionCookie } from '@/lib/auth-server';

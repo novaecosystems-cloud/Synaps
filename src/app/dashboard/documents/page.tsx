@@ -3,7 +3,6 @@ import { getDocuments } from '@/app/actions/document';
 import { DocumentsClient } from './client';
 import { cookies } from 'next/headers';
 import { verifySessionCookie } from '@/lib/auth-server';
-import { PrismaClient } from '@prisma/client';
 import { redirect } from 'next/navigation';
 
 import prisma from '@/lib/prisma';

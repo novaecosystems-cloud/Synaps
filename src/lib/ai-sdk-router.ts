@@ -3,6 +3,7 @@ import { createGroq } from '@ai-sdk/groq';
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateText, generateObject, streamText, LanguageModel, Schema } from 'ai';
 import { z } from 'zod';
+import { inspectResponse } from '@/lib/ai-firewall';
 
 // Helper to get active language models with available API keys
 function getAvailableLanguageModels(): { name: string; model: LanguageModel }[] {
@@ -98,7 +99,7 @@ export async function generateTextWithAISDK(options: {
       } as any);
 
       return {
-        text: result.text,
+        text: inspectResponse(result.text).sanitizedOutput,
         providerUsed: name,
       };
     } catch (err: any) {

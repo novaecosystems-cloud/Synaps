@@ -8,9 +8,17 @@ import { useToast } from '@/hooks/use-toast';
 
 interface SignInCardInlineProps {
   onOpenLegalDoc?: (type: 'terms' | 'privacy' | 'security') => void;
+  title?: string;
+  subtitle?: string;
+  promptIntent?: string;
 }
 
-export default function SignInCardInline({ onOpenLegalDoc }: SignInCardInlineProps) {
+export default function SignInCardInline({
+  onOpenLegalDoc,
+  title,
+  subtitle,
+  promptIntent,
+}: SignInCardInlineProps) {
   const [email, setEmail] = useState('');
   const [activeEmail, setActiveEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -383,8 +391,8 @@ export default function SignInCardInline({ onOpenLegalDoc }: SignInCardInlinePro
           /* ── STEP 1: INITIAL SELECTION ── */
           <>
             <p>
-              Welcome to SYNAPS
-              <span>Sign in to access Enterprise OS</span>
+              {title || 'Welcome to SYNAPS'}
+              <span>{subtitle || promptIntent || 'Sign in to access Enterprise OS'}</span>
             </p>
 
             {/* INSTANT DEMO BUTTON */}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeKuzuCausalQuery, KUZU_CYPHER_SCHEMA } from '@/lib/kuzu-graph';
+import { resolveAuthContext, safeErrorResponse } from '@/lib/security';
 
 export async function GET() {
   return NextResponse.json({
@@ -17,15 +18,14 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    await resolveAuthContext(req);
     const body = await req.json();
     const cypher = body.cypher || 'MATCH (a:EnterpriseEntity)-[:BOUND_BY]->(c:ContractClause)-[:CONTRADICTS]->(p:ContractClause) RETURN a, c, p';
     
     const result = await executeKuzuCausalQuery(cypher);
     return NextResponse.json(result);
   } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'KùzuDB Query Execution Error'
-    }, { status: 500 });
+    return safeErrorResponse(error, 'KùzuDB Query Execution Error');
   }
 }
+

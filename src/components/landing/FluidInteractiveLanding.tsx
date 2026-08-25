@@ -37,6 +37,8 @@ import {
 import SignInModal from '@/components/SignInModal';
 import Link from 'next/link';
 import Lenis from 'lenis';
+import { useAuth } from '@/context/AuthContext';
+import { saveGuestSimulationState, isGuestUser } from '@/lib/guest-simulation-store';
 
 import { HoverExpand, HoverExpandItem } from '@/components/ui/HoverExpand';
 import { FluidCanvas } from '@/components/ui/FluidCanvas';
@@ -101,7 +103,12 @@ const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
 
 // ─── MAIN FLUID INTERACTIVE LANDING PAGE COMPONENT ───────────────────────────
 export default function FluidInteractiveLanding() {
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [signInPrompt, setSignInPrompt] = useState({
+    title: 'Save Simulation Results',
+    subtitle: 'Sign in to save your simulation results and unlock 50 daily boardroom runs',
+  });
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [selectedPromptIdx, setSelectedPromptIdx] = useState(0);
   const [typedPrompt, setTypedPrompt] = useState(SAMPLE_PROMPTS[0]);
@@ -190,7 +197,18 @@ export default function FluidInteractiveLanding() {
 
   const handleRunPrompt = () => {
     setIsGenerating(true);
-    setTimeout(() => setIsGenerating(false), 1800);
+    setTimeout(() => {
+      setIsGenerating(false);
+      saveGuestSimulationState('simulation', {
+        decisionType: 'Enterprise Contract Audit',
+        decisionDetails: typedPrompt,
+        simulationResult: {
+          decisionType: 'Enterprise Contract Audit',
+          decisionDetails: typedPrompt,
+          output: 'Found 3 key contract discrepancies across 142 enterprise PDFs. Indemnification liability cap is $2,500,000 USD (Section 14.2).'
+        }
+      });
+    }, 1800);
   };
 
   return (
@@ -513,7 +531,12 @@ export default function FluidInteractiveLanding() {
       </footer>
 
       {/* Sign In Modal */}
-      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SignInModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={signInPrompt.title}
+        subtitle={signInPrompt.subtitle}
+      />
     </div>
   );
 }

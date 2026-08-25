@@ -60,6 +60,8 @@ export function DocumentPreviewModal({ isOpen, onClose, url, mimeType, fileName,
             <img 
               src={url} 
               alt={fileName} 
+              loading="lazy"
+              decoding="async"
               className="max-w-full max-h-full object-contain rounded shadow-lg border border-white/5" 
             />
           ) : isPdf ? (

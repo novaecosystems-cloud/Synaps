@@ -1,7 +1,6 @@
 import { getProjectDetails } from '@/app/actions/project';
 import { ProjectDashboardClient } from './client';
-import { redirect } from 'next/navigation';
-import { notFound } from 'next/navigation';
+import { redirect, notFound } from 'next/navigation';
 
 export default async function ProjectDashboardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

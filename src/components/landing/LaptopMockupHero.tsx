@@ -12,7 +12,7 @@ export interface LaptopMockupHeroProps {
 }
 
 export function LaptopMockupHero({
-  imageSrc = '/mockups/causarix_laptop_dashboard_hero.png',
+  imageSrc = '/mockups/causarix_laptop_dashboard_hero.webp',
   imageAlt = 'Causarix Enterprise Causal Decision OS & Boardroom Console Interface',
   onCtaClick,
 }: LaptopMockupHeroProps) {
@@ -62,8 +62,12 @@ export function LaptopMockupHero({
             <img
               src={imageSrc}
               alt={imageAlt}
+              width={1024}
+              height={514}
               className="w-full h-full object-cover object-left-top transition-transform duration-700 ease-out group-hover:scale-[1.01]"
               loading="eager"
+              fetchPriority="high"
+              decoding="async"
             />
 
             {/* Subtle Screen Glare Glass Reflection */}

@@ -54,7 +54,7 @@ export default function OrganizationSettings() {
               id="org-name" 
               value={name} 
               onChange={(e) => setName(e.target.value)} 
-              placeholder="e.g. Acme Corp" 
+              placeholder="e.g. Sovereign Technologies Corp" 
             />
           </div>
         </CardContent>

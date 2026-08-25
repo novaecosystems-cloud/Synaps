@@ -1,4 +1,3 @@
-import { PrismaClient } from '@prisma/client';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell } from 'docx';
 import Papa from 'papaparse';
 

@@ -98,43 +98,173 @@ export async function readBodyWithLimit(
   }
 }
 
-// ── URL SANITIZER (Web Scraper Protection) ────────────────────────────────────
-const BLOCKED_URL_PATTERNS = [
-  /^https?:\/\/localhost/i,
-  /^https?:\/\/127\./,
-  /^https?:\/\/0\.0\.0\.0/,
-  /^https?:\/\/10\./,
-  /^https?:\/\/192\.168\./,
-  /^https?:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\./,
-  /^https?:\/\/169\.254\./,   // Link-local / AWS metadata
-  /^https?:\/\/metadata\.google/i,
-  /file:\/\//i,
-  /ftp:\/\//i,
-  /javascript:/i,
-];
+export interface ScrapeUrlValidationResult {
+  valid: boolean;
+  isValid: boolean; // Aliased for e2e-api-verifier compatibility
+  error?: string;
+  reason?: string;  // Aliased for e2e-api-verifier compatibility
+  cleanUrl?: string;
+}
+
+const BLOCKED_HOSTNAMES = new Set([
+  'localhost',
+  '127.0.0.1',
+  '0.0.0.0',
+  '::1',
+  '[::1]',
+  'instance-data',
+  'metadata.google.internal',
+  'metadata.google',
+]);
+
+function isPrivateOrBlockedIPv4(ip: string): boolean {
+  if (
+    ip === '0.0.0.0' ||
+    ip.startsWith('0.') ||
+    ip.startsWith('127.') ||
+    ip.startsWith('10.') ||
+    ip.startsWith('192.168.') ||
+    ip.startsWith('169.254.') || // Link-local / Cloud Metadata
+    /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(ip) ||
+    /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./.test(ip) || // Carrier-Grade NAT (RFC 6598)
+    /^192\.0\.2\./.test(ip) || // TEST-NET-1
+    /^198\.51\.100\./.test(ip) || // TEST-NET-2
+    /^203\.0\.113\./.test(ip) || // TEST-NET-3
+    /^(22[4-9]|23[0-9])\./.test(ip) || // Multicast (224.0.0.0/4)
+    /^(24[0-9]|25[0-5])\./.test(ip) // Reserved / Broadcast (240.0.0.0/4, 255.255.255.255)
+  ) {
+    return true;
+  }
+  return false;
+}
 
 /**
  * Validates that a scrape target URL is safe (no SSRF, no internal network, no file://)
  */
-export function validateScrapeUrl(rawUrl: string): { valid: boolean; error?: string; cleanUrl?: string } {
+export function validateScrapeUrl(rawUrl: string): ScrapeUrlValidationResult {
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    return { valid: false, isValid: false, error: 'A valid URL string is required.', reason: 'A valid URL string is required.' };
+  }
+
   let parsed: URL;
   try {
     parsed = new URL(rawUrl.trim());
   } catch {
-    return { valid: false, error: "Invalid URL format." };
+    return { valid: false, isValid: false, error: 'Invalid URL format.', reason: 'Invalid URL format.' };
   }
 
-  if (!["http:", "https:"].includes(parsed.protocol)) {
-    return { valid: false, error: "Only http:// and https:// URLs are allowed." };
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    return { valid: false, isValid: false, error: 'Only http:// and https:// URLs are allowed.', reason: 'Only http:// and https:// URLs are allowed.' };
   }
 
-  for (const pattern of BLOCKED_URL_PATTERNS) {
-    if (pattern.test(parsed.href)) {
-      return { valid: false, error: "Requests to internal, localhost, or metadata URLs are not allowed." };
+  // Normalize hostname: strip IPv6 brackets and FQDN trailing dots
+  const hostname = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, '').replace(/\.+$/, '');
+
+  // 1. Direct hostname check & internal suffix blocks
+  if (
+    BLOCKED_HOSTNAMES.has(hostname) ||
+    hostname.endsWith('.localhost') ||
+    hostname.endsWith('.local') ||
+    hostname.endsWith('.internal') ||
+    hostname.endsWith('.localdomain') ||
+    hostname.endsWith('.lan') ||
+    hostname.endsWith('.home') ||
+    hostname.endsWith('.corp')
+  ) {
+    return {
+      valid: false,
+      isValid: false,
+      error: 'Requests to internal, localhost, or cloud metadata endpoints are strictly blocked.',
+      reason: 'Requests to internal, localhost, or cloud metadata endpoints are strictly blocked.'
+    };
+  }
+
+  // 2. IPv4-Mapped IPv6 addresses (e.g. ::ffff:127.0.0.1, ::ffff:169.254.169.254, ::ffff:7f00:1, ::ffff:a9fe:a9fe)
+  if (
+    hostname.startsWith('::ffff:') ||
+    hostname.startsWith('0:0:0:0:0:ffff:') ||
+    hostname.includes('ffff:')
+  ) {
+    const mapped = hostname.replace(/^(?:0:0:0:0:0:ffff:|::ffff:)/, '');
+    if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(mapped)) {
+      if (isPrivateOrBlockedIPv4(mapped)) {
+        return {
+          valid: false,
+          isValid: false,
+          error: 'Requests to private IP addresses or link-local metadata are blocked.',
+          reason: 'Requests to private IP addresses or link-local metadata are blocked.'
+        };
+      }
+    } else if (/^[0-9a-f]{1,4}:[0-9a-f]{1,4}$/i.test(mapped)) {
+      const parts = mapped.split(':');
+      const n1 = parseInt(parts[0], 16);
+      const n2 = parseInt(parts[1], 16);
+      const b1 = (n1 >> 8) & 0xff;
+      const b2 = n1 & 0xff;
+      const b3 = (n2 >> 8) & 0xff;
+      const b4 = n2 & 0xff;
+      const decodedIp = `${b1}.${b2}.${b3}.${b4}`;
+      if (isPrivateOrBlockedIPv4(decodedIp)) {
+        return {
+          valid: false,
+          isValid: false,
+          error: 'Requests to private IP addresses or link-local metadata are blocked.',
+          reason: 'Requests to private IP addresses or link-local metadata are blocked.'
+        };
+      }
+    } else {
+      return {
+        valid: false,
+        isValid: false,
+        error: 'Requests to IPv4-mapped IPv6 addresses are blocked.',
+        reason: 'Requests to IPv4-mapped IPv6 addresses are blocked.'
+      };
     }
   }
 
-  return { valid: true, cleanUrl: parsed.href };
+  // 3. Loopback & Private IPv4 ranges
+  if (isPrivateOrBlockedIPv4(hostname)) {
+    return {
+      valid: false,
+      isValid: false,
+      error: 'Requests to private IP addresses or link-local metadata are blocked.',
+      reason: 'Requests to private IP addresses or link-local metadata are blocked.'
+    };
+  }
+
+  // 4. IPv6 Private, Link-local, and ULA ranges (RFC 4193 /7 covers fc00::/7 i.e. fc00:: - fdff:...)
+  if (
+    hostname === '::1' ||
+    hostname === '::' ||
+    hostname.startsWith('fe80:') ||
+    hostname.startsWith('fc') ||
+    hostname.startsWith('fd') ||
+    /^fe[89ab][0-9a-f]:/i.test(hostname) ||
+    /^f[cd][0-9a-f]{2}:/i.test(hostname)
+  ) {
+    return {
+      valid: false,
+      isValid: false,
+      error: 'Requests to private IPv6 addresses are blocked.',
+      reason: 'Requests to private IPv6 addresses are blocked.'
+    };
+  }
+
+  // 5. Integer / Octal / Hexadecimal IP representation blocks
+  if (/^0x[0-9a-f]+$/i.test(hostname) || /^\d+$/.test(hostname) || /^0x[0-9a-f.]+/i.test(hostname)) {
+    return {
+      valid: false,
+      isValid: false,
+      error: 'Numeric and hexadecimal IP representations are not permitted.',
+      reason: 'Numeric and hexadecimal IP representations are not permitted.'
+    };
+  }
+
+  return {
+    valid: true,
+    isValid: true,
+    cleanUrl: parsed.href
+  };
 }
 
 // ── SOURCE CODE SIZE GUARD (Sandbox Protection) ──────────────────────────────
@@ -163,8 +293,17 @@ export interface AuthContext {
 }
 
 export async function resolveAuthContext(req: NextRequest): Promise<AuthContext> {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("synaps-session")?.value;
+  let session: string | undefined;
+  try {
+    const cookieStore = await cookies();
+    session = cookieStore?.get("synaps-session")?.value;
+  } catch {
+    session = req?.cookies?.get?.("synaps-session")?.value;
+  }
+
+  if (!session) {
+    session = req?.cookies?.get?.("synaps-session")?.value;
+  }
 
   if (!session || session.startsWith("TEST_TOKEN_")) {
     return { userId: "demo-user", orgId: "no_org_fallback", isDemo: true };

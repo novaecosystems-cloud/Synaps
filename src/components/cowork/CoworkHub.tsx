@@ -501,7 +501,8 @@ extensions:
       Authorization: "Bearer causarix_live_enterprise_key"
     tools:
       - query_boardroom_verdict
-      - run_scm_monte_carlo
+      - run_scm_monte_carlo`;
+
   const gooseCliCommand = `goose mcp add causarix ${mcpBaseUrl}`;
 
   const semanticKernelPython = `# Semantic Kernel Python Integration

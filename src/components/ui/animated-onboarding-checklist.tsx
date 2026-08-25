@@ -271,6 +271,10 @@ export const AnimatedOnboardingChecklist = ({
                   <img
                     src={videoThumbnailUrl}
                     alt="Causarix Onboarding Video Guide"
+                    width={1280}
+                    height={720}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-2 group-hover:bg-black/30 transition-all">

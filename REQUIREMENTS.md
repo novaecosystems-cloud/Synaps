@@ -1,69 +1,40 @@
-# SYNAPS Platform Requirements Specification
+# CAUSARIX™ Enterprise System Requirements & Invariants
 
-> **Document Type:** Software Requirements Specification (SRS)  
-> **Standard:** IEEE 830 / ISO/IEC/IEEE 29148  
-> **Status:** Approved / Production  
-
----
-
-## 1. System Overview & Objectives
-
-SYNAPS is an Enterprise Decision Intelligence Platform designed to eliminate corporate data fragmentation, accelerate contract/audit lifecycles by 80%+, and provide mathematically verified decisions through a 10-Agent Boardroom architecture.
+> **System Target:** Institutional Multi-Agent Governance & Causal Decision OS  
+> **Environment:** Next.js 16 (App Router / Turbopack), TypeScript 5, PostgreSQL / Prisma  
 
 ---
 
-## 2. Functional Requirements (FR)
+## 1. Non-Negotiable System Invariants
 
-### FR-01: Evidentiary Document Ingestion & Vectorization
-* **FR-01.1:** The system MUST parse and ingest PDF, DOCX, XLSX, CSV, and TXT files up to 500MB per file.
-* **FR-01.2:** Documents MUST be chunked using contextual token boundary splitting with preserved hierarchical section metadata.
-* **FR-01.3:** The system MUST support dense embeddings vectorization with cosine similarity retrieval.
+1. **Multi-Tenant Isolation:**
+   * Every database query, document ingestion, graph extraction, and connector synchronization must strictly enforce `where: { organizationId }`.
+   * No data from one tenant may ever leak into another organization's context.
 
-### FR-02: 10-Agent Executive Boardroom Simulation
-* **FR-02.1:** The system MUST orchestrate parallel asynchronous deliberations across 10 specialized C-Suite personas (CEO, CFO, CTO, Legal, Risk, COO, CMO, CISO, Compliance, Chief of Staff).
-* **FR-02.2:** Deliberations MUST produce an aggregated Consensus Score ($0 - 100\%$), list of dissenting opinions, and dialectic counter-arguments.
-* **FR-02.3:** Every claim produced by an agent MUST contain verifiable citations pointing to specific document coordinates.
+2. **Zero-Fixation & Grounding Invariant:**
+   * No static placeholder mock strings or synthetic counters in production interfaces.
+   * If a connector or document list is empty, render a clean empty state.
 
-### FR-03: Prime RLM Process-Outcome Mathematical Verification
-* **FR-03.1:** All numeric computations (e.g. burn rates, liability caps, Monte Carlo risk ratios, timeline velocities) MUST pass through the Prime RLM engine.
-* **FR-03.2:** Computations MUST return step-by-step verifiable proof chains with an enforced minimum confidence score threshold of $99.4\%$.
+3. **0.00% Math Drift Guarantee:**
+   * All Structural Causal Model (SCM) equations and Box-Muller Gaussian sampling iterations must enforce double-precision arithmetic with machine-epsilon assertions ($Factual + CausalDelta = Counterfactual$).
 
-### FR-04: Data-As-A-Moat (DAAM) Engine
-* **FR-04.1 (Clause Benchmarking):** The system MUST strip all PII (names, phone numbers, email addresses, financial amounts) before hashing and storing clauses.
-* **FR-04.2 (Decision Memory):** User actions (`ACCEPTED`, `REJECTED`, `MODIFIED`) MUST be recorded to tune tenant-specific Prime RLM agent prompts.
-* **FR-04.3 (Audit Ledger):** The system MUST maintain a cryptographically linked SHA-256 event ledger where each record hashes its predecessor (`previousHash` ➔ `currentHash`).
-* **FR-04.4 (Domain Moat Profile):** The system MUST maintain a logarithmic `MoatScore` ($0 - 100$) reflecting data depth, processed volume, and organizational decision history.
+4. **In-Flight AI Application Firewall (AI-WAF):**
+   * All external AI prompts, webhooks, and outgoing payloads must pass through `inspectResponse()` in [`src/lib/ai-firewall.ts`](file:///D:/Synaps/src/lib/ai-firewall.ts).
 
-### FR-05: 3D Spatial Knowledge Palace & Memory Graph
-* **FR-05.1:** The frontend MUST render interactive WebGL/Three.js force-directed knowledge graphs showing cross-document entity relationships.
-* **FR-05.2:** Nodes MUST support camera orbit, entity filtering, semantic search highlighting, and node expansion.
+5. **Hybrid Air-Gapped Privacy for Meeting Bots:**
+   * The millisecond meeting speech transcripts are ingested into the database vault, an immediate `DELETE /v1/meetings/:id` command is dispatched to Vexa cloud servers to ensure zero third-party data retention.
 
-### FR-06: Export & Compliance Reporting
-* **FR-06.1:** The platform MUST support 1-click export of Certified Master Legal SLA Packets in PDF and structured CSV formats.
-* **FR-06.2:** PDF exports MUST include cryptographic verification timestamps, SHA-256 checksums, and audit trail tables.
+6. **Delaware DGCL § 141 Cryptographic Audit Trail:**
+   * All exported boardroom deliberation records and SCM simulations must carry a cryptographic SHA-256 Merkle root seal computed by [`src/lib/dgcl-merkle.ts`](file:///D:/Synaps/src/lib/dgcl-merkle.ts).
 
 ---
 
-## 3. Non-Functional Requirements (NFR)
+## 2. Infrastructure & Environment Checklist
 
-### NFR-01: Performance & Latency
-* **NFR-01.1 (Query Response):** Standard document Q&A queries MUST return initial streaming chunks within $\le 1.8\text{ seconds}$.
-* **NFR-01.2 (Boardroom Synthesis):** Full 10-agent boardroom parallel synthesis MUST complete within $\le 12.0\text{ seconds}$.
-* **NFR-01.3 (3D Graph Rendering):** 3D Memory Graph MUST sustain $\ge 60\text{ FPS}$ on standard hardware for graphs with up to 5,000 active nodes.
-
-### NFR-02: Scalability & Reliability
-* **NFR-02.1 (Availability):** System target availability of $99.95\%$ uptime across serverless edge deployments.
-* **NFR-02.2 (Connection Resilience):** Database ORM layer MUST implement global singleton connection reuse to avoid pool exhaustion under peak concurrent load.
-* **NFR-02.3 (Storage Failover):** Dual-storage abstraction MUST support seamless fallback between Supabase S3 storage and encrypted blob repositories.
-
-### NFR-03: Security & Data Governance
-* **NFR-03.1 (Encryption):** All data at rest MUST be encrypted with AES-256; data in transit MUST be encrypted with TLS 1.3.
-* **NFR-03.2 (Tenant Isolation):** Multi-tenant data MUST be partitioned at the database query level via strict `organizationId` foreign key filters.
-* **NFR-03.3 (Regulatory Standards):** Compliance with DPDP Act 2023 (India), GDPR (EU), and SOC2 Type II.
-
----
-
-## 4. Integration Requirements
-* **AI Providers:** Google Gemini 1.5 API, Vercel AI Gateway (GLM-5.2), OpenAI API, Anthropic via OpenRouter.
-* **Authentication:** Firebase Auth (JWT / Session Cookie verification).
-* **Payment & Merchant:** Merchant of Record API (LemonSqueezy) with automated credit allocation webhooks.
+| Requirement | Specification | Status |
+| :--- | :--- | :--- |
+| **Node.js Runtime** | Node.js v18.x / v20.x+ | ✅ Compatible |
+| **TypeScript Strictness** | Strict typechecking with `npx tsc --noEmit` | ✅ 0 Errors |
+| **Database Engine** | PostgreSQL (NeonDB) with pgvector / Prisma | ✅ Active |
+| **Security Headers** | 2-year HSTS, CSP, X-Frame-Options: SAMEORIGIN | ✅ Active in middleware.ts |
+| **Observability** | `/api/health` Telemetry Endpoint (DB latency, circuit breakers) | ✅ Active |

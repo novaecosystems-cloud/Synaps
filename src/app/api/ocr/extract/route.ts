@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { performOneShotOcr } from '@/lib/ocr-engine';
+import { resolveAuthContext, safeErrorResponse } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    await resolveAuthContext(req);
     const body = await req.json().catch(() => ({}));
     const { imageBase64, mimeType = 'image/png', mode = 'general' } = body;
 
@@ -28,12 +30,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error('[OCR API ERROR]', error.message);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || 'Failed to process document with 1-Shot OCR.',
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to process document with 1-Shot OCR.');
   }
 }
+

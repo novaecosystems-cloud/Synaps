@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import OpenAI from 'openai';
+import { inspectResponse } from '@/lib/ai-firewall';
 
 export type LLMProvider = 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'vercel-gateway' | 'ollama' | 'lmstudio' | 'kimi' | 'moonshot';
 
@@ -11,6 +12,18 @@ export interface LLMConfig {
 }
 
 export async function generateMultiLLMResponse(
+  prompt: string,
+  config: LLMConfig = { provider: 'gemini' },
+  systemPrompt?: string
+): Promise<{ text: string; provider: string; model: string }> {
+  const result = await generateMultiLLMResponseRaw(prompt, config, systemPrompt);
+  return {
+    ...result,
+    text: inspectResponse(result.text).sanitizedOutput
+  };
+}
+
+async function generateMultiLLMResponseRaw(
   prompt: string,
   config: LLMConfig = { provider: 'gemini' },
   systemPrompt?: string

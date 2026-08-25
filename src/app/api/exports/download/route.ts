@@ -1,10 +1,9 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
-import { requireAuth } from '@/lib/api-security';
+import { requireAuth, assertOrgAccess } from '@/lib/api-security';
 
 export async function GET(req: NextRequest) {
   const _auth = await requireAuth(req);
@@ -24,6 +23,9 @@ export async function GET(req: NextRequest) {
     if (!job || !job.fileUrl) {
       return new NextResponse('File not found', { status: 404 });
     }
+
+    const orgCheck = assertOrgAccess(_auth.organizationId, job.organizationId);
+    if (orgCheck) return orgCheck;
 
     // Since we are mocking storage, fileUrl currently holds the raw data (JSON/CSV) 
     // or a dummy link. If it's data URI or raw JSON, we can serve it directly.

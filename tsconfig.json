@@ -39,7 +39,14 @@
   "exclude": [
     "node_modules",
     "scratch",
+    "scratch/**/*",
     "dist-electron",
-    "electron"
+    "dist-electron/**/*",
+    "electron",
+    "electron/**/*",
+    "cloned-zero-landing",
+    "cloned-zero-landing/**/*",
+    "cloned-ada-landing",
+    "cloned-ada-landing/**/*"
   ]
 }

@@ -292,11 +292,11 @@ const features = [
 ];
 
 const integrations = [
-  { src: '/gmail-3d.png', name: 'Gmail' },
-  { src: '/slack-3d.png', name: 'Slack' },
-  { src: '/google-3d.png', name: 'Google API' },
-  { src: '/office-3d.png', name: 'Microsoft 365' },
-  { src: '/twilio-3d.png', name: 'Twilio' },
+  { src: '/gmail-3d.webp', name: 'Gmail' },
+  { src: '/slack-3d.webp', name: 'Slack' },
+  { src: '/google-3d.webp', name: 'Google API' },
+  { src: '/office-3d.webp', name: 'Microsoft 365' },
+  { src: '/twilio-3d.webp', name: 'Twilio' },
 ];
 
 /* ─── MAIN COMPONENT ─── */
@@ -483,6 +483,7 @@ export default function ModernLanding() {
                       alt={item.name}
                       width={80}
                       height={80}
+                      loading="lazy"
                       className="object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.6)] group-hover:scale-110 transition-transform duration-500"
                     />
                   </div>

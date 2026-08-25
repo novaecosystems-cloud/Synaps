@@ -1,65 +1,60 @@
-# SYNAPS Security, Privacy & Data Governance Architecture
+# CAUSARIX™ Security, Privacy & Compliance Architecture
 
-> **Security Tier:** Enterprise Grade  
-> **Standards:** SOC2 Type II · DPDP Act 2023 · GDPR · ISO/IEC 27001  
+> **Security Tier:** Institutional Enterprise Grade  
+> **Compliance Standards:** Delaware DGCL § 141 · SOC 2 Type II · DPDP Act 2023 · GDPR · ISO/IEC 27001  
 
 ---
 
-## 1. Zero-Trust Security Philosophy
+## 1. Zero-Trust & Zero-Knowledge Architecture
 
-SYNAPS is built under a strict **Zero-Trust & Zero-Knowledge data architecture**. Customer corporate documents, legal agreements, and financial records are protected by defense-in-depth security layers.
+CAUSARIX™ is built on a defense-in-depth security model protecting executive board deliberations, proprietary contracts, and financial records:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                       SECURITY & PRIVACY LAYERS                         │
 ├─────────────────────────────────────────────────────────────────────────┤
 │ 1. In-Transit Encryption: TLS 1.3 with Perfect Forward Secrecy          │
-│ 2. At-Rest Encryption: AES-256 on DB (NeonDB) and Object Storage (S3)   │
-│ 3. In-Memory PII Stripping: Sanitization prior to DAAM benchmarking     │
-│ 4. Cryptographic Ledger: SHA-256 Blockchain-Style Event Chaining        │
-│ 5. Tenant Isolation: Foreign-Key Query Partitioning & Multi-Tenant RBAC │
+│ 2. At-Rest Encryption: AES-256 on PostgreSQL (NeonDB) and Object Vault  │
+│ 3. In-Flight AI Firewall (AI-WAF): Secret & PII Scrubbing (inspectResponse)│
+│ 4. Vexa Meeting Scribe: Zero-Retention Instant Remote Cloud Wipe        │
+│ 5. Cryptographic Ledger: SHA-256 Merkle Trees & Delaware DGCL § 141     │
+│ 6. Strict HTTP Headers: 2-Year HSTS Preload, CSP, X-Frame-Options: SAMEORIGIN │
+│ 7. Tenant Isolation: Multi-Tenant Foreign-Key Partitioning (orgId)      │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Cryptographic Audit Ledger & Chaining (SHA-256)
+## 2. In-Flight AI Application Firewall (AI-WAF)
 
-Every critical action (document ingestion, boardroom decision, risk score update, user action) is appended to an immutable cryptographic ledger (`AuditLedgerEntry`).
+Implemented in [`src/lib/ai-firewall.ts`](file:///D:/Synaps/src/lib/ai-firewall.ts), the AI Firewall protects both ingress and egress data streams:
 
-* **Chaining Algorithm:**
-  $$\text{currentHash} = \text{SHA256}(\text{orgId} + \text{eventType} + \text{payload} + \text{timestamp} + \text{previousHash})$$
-* **Genesis State:** First record in an organization chain initializes with `GENESIS_HASH`.
-* **Tamper Evidence:** Any modification to a historical event invalidates all downstream hashes across the chain, providing mathematically provable audit integrity.
-
----
-
-## 3. PII Sanitization Pipeline (Data-As-A-Moat)
-
-Before any contract clause is processed for cross-organizational benchmarking, it passes through an automated PII-stripping engine:
-
-* **Email Addresses:** Redacted to `[REDACTED_EMAIL]`
-* **Phone Numbers (Domestic & International):** Redacted to `[REDACTED_PHONE]`
-* **Financial Amounts (INR, USD, EUR):** Redacted to `[REDACTED_AMOUNT]`
-* **Government Identifiers (PAN, Aadhaar, SSN):** Redacted to `[REDACTED_PAN]`, `[REDACTED_AADHAR]`
-
-*Source Implementation:* [`src/lib/data-moat-engine.ts`](file:///D:/Synaps/src/lib/data-moat-engine.ts)
+1. **Ingress Protection (Prompt Firewall):**
+   * Blocks prompt injection, jailbreaks (`DAN`, developer mode overrides), and persona hijacking.
+   * Strips control tokens and probes attempting to extract system instructions or API keys.
+2. **Egress Protection (Secret & PII Redaction):**
+   * Automatically redacts API keys (OpenAI, Gemini, Resend, Twilio, Jira), database URLs, and private keys.
+   * Redacts sensitive executive PII (credit cards, SSNs, phone numbers, email addresses) before database persistence.
 
 ---
 
-## 4. Multi-Tenant Isolation & Role-Based Access Control (RBAC)
+## 3. Vexa Meeting Bot Hybrid Air-Gapped Privacy
 
-* **Tenant Segregation:** All queries strictly filter by `organizationId`. Cross-tenant data leakage is prevented at the ORM/Prisma middleware layer.
-* **Role Hierarchy:**
-  * `OWNER`: Full administrative, billing, audit ledger verification, and key management permissions.
-  * `ADMIN`: Project creation, member management, and boardroom execution permissions.
-  * `MEMBER`: Read/write access to assigned projects and documents.
-  * `VIEWER`: Read-only access with export restrictions.
+When scribe bots join Google Meet, Zoom, or Teams:
+1. Audio is transcribed in-flight.
+2. Transcripts pass through `inspectResponse()` for PII and secret redaction.
+3. Once vaulted in Causarix, an immediate `DELETE /v1/meetings/:id` call is dispatched to Vexa cloud servers to guarantee **zero third-party audio or transcript retention**.
 
 ---
 
-## 5. Vulnerability Disclosure & Security Contacts
+## 4. Delaware DGCL § 141 Merkle Proof Integrity
 
-To report a security vulnerability or request an enterprise security packet:
-* **Security Team:** `novaecosystems@gmail.com`
+Implemented in [`src/lib/dgcl-merkle.ts`](file:///D:/Synaps/src/lib/dgcl-merkle.ts):
+* Computes deterministic SHA-256 Merkle root hashes for board meeting minutes, director votes, and counterfactual SCM simulations.
+* Generates exportable, tamper-evident audit records establishing Delaware DGCL § 141(e) safe-harbor protections for corporate directors.
+
+---
+
+## 5. Security Contacts & Vulnerability Disclosure
+* **Security & Compliance Office:** `novaecosystems@gmail.com`
 * **Response SLA:** Within 24 hours for critical security inquiries.

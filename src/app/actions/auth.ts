@@ -2,7 +2,6 @@
 
 import { cookies } from 'next/headers';
 import { createSessionCookie, verifyIdToken } from '@/lib/auth-server';
-import { PrismaClient } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
 

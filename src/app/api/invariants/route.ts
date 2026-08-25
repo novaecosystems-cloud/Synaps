@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runCrossSiloInvariantCheck, ENTERPRISE_INVARIANTS } from '@/lib/cross-silo-invariants';
+import { resolveAuthContext, safeErrorResponse } from '@/lib/security';
 
 export async function GET() {
   return NextResponse.json({
@@ -14,6 +15,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    await resolveAuthContext(req);
     const body = await req.json();
     const result = runCrossSiloInvariantCheck(body);
     return NextResponse.json({
@@ -21,9 +23,7 @@ export async function POST(req: NextRequest) {
       data: result
     });
   } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'Failed to execute cross-silo invariant check'
-    }, { status: 500 });
+    return safeErrorResponse(error, 'Failed to execute cross-silo invariant check');
   }
 }
+

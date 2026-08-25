@@ -10,9 +10,16 @@ import {
   Radio, 
   Database, 
   Cpu, 
-  CheckCircle2
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { 
+  drainOfflineQueue, 
+  getPendingActionCount, 
+  subscribeToSyncEvents,
+  showOfflineToast 
+} from '@/lib/offline-sync-queue';
 
 function playReconnectChime() {
   try {
@@ -49,7 +56,17 @@ export default function OfflineNetworkGuardian() {
   const [justRestored, setJustRestored] = useState(false);
   const [pingLatency, setPingLatency] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(15);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
   const retryIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync state tracking
+  useEffect(() => {
+    setPendingSyncCount(getPendingActionCount());
+    const unsubscribe = subscribeToSyncEvents(() => {
+      setPendingSyncCount(getPendingActionCount());
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Active network test
   const checkConnectivity = useCallback(async () => {
@@ -76,6 +93,7 @@ export default function OfflineNetworkGuardian() {
           setIsOffline(false);
           setJustRestored(true);
           playReconnectChime();
+          drainOfflineQueue();
           setTimeout(() => setJustRestored(false), 4000);
         }
         setIsTesting(false);
@@ -105,6 +123,7 @@ export default function OfflineNetworkGuardian() {
       setIsOffline(true);
       setIsMinimized(isSovereign);
       setCountdown(15);
+      showOfflineToast();
     };
 
     const handleOnline = async () => {
@@ -113,6 +132,7 @@ export default function OfflineNetworkGuardian() {
         setIsOffline(false);
         setJustRestored(true);
         playReconnectChime();
+        drainOfflineQueue();
         setTimeout(() => setJustRestored(false), 4000);
       }
     };
@@ -185,7 +205,11 @@ export default function OfflineNetworkGuardian() {
               <span className="font-extrabold text-xs text-rose-400 uppercase tracking-wider">Offline Mode</span>
               <span className="text-[10px] font-mono text-slate-400">Auto-retry in {countdown}s</span>
             </div>
-            <span className="text-[10px] text-slate-400 block">Local Cached Data Active</span>
+            <span className="text-[10px] text-slate-400 block">
+              {pendingSyncCount > 0
+                ? `⚡ ${pendingSyncCount} action${pendingSyncCount > 1 ? 's' : ''} queued to auto-sync`
+                : 'Local Cached Data Active'}
+            </span>
           </div>
 
           <div className="flex items-center gap-1.5 ml-2 border-l border-white/10 pl-2">
@@ -447,10 +471,14 @@ export default function OfflineNetworkGuardian() {
           <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
             <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-400 uppercase">
               <Database className="w-3.5 h-3.5 shrink-0" />
-              <span>Local Memory</span>
+              <span>Offline Action Queue</span>
             </div>
-            <div className="text-xs font-bold text-slate-200">Grounded Cache</div>
-            <div className="text-[9px] font-mono text-slate-400">IndexedDB Active</div>
+            <div className="text-xs font-bold text-slate-200">
+              {pendingSyncCount > 0 ? `${pendingSyncCount} Pending Auto-Sync` : '0 Actions Queued'}
+            </div>
+            <div className="text-[9px] font-mono text-slate-400">
+              {pendingSyncCount > 0 ? 'Will replay on reconnect' : 'Local Storage Active'}
+            </div>
           </div>
 
           <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
@@ -458,8 +486,8 @@ export default function OfflineNetworkGuardian() {
               <Cpu className="w-3.5 h-3.5 shrink-0" />
               <span>Local Engine</span>
             </div>
-            <div className="text-xs font-bold text-slate-200">Ollama / Standby</div>
-            <div className="text-[9px] font-mono text-slate-400">Local Vector Ready</div>
+            <div className="text-xs font-bold text-slate-200">0.00% Math Drift Engine</div>
+            <div className="text-[9px] font-mono text-slate-400">SCM Simulation Ready</div>
           </div>
         </div>
 

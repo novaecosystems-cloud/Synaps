@@ -4,10 +4,12 @@ import { redirect } from 'next/navigation';
 import { verifySessionCookie } from '@/lib/auth-server';
 import CausarixEnterpriseLanding from '@/components/landing/CausarixEnterpriseLanding';
 
-export const metadata = {
-  title: 'CAUSARIX™ (formerly Synaps) — Causal Decision OS & Enterprise Intelligence Suite',
-  description: "CAUSARIX transforms complex corporate document libraries and contracts into an interactive 3D Knowledge Graph, 10-Agent Boardroom Quorum, and automated Delaware redlines.",
-};
+import { getOpenSEOMetadata } from '@/lib/openseo';
+
+export const metadata = getOpenSEOMetadata({
+  title: 'CAUSARIX™ — Causal Decision OS & 10-Agent Boardroom',
+  description: 'CAUSARIX transforms complex corporate document libraries and contracts into Delaware DGCL § 141 redlines, 10-Agent Boardroom Quorum, and stochastic SCM simulations with 0.00% math drift.',
+});
 
 export default async function RootPage() {
   // Always render the Landing Page first when visiting root URL /

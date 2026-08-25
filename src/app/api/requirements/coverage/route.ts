@@ -2,7 +2,6 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { generateEmbedding, evaluateCoverageBatch } from '@/lib/embeddings';
 
 import prisma from '@/lib/prisma';

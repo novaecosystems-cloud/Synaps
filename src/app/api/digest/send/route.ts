@@ -13,9 +13,10 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://synaps-one.vercel.app';
     const targetEmail = emailOverride || process.env.GMAIL_USER || 'novaecosystems@gmail.com';
 
-    // Fetch recent documents and projects for deep linking
-    const docs = await prisma.document.findMany({ take: 3, orderBy: { createdAt: 'desc' } });
-    const projects = await prisma.project.findMany({ take: 3, orderBy: { createdAt: 'desc' } });
+    // Fetch recent documents and projects scoped to organization for deep linking
+    const orgWhere = _auth.organizationId ? { organizationId: _auth.organizationId } : {};
+    const docs = await prisma.document.findMany({ where: orgWhere, take: 3, orderBy: { createdAt: 'desc' } });
+    const projects = await prisma.project.findMany({ where: orgWhere, take: 3, orderBy: { createdAt: 'desc' } });
 
     // Generate Role-Tailored Digest with AI
     const prompt = [

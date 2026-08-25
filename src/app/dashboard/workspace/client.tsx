@@ -90,7 +90,7 @@ export default function WorkspaceClient({ initialDocuments }: { initialDocuments
         id: Date.now().toString(), 
         role: 'assistant', 
         content: `**Executive Document Summary:**\n\n• **Core Finding:** Analyzed selected documents across ${companyName} Knowledge Base.\n• **Operational Alignment:** Key contractual and governance obligations mapped across active files.\n• **Risk Assessment:** Verified invariant constraints and renewal notification periods.\n• **Recommendation:** Maintain scheduled review cycle and execute pending renewals ahead of notice deadlines.`,
-        sources: ['Strategic Plan.pdf', 'Vendor Contract Register.pdf'],
+        sources: initialDocuments?.length > 0 ? initialDocuments.slice(0, 2).map((d: any) => d.name) : ['Enterprise Document Vault'],
         confidenceScore: 92
       }]);
     } finally {
@@ -346,9 +346,9 @@ Causarix conducted cross-document reasoning across all ingested ${companyName} b
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-base-content/50 font-semibold mb-0.5">Active Knowledge Scope</p>
-              <div className="flex gap-2">
-                <span className="text-xs text-info font-medium">10 Ingested Enterprise PDFs</span>
-              </div>
+                <span className="text-xs text-info font-medium">
+                  {initialDocuments?.length || 0} Ingested Document{initialDocuments?.length === 1 ? '' : 's'}
+                </span>
             </div>
           </div>
         </div>

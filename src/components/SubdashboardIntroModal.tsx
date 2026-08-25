@@ -27,6 +27,8 @@ export function SubdashboardIntroModal() {
       if (parentPath) {
         matchedGuide = SUBDASHBOARD_GUIDES[parentPath];
       }
+    }
+
     if (!matchedGuide) {
       setIsOpen(false);
       return;

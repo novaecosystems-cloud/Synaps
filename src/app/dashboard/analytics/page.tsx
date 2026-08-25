@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic';
 import AnalyticsClient from './client';
-import { PrismaClient } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
 

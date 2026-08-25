@@ -44,6 +44,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { IsolatedErrorBoundary } from '@/components/ui/error-boundary';
 import {
   ChartDefinition,
   ChartType,
@@ -496,122 +497,129 @@ export default function UniversalChartStudio() {
 
           {/* Canvas Preview Tab */}
           {activeTab === 'preview' && (
-            <div
-              ref={chartRef}
-              className="p-6 rounded-3xl border border-base-300 shadow-sm transition-all"
-              style={{ backgroundColor: currentPalette.bg }}
+            <IsolatedErrorBoundary
+              name="Universal Chart Canvas"
+              fallbackTitle="Chart Render Isolated"
+              fallbackDescription="A calculation or rendering anomaly occurred inside the chart engine."
+              resetKeys={[chart.chartType, chart.data, customPalette]}
             >
-              {/* Chart Header */}
-              <div className="mb-6 flex justify-between items-start">
-                <div>
-                  <h2 className="text-lg font-bold" style={{ color: currentPalette.text }}>
-                    {chart.title}
-                  </h2>
-                  {chart.subtitle && (
-                    <p className="text-xs opacity-70 mt-0.5" style={{ color: currentPalette.text }}>
-                      {chart.subtitle}
-                    </p>
-                  )}
+              <div
+                ref={chartRef}
+                className="p-6 rounded-3xl border border-base-300 shadow-sm transition-all"
+                style={{ backgroundColor: currentPalette.bg }}
+              >
+                {/* Chart Header */}
+                <div className="mb-6 flex justify-between items-start">
+                  <div>
+                    <h2 className="text-lg font-bold" style={{ color: currentPalette.text }}>
+                      {chart.title}
+                    </h2>
+                    {chart.subtitle && (
+                      <p className="text-xs opacity-70 mt-0.5" style={{ color: currentPalette.text }}>
+                        {chart.subtitle}
+                      </p>
+                    )}
+                  </div>
+                  <span className="badge badge-success badge-sm font-mono text-[10px] font-bold">
+                    ARLM {(chart.meta.arlmScore * 100).toFixed(1)}%
+                  </span>
                 </div>
-                <span className="badge badge-success badge-sm font-mono text-[10px] font-bold">
-                  ARLM {(chart.meta.arlmScore * 100).toFixed(1)}%
-                </span>
-              </div>
 
-              {/* Chart Body */}
-              <div className="h-[420px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  {chart.chartType === 'bar' ? (
-                    <BarChart data={chart.data} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
-                      <YAxis stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
-                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
-                      <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                      {chart.series.map((s, i) => (
-                        <Bar key={s.key} dataKey={s.key} name={s.name} fill={currentPalette.colors[i % currentPalette.colors.length]} radius={[6, 6, 0, 0]} />
-                      ))}
-                    </BarChart>
-                  ) : chart.chartType === 'line' ? (
-                    <LineChart data={chart.data} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
-                      <YAxis stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
-                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
-                      <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                      {chart.series.map((s, i) => (
-                        <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={currentPalette.colors[i % currentPalette.colors.length]} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 7 }} />
-                      ))}
-                    </LineChart>
-                  ) : chart.chartType === 'area' ? (
-                    <AreaChart data={chart.data} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
-                      <defs>
+                {/* Chart Body */}
+                <div className="h-[420px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    {chart.chartType === 'bar' ? (
+                      <BarChart data={chart.data} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                        <XAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
+                        <YAxis stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
                         {chart.series.map((s, i) => (
-                          <linearGradient key={s.key} id={`grad_${s.key}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={currentPalette.colors[i % currentPalette.colors.length]} stopOpacity={0.8} />
-                            <stop offset="95%" stopColor={currentPalette.colors[i % currentPalette.colors.length]} stopOpacity={0} />
-                          </linearGradient>
-                        ))}
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
-                      <YAxis stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
-                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
-                      <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                      {chart.series.map((s, i) => (
-                        <Area key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={currentPalette.colors[i % currentPalette.colors.length]} fillOpacity={1} fill={`url(#grad_${s.key})`} />
-                      ))}
-                    </AreaChart>
-                  ) : chart.chartType === 'donut' || chart.chartType === 'pie' ? (
-                    <PieChart>
-                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
-                      <Legend wrapperStyle={{ fontSize: '11px' }} />
-                      <Pie
-                        data={chart.data}
-                        dataKey={chart.series[0]?.key || 'score'}
-                        nameKey={chart.xAxisKey}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={chart.chartType === 'donut' ? 70 : 0}
-                        outerRadius={125}
-                        paddingAngle={3}
-                        label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
-                      >
-                        {chart.data.map((_, index) => (
-                          <Cell key={`cell-${index}`} fill={currentPalette.colors[index % currentPalette.colors.length]} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  ) : chart.chartType === 'radar' ? (
-                    <RadarChart data={chart.data} margin={{ top: 20, right: 30, left: 30, bottom: 20 }}>
-                      <PolarGrid opacity={0.2} />
-                      <PolarAngleAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.7} tick={{ fontSize: 10 }} />
-                      <PolarRadiusAxis opacity={0.4} stroke={currentPalette.text} />
-                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
-                      <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                      {chart.series.map((s, i) => (
-                        <Radar key={s.key} name={s.name} dataKey={s.key} stroke={currentPalette.colors[i % currentPalette.colors.length]} fill={currentPalette.colors[i % currentPalette.colors.length]} fillOpacity={0.4} />
-                      ))}
-                    </RadarChart>
-                  ) : (
-                    <ComposedChart data={chart.data} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
-                      <YAxis stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
-                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
-                      <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-                      {chart.series.map((s, i) =>
-                        i % 2 === 0 ? (
                           <Bar key={s.key} dataKey={s.key} name={s.name} fill={currentPalette.colors[i % currentPalette.colors.length]} radius={[6, 6, 0, 0]} />
-                        ) : (
-                          <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={currentPalette.colors[i % currentPalette.colors.length]} strokeWidth={3} />
-                        )
-                      )}
-                    </ComposedChart>
-                  )}
-                </ResponsiveContainer>
+                        ))}
+                      </BarChart>
+                    ) : chart.chartType === 'line' ? (
+                      <LineChart data={chart.data} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                        <XAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
+                        <YAxis stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                        {chart.series.map((s, i) => (
+                          <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={currentPalette.colors[i % currentPalette.colors.length]} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 7 }} />
+                        ))}
+                      </LineChart>
+                    ) : chart.chartType === 'area' ? (
+                      <AreaChart data={chart.data} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
+                        <defs>
+                          {chart.series.map((s, i) => (
+                            <linearGradient key={s.key} id={`grad_${s.key}`} x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={currentPalette.colors[i % currentPalette.colors.length]} stopOpacity={0.8} />
+                              <stop offset="95%" stopColor={currentPalette.colors[i % currentPalette.colors.length]} stopOpacity={0} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                        <XAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
+                        <YAxis stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                        {chart.series.map((s, i) => (
+                          <Area key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={currentPalette.colors[i % currentPalette.colors.length]} fillOpacity={1} fill={`url(#grad_${s.key})`} />
+                        ))}
+                      </AreaChart>
+                    ) : chart.chartType === 'donut' || chart.chartType === 'pie' ? (
+                      <PieChart>
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                        <Legend wrapperStyle={{ fontSize: '11px' }} />
+                        <Pie
+                          data={chart.data}
+                          dataKey={chart.series[0]?.key || 'score'}
+                          nameKey={chart.xAxisKey}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={chart.chartType === 'donut' ? 70 : 0}
+                          outerRadius={125}
+                          paddingAngle={3}
+                          label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
+                        >
+                          {chart.data.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={currentPalette.colors[index % currentPalette.colors.length]} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    ) : chart.chartType === 'radar' ? (
+                      <RadarChart data={chart.data} margin={{ top: 20, right: 30, left: 30, bottom: 20 }}>
+                        <PolarGrid opacity={0.2} />
+                        <PolarAngleAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.7} tick={{ fontSize: 10 }} />
+                        <PolarRadiusAxis opacity={0.4} stroke={currentPalette.text} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                        {chart.series.map((s, i) => (
+                          <Radar key={s.key} name={s.name} dataKey={s.key} stroke={currentPalette.colors[i % currentPalette.colors.length]} fill={currentPalette.colors[i % currentPalette.colors.length]} fillOpacity={0.4} />
+                        ))}
+                      </RadarChart>
+                    ) : (
+                      <ComposedChart data={chart.data} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                        <XAxis dataKey={chart.xAxisKey} stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
+                        <YAxis stroke={currentPalette.text} opacity={0.6} tick={{ fontSize: 11 }} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                        <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                        {chart.series.map((s, i) =>
+                          i % 2 === 0 ? (
+                            <Bar key={s.key} dataKey={s.key} name={s.name} fill={currentPalette.colors[i % currentPalette.colors.length]} radius={[6, 6, 0, 0]} />
+                          ) : (
+                            <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={currentPalette.colors[i % currentPalette.colors.length]} strokeWidth={3} />
+                          )
+                        )}
+                      </ComposedChart>
+                    )}
+                  </ResponsiveContainer>
+                </div>
               </div>
-            </div>
+            </IsolatedErrorBoundary>
           )}
 
           {/* Data Table Editor Tab */}

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createJiraIssue, JiraConfig } from '@/lib/jira-client';
+import { resolveAuthContext, safeErrorResponse } from '@/lib/security';
 
 export async function POST(req: NextRequest) {
   try {
+    await resolveAuthContext(req);
     const body = await req.json();
     const { domain, email, apiToken, projectKey, summary, description, issueType } = body;
 
@@ -28,9 +30,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'Failed to dispatch Jira issue'
-    }, { status: 500 });
+    return safeErrorResponse(error, 'Failed to dispatch Jira issue');
   }
 }
+

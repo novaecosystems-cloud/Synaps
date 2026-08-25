@@ -1,7 +1,6 @@
 "use client";
 
-import * as React from "react";
-import { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Globe, AlignLeft, Sparkles, Zap } from "lucide-react";
 
@@ -76,6 +75,10 @@ function ModelIcon({ model, className }: { model: string; className?: string }) 
     <img 
       src={icons[model] || icons["GPT 5.5"]} 
       alt={model} 
+      width={20}
+      height={20}
+      loading="lazy"
+      decoding="async"
       className={cn("object-contain", filters[model], className)} 
     />
   );
@@ -170,7 +173,7 @@ function AttachmentThumb({
       )}
       aria-label={`Open preview of ${attachment.name}`}
     >
-      <img src={attachment.url} alt={attachment.name} className="size-full object-cover" draggable={false} />
+      <img src={attachment.url} alt={attachment.name} width={48} height={48} loading="lazy" decoding="async" className="size-full object-cover" draggable={false} />
       <span className={cn("absolute inset-0 flex items-start justify-end bg-black/0 transition-colors duration-200", isHovered && "bg-black/25")}>
         <span
           role="button" tabIndex={-1}
@@ -267,7 +270,7 @@ function AttachmentGalleryModal({
         onTransitionEnd={() => { if (phase === "closing") onClose(); }}
         onClick={(e) => e.stopPropagation()}
       >
-        <img ref={imgRef} src={attachment.url} alt={attachment.name} className="size-full object-cover" draggable={false} />
+        <img ref={imgRef} src={attachment.url} alt={attachment.name} loading="lazy" decoding="async" className="size-full object-cover" draggable={false} />
       </div>
 
       <button

@@ -796,3 +796,27 @@ h1, h2, h3, h4, h5, h6, .font-headline, .font-fraunces {
   }
 }
 
+/* ==========================================================================
+   ADA Title III & WCAG 2.1/2.2 AA Accessibility Compliance Hardening
+   ========================================================================== */
+
+/* WCAG 2.4.7 Focus Visible: Ensure keyboard users have high-contrast focus rings */
+:focus-visible {
+  outline: 2px solid #2563eb !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.25) !important;
+}
+
+/* WCAG 2.3.3 Animation from Interactions: Honor user's system motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+

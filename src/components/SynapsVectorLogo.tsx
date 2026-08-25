@@ -121,6 +121,10 @@ export function SynapsVectorLogo({
       <img
         src="/synaps-logo-full.svg"
         alt="Synaps AI"
+        width={320}
+        height={80}
+        loading="eager"
+        decoding="async"
         className="w-full h-full object-contain"
       />
     </div>

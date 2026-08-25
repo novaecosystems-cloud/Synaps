@@ -5,8 +5,8 @@ import { Metadata } from 'next';
 import IntegrationsClient from './client';
 
 export const metadata: Metadata = {
-  title: 'Public APIs & Data Connectors | Synaps',
-  description: 'Integrate live public APIs from public-apis/public-apis repository into Synaps AI COO OS.',
+  title: 'Enterprise Connectors Suite | Causarix Synaps',
+  description: 'Bi-directional Enterprise Connectors Hub: Google Drive, Oracle/Cloudbeds PMS, WhatsApp Business, and Jira Cloud integrations for Causarix AI COO.',
 };
 
 export default function IntegrationsPage() {

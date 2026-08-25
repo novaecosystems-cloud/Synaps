@@ -67,6 +67,9 @@ model Organization {
   timelineEvents          TimelineEvent[]
   enterpriseRisks         EnterpriseRisk[]
   enterprisePredictions   EnterprisePrediction[]
+  actionTasks             ActionTask[]
+  pmsMetrics              PmsMetric[]
+  pmsGuestLogs            PmsGuestLog[]
 }
 
 model User {
@@ -788,6 +791,8 @@ enum ConnectorType {
   GOOGLE_DRIVE
   SLACK
   JIRA
+  PMS
+  WHATSAPP
 }
 
 model Connector {
@@ -1286,4 +1291,82 @@ model DomainRiskProfile {
   @@index([industryVertical])
   @@index([moatScore])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENTERPRISE ACTION & CONNECTOR ENTITIES
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ActionTask {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  key            String       // e.g. CSX-101
+  jiraKey        String?      // e.g. KAN-12 or PROJ-42
+  title          String
+  description    String?      @db.Text
+  status         String       @default("TODO") // P0_BLOCKER, TODO, IN_PROGRESS, IN_REVIEW, DONE
+  priority       String       @default("P1")   // P0, P1, P2, P3
+  assignee       String?      // e.g. "AI: CTO Twin", "Human: Shourya"
+  causalityTag   String?      // e.g. "CSX-101", "SCM-COUNTERFACTUAL-MITIGATION"
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@index([key])
+  @@index([jiraKey])
+  @@index([status])
+}
+
+model PmsMetric {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  propertyId     String?
+  propertyName   String?
+  date           DateTime     @default(now())
+  occupancyRate  Float        // Percentage e.g. 84.5
+  adr            Float        // Average Daily Rate e.g. 189.50
+  revpar         Float        // Revenue Per Available Room e.g. 160.12
+  totalRooms     Int?         // Total room inventory
+  occupiedRooms  Int?         // Number of occupied rooms
+  totalRevenue   Float?       // Total room / property revenue
+  currency       String       @default("USD")
+  source         String?      @default("PMS") // e.g. OPERA, CLOUDBEDS, MEWS
+  metadata       Json?        @default("{}")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@index([date])
+  @@index([propertyId])
+  @@index([organizationId, date])
+}
+
+model PmsGuestLog {
+  id               String       @id @default(uuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  propertyId       String?
+  guestName        String?      // Anonymized or pseudonymized guest name
+  roomNumber       String?
+  checkIn          DateTime?
+  checkOut         DateTime?
+  status           String       @default("CHECKED_IN") // CHECKED_IN, CHECKED_OUT, RESERVED, CANCELLED, NO_SHOW
+  sentimentScore   Float?       // Normalized sentiment score (-1.0 to 1.0 or 0 to 100)
+  feedback         String?      @db.Text
+  vipStatus        Boolean      @default(false)
+  incidentReported Boolean      @default(false)
+  incidentDetails  String?      @db.Text
+  source           String?      @default("PMS") // e.g. OPERA_GUEST, TRIPADVISOR, CONCIERGE
+  metadata         Json?        @default("{}")
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([checkIn])
+  @@index([checkOut])
+  @@index([organizationId, status])
+}
+
 

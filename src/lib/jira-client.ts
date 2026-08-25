@@ -5,6 +5,9 @@
  * directly on the user's Jira board from Causarix boardroom deliberations.
  */
 
+import { inspectResponse } from "@/lib/ai-firewall";
+import { validateScrapeUrl } from "@/lib/security";
+
 export interface JiraConfig {
   domain: string; // e.g. "https://your-domain.atlassian.net"
   email: string;
@@ -26,15 +29,28 @@ export async function createJiraIssue(config: JiraConfig, params: CreateJiraIssu
   error?: string;
 }> {
   try {
-    const cleanDomain = config.domain.replace(/\/$/, "");
+    // 1. SSRF Validation
+    const urlCheck = validateScrapeUrl(config.domain);
+    if (!urlCheck.valid) {
+      return {
+        success: false,
+        error: `Invalid Jira domain (SSRF blocked): ${urlCheck.error}`
+      };
+    }
+
+    const cleanDomain = (urlCheck.cleanUrl || config.domain).replace(/\/$/, "");
     const authHeader = Buffer.from(`${config.email}:${config.apiToken}`).toString("base64");
+
+    // 2. AI Firewall Egress Scrubbing
+    const cleanSummary = inspectResponse(params.summary).sanitizedOutput;
+    const cleanDescription = inspectResponse(params.description).sanitizedOutput;
 
     const payload = {
       fields: {
         project: {
           key: config.projectKey.toUpperCase()
         },
-        summary: params.summary,
+        summary: cleanSummary,
         description: {
           type: "doc",
           version: 1,
@@ -44,7 +60,7 @@ export async function createJiraIssue(config: JiraConfig, params: CreateJiraIssu
               content: [
                 {
                   type: "text",
-                  text: params.description
+                  text: cleanDescription
                 }
               ]
             }

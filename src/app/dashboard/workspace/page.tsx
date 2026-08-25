@@ -1,6 +1,8 @@
 import { getWorkspaceDocuments } from '@/app/actions/workspace';
 import WorkspaceClient from './client';
 
+export const dynamic = 'force-dynamic';
+
 export default async function WorkspacePage() {
   const documents = await getWorkspaceDocuments();
   

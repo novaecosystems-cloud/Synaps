@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { resolveAuthContext, safeErrorResponse } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    await resolveAuthContext(req);
     const body = await req.json().catch(() => ({}));
     const { query = '', imageBase64 = '', mode = 'screen', consentGiven = false } = body;
 
@@ -93,9 +95,7 @@ Analyze the visual and text content on screen with extreme precision:
     });
   } catch (error: any) {
     console.error('[SPOTLIGHT VISION ROUTE ERROR]', error.message);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'Failed to process screen context',
-    }, { status: 500 });
+    return safeErrorResponse(error, 'Failed to process screen context');
   }
 }
+

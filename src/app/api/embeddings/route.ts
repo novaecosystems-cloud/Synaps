@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { generateEmbedding } from '@/lib/embeddings';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';

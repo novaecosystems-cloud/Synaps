@@ -81,6 +81,8 @@ export function HoverExpand({
                 <img
                   src={item.image}
                   alt={item.imageAlt ?? item.label}
+                  width={1024}
+                  height={640}
                   className="w-full h-full object-contain object-top rounded-xl shadow-2xl"
                   loading="lazy"
                   decoding="async"

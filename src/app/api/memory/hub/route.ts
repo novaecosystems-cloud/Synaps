@@ -1,12 +1,14 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { TeamAgentMemoryHub } from '@/lib/memory/team-agent-memory-hub';
+import { resolveAuthContext, safeErrorResponse } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await resolveAuthContext(req);
     const { searchParams } = new URL(req.url);
-    const orgId = searchParams.get('orgId') || 'no_org_fallback';
+    const orgId = auth.orgId !== 'no_org_fallback' ? auth.orgId : (searchParams.get('orgId') || 'no_org_fallback');
     const q = searchParams.get('q') || '';
     const domain = searchParams.get('domain') || undefined;
 
@@ -18,21 +20,23 @@ export async function GET(req: NextRequest) {
     const state = await TeamAgentMemoryHub.getMemoryState(orgId);
     return NextResponse.json({ success: true, memoryState: state }, { status: 200 });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return safeErrorResponse(error, 'Failed to query memory hub');
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await resolveAuthContext(req);
     const body = await req.json();
-    const { organizationId = 'no_org_fallback', sessionId = `sess_${Date.now()}`, topic, deliberationLogs = [], consensusDossier } = body;
+    const { organizationId, sessionId = `sess_${Date.now()}`, topic, deliberationLogs = [], consensusDossier } = body;
+    const effectiveOrgId = auth.orgId !== 'no_org_fallback' ? auth.orgId : (organizationId || 'no_org_fallback');
 
     if (!topic || !consensusDossier) {
       return NextResponse.json({ success: false, error: 'Missing topic or consensusDossier' }, { status: 400 });
     }
 
     const result = await TeamAgentMemoryHub.commitBoardroomSession(
-      organizationId,
+      effectiveOrgId,
       sessionId,
       topic,
       deliberationLogs,
@@ -41,7 +45,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, result }, { status: 200 });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return safeErrorResponse(error, 'Failed to commit memory session');
   }
 }
+
 

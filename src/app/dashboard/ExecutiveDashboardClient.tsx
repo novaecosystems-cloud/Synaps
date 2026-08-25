@@ -5,7 +5,8 @@ import {
   BrainCircuit, ShieldAlert, CheckCircle2, AlertTriangle, Activity, 
   HelpCircle, ChevronRight, FileText, Send, Sparkles, RefreshCw, 
   Layers, ArrowUpRight, Clock, Building2, ExternalLink, X, MessageSquare,
-  TrendingUp, TrendingDown, Info, ShieldCheck, Flame, Scale, DollarSign
+  TrendingUp, TrendingDown, Info, ShieldCheck, Flame, Scale, DollarSign,
+  Zap, UploadCloud, RotateCcw
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,13 @@ import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
 import { TactileButton, ScrambleText } from '@/components/ui/EnterpriseTactileSuite';
 import { useOrgProfile } from '@/context/OrgProfileContext';
+import { SampleScenarioTrigger } from '@/components/dashboard/SampleScenarioTrigger';
+import {
+  SAMPLE_SCENARIO_A,
+  SAMPLE_SCENARIO_B,
+  SampleScenarioDefinition,
+  getSampleScenario
+} from '@/lib/sample-scenarios';
 import {
   getSectorContent,
   getAdaptiveDepartments,
@@ -22,6 +30,13 @@ import {
   buildAdaptiveDemoData,
   buildAdaptiveAhaScenarios,
 } from '@/lib/org-adaptive-content';
+import { useAuth } from '@/context/AuthContext';
+import SignInModal from '@/components/SignInModal';
+import {
+  saveGuestSimulationState,
+  loadGuestSimulationState,
+  isGuestUser,
+} from '@/lib/guest-simulation-store';
 
 interface Citation {
   documentId?: string;
@@ -69,6 +84,7 @@ export interface ExecutiveBriefData {
 }
 
 export default function ExecutiveDashboardClient({ userName }: { userName: string }) {
+  const { user } = useAuth();
   const isDemoMode = typeof window !== 'undefined' && (window.location.pathname === '/demo' || window.location.search.includes('demo=true'));
   const { profile } = useOrgProfile();
 
@@ -85,11 +101,16 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
   // AHA scenarios built from sector (labels, file names, roles all adaptive)
   const AHA_SCENARIOS = buildAdaptiveAhaScenarios(sector, companyName, adaptiveAgents);
 
-
   // ── RUNTIME STATE ─────────────────────────────────────────────────────────
   const [data, setData] = useState<ExecutiveBriefData>(DEFAULT_DEMO_DATA);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeSampleScenarioId, setActiveSampleScenarioId] = useState<string | null>(null);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const [signInPrompt, setSignInPrompt] = useState({
+    title: 'Save Executive Briefing & Simulation',
+    subtitle: 'Sign in to save your executive simulation results and unlock 50 daily boardroom runs',
+  });
 
   // ─── 60-SECOND AHA SIMULATION LAB STATE ──────────────────────────────────
   const [activeAhaScenario, setActiveAhaScenario] = useState<'mna' | 'sla' | 'boardroom'>('mna');
@@ -131,6 +152,10 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
       const json = await res.json();
       if (json.success && json.data) {
         setData(json.data);
+        // If real data arrived from database with knowledge coverage, override sample state
+        if (json.data.knowledgeCoverage > 0) {
+          setActiveSampleScenarioId(null);
+        }
       }
     } catch (err: any) {
       console.warn('[AI COO] Background brief sync notice:', err);
@@ -141,7 +166,33 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
 
   useEffect(() => {
     fetchBriefData();
+
+    // Check for query param ?scenario=scenario-a or ?scenario=scenario-b
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const scenarioParam = params.get('scenario');
+      if (scenarioParam) {
+        const scenario = getSampleScenario(scenarioParam);
+        handleLoadSampleScenario(scenario);
+      } else {
+        const savedAha = loadGuestSimulationState<{ scenarioKey: 'mna' | 'sla' | 'boardroom' }>('aha');
+        if (savedAha && savedAha.scenarioKey) {
+          setActiveAhaScenario(savedAha.scenarioKey);
+        }
+      }
+    }
   }, []);
+
+  // ── 1-CLICK INSTANT SAMPLE SCENARIO ACTIVATION ────────────────────────────
+  const handleLoadSampleScenario = (scenario: SampleScenarioDefinition) => {
+    setActiveSampleScenarioId(scenario.id);
+    setData(scenario.executiveBrief as unknown as ExecutiveBriefData);
+  };
+
+  const handleResetToLive = () => {
+    setActiveSampleScenarioId(null);
+    fetchBriefData();
+  };
 
   const handleCustomQuestion = async () => {
     if (!customQuestion.trim() || askingCustom) return;
@@ -192,9 +243,39 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
     }
   };
 
+  const isScenarioA = activeSampleScenarioId === 'scenario-a';
+  const isScenarioB = activeSampleScenarioId === 'scenario-b';
+
   return (
     <div className="w-full space-y-8 font-sans pb-16">
       
+      {/* ACTIVE SAMPLE SCENARIO NOTIFICATION BANNER */}
+      {activeSampleScenarioId && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-950/90 via-slate-900 to-indigo-950/90 border border-cyan-500/40 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-2.5 text-xs font-mono">
+            <Zap className="w-4 h-4 text-cyan-400 shrink-0 fill-cyan-400" />
+            <span>
+              ⚡ Viewing 1-Click Executive Sample Scenario: <strong className="text-cyan-300">{isScenarioA ? 'Supplier Supply Chain Shock & M&A Due Diligence' : 'Q3 Margin Compression & Delaware DGCL § 141 Safe-Harbor Audit'}</strong>
+            </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href={isScenarioA ? '/dashboard/boardroom?scenario=scenario-a' : '/dashboard/boardroom?scenario=scenario-b'}
+              className="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-[11px] uppercase tracking-wider flex items-center gap-1 shadow-sm"
+            >
+              <span>Convene 10-Agent Boardroom</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </Link>
+            <button
+              onClick={handleResetToLive}
+              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 font-bold text-[11px] uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer"
+            >
+              <RotateCcw className="w-3 h-3" /> Reset
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 1. HERO AI COO BRIEFING BANNER */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/20 text-white p-8 shadow-2xl">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none"></div>
@@ -228,19 +309,44 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
           </p>
 
           {/* Tactile 3D Action Controls */}
-          <div className="flex flex-wrap items-center gap-4 pt-2">
-            <TactileButton variant="primary" onClick={() => window.location.href = '/dashboard/boardroom'}>
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <TactileButton 
+              variant="primary" 
+              onClick={() => {
+                const targetUrl = activeSampleScenarioId 
+                  ? `/dashboard/boardroom?scenario=${activeSampleScenarioId}` 
+                  : '/dashboard/boardroom';
+                window.location.href = targetUrl;
+              }}
+            >
               <span>Run 10-Agent Deliberation</span>
               <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
             </TactileButton>
 
-            <TactileButton variant="amber" onClick={() => window.location.href = '/dashboard/simulations'}>
-              <span>Deploy Invariant Engine</span>
+            <TactileButton 
+              variant="amber" 
+              onClick={() => {
+                const targetUrl = activeSampleScenarioId 
+                  ? `/dashboard/simulations?scenario=${activeSampleScenarioId}` 
+                  : '/dashboard/simulations';
+                window.location.href = targetUrl;
+              }}
+            >
+              <span>Deploy Invariant SCM Engine</span>
             </TactileButton>
 
             <button onClick={fetchBriefData} className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer">
               <RefreshCw className="w-3.5 h-3.5" /> Re-Sync
             </button>
+          </div>
+
+          {/* Quick Scenario Preset Triggers in Hero */}
+          <div className="pt-3 border-t border-white/10">
+            <SampleScenarioTrigger 
+              variant="compact"
+              activeScenarioId={activeSampleScenarioId || undefined}
+              onSelectScenario={handleLoadSampleScenario}
+            />
           </div>
         </div>
       </div>
@@ -271,42 +377,47 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
               onClick={() => {
                 setIsAhaAnalyzing(true);
                 setActiveAhaScenario('mna');
-                setTimeout(() => setIsAhaAnalyzing(false), 500);
+                handleLoadSampleScenario(SAMPLE_SCENARIO_A);
+                saveGuestSimulationState('aha', { scenarioKey: 'mna' });
+                setTimeout(() => setIsAhaAnalyzing(false), 300);
               }}
               className={cn(
-                "px-3.5 py-2 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5",
+                "px-3.5 py-2 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
                 activeAhaScenario === 'mna'
                   ? "bg-indigo-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]"
                   : "text-slate-400 hover:text-white"
               )}
             >
-              <span>🎯 $200M M&A Audit</span>
+              <span>🎯 Scenario A: $200M M&A</span>
             </button>
 
             <button
               onClick={() => {
                 setIsAhaAnalyzing(true);
                 setActiveAhaScenario('sla');
-                setTimeout(() => setIsAhaAnalyzing(false), 500);
+                handleLoadSampleScenario(SAMPLE_SCENARIO_B);
+                saveGuestSimulationState('aha', { scenarioKey: 'sla' });
+                setTimeout(() => setIsAhaAnalyzing(false), 300);
               }}
               className={cn(
-                "px-3.5 py-2 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5",
+                "px-3.5 py-2 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
                 activeAhaScenario === 'sla'
                   ? "bg-[#fc4778] text-white shadow-[0_0_15px_rgba(252,71,120,0.5)]"
                   : "text-slate-400 hover:text-white"
               )}
             >
-              <span>⚖️ 99.99% SLA Invariant</span>
+              <span>⚖️ Scenario B: Q3 Margin & DGCL</span>
             </button>
 
             <button
               onClick={() => {
                 setIsAhaAnalyzing(true);
                 setActiveAhaScenario('boardroom');
-                setTimeout(() => setIsAhaAnalyzing(false), 500);
+                saveGuestSimulationState('aha', { scenarioKey: 'boardroom' });
+                setTimeout(() => setIsAhaAnalyzing(false), 300);
               }}
               className={cn(
-                "px-3.5 py-2 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5",
+                "px-3.5 py-2 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
                 activeAhaScenario === 'boardroom'
                   ? "bg-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)]"
                   : "text-slate-400 hover:text-white"
@@ -331,18 +442,18 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 font-mono text-xs font-bold">
-                  // {AHA_SCENARIOS[activeAhaScenario].tag}
+                  // {AHA_SCENARIOS[activeAhaScenario]?.tag || 'EXECUTIVE_SCENARIO'}
                 </span>
                 <h3 className="font-bold text-lg text-white">
-                  {AHA_SCENARIOS[activeAhaScenario].title}
+                  {AHA_SCENARIOS[activeAhaScenario]?.title || 'High Stakes Corporate Simulation'}
                 </h3>
               </div>
               <div className="flex items-center gap-2 font-mono text-xs">
                 <span className="px-2.5 py-1 rounded-md bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold">
-                  {AHA_SCENARIOS[activeAhaScenario].riskScore}
+                  {AHA_SCENARIOS[activeAhaScenario]?.riskScore || 'HIGH RISK'}
                 </span>
                 <span className="px-2.5 py-1 rounded-md bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold">
-                  ⚡ {AHA_SCENARIOS[activeAhaScenario].timeSaved}
+                  ⚡ {AHA_SCENARIOS[activeAhaScenario]?.timeSaved || '&lt;3s Activation'}
                 </span>
               </div>
             </div>
@@ -356,13 +467,13 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
                   <span>1. Detected Vulnerability</span>
                 </div>
                 <h4 className="text-sm font-bold text-white">
-                  {AHA_SCENARIOS[activeAhaScenario].vulnerability.title}
+                  {AHA_SCENARIOS[activeAhaScenario]?.vulnerability?.title}
                 </h4>
                 <div className="p-2.5 rounded-lg bg-rose-950/40 border border-rose-500/20 font-mono text-[11px] text-rose-200">
-                  📁 {AHA_SCENARIOS[activeAhaScenario].vulnerability.source}
+                  📁 {AHA_SCENARIOS[activeAhaScenario]?.vulnerability?.source}
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  {AHA_SCENARIOS[activeAhaScenario].vulnerability.detail}
+                  {AHA_SCENARIOS[activeAhaScenario]?.vulnerability?.detail}
                 </p>
               </div>
 
@@ -376,18 +487,18 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
                   <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
                     <span className="text-[10px] text-slate-400 block uppercase">Clean-Room Cost</span>
                     <span className="text-base font-black text-amber-300">
-                      {AHA_SCENARIOS[activeAhaScenario].financialDrag.cleanRoomCost}
+                      {AHA_SCENARIOS[activeAhaScenario]?.financialDrag?.cleanRoomCost}
                     </span>
                   </div>
                   <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
                     <span className="text-[10px] text-slate-400 block uppercase">Runway Impact</span>
                     <span className="text-base font-black text-rose-400">
-                      {AHA_SCENARIOS[activeAhaScenario].financialDrag.runwayImpact}
+                      {AHA_SCENARIOS[activeAhaScenario]?.financialDrag?.runwayImpact}
                     </span>
                   </div>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  💡 <strong className="text-white">CFO Directive:</strong> {AHA_SCENARIOS[activeAhaScenario].financialDrag.recommendation}
+                  💡 <strong className="text-white">CFO Directive:</strong> {AHA_SCENARIOS[activeAhaScenario]?.financialDrag?.recommendation}
                 </p>
               </div>
 
@@ -398,10 +509,10 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
                   <span>3. Delaware DGCL Redline</span>
                 </div>
                 <div className="p-2.5 rounded-lg bg-red-950/30 border border-red-500/30 text-[11px] font-sans text-red-200 line-through">
-                  ❌ {AHA_SCENARIOS[activeAhaScenario].delawareRedline.originalClause}
+                  ❌ {AHA_SCENARIOS[activeAhaScenario]?.delawareRedline?.originalClause}
                 </div>
                 <div className="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-[11px] font-sans text-emerald-200 font-semibold">
-                  ✓ {AHA_SCENARIOS[activeAhaScenario].delawareRedline.redlinedClause}
+                  ✓ {AHA_SCENARIOS[activeAhaScenario]?.delawareRedline?.redlinedClause}
                 </div>
               </div>
             </div>
@@ -410,7 +521,7 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-mono text-xs font-bold text-slate-400 uppercase">10-Agent Consensus:</span>
-                {AHA_SCENARIOS[activeAhaScenario].boardroomQuorum.map((vote, idx) => (
+                {(AHA_SCENARIOS[activeAhaScenario]?.boardroomQuorum || []).map((vote, idx) => (
                   <div key={idx} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/40 border border-white/10 font-mono text-[11px]">
                     <span className="font-bold text-indigo-300">{vote.role}:</span>
                     <span className="text-emerald-400 font-semibold">{vote.vote}</span>
@@ -420,10 +531,13 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
 
               <div className="flex items-center gap-3 shrink-0">
                 <button
-                  onClick={() => window.location.href = '/dashboard/simulations'}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center gap-2"
+                  onClick={() => {
+                    const scenarioKey = activeAhaScenario === 'mna' ? 'scenario-a' : 'scenario-b';
+                    window.location.href = `/dashboard/simulations?scenario=${scenarioKey}`;
+                  }}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-mono text-xs font-bold uppercase transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
-                  <span>Open Full Studio</span>
+                  <span>Open SCM Simulation Studio</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -508,27 +622,19 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             </h2>
             <p className="text-xs text-base-content/60">Click any card to inspect full AI analysis and document citations.</p>
           </div>
+          {activeSampleScenarioId && (
+            <span className="text-xs font-mono text-cyan-500 font-bold">
+              ⚡ Grounded in Scenario Data
+            </span>
+          )}
         </div>
 
         {(!data?.executiveAnswers || data.executiveAnswers.length === 0) ? (
-          <div className="bg-base-100 border border-base-300 rounded-3xl p-8 text-center space-y-4 shadow-sm">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mx-auto">
-              <FileText className="w-6 h-6" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="font-bold text-base text-base-content">No Documents Ingested Yet</h3>
-              <p className="text-xs text-base-content/60 max-w-md mx-auto">
-                Upload your company's vendor contracts, financial reports, or compliance policies to automatically generate executive questions, citations, and risk scores.
-              </p>
-            </div>
-            <Link 
-              href="/dashboard/knowledge" 
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold transition-all shadow-md hover:scale-[1.02]"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Ingest First Document</span>
-            </Link>
-          </div>
+          /* HIGH-VISIBILITY 2-PATHWAY EMPTY STATE */
+          <SampleScenarioTrigger 
+            onSelectScenario={handleLoadSampleScenario}
+            activeScenarioId={activeSampleScenarioId || undefined}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {data.executiveAnswers.map((item) => {
@@ -575,7 +681,9 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             <h2 className="text-lg font-bold tracking-tight text-base-content flex items-center gap-2">
               <Building2 className="w-5 h-5 text-indigo-500" /> Department Health Matrix
             </h2>
-            <span className="text-xs font-semibold text-base-content/50">5 Departments Active</span>
+            <span className="text-xs font-semibold text-base-content/50">
+              {(data?.departmentHealth || []).length} Departments Active
+            </span>
           </div>
 
           <div className="space-y-4">
@@ -594,7 +702,7 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
                   {deptCitations.length > 0 && (
                     <button 
                       onClick={() => setActiveCitation(deptCitations[0])}
-                      className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1"
+                      className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <FileText className="w-3 h-3" /> Citation: {deptCitations[0].documentName}
                     </button>
@@ -634,7 +742,7 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
                   {recCitations.length > 0 && (
                     <button 
                       onClick={() => setActiveCitation(recCitations[0])}
-                      className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1"
+                      className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <FileText className="w-3 h-3" /> Cited Document: {recCitations[0].documentName}
                     </button>
@@ -695,7 +803,7 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
       {activeAnswer && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-base-100 border border-base-300 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative space-y-4 max-h-[85vh] overflow-y-auto">
-            <button onClick={() => setActiveAnswer(null)} className="absolute top-4 right-4 p-2 text-base-content/50 hover:text-base-content">
+            <button onClick={() => setActiveAnswer(null)} className="absolute top-4 right-4 p-2 text-base-content/50 hover:text-base-content cursor-pointer">
               <X className="w-5 h-5" />
             </button>
 
@@ -729,7 +837,7 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
       {activeCitation && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-base-100 border border-base-300 rounded-3xl max-w-md w-full p-6 shadow-2xl relative space-y-3">
-            <button onClick={() => setActiveCitation(null)} className="absolute top-4 right-4 p-2 text-base-content/50 hover:text-base-content">
+            <button onClick={() => setActiveCitation(null)} className="absolute top-4 right-4 p-2 text-base-content/50 hover:text-base-content cursor-pointer">
               <X className="w-5 h-5" />
             </button>
             <h3 className="font-bold text-base text-primary flex items-center gap-2">
@@ -754,6 +862,13 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
         userName={userName}
       />
 
+      {/* Delayed High-Intent Sign-In Modal for Guest Users */}
+      <SignInModal
+        isOpen={isSignInModalOpen}
+        onClose={() => setIsSignInModalOpen(false)}
+        title={signInPrompt.title}
+        subtitle={signInPrompt.subtitle}
+      />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 'use server'
 
-import { PrismaClient } from '@prisma/client';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 

@@ -1,8 +1,52 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 const protectedRoutes = ['/dashboard', '/projects', '/knowledge'];
 const publicRoutes = ['/login', '/register'];
+
+/**
+ * Enterprise Security Headers (SOC 2 & Mozilla Observatory A+ Rating)
+ */
+function applySecurityHeaders(res: NextResponse): NextResponse {
+  // 1. Strict Transport Security (HSTS): 2 years max-age, all subdomains, preload list eligible
+  res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+
+  // 2. Clickjacking Defense
+  res.headers.set('X-Frame-Options', 'SAMEORIGIN');
+
+  // 3. MIME-Type Sniffing Protection
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+
+  // 4. Referrer Leakage Defense
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // 5. Hardware & Privacy Permissions Lockdown
+  res.headers.set('Permissions-Policy', 'camera=(), microphone=(self), geolocation=()');
+
+  // 6. Cross-Origin Opener Policy (allows popup OAuth authentication while isolating window contexts)
+  res.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+
+  // 7. Additional Enterprise Protective Headers
+  res.headers.set('X-DNS-Prefetch-Control', 'on');
+  res.headers.set('X-XSS-Protection', '1; mode=block');
+
+  // 8. Comprehensive Content Security Policy (CSP)
+  const cspDirectives = [
+    "default-src 'self' https: data: blob:",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: https://*.firebaseapp.com https://apis.google.com https://cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' https: https://fonts.googleapis.com",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' https: data: https://fonts.gstatic.com",
+    "connect-src 'self' https: wss: ws: https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://synaps-3d138.firebaseapp.com https://api.dicebear.com",
+    "frame-src 'self' https://synaps-3d138.firebaseapp.com https://*.firebaseapp.com https://accounts.google.com https://*.google.com",
+    "frame-ancestors 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self' https:",
+  ];
+  res.headers.set('Content-Security-Policy', cspDirectives.join('; '));
+
+  return res;
+}
 
 export function middleware(request: NextRequest) {
   const session = request.cookies.get('synaps-session')?.value;
@@ -20,25 +64,24 @@ export function middleware(request: NextRequest) {
         sameSite: 'lax',
       });
     }
-    res.headers.set('X-Content-Type-Options', 'nosniff');
-    res.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-    return res;
+    return applySecurityHeaders(res);
   }
 
   // 2. Allow Legal pages
   if (path.startsWith('/legal')) {
     const res = NextResponse.next();
-    res.headers.set('X-Content-Type-Options', 'nosniff');
-    return res;
+    return applySecurityHeaders(res);
   }
 
   // 3. Server-Side Admin Protection: Validate session strictly on backend for Admin routes
   if (path.startsWith('/admin') || path.startsWith('/dashboard/admin') || path.startsWith('/api/admin')) {
     if (!session) {
       if (path.startsWith('/api/')) {
-        return NextResponse.json({ success: false, error: 'Unauthorized. Admin session required.' }, { status: 401 });
+        const res = NextResponse.json({ success: false, error: 'Unauthorized. Admin session required.' }, { status: 401 });
+        return applySecurityHeaders(res);
       }
-      return NextResponse.redirect(new URL('/login', request.url));
+      const res = NextResponse.redirect(new URL('/login', request.url));
+      return applySecurityHeaders(res);
     }
   }
 
@@ -55,24 +98,22 @@ export function middleware(request: NextRequest) {
         path: '/',
         sameSite: 'lax',
       });
-      return res;
+      return applySecurityHeaders(res);
     }
     const redirectUrl = new URL('/login', request.url);
     redirectUrl.searchParams.set('redirect', path);
-    return NextResponse.redirect(redirectUrl);
+    const res = NextResponse.redirect(redirectUrl);
+    return applySecurityHeaders(res);
   }
 
   // 5. Redirect real authenticated users away from login/register to dashboard
   if (isPublicRoute && session && !session.startsWith('TEST_TOKEN_')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    const res = NextResponse.redirect(new URL('/dashboard', request.url));
+    return applySecurityHeaders(res);
   }
 
   const response = NextResponse.next();
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-
-  return response;
+  return applySecurityHeaders(response);
 }
 
 export const config = {

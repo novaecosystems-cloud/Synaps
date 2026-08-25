@@ -266,6 +266,10 @@ export function DribbbleDashboardView() {
                 <img 
                   src={card.previewImage} 
                   alt={card.title} 
+                  width={400}
+                  height={200}
+                  loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 h-full w-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
                 />
               ) : null}
@@ -329,6 +333,10 @@ export function DribbbleDashboardView() {
                   <img 
                     src={card.authorAvatar} 
                     alt={card.author} 
+                    width={24}
+                    height={24}
+                    loading="lazy"
+                    decoding="async"
                     className="h-6 w-6 rounded-full object-cover border border-border"
                   />
                   <span className="text-xs font-semibold text-muted-foreground truncate max-w-[110px]">

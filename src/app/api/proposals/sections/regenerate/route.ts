@@ -1,11 +1,10 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { regenerateSection } from '@/lib/proposal-engine';
 
 import prisma from '@/lib/prisma';
-import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
+import { requireAuth, requireAuthForLLM, assertOrgAccess } from '@/lib/api-security';
 
 export async function POST(req: NextRequest) {
   const _auth = await requireAuthForLLM(req);
@@ -24,6 +23,9 @@ export async function POST(req: NextRequest) {
     if (!section || !section.proposal.documentId) {
       return NextResponse.json({ success: false, error: 'Section or related Document not found' }, { status: 404 });
     }
+
+    const orgCheck = assertOrgAccess(_auth.organizationId, section.organizationId || section.proposal?.organizationId);
+    if (orgCheck) return orgCheck;
 
     // Fetch requirements for context
     const requirements = await prisma.requirement.findMany({ 

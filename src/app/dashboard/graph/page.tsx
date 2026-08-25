@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Loader2, RefreshCw, Network, Compass, Sparkles, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { IsolatedErrorBoundary } from '@/components/ui/error-boundary';
 
 const NetworkGraph = dynamic(() => import('@/components/dashboard/network-graph').then(m => m.NetworkGraph), {
   ssr: false,
@@ -100,9 +101,24 @@ export default function MemoryGraphPage() {
           </Button>
         </div>
       ) : viewMode === 'spatial' ? (
-        <WorldClawSpatialCampusPreview />
+        <IsolatedErrorBoundary
+          name="3D WorldClaw Spatial Campus"
+          fallbackTitle="3D Campus Render Interrupted"
+          fallbackDescription="The 3D WebGL context encountered an issue. Click retry to re-initialize WebGL canvas."
+          onRetry={fetchGraphData}
+        >
+          <WorldClawSpatialCampusPreview />
+        </IsolatedErrorBoundary>
       ) : (
-        <NetworkGraph data={graphData} />
+        <IsolatedErrorBoundary
+          name="3D Knowledge Graph Lattice"
+          fallbackTitle="3D Force Graph Render Interrupted"
+          fallbackDescription="The 3D WebGL force graph canvas encountered a render exception. Click retry to re-initialize."
+          onRetry={fetchGraphData}
+          resetKeys={[graphData]}
+        >
+          <NetworkGraph data={graphData} />
+        </IsolatedErrorBoundary>
       )}
     </div>
   );

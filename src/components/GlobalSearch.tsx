@@ -29,10 +29,10 @@ export function GlobalSearch({ userId = 'user-1', organizationId = 'org-1' }: Gl
   const inputRef = useRef<HTMLInputElement>(null);
 
 
-  // Keyboard shortcut Cmd/Ctrl + K
+  // Keyboard shortcut Cmd/Ctrl + K & Custom Global Events
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsOpen((prev) => !prev);
       }
@@ -40,8 +40,19 @@ export function GlobalSearch({ userId = 'user-1', organizationId = 'org-1' }: Gl
         setIsOpen(false);
       }
     };
+
+    const handleOpenSearch = () => setIsOpen(true);
+    const handleCloseSearch = () => setIsOpen(false);
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('causarix-open-search', handleOpenSearch);
+    window.addEventListener('causarix-close-modals', handleCloseSearch);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('causarix-open-search', handleOpenSearch);
+      window.removeEventListener('causarix-close-modals', handleCloseSearch);
+    };
   }, [isOpen]);
 
   useEffect(() => {

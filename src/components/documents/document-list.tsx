@@ -21,6 +21,7 @@ import { CustomLoader } from '@/components/ui/custom-loader';
 import { DocumentPreviewModal } from '@/components/documents/document-preview-modal';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { getDocumentTypeInfo, estimatePageCount } from './document-upload-dropzone';
 
 interface DocumentListProps {
   documents: any[];
@@ -37,11 +38,10 @@ export function DocumentList({ documents }: DocumentListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const getIcon = (mimeType: string) => {
-    if (mimeType.includes('pdf')) return <FileText className="h-5 w-5 text-red-400" />;
-    if (mimeType.includes('image')) return <ImageIcon className="h-5 w-5 text-blue-400" />;
-    if (mimeType.includes('spreadsheet')) return <FileSpreadsheet className="h-5 w-5 text-green-400" />;
-    return <FileIcon className="h-5 w-5 text-muted-foreground" />;
+  const getIcon = (mimeType: string, name?: string) => {
+    const info = getDocumentTypeInfo({ name: name || '', type: mimeType });
+    const IconComp = info.icon;
+    return <IconComp className={cn("h-5 w-5", info.iconColor)} />;
   };
 
   const getScanBadge = (status: string) => {
@@ -170,30 +170,42 @@ export function DocumentList({ documents }: DocumentListProps) {
               </tr>
             </thead>
             <tbody>
-              {filteredDocs.map((doc) => (
-                <tr key={doc.id} className="hover hover:bg-base-200/50 transition-colors border-base-300">
-                  <td>
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-base-200 border border-base-300 shadow-sm text-base-content">
-                        {getIcon(doc.mimeType)}
+              {filteredDocs.map((doc) => {
+                const docType = getDocumentTypeInfo({ name: doc.name, type: doc.mimeType });
+                const pageEst = estimatePageCount({ name: doc.name, size: doc.sizeBytes, type: doc.mimeType });
+
+                return (
+                  <tr key={doc.id} className="hover hover:bg-base-200/50 transition-colors border-base-300">
+                    <td>
+                      <div className="flex items-center gap-3">
+                        <div className={cn("p-2 rounded-xl border shadow-sm flex items-center justify-center", docType.iconBg)}>
+                          {getIcon(doc.mimeType, doc.name)}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className={cn("text-[9px] font-mono font-bold uppercase px-1.5 py-0.2 rounded border", docType.badgeBg, docType.badgeText, docType.badgeBorder)}>
+                              {docType.type}
+                            </span>
+                            <button onClick={() => router.push(`/dashboard/documents/${doc.id}`)} className="font-semibold text-sm text-base-content hover:text-primary transition-colors text-left truncate max-w-xs sm:max-w-md">
+                              {doc.name}
+                            </button>
+                          </div>
+                          <p className="text-xs text-base-content/50">{new Date(doc.createdAt).toLocaleDateString('en-US')}</p>
+                        </div>
                       </div>
-                      <div>
-                        <button onClick={() => router.push(`/dashboard/documents/${doc.id}`)} className="font-semibold text-base-content hover:text-primary transition-colors text-left">{doc.name}</button>
-                        <p className="text-xs text-base-content/50">{new Date(doc.createdAt).toLocaleDateString('en-US')}</p>
+                    </td>
+                    <td className="text-base-content/70 font-mono text-xs">
+                      <div>{(doc.sizeBytes / 1024 / 1024).toFixed(2)} MB</div>
+                      <span className="text-[11px] text-cyan-500 font-semibold">{pageEst}</span>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary border border-primary/20">
+                          {doc.owner?.name?.charAt(0) || 'U'}
+                        </div>
+                        <span className="text-base-content/70 font-medium">{doc.owner?.name || 'Unknown'}</span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="text-base-content/70 font-medium">
-                    {(doc.sizeBytes / 1024 / 1024).toFixed(2)} MB
-                  </td>
-                  <td>
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary border border-primary/20">
-                        {doc.owner?.name?.charAt(0) || 'U'}
-                      </div>
-                      <span className="text-base-content/70 font-medium">{doc.owner?.name || 'Unknown'}</span>
-                    </div>
-                  </td>
+                    </td>
                   <td>
                     {getScanBadge(doc.scanStatus)}
                   </td>
@@ -250,7 +262,8 @@ export function DocumentList({ documents }: DocumentListProps) {
                     )}
                   </td>
                 </tr>
-              ))}
+              );
+            })}
               {filteredDocs.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center">

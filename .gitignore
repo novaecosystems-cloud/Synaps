@@ -6,6 +6,13 @@
 # Testing & Scratch
 /scratch
 /.context/
+/.agents/
+/.tasks/
+/tests/
+/scripts/
+/cloned-ada-landing/
+/cloned-zero-landing/
+/output/
 test-*.js
 test-*.ts
 fix-*.js

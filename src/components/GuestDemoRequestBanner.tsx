@@ -67,6 +67,8 @@ export function GuestDemoRequestBanner({ isGuest }: { isGuest?: boolean }) {
       <SignInModal
         isOpen={isSignInOpen}
         onClose={() => setIsSignInOpen(false)}
+        title="Unlock 50 Daily Free Runs"
+        subtitle="Sign in to save your simulation results and unlock 50 daily boardroom runs"
       />
     </>
   );

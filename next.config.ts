@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const securityHeaders = [
   {
     key: "Content-Security-Policy",
-    value: "default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: https://*.firebaseapp.com https://apis.google.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' https: data:; connect-src 'self' https: wss: https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://synaps-3d138.firebaseapp.com; frame-src 'self' https://synaps-3d138.firebaseapp.com https://*.firebaseapp.com https://accounts.google.com https://*.google.com; frame-ancestors 'self';"
+    value: "default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: https://*.firebaseapp.com https://apis.google.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https: https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' https: data: https://fonts.gstatic.com; connect-src 'self' https: wss: ws: https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://synaps-3d138.firebaseapp.com https://api.dicebear.com; frame-src 'self' https://synaps-3d138.firebaseapp.com https://*.firebaseapp.com https://accounts.google.com https://*.google.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https:;"
   },
   {
     key: "Strict-Transport-Security",
@@ -11,7 +11,7 @@ const securityHeaders = [
   },
   {
     key: "X-Frame-Options",
-    value: "DENY"
+    value: "SAMEORIGIN"
   },
   {
     key: "X-Content-Type-Options",
@@ -23,11 +23,19 @@ const securityHeaders = [
   },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    value: "camera=(), microphone=(self), geolocation=()"
   },
   {
     key: "Cross-Origin-Opener-Policy",
     value: "same-origin-allow-popups"
+  },
+  {
+    key: "X-DNS-Prefetch-Control",
+    value: "on"
+  },
+  {
+    key: "X-XSS-Protection",
+    value: "1; mode=block"
   }
 ];
 
@@ -55,10 +63,12 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ["pdf-parse", "officeparser", "pdfmake"],
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "**.supabase.co" },
       { protocol: "https", hostname: "firebasestorage.googleapis.com" },
       { protocol: "https", hostname: "api.dicebear.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
     ],
   },
   typescript: {
@@ -69,6 +79,16 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      {
+        // Long-term immutable caching for static assets, mockups, upscaled images, svgs, and fonts
+        source: "/:all*(svg|jpg|jpeg|png|webp|avif|ico|woff|woff2)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
       },
       {
         // Apply RUDY defense headers to all API routes

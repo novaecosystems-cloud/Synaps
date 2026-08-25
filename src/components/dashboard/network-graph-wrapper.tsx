@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import React from 'react';
+import { IsolatedErrorBoundary } from '@/components/ui/error-boundary';
 
 const NetworkGraph = dynamic(() => import('./network-graph').then(m => m.NetworkGraph), {
   ssr: false,
@@ -13,5 +14,14 @@ const NetworkGraph = dynamic(() => import('./network-graph').then(m => m.Network
 });
 
 export function GraphWrapper({ data }: { data: any }) {
-  return <NetworkGraph data={data} />;
+  return (
+    <IsolatedErrorBoundary
+      name="3D Force Graph Canvas"
+      fallbackTitle="WebGL Graph Isolated"
+      fallbackDescription="The 3D WebGL renderer encountered an error. Click retry to re-initialize."
+      resetKeys={[data]}
+    >
+      <NetworkGraph data={data} />
+    </IsolatedErrorBoundary>
+  );
 }

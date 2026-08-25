@@ -10,7 +10,9 @@ import { Analytics } from "@vercel/analytics/react";
 import MicrosoftClarity from "@/components/MicrosoftClarity";
 import AppUpdateNotifier from "@/components/AppUpdateNotifier";
 import OfflineNetworkGuardian from "@/components/OfflineNetworkGuardian";
-import { getSoftwareApplicationJsonLd } from "@/lib/openseo";
+import GlobalHotkeys from "@/components/GlobalHotkeys";
+import CommandPalette from "@/components/CommandPalette";
+import { getOpenSEOMetadata, getSoftwareApplicationJsonLd } from "@/lib/openseo";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -37,8 +39,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CAUSARIX™ (formerly Synaps) — The Causal Decision OS & 10-Agent Boardroom",
-  description: "CAUSARIX (powered by Synaps Causal Intelligence Core) is an institutional Causal Decision Operating System with 10-Agent Boardroom Quorum, line-level SHA-256 evidence grounding, and 3D Corporate Memory Palace.",
+  ...getOpenSEOMetadata(),
   verification: {
     google: "0f4930e9950c5fc4",
   },
@@ -47,8 +48,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   themeColor: "#0055FF",
 };
 
@@ -60,11 +59,16 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${sourceSerif.variable} ${sora.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
-        {/* Load Fraunces, Source Serif 4 & Sora via direct Google Fonts link fallback */}
+        {/* Load Fraunces, Source Serif 4, Sora, JetBrains Mono, Modak & Mouse Memoirs with preconnect & preload to eliminate CLS and optimize LCP */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Sora:wght@100..800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+          rel="preload"
+          as="style"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Sora:wght@100..800&family=JetBrains+Mono:wght@400;500;700&family=Modak&family=Mouse+Memoirs&display=swap"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Sora:wght@100..800&family=JetBrains+Mono:wght@400;500;700&family=Modak&family=Mouse+Memoirs&display=swap"
           rel="stylesheet"
         />
         {/* Microsoft Clarity Analytics Script */}
@@ -90,10 +94,21 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased selection:bg-blue-600 selection:text-white min-h-screen overflow-x-hidden" style={{ fontFamily: "'Sora', sans-serif" }}>
+        {/* WCAG 2.4.1 Skip to Main Content Link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:font-semibold focus:rounded-lg focus:shadow-2xl focus:ring-2 focus:ring-white focus:outline-none transition-all"
+        >
+          Skip to main content
+        </a>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <AuthProvider>
             {/* <MicrosoftClarity /> */}
-            {children}
+            <div id="main-content">
+              {children}
+            </div>
+            <CommandPalette />
+            <GlobalHotkeys />
             <Toaster />
             <Analytics />
             <AppUpdateNotifier />
