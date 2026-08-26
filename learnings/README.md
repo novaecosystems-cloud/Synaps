@@ -18,6 +18,8 @@ This folder explains every feature, engine, and technical superpower inside **Ca
 | **[Chapter 06](./06_SECURITY_AND_DELAWARE_MERKLE_ELI5.md)** | 🛡️ The Castle Shield & Wax Seal | Delaware DGCL § 141 and Merkle trees explained as unbreakable wax stamps. |
 | **[Chapter 07](./07_HOW_WE_MADE_IT_LIGHTNING_FAST_ELI5.md)** | 🚀 How We Made the Rocket Fly Fast | How we made the app open in milliseconds on mobile phones and computers. |
 | **[Chapter 08](./08_THE_BRAIN_THAT_NEVER_FORGETS_ELI5.md)** | 🧠 The Brain That Never Forgets | How the AI remembers accepted/rejected decisions and learns company tactics. |
+| **[Chapter 09](./09_ADAPTIVE_GOALS_AND_MOTIVATION_ELI5.md)** | 🎮 The Smart Game with Bonus Stars | How the GAME motivation engine prevents departmental blind spots. |
+| **[Chapter 10](./10_THE_HABIT_LOOP_AND_HOOKED_UX_ELI5.md)** | 🪝 The Secret Habit Loop | How Hooked UX turns governance into an effortless, anxiety-relieving daily routine. |
 
 ---
 

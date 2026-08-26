@@ -37,6 +37,7 @@ import {
   loadGuestSimulationState,
   isGuestUser,
 } from '@/lib/guest-simulation-store';
+import { ExecutiveMotivationWidget } from '@/components/dashboard/ExecutiveMotivationWidget';
 
 interface Citation {
   documentId?: string;
@@ -350,6 +351,9 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
           </div>
         </div>
       </div>
+
+      {/* EXECUTIVE MOTIVATION & FIDUCIARY STREAK TELEMETRY (GAME ENGINE) */}
+      <ExecutiveMotivationWidget variant="full" />
 
       {/* ── 60-SECOND EXECUTIVE "AHA!" SIMULATION LAB ─────────────────────────── */}
       <div className="rounded-3xl border-2 border-indigo-500/40 bg-gradient-to-br from-slate-900 via-[#0b0f19] to-slate-950 p-6 sm:p-8 text-white shadow-2xl space-y-6 relative overflow-hidden">

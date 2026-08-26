@@ -49,6 +49,7 @@ import {
   showOfflineToast, 
   enqueueBoardroomVote 
 } from '@/lib/offline-sync-queue';
+import { ExecutiveMotivationWidget } from '@/components/dashboard/ExecutiveMotivationWidget';
 
 export default function BoardroomPage() {
   const { user } = useAuth();
@@ -235,6 +236,16 @@ export default function BoardroomPage() {
       incrementGuestUsageCount('boardroom');
     } finally {
       setAnalyzing(false);
+      // Trigger GAME Motivation Engine action reward
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('causarix-governance-action', {
+          detail: {
+            actionType: 'BOARDROOM_CONVENED',
+            department: 'Operations',
+            description: `Convened 10-Agent Boardroom Quorum on: "${activeQuery.slice(0, 60)}..."`,
+          }
+        }));
+      }
     }
   };
 
@@ -321,6 +332,17 @@ export default function BoardroomPage() {
 
       setDispatchedTaskCount(tasksToCreate.length);
       setDispatchedSuccess(true);
+
+      // Trigger GAME Motivation Engine action reward
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('causarix-governance-action', {
+          detail: {
+            actionType: 'JIRA_TICKET_DISPATCHED',
+            department: 'Operations',
+            description: `Dispatched ${tasksToCreate.length} actionable remediation tickets from Boardroom Consensus`,
+          }
+        }));
+      }
     } catch (err) {
       console.error('Error dispatching boardroom actions:', err);
     } finally {
@@ -448,6 +470,9 @@ export default function BoardroomPage() {
           </Button>
         </div>
       </div>
+
+      {/* EXECUTIVE MOTIVATION & FIDUCIARY STREAK HUD (GAME ENGINE) */}
+      <ExecutiveMotivationWidget variant="boardroom" className="mb-4" />
 
       {/* STRATEGIC CONVENE BAR */}
       <div className="p-6 bg-base-100 border border-base-300 rounded-3xl shadow-sm space-y-4">
