@@ -6,7 +6,7 @@ import {
   AlertTriangle, Loader2, ArrowRight, MessageSquare, Scale, 
   DollarSign, Cpu, Activity, Briefcase, FileText, ChevronRight, X,
   Compass, Flame, Zap, Award, Layers, Download, CheckSquare, Send, Check,
-  RotateCcw, RefreshCw, Video
+  RotateCcw, RefreshCw, Video, Edit3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,8 @@ import {
 } from '@/lib/sample-scenarios';
 import { useAuth } from '@/context/AuthContext';
 import SignInModal from '@/components/SignInModal';
+import { LearnDecisionFeedbackModal } from '@/components/dashboard/decisions/LearnDecisionFeedbackModal';
+import { useToast } from '@/hooks/use-toast';
 import {
   saveGuestSimulationState,
   loadGuestSimulationState,
@@ -65,6 +67,11 @@ export default function BoardroomPage() {
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(cached?.activeScenarioId || null);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [isVexaModalOpen, setIsVexaModalOpen] = useState(false);
+  const { toast } = useToast();
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [feedbackAction, setFeedbackAction] = useState<'ACCEPTED' | 'REJECTED' | 'MODIFIED'>('ACCEPTED');
+  const [recordedFeedback, setRecordedFeedback] = useState<'ACCEPTED' | 'REJECTED' | 'MODIFIED' | null>(null);
+
   const [signInPrompt, setSignInPrompt] = useState({
     title: 'Save Boardroom Deliberation',
     subtitle: 'Sign in to save your boardroom quorum deliberations and unlock 50 daily boardroom runs',
@@ -587,13 +594,82 @@ export default function BoardroomPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="text-xs text-slate-300 flex items-center gap-2">
+                    {/* 1-CLICK LEARN FROM THIS DECISION EXECUTIVE FEEDBACK BAR */}
+                    <div className="w-full pt-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                      {recordedFeedback ? (
+                        <div className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs font-semibold w-full">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                            <span>
+                              Executive Decision Recorded as <strong>{recordedFeedback}</strong> · Causarix Tactics Playbook Updated
+                            </span>
+                          </div>
+                          <Link
+                            href="/dashboard/decisions"
+                            className="px-3 py-1 rounded-xl bg-emerald-600/80 hover:bg-emerald-500 text-white font-bold text-[10px] uppercase tracking-wider shrink-0"
+                          >
+                            View in Decision Ledger →
+                          </Link>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full">
+                          <div className="text-xs text-slate-300 flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
+                            <span><strong>Learn From Decision:</strong> Record verdict to train organizational tactics memory.</span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Button
+                              onClick={() => {
+                                setFeedbackAction('ACCEPTED');
+                                setIsFeedbackModalOpen(true);
+                              }}
+                              className="rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-2 px-3.5 shadow gap-1.5"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Accept Decision
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                setFeedbackAction('REJECTED');
+                                setIsFeedbackModalOpen(true);
+                              }}
+                              className="rounded-2xl bg-red-600/80 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider py-2 px-3.5 shadow gap-1.5"
+                            >
+                              <Flame className="w-3.5 h-3.5" /> Reject with Reason
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                setFeedbackAction('MODIFIED');
+                                setIsFeedbackModalOpen(true);
+                              }}
+                              className="rounded-2xl bg-amber-600/80 hover:bg-amber-500 text-white font-bold text-xs uppercase tracking-wider py-2 px-3.5 shadow gap-1.5"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" /> Modify & Accept
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="text-xs text-slate-300 flex items-center gap-2 pt-2">
                       <CheckSquare className="w-4 h-4 text-cyan-400 shrink-0" />
                       <span>Convert this Board consensus directly into operational Jira-style tasks with assigned AI executives.</span>
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
+
+                    <div className="flex items-center gap-2 flex-wrap justify-end pt-2">
                       <Button
                         onClick={() => {
+                          if (isGuestUser(user)) {
+                            saveGuestSimulationState('boardroom', {
+                              query: query || presetQuestions[0],
+                              meetingResult,
+                            });
+                            setSignInPrompt({
+                              title: 'Save & Export Boardroom Deliberation',
+                              subtitle: 'Sign in to save your deliberation records and unlock unlimited PDF exports',
+                            });
+                            setIsSignInModalOpen(true);
+                          }
+
                           const execs = meetingResult?.executives || [];
                           const synth = meetingResult?.synthesis || {};
                           const verification = verifyBoardroomRecord(meetingResult, {
@@ -828,6 +904,29 @@ export default function BoardroomPage() {
         isOpen={isVexaModalOpen}
         onClose={() => setIsVexaModalOpen(false)}
       />
+
+      {/* Learn From This Decision Executive Feedback Modal */}
+      {meetingResult && (
+        <LearnDecisionFeedbackModal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => setIsFeedbackModalOpen(false)}
+          initialAction={feedbackAction}
+          decisionTitle={query || presetQuestions[0]}
+          recommendation={meetingResult?.synthesis?.finalRecommendation || 'Board approval recommended.'}
+          source="BOARDROOM"
+          domain="STRATEGY"
+          problem={query || presetQuestions[0]}
+          confidence={meetingResult?.synthesis?.overallConfidence || 94}
+          participants={meetingResult?.executives?.map((e: any) => ({
+            name: e.name,
+            role: e.roleTitle || e.roleId,
+            verdict: e.verdict
+          }))}
+          onSuccess={(result) => {
+            setRecordedFeedback(result?.data?.action || feedbackAction);
+          }}
+        />
+      )}
     </div>
   );
 }

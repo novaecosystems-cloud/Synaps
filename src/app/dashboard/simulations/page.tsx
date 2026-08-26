@@ -5,7 +5,8 @@ import {
   Activity, Play, Sparkles, TrendingUp, TrendingDown, DollarSign, 
   Users, Globe, UserMinus, Rocket, Building, Briefcase, ShieldAlert, 
   Loader2, ArrowRight, Info, CheckCircle2, AlertTriangle, RefreshCw, 
-  Layers, ChevronRight, HelpCircle, Gauge, Sliders, CheckSquare, Zap, Check, Download, RotateCcw, Clock
+  Layers, ChevronRight, HelpCircle, Gauge, Sliders, CheckSquare, Zap, Check, Download, RotateCcw, Clock,
+  Flame, Edit3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,8 @@ import {
 } from '@/lib/sample-scenarios';
 import { useAuth } from '@/context/AuthContext';
 import SignInModal from '@/components/SignInModal';
+import { LearnDecisionFeedbackModal } from '@/components/dashboard/decisions/LearnDecisionFeedbackModal';
+import { useToast } from '@/hooks/use-toast';
 import {
   saveGuestSimulationState,
   loadGuestSimulationState,
@@ -82,6 +85,11 @@ export default function SimulationsPage() {
   const [dispatchedTaskCount, setDispatchedTaskCount] = useState(0);
   const [activeScenarioId, setActiveScenarioId] = useState<string | null>(cached?.activeScenarioId || null);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+  const { toast } = useToast();
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [feedbackAction, setFeedbackAction] = useState<'ACCEPTED' | 'REJECTED' | 'MODIFIED'>('ACCEPTED');
+  const [recordedFeedback, setRecordedFeedback] = useState<'ACCEPTED' | 'REJECTED' | 'MODIFIED' | null>(null);
+
   const [signInPrompt, setSignInPrompt] = useState({
     title: 'Save Your Simulation Results',
     subtitle: 'Sign in to save your simulation results and unlock 50 daily boardroom runs',
@@ -715,8 +723,64 @@ export default function SimulationsPage() {
                         </div>
                       </div>
 
-                      {/* 1-CLICK DISPATCH TO ACTION BOARD BAR */}
+                      {/* 1-CLICK LEARN FROM THIS DECISION EXECUTIVE FEEDBACK BAR */}
                       <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        {recordedFeedback ? (
+                          <div className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs font-semibold w-full">
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                              <span>
+                                Simulation Decision Recorded as <strong>{recordedFeedback}</strong> · Causarix Tactics Playbook Updated
+                              </span>
+                            </div>
+                            <Link
+                              href="/dashboard/decisions"
+                              className="px-3 py-1 rounded-xl bg-emerald-600/80 hover:bg-emerald-500 text-white font-bold text-[10px] uppercase tracking-wider shrink-0"
+                            >
+                              View in Decision Ledger →
+                            </Link>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full">
+                            <div className="text-xs text-slate-300 flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-cyan-400 shrink-0" />
+                              <span><strong>Learn From Decision:</strong> Record verdict to train organizational tactics memory.</span>
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Button
+                                onClick={() => {
+                                  setFeedbackAction('ACCEPTED');
+                                  setIsFeedbackModalOpen(true);
+                                }}
+                                className="rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider py-2 px-3.5 shadow gap-1.5"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" /> Accept Plan
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  setFeedbackAction('REJECTED');
+                                  setIsFeedbackModalOpen(true);
+                                }}
+                                className="rounded-2xl bg-red-600/80 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-wider py-2 px-3.5 shadow gap-1.5"
+                              >
+                                <Flame className="w-3.5 h-3.5" /> Reject with Reason
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  setFeedbackAction('MODIFIED');
+                                  setIsFeedbackModalOpen(true);
+                                }}
+                                className="rounded-2xl bg-amber-600/80 hover:bg-amber-500 text-white font-bold text-xs uppercase tracking-wider py-2 px-3.5 shadow gap-1.5"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" /> Modify Levers
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 1-CLICK DISPATCH TO ACTION BOARD BAR */}
+                      <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                         {dispatchedSuccess ? (
                           <div className="flex items-center gap-3 p-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold w-full">
                             <Check className="w-5 h-5 text-emerald-400 shrink-0" />
@@ -877,6 +941,24 @@ export default function SimulationsPage() {
         title={signInPrompt.title}
         subtitle={signInPrompt.subtitle}
       />
+
+      {/* Learn From This Decision Executive Feedback Modal */}
+      {simulationResult && (
+        <LearnDecisionFeedbackModal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => setIsFeedbackModalOpen(false)}
+          initialAction={feedbackAction}
+          decisionTitle={`SCM Simulation: ${selectedPreset}`}
+          recommendation={simulationResult?.scenarios?.[activeScenarioTab]?.description || decisionDetails || 'Simulation plan validated.'}
+          source="SCM_SIMULATION"
+          domain="OPERATIONS"
+          problem={decisionDetails || `Simulating ${selectedPreset} parametric levers`}
+          confidence={simulationResult?.scenarios?.[activeScenarioTab]?.probability || 90}
+          onSuccess={(result) => {
+            setRecordedFeedback(result?.data?.action || feedbackAction);
+          }}
+        />
+      )}
     </div>
   );
 }

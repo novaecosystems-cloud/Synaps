@@ -399,6 +399,72 @@ function TimelineSkeleton({ count = 5 }: { count?: number }) {
   )
 }
 
+function DecisionLedgerSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="space-y-4">
+      {/* Search and filter header skeleton */}
+      <div className="flex flex-col sm:flex-row justify-between gap-4 p-4 rounded-3xl bg-card border border-border/50 dark:bg-slate-900/60 dark:border-slate-800/80">
+        <Skeleton className="h-10 w-72 rounded-2xl bg-slate-800/60" />
+        <div className="flex gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-24 rounded-full bg-slate-800/50" />
+          ))}
+        </div>
+      </div>
+
+      {/* Decision cards grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Array.from({ length: count }).map((_, i) => (
+          <div key={i} className="p-6 rounded-3xl bg-card border border-border/50 dark:bg-slate-900/60 dark:border-slate-800/80 space-y-4">
+            <div className="flex justify-between items-start">
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-5 w-3/4 bg-slate-700/60 rounded-lg" />
+                <Skeleton className="h-3 w-1/3 bg-slate-800/50 rounded" />
+              </div>
+              <Skeleton className="h-6 w-24 rounded-full bg-cyan-950/50" />
+            </div>
+            <Skeleton className="h-14 w-full rounded-2xl bg-slate-800/40" />
+            <div className="flex justify-between items-center pt-2 border-t border-border/30">
+              <Skeleton className="h-4 w-40 rounded bg-slate-800/50" />
+              <Skeleton className="h-5 w-32 rounded-full bg-slate-800/60" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function TacticsRadarSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-2 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="p-6 rounded-3xl bg-card border border-border/50 dark:bg-slate-900/60 dark:border-slate-800/80 space-y-3">
+              <div className="flex justify-between items-center">
+                <Skeleton className="h-4 w-28 bg-cyan-500/20 rounded" />
+                <Skeleton className="h-5 w-16 bg-slate-800/60 rounded-full" />
+              </div>
+              <Skeleton className="h-5 w-full bg-slate-700/60 rounded" />
+              <Skeleton className="h-10 w-full bg-slate-800/40 rounded-xl" />
+              <div className="flex justify-between items-center pt-2">
+                <Skeleton className="h-3 w-20 bg-slate-800/50" />
+                <Skeleton className="h-7 w-28 bg-slate-800/70 rounded-xl" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="p-6 rounded-3xl bg-card border border-border/50 dark:bg-slate-900/60 dark:border-slate-800/80 space-y-4 flex flex-col items-center justify-center">
+        <Skeleton className="h-6 w-48 bg-slate-700/60 rounded" />
+        <Skeleton className="w-52 h-52 rounded-full bg-slate-800/40" />
+        <Skeleton className="h-4 w-36 bg-slate-800/50 rounded" />
+      </div>
+    </div>
+  )
+}
+
 export {
   Skeleton,
   PageHeaderSkeleton,
@@ -409,4 +475,6 @@ export {
   BoardroomSkeleton,
   SimulationStudioSkeleton,
   TimelineSkeleton,
+  DecisionLedgerSkeleton,
+  TacticsRadarSkeleton,
 }

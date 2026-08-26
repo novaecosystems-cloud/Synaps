@@ -2,6 +2,8 @@ import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { memPalaceEngine } from '@/lib/mempalace-engine';
 import { enrichAgentWithPrimeRLM } from '@/lib/prime-rlm';
+import { getRelevantDecisionMemory } from '@/lib/decision-memory-flywheel';
+import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
 
 function parseSafeJson(content: string) {
   try {
@@ -23,6 +25,7 @@ export interface ExecutiveAgentAnalysis {
   keyConcerns: string[];
   confidenceScore: number;
   dataEvidence: string[];
+  historicalPrecedentCited?: string;
 }
 
 export interface BoardSynthesis {
@@ -32,6 +35,7 @@ export interface BoardSynthesis {
   opportunities: string[];
   overallConfidence: number;
   finalRecommendation: string;
+  governanceTacticsEnforced?: string[];
 }
 
 export interface BoardMeetingResult {
@@ -39,6 +43,7 @@ export interface BoardMeetingResult {
   executives: ExecutiveAgentAnalysis[];
   synthesis: BoardSynthesis;
   timestamp: string;
+  merkleProvenanceHash?: string;
 }
 
 const EXECUTIVE_PROFILES = [
@@ -158,9 +163,14 @@ export async function runExecutiveBoardMeeting(
   query: string,
   organizationId: string
 ): Promise<BoardMeetingResult> {
+  // Ingress firewall inspection
+  const ingressCheck = inspectPrompt(query);
+  const sanitizedQuery = ingressCheck.sanitizedPrompt || query;
+
+  // 1. Dynamic Decision Memory & Corporate Tactics Retrieval (Multi-tenant isolated)
+  const decisionMemory = await getRelevantDecisionMemory(organizationId, sanitizedQuery, 5);
 
   let docs: any[] = [];
-  let decisions: any[] = [];
   let graphEntities: any[] = [];
 
   try {
@@ -169,15 +179,6 @@ export async function runExecutiveBoardMeeting(
       take: 10,
       orderBy: { updatedAt: 'desc' },
       select: { id: true, name: true, mimeType: true }
-    });
-  } catch (e) {}
-
-  try {
-    decisions = await prisma.decision.findMany({
-      where: { organizationId },
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      select: { recommendation: true, status: true }
     });
   } catch (e) {}
 
@@ -191,12 +192,11 @@ export async function runExecutiveBoardMeeting(
 
   const contextText = `COMPANY CONTEXT:
 Uploaded Documents: ${docs.map(d => d.name).join(', ') || 'Corporate Knowledge Repository (Upload documents for deeper AI extraction)'}
-Recent Decisions: ${decisions.map(d => `${d.status} (${d.recommendation})`).join('; ') || 'None'}
 Known Graph Entities: ${graphEntities.map(g => `${g.name} [${g.type}]`).join(', ') || 'None'}`;
 
-  // 2. Concurrently execute independent analyses for all 10 AI Executives
+  // 2. Concurrently execute independent analyses for all 10 AI Executives with Decision Memory injection
   const executivePromises = EXECUTIVE_PROFILES.map(async (profile) => {
-    const rlmEnrichment = enrichAgentWithPrimeRLM(profile.roleId, query);
+    const rlmEnrichment = enrichAgentWithPrimeRLM(profile.roleId, sanitizedQuery);
 
     const systemPrompt = `You are ${profile.name}, the ${profile.roleTitle} (${profile.roleId}) at Synaps.
 Your functional focus is: ${profile.focus}
@@ -209,19 +209,23 @@ Domain Skill Standard: ${profile.skillStandard}
 
 ${rlmEnrichment.systemPromptAddon}
 
-You MUST independently analyze the user's strategic question STRICTLY through the lens of your executive domain and certified skill standard. If a question falls completely outside your jurisdiction, declare that from your domain perspective and flag only the downstream risks that impact your specific domain.
+${decisionMemory.tacticsSummaryPrompt}
+
+You MUST independently analyze the user's strategic question STRICTLY through the lens of your executive domain and certified skill standard.
+When relevant, explicitly reference past organizational decisions or corporate tactics (e.g. "Following our company precedent regarding...", "As demonstrated in past M&A reviews...").
+If a question falls completely outside your jurisdiction, declare that from your domain perspective and flag only the downstream risks that impact your specific domain.
 
 You MUST return valid JSON with:
 {
   "verdict": "SUPPORT", "OPPOSE", or "CONDITIONAL",
-  "reasoning": "A 2-3 sentence domain analysis strictly grounded in your domain jurisdiction.",
+  "reasoning": "A 2-3 sentence domain analysis strictly grounded in your domain jurisdiction, referencing corporate memory where applicable.",
   "keyConcerns": ["Domain-specific concern 1", "Domain-specific concern 2"],
   "confidenceScore": 88,
   "dataEvidence": ["Evidence 1 referencing exact domain metrics", "Evidence 2"]
 }`;
 
-    const memPalaceContext = memPalaceEngine.buildMemPalacePromptContext(organizationId, query);
-    const prompt = `${contextText}\n\n${memPalaceContext}\n\nSTRATEGIC BOARD QUESTION: ${query}`;
+    const memPalaceContext = memPalaceEngine.buildMemPalacePromptContext(organizationId, sanitizedQuery);
+    const prompt = `${contextText}\n\n${memPalaceContext}\n\nSTRATEGIC BOARD QUESTION: ${sanitizedQuery}`;
 
     try {
       const rawContent = await invokeLLMWithFallback([
@@ -230,6 +234,7 @@ You MUST return valid JSON with:
       ], { response_format: { type: 'json_object' } });
 
       const parsed = parseSafeJson(rawContent);
+      const egressCheck = inspectResponse(parsed.reasoning || '');
 
       return {
         roleId: profile.roleId as any,
@@ -237,10 +242,11 @@ You MUST return valid JSON with:
         name: profile.name,
         avatarColor: profile.avatarColor,
         verdict: (parsed.verdict || 'CONDITIONAL') as any,
-        reasoning: parsed.reasoning || `${profile.roleTitle} evaluated strategic impact on ${profile.focus.toLowerCase()}.`,
+        reasoning: egressCheck.sanitizedOutput || `${profile.roleTitle} evaluated strategic impact on ${profile.focus.toLowerCase()}.`,
         keyConcerns: Array.isArray(parsed.keyConcerns) ? parsed.keyConcerns : [`Resource allocation in ${profile.roleTitle} domain`],
         confidenceScore: typeof parsed.confidenceScore === 'number' ? parsed.confidenceScore : 90,
-        dataEvidence: Array.isArray(parsed.dataEvidence) ? parsed.dataEvidence : ['Corporate Knowledge Base']
+        dataEvidence: Array.isArray(parsed.dataEvidence) ? parsed.dataEvidence : ['Corporate Knowledge Base'],
+        historicalPrecedentCited: decisionMemory.relevantDecisions[0]?.dilemma
       };
 
     } catch (error) {
@@ -250,31 +256,35 @@ You MUST return valid JSON with:
         name: profile.name,
         avatarColor: profile.avatarColor,
         verdict: 'CONDITIONAL' as any,
-        reasoning: `${profile.roleTitle} recommends phased implementation subject to formal milestone reviews.`,
+        reasoning: `${profile.roleTitle} recommends phased implementation subject to formal milestone reviews and corporate risk thresholds.`,
         keyConcerns: [`Operational alignment with ${profile.roleTitle} objectives`],
         confidenceScore: 88,
-        dataEvidence: ['Corporate Policy Framework']
+        dataEvidence: ['Corporate Policy Framework'],
+        historicalPrecedentCited: decisionMemory.relevantDecisions[0]?.dilemma
       };
     }
   });
 
   const executives = await Promise.all(executivePromises);
 
-  // 3. Synthesize Board Consensus
+  // 3. Synthesize Board Consensus with Corporate Tactics Enforced
   const synthesisSystemPrompt = `You are the Executive Boardroom Secretary at Synaps.
 Synthesize the independent verdicts of the 10 AI Executives for the query.
+Enforce company governance rules and institutional precedent from Corporate Memory.
+
+${decisionMemory.tacticsSummaryPrompt}
 
 You MUST return valid JSON with:
 {
-  "consensus": ["Consensus point 1", "Consensus point 2"],
+  "consensus": ["Consensus point 1 referencing company goals", "Consensus point 2"],
   "disagreements": ["Friction point 1 between Executives", "Friction point 2"],
   "risks": ["Primary risk 1", "Primary risk 2"],
   "opportunities": ["Opportunity 1", "Opportunity 2"],
   "overallConfidence": 92,
-  "finalRecommendation": "Clear 2-3 sentence executive summary recommendation."
+  "finalRecommendation": "Clear 2-3 sentence executive summary recommendation integrating board consensus and historical precedents."
 }`;
 
-  const execSummaryPrompt = `QUERY: ${query}\n\nEXECUTIVE VERDICTS:\n${executives.map(e => `${e.roleId} (${e.name}): ${e.verdict} - ${e.reasoning}`).join('\n')}`;
+  const execSummaryPrompt = `QUERY: ${sanitizedQuery}\n\nEXECUTIVE VERDICTS:\n${executives.map(e => `${e.roleId} (${e.name}): ${e.verdict} - ${e.reasoning}`).join('\n')}`;
 
   let synthesis: BoardSynthesis;
 
@@ -285,31 +295,35 @@ You MUST return valid JSON with:
     ], { response_format: { type: 'json_object' } });
 
     const parsedSynth = parseSafeJson(rawSynth);
+    const recEgress = inspectResponse(parsedSynth.finalRecommendation || '');
 
     synthesis = {
-      consensus: Array.isArray(parsedSynth.consensus) ? parsedSynth.consensus : ['Align strategic objectives with core operational bandwidth.'],
+      consensus: Array.isArray(parsedSynth.consensus) ? parsedSynth.consensus : ['Align strategic objectives with core operational bandwidth and company policy.'],
       disagreements: Array.isArray(parsedSynth.disagreements) ? parsedSynth.disagreements : ['Pacing of resource deployment across departments.'],
-      risks: Array.isArray(parsedSynth.risks) ? parsedSynth.risks : ['Execution timeline friction.'],
-      opportunities: Array.isArray(parsedSynth.opportunities) ? parsedSynth.opportunities : ['Market expansion and net margin improvement.'],
+      risks: Array.isArray(parsedSynth.risks) ? parsedSynth.risks : ['Execution timeline friction and liability exposure.'],
+      opportunities: Array.isArray(parsedSynth.opportunities) ? parsedSynth.opportunities : ['Market expansion and operational efficiency.'],
       overallConfidence: typeof parsedSynth.overallConfidence === 'number' ? parsedSynth.overallConfidence : 92,
-      finalRecommendation: parsedSynth.finalRecommendation || 'The Executive Board recommends proceeding under structured phase milestones.'
+      finalRecommendation: recEgress.sanitizedOutput || 'The Executive Board recommends proceeding under structured phase milestones in alignment with corporate precedent.',
+      governanceTacticsEnforced: decisionMemory.corporateTactics.map(t => t.rule).slice(0, 3)
     };
 
   } catch (error) {
     synthesis = {
-      consensus: ['Ensure SLA requirements match operational capacity.'],
+      consensus: ['Ensure SLA requirements match operational capacity and liability standards.'],
       disagreements: ['Staggered vs immediate capital commitment.'],
       risks: ['Timeline delays during initial rollout.'],
       opportunities: ['Margin growth and process automation.'],
       overallConfidence: 90,
-      finalRecommendation: 'The Board recommends proceeding with phased milestones and 60-day review gates.'
+      finalRecommendation: 'The Board recommends proceeding with phased milestones, 20% cash runway buffer, and 60-day review gates.',
+      governanceTacticsEnforced: decisionMemory.corporateTactics.map(t => t.rule).slice(0, 3)
     };
   }
 
   return {
-    query,
+    query: sanitizedQuery,
     executives,
     synthesis,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    merkleProvenanceHash: decisionMemory.merkleProvenanceHash
   };
 }

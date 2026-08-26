@@ -10,8 +10,12 @@
  *    - Step 1 (Abduction): Estimate exogenous background noise U given factual observations (X=x, Y=y).
  *    - Step 2 (Action): Apply graph surgery G_{\overline{X}} with counterfactual intervention X=x'.
  *    - Step 3 (Prediction): Compute deterministic counterfactual outcome Y_{x'} over mutilated structural equations.
- * 5. 0.00% Math Drift Invariant Assertion Suite (IEEE-754 double precision & causal conservation).
+ * 5. Dynamic Decision Memory & Corporate Tactics Flywheel Integration:
+ *    - Injects organizational governance tactics, historical risk thresholds, and precedent constraints.
+ * 6. 0.00% Math Drift Invariant Assertion Suite (IEEE-754 double precision & causal conservation).
  */
+
+import { getRelevantDecisionMemory } from '@/lib/decision-memory-flywheel';
 
 export interface CausalNode {
   id: string;
@@ -65,6 +69,9 @@ export interface CounterfactualResult {
   confidenceInterval: [number, number];
   computationTimeMs: number;
   mathDriftInvariant?: MathDriftInvariantVerification;
+  corporateMemoryTactics?: string[];
+  precedentRecommendation?: string;
+  memoryProvenanceHash?: string;
 }
 
 // ── DOUBLE-PRECISION INVARIANT HELPERS ───────────────────────────────────────
@@ -118,6 +125,7 @@ export class StructuralCausalModel {
   public edges: CausalEdge[] = [];
   public structuralEquations: Map<string, StructuralEquation> = new Map();
   public exogenousNoiseStdDev: Map<string, number> = new Map();
+  public injectedMemoryContext: string = '';
 
   constructor(public modelName: string, public description?: string) {}
 
@@ -149,6 +157,14 @@ export class StructuralCausalModel {
    */
   public setEquation(nodeId: string, equation: StructuralEquation): this {
     this.structuralEquations.set(nodeId, equation);
+    return this;
+  }
+
+  /**
+   * Injects qualitative decision memory context & corporate tactics into SCM
+   */
+  public injectDecisionMemoryContext(memoryContext: string): this {
+    this.injectedMemoryContext = memoryContext;
     return this;
   }
 
@@ -286,8 +302,6 @@ export class StructuralCausalModel {
   /**
    * PEARL'S BACK-DOOR CRITERION SOLVER
    * Identifies an adjustment set Z that blocks all spurious back-door paths between X and Y.
-   * Condition 1: No node in Z is a descendant of X.
-   * Condition 2: Z blocks every back-door path between X and Y.
    */
   public findBackdoorAdjustmentSet(interventionNodeId: string, targetNodeId: string): string[] {
     const descendants = new Set<string>();
@@ -416,6 +430,32 @@ export class StructuralCausalModel {
           'DOUBLE_PRECISION_CLAMPING',
         ],
       },
+    };
+  }
+
+  /**
+   * SCM Counterfactual Simulation with Dynamic Decision Memory & Corporate Tactics Injection
+   */
+  public async computeCounterfactualWithMemory(
+    query: CounterfactualQuery,
+    organizationId: string
+  ): Promise<CounterfactualResult> {
+    const baseResult = this.computeCounterfactual(query);
+
+    // Retrieve organization institutional memory & governance tactics
+    const decisionQuery = `Counterfactual intervention on ${query.interventionNodeId} affecting ${query.targetNodeId}`;
+    const memory = await getRelevantDecisionMemory(organizationId, decisionQuery, 3);
+
+    const tactics = memory.corporateTactics.map(t => t.rule);
+    const precedentRec = baseResult.causalDelta > 0
+      ? `Simulated counterfactual improves ${query.targetNodeId} by ${baseResult.percentChange}%. Adheres to company tactics (${tactics[0] || 'maintain risk limits'}).`
+      : `Simulated intervention reduces ${query.targetNodeId} by ${Math.abs(baseResult.percentChange)}%. Flagged under corporate governance precedents.`;
+
+    return {
+      ...baseResult,
+      corporateMemoryTactics: tactics,
+      precedentRecommendation: precedentRec,
+      memoryProvenanceHash: memory.merkleProvenanceHash,
     };
   }
 }

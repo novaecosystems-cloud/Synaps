@@ -8,6 +8,7 @@ import { ratelimit } from '@/lib/ratelimit';
 
 import prisma from '@/lib/prisma';
 import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
+import { getRelevantDecisionMemory } from '@/lib/decision-memory-flywheel';
 
 export async function POST(req: NextRequest) {
   try {
@@ -299,18 +300,29 @@ export async function POST(req: NextRequest) {
       text: `[Enterprise Memory Graph] ${r.sourceEntity?.name || ''} (${r.sourceEntity?.type || ''}) ${r.relationType} ${r.targetEntity?.name || ''} (${r.targetEntity?.type || ''}). Description: ${r.description}. Evidence: ${r.evidence || 'Document Entity Connection'}`
     }));
 
-    const combinedEvidence = [...enhancedChunks, ...graphChunks];
+    // ── Dynamic Decision Memory Flywheel & Corporate Tactics Injection ──
+    const decisionMemory = await getRelevantDecisionMemory(organizationId, query, 4);
+    const decisionMemoryChunk = {
+      id: 'decision-memory-flywheel',
+      documentId: 'corporate-tactics-memory',
+      name: 'Institutional Decision Memory & Corporate Tactics',
+      text: decisionMemory.tacticsSummaryPrompt
+    };
 
-    // 3. Generate chat response using Gemini + Memory Graph Reasoning
+    const combinedEvidence = [...enhancedChunks, ...graphChunks, decisionMemoryChunk];
+
+    // 3. Generate chat response using Gemini + Decision Memory + Knowledge Graph Reasoning
     const aiResponse = await generateChatResponse(messages, combinedEvidence);
+    const egressCheck = inspectResponse(aiResponse.answer);
 
     return NextResponse.json({
       success: true,
-      answer: aiResponse.answer,
+      answer: egressCheck.sanitizedOutput,
       confidenceScore: aiResponse.confidenceScore,
       sources: aiResponse.sources,
       evidence: enhancedChunks,
-      credits: creditsPayload
+      credits: creditsPayload,
+      memoryProvenanceHash: decisionMemory.merkleProvenanceHash
     });
 
   } catch (error: any) {
@@ -318,4 +330,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
-

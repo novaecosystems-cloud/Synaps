@@ -254,6 +254,10 @@ export class MerkleTree {
     return topLayer && topLayer[0] ? topLayer[0] : sha256Sync('EMPTY');
   }
 
+  public getRootHash(): string {
+    return this.getRoot();
+  }
+
   public getLeaves(): string[] {
     return [...this.leaves];
   }
