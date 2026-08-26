@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { HardDrive, FileText, Database, ShieldCheck } from 'lucide-react';
+import { HardDrive, FileText, Database } from 'lucide-react';
 
 export default function StorageSettings() {
   const [docCount, setDocCount] = useState(0);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
@@ -20,8 +19,6 @@ export default function StorageSettings() {
         }
       } catch (e) {
         console.warn('Failed to fetch storage stats:', e);
-      } finally {
-        setLoading(false);
       }
     }
     fetchStats();

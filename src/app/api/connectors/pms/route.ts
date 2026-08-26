@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
   try {
     const auth = await resolveAuthContext(req);
     const body = await req.json().catch(() => ({}));
-    const { action = "sync", config = {}, metrics = [], guestLogs = [], rawCsv = "" } = body;
+    const { action = "sync", config = {}, metrics = [], guestLogs = [] } = body;
 
     let targetOrgId = auth.orgId;
     if (!targetOrgId || targetOrgId === "no_org_fallback") {

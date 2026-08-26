@@ -1,11 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  X, Sparkles, Trophy, ShieldCheck, Zap, BrainCircuit, Share2, 
-  Download, ArrowRight, ChevronLeft, ChevronRight, Award, Flame, CheckCircle2,
-  Mail, MessageSquare, Camera, Users, Layers, ShieldAlert, Cpu
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Trophy, ShieldCheck, Zap, BrainCircuit, Share2, ArrowRight, ChevronLeft, CheckCircle2, Mail, MessageSquare, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SynapsWrappedModalProps {
@@ -351,11 +347,12 @@ export default function SynapsWrappedModal({
               {/* Instagram Story Download */}
               <button
                 onClick={handleDownloadInstagramCard}
-                className="p-2 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white flex flex-col items-center gap-0.5 transition-all hover:scale-105 shadow-md"
+                disabled={downloadingImage}
+                className="p-2 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white flex flex-col items-center gap-0.5 transition-all hover:scale-105 shadow-md disabled:opacity-50"
                 title="Download Instagram Story Image (.PNG)"
               >
-                <Camera className="w-4 h-4" />
-                <span className="text-[8px] font-bold">Insta Card</span>
+                <Camera className={cn("w-4 h-4", downloadingImage && "animate-spin")} />
+                <span className="text-[8px] font-bold">{downloadingImage ? 'Saving...' : 'Insta Card'}</span>
               </button>
             </div>
           </div>

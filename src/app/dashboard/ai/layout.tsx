@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Bot, Network, Workflow, Settings2, Activity, Database } from "lucide-react";
+import { Bot, Workflow, Settings2, Activity } from 'lucide-react';
 
 export default function AIWorkspaceLayout({ children }: { children: React.ReactNode }) {
   return (

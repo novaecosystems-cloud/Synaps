@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { HiggsfieldMCPEngine } from '@/lib/services/higgsfield-mcp';
-import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
+import { requireAuthForLLM } from '@/lib/api-security';
 
 export async function POST(req: NextRequest) {
   const _auth = await requireAuthForLLM(req);

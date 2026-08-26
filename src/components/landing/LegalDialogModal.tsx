@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { X, Check, ShieldCheck, Lock, FileText, CreditCard, AlertTriangle, Cookie, Download, FileCheck } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, ShieldCheck, Lock, FileText, CreditCard, AlertTriangle, Cookie, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export type LegalDocType = 'terms' | 'privacy' | 'dpdp' | 'security' | 'payments' | 'ai_disclaimer' | 'cookies';

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Zap, Lock, Sparkles, ArrowRight, UserPlus, ShieldAlert } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { UserPlus, ShieldAlert } from 'lucide-react';
 import SignInModal from "@/components/SignInModal";
 
 export function GuestDemoRequestBanner({ isGuest }: { isGuest?: boolean }) {

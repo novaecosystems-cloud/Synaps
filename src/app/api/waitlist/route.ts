@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, role, orgSize } = await req.json();
+    const { email } = await req.json();
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Valid email address is required' }, { status: 400 });

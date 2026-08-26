@@ -1,6 +1,6 @@
 'use server'
 
-import { PrismaClient, ProjectStatus, ProjectRole } from '@prisma/client';
+import { ProjectStatus } from '@prisma/client';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 

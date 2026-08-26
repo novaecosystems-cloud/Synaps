@@ -1,15 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { deleteDocument, renameDocument, getDownloadUrl } from '@/app/actions/document';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import {
-  FileText, Image as ImageIcon, FileSpreadsheet, FileIcon, Search, MoreVertical,
-  Download, Edit2, Trash2, ShieldCheck, ShieldAlert, ShieldQuestion, Eye, Database
-} from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { FileText, Search, MoreVertical, Download, Edit2, Trash2, ShieldCheck, ShieldAlert, ShieldQuestion, Eye, Database } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { CustomLoader } from '@/components/ui/custom-loader';
 import { DocumentPreviewModal } from '@/components/documents/document-preview-modal';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';

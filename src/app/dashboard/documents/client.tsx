@@ -1,13 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { DocumentUploadDropzone } from '@/components/documents/document-upload-dropzone';
 import { WebScrapeModal } from '@/components/documents/WebScrapeModal';
 import { DocumentList } from '@/components/documents/document-list';
-import {
-  Plus, X, Search, Loader2, Globe, FileText, ChevronRight,
-  AlignLeft, BookOpen, Sparkles, Filter, ScanLine
-} from 'lucide-react';
+import { Plus, X, Search, Loader2, Globe, FileText, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';

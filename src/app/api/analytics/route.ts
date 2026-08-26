@@ -1,13 +1,11 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, ProjectStatus, CoverageStatus, GapSeverity } from '@prisma/client';
-import { subDays, format, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
+import { subDays, format, isAfter } from 'date-fns';
 
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
-import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export async function GET(req: NextRequest) {
   const cookieStore = await cookies();

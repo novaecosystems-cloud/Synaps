@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, ShieldCheck, Mail, Copy, Check, Clock, Send } from 'lucide-react';
 
 interface PayPalModalProps {

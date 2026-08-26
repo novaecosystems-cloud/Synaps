@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useId } from 'react';
-import { Eye, EyeOff, Check, X } from 'lucide-react';
+import { useState, useId } from 'react';
+import { Eye, EyeOff, Check } from 'lucide-react';
 
 interface PasswordStrengthInputProps {
   value: string;

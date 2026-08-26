@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ShieldCheck, Mail, Phone, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Mail, CheckCircle2 } from 'lucide-react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

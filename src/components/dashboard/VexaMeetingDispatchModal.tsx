@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Video, Mic, ShieldCheck, X, Loader2, Sparkles, CheckCircle2, 
-  Trash2, Lock, ArrowRight, Radio
-} from "lucide-react";
+import { Video, ShieldCheck, X, Loader2, Sparkles, CheckCircle2, Trash2, Radio } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface VexaMeetingDispatchModalProps {
@@ -24,7 +21,6 @@ export function VexaMeetingDispatchModal({
   const [botName, setBotName] = useState("Causarix Boardroom Scribe");
   const [dispatching, setDispatching] = useState(false);
   const [dispatchedMeetingId, setDispatchedMeetingId] = useState<string | null>(null);
-  const [statusText, setStatusText] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [purging, setPurging] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -54,7 +50,6 @@ export function VexaMeetingDispatchModal({
       const data = await res.json();
       if (data.success) {
         setDispatchedMeetingId(data.meetingId);
-        setStatusText("Bot in call • Capturing live audio with zero-retention privacy");
         setSuccessMessage("Scribe Bot successfully dispatched to meeting room!");
       } else {
         setErrorMessage(data.error || "Failed to dispatch meeting bot");

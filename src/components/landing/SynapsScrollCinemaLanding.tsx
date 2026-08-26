@@ -1,15 +1,10 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useGSAP } from '@gsap/react';
-import {
-  FileText, Search, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle,
-  GitCompare, Sparkles, Layers, Eye, Check, ExternalLink, ChevronRight,
-  Database, RefreshCw, Lock, Zap, FileSpreadsheet, Building2, HelpCircle
-} from 'lucide-react';
+import { FileText, Search, ArrowRight, ShieldCheck, CheckCircle2, GitCompare, Sparkles, Layers, ExternalLink, ChevronRight, RefreshCw, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -128,7 +123,6 @@ export default function SynapsScrollCinemaLanding() {
 
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeScene, setActiveScene] = useState(1);
-  const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [decodingFrames, setDecodingFrames] = useState(true);
 
@@ -151,7 +145,6 @@ export default function SynapsScrollCinemaLanding() {
       }
 
       const setupScrollScrub = () => {
-        setVideoLoaded(true);
         setDecodingFrames(false);
         const duration = video.duration || 10;
 

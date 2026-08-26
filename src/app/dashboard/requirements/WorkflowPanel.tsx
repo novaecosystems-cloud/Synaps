@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ProposalStatus } from '@prisma/client';
 
 export default function WorkflowPanel({ proposalId, organizationId, userId }: { proposalId: string, organizationId: string, userId: string }) {

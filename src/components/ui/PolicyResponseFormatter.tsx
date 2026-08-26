@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AlertTriangle, CheckCircle2, ShieldAlert, FileText, ArrowRight, Bookmark, Compass } from 'lucide-react';
+import { Bookmark, Compass } from 'lucide-react';
 
 interface FormatterProps {
   text: string;

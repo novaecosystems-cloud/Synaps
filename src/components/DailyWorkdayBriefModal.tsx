@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Sun, Sparkles, CheckCircle2, ArrowRight, ShieldAlert, 
-  Volume2, VolumeX, X, Calendar, FileText, TrendingUp, Users, Clock
-} from 'lucide-react';
+import { Sun, Sparkles, CheckCircle2, ArrowRight, Volume2, VolumeX, X, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -17,8 +14,6 @@ interface DailyWorkdayBriefModalProps {
 export default function DailyWorkdayBriefModal({ isOpenOverride, onCloseOverride }: DailyWorkdayBriefModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [briefData, setBriefData] = useState<any | null>(null);
-  const [loading, setLoading] = useState(false);
 
   // Format today and yesterday's date
   const today = new Date();
@@ -30,25 +25,9 @@ export default function DailyWorkdayBriefModal({ isOpenOverride, onCloseOverride
       // Only open when explicitly triggered by the user clicking the "Daily Brief" button
       if (isOpenOverride) {
         setIsOpen(true);
-        fetchDailyBrief();
       }
     }
   }, [isOpenOverride]);
-
-  const fetchDailyBrief = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/chief-of-staff/brief');
-      const json = await res.json();
-      if (json.success && json.data) {
-        setBriefData(json.data);
-      }
-    } catch (e) {
-      console.warn('Notice fetching daily brief, using synthesized workday data:', e);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDismiss = () => {
     if (typeof window !== 'undefined') {

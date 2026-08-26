@@ -1,7 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers';
-import { PrismaClient, Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 import { verifySessionCookie } from '@/lib/auth-server';
 import crypto from 'crypto';
 

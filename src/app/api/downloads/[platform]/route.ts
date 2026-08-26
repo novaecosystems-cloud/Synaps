@@ -4,7 +4,7 @@ const DIRECT_WIN_EXE = 'https://github.com/novaecosystems-cloud/Synaps/releases/
 const RELEASES_HUB = 'https://github.com/novaecosystems-cloud/Synaps/releases/tag/v2.5.0';
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ platform: string }> }
 ) {
   const { platform } = await params;

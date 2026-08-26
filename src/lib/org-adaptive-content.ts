@@ -78,8 +78,8 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffAlertTemplates: [
       (org) => `Statute of limitations deadline approaching on 3 open matters for ${org} — immediate partner review required.`,
       (org) => `${org} billing realization below 82% for second consecutive month — matter profitability review flagged.`,
-      (org) => `Potential conflict of interest detected: New matter intake shares adverse party with existing active client.`,
-      (org) => `Retainer replenishment notice: 4 client trust accounts below minimum threshold — billing action required.`,
+      (_org) => `Potential conflict of interest detected: New matter intake shares adverse party with existing active client.`,
+      (_org) => `Retainer replenishment notice: 4 client trust accounts below minimum threshold — billing action required.`,
     ],
     boardroomQuestions: [
       'Should we merge our corporate practice with a boutique M&A firm?',
@@ -111,7 +111,7 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
       (org) => `${org} Phase 2 trial enrollment is 18% below target — site activation review recommended within 72 hours.`,
       (org) => `FDA response window closes in 21 days — ${org} regulatory team has not submitted required supplemental data.`,
       (org) => `Key IP patent for ${org} expires in 90 days — licensing strategy review flagged as critical.`,
-      (org) => `CRO contract amendment deadline: 3 site agreements require renegotiation before Q3 close.`,
+      (_org) => `CRO contract amendment deadline: 3 site agreements require renegotiation before Q3 close.`,
     ],
     boardroomQuestions: [
       'Should we license our lead compound to a major pharma partner or pursue independent Phase 3?',
@@ -142,8 +142,8 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffAlertTemplates: [
       (org) => `${org} P99 API latency breached 99.9% SLA threshold — 3 enterprise customers flagged for credit issuance.`,
       (org) => `${org} net revenue retention dropped below 100% for second consecutive month — expansion revenue review required.`,
-      (org) => `Enterprise contract renewal: 2 accounts representing $840K ARR renewing in 30 days — CSM action required.`,
-      (org) => `Burn multiple exceeded 2.5x this quarter — cost structure review flagged by CFO digital twin.`,
+      (_org) => `Enterprise contract renewal: 2 accounts representing $840K ARR renewing in 30 days — CSM action required.`,
+      (_org) => `Burn multiple exceeded 2.5x this quarter — cost structure review flagged by CFO digital twin.`,
     ],
     boardroomQuestions: [
       'Should we move upmarket to enterprise-only and sunset the self-serve tier?',
@@ -174,8 +174,8 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffAlertTemplates: [
       (org) => `${org} liquidity coverage ratio dropped to 118% — 10% below internal policy floor. Treasury action required.`,
       (org) => `RBI/FCA filing deadline in 7 days — ${org} compliance team has 2 outstanding data submissions.`,
-      (org) => `NPA ratio crossed 3.2% threshold in retail lending segment — provisioning review flagged.`,
-      (org) => `Debt covenant headroom narrowed to $4.2M against leverage covenant floor — CFO review required.`,
+      (_org) => `NPA ratio crossed 3.2% threshold in retail lending segment — provisioning review flagged.`,
+      (_org) => `Debt covenant headroom narrowed to $4.2M against leverage covenant floor — CFO review required.`,
     ],
     boardroomQuestions: [
       'Should we pursue a full banking licence or maintain our current NBFC structure?',
@@ -205,9 +205,9 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffChannels: ['Portfolio Performance Dashboard', 'Lease Expiry & Re-Leasing Tracker', 'Debt & Covenant Monitor', 'Acquisition Pipeline', 'Investor Relations & Capital Calls', 'Asset Management & CapEx', 'Legal & Title', 'Market Intelligence'],
     chiefOfStaffAlertTemplates: [
       (org) => `${org} DSCR on 2 assets dropped below 1.20x covenant floor — lender waiver process must be initiated.`,
-      (org) => `Anchor tenant lease expiring in 45 days with no renewal signed — leasing team escalation required.`,
+      (_org) => `Anchor tenant lease expiring in 45 days with no renewal signed — leasing team escalation required.`,
       (org) => `Interest rate exposure: 38% of ${org} portfolio is floating-rate — hedging strategy review recommended.`,
-      (org) => `Capital call deadline in 14 days — 3 LP investors have not confirmed funding commitment.`,
+      (_org) => `Capital call deadline in 14 days — 3 LP investors have not confirmed funding commitment.`,
     ],
     boardroomQuestions: [
       'Should we dispose of our lowest-performing office assets and redeploy into logistics?',
@@ -237,9 +237,9 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffChannels: ['Supplier Performance Monitor', 'Inventory & Warehouse Management', 'Logistics & Freight Tracker', 'Procurement & PO Pipeline', 'Customer Order Management', 'Finance & COGS Dashboard', 'Regulatory & Trade Compliance', 'Risk & Business Continuity'],
     chiefOfStaffAlertTemplates: [
       (org) => `${org} tier-1 supplier in Guangdong has halted shipments — 14-day stock coverage remains for 3 SKUs.`,
-      (org) => `On-time delivery rate dropped to 91.3% in East Coast region — carrier performance review required.`,
+      (_org) => `On-time delivery rate dropped to 91.3% in East Coast region — carrier performance review required.`,
       (org) => `New tariff schedule effective next month adds estimated $2.1M to ${org} annual landed cost.`,
-      (org) => `Inventory days for 8 SKUs exceeded 90 days — working capital optimization review flagged.`,
+      (_org) => `Inventory days for 8 SKUs exceeded 90 days — working capital optimization review flagged.`,
     ],
     boardroomQuestions: [
       'Should we nearshore 40% of manufacturing to reduce tariff exposure and lead times?',
@@ -269,9 +269,9 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffChannels: ['Clinical Operations & Census', 'Revenue Cycle & Billing', 'Compliance & Quality Monitor', 'Physician Scheduling & HR', 'Patient Experience & NPS', 'Finance & Cost Management', 'Regulatory & Accreditation', 'Vendor & Supply Chain'],
     chiefOfStaffAlertTemplates: [
       (org) => `${org} ICU bed occupancy at 94% — capacity planning review required to avoid diversion risk.`,
-      (org) => `Claim denial rate increased to 8.2% — revenue cycle team should review payer-specific denial patterns.`,
-      (org) => `HIPAA audit window in 21 days — 3 PHI access logs have not been reviewed by compliance team.`,
-      (org) => `Physician contract renewal: 2 high-volume specialists contracts expire in 45 days.`,
+      (_org) => `Claim denial rate increased to 8.2% — revenue cycle team should review payer-specific denial patterns.`,
+      (_org) => `HIPAA audit window in 21 days — 3 PHI access logs have not been reviewed by compliance team.`,
+      (_org) => `Physician contract renewal: 2 high-volume specialists contracts expire in 45 days.`,
     ],
     boardroomQuestions: [
       'Should we acquire a competing practice group to expand our specialist coverage area?',
@@ -301,8 +301,8 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffChannels: ['Production Scheduling & MES', 'Quality & Defect Monitor', 'Supply Chain & Procurement', 'Sales & Order Pipeline', 'Maintenance & Asset Health', 'Finance & Cost Accounting', 'Customer & Warranty Claims', 'Safety & Compliance'],
     chiefOfStaffAlertTemplates: [
       (org) => `${org} Line 3 OEE dropped to 71% — root-cause analysis initiated, 4-hour downtime impact estimated.`,
-      (org) => `Scrap rate on Assembly Cell B exceeded 3.5% threshold — quality hold placed on outbound shipments.`,
-      (org) => `Key raw material lead time extended by 18 days — production schedule adjustment required.`,
+      (_org) => `Scrap rate on Assembly Cell B exceeded 3.5% threshold — quality hold placed on outbound shipments.`,
+      (_org) => `Key raw material lead time extended by 18 days — production schedule adjustment required.`,
       (org) => `${org} customer warranty claim volume up 22% — defect pattern review flagged as urgent.`,
     ],
     boardroomQuestions: [
@@ -333,8 +333,8 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffChannels: ['Enrolment & Admissions Pipeline', 'Student Success & Retention', 'Academic Calendar & Timetabling', 'Finance & Tuition Revenue', 'Faculty & HR Management', 'Accreditation & Compliance', 'Technology & LMS', 'Alumni & Fundraising'],
     chiefOfStaffAlertTemplates: [
       (org) => `${org} first-year retention rate dropped to 81% — student success intervention program review required.`,
-      (org) => `Accreditation renewal submission due in 30 days — 2 program self-study reports are incomplete.`,
-      (org) => `Enrolment in STEM programs 14% below target — marketing and outreach strategy review required.`,
+      (_org) => `Accreditation renewal submission due in 30 days — 2 program self-study reports are incomplete.`,
+      (_org) => `Enrolment in STEM programs 14% below target — marketing and outreach strategy review required.`,
       (org) => `${org} faculty vacancy rate reached 12% — recruitment pipeline review flagged as critical.`,
     ],
     boardroomQuestions: [
@@ -365,9 +365,9 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffChannels: ['Content Production Pipeline', 'Audience Analytics & MAU', 'Subscription & Revenue Dashboard', 'Ad Sales & Campaign Management', 'Rights & Licensing Tracker', 'Technology & Platform Health', 'Legal & IP Management', 'Talent & Creator Relations'],
     chiefOfStaffAlertTemplates: [
       (org) => `${org} subscriber churn rate increased to 4.2% this month — retention campaign review required.`,
-      (org) => `Content licensing agreement for flagship series expires in 60 days — renewal negotiation not yet initiated.`,
-      (org) => `Ad revenue CPM declined 18% — top advertiser paused spend pending brand safety review.`,
-      (org) => `Platform uptime dropped to 99.2% during peak viewing window — engineering escalation flagged.`,
+      (_org) => `Content licensing agreement for flagship series expires in 60 days — renewal negotiation not yet initiated.`,
+      (_org) => `Ad revenue CPM declined 18% — top advertiser paused spend pending brand safety review.`,
+      (_org) => `Platform uptime dropped to 99.2% during peak viewing window — engineering escalation flagged.`,
     ],
     boardroomQuestions: [
       'Should we launch a free ad-supported tier to accelerate user acquisition?',
@@ -397,9 +397,9 @@ const SECTOR_CONTENT: Record<Sector, SectorContent> = {
     chiefOfStaffChannels: ['Email & Executive Communications', 'Calendar & Scheduling', 'Active Projects & Initiatives', 'Document & Contract Vault', 'CRM & Customer Pipeline', 'Finance & Reporting', 'Technology & Systems', 'HR & People Operations'],
     chiefOfStaffAlertTemplates: [
       (org) => `${org} has 2 vendor contracts expiring within 30 days — procurement review action required.`,
-      (org) => `Board meeting preparation: 3 board pack sections are outstanding — executive team deadline in 48 hours.`,
+      (_org) => `Board meeting preparation: 3 board pack sections are outstanding — executive team deadline in 48 hours.`,
       (org) => `${org} quarterly compliance filing due in 14 days — legal team has not submitted required documents.`,
-      (org) => `Budget variance alert: Q3 operating expenditure tracking 8.4% above plan — CFO review requested.`,
+      (_org) => `Budget variance alert: Q3 operating expenditure tracking 8.4% above plan — CFO review requested.`,
     ],
     boardroomQuestions: [
       'Should we expand our core product line into adjacent market segments?',
@@ -519,12 +519,11 @@ export function buildAdaptiveDemoData(
   sector: string | undefined,
   companyName: string,
   departments: string[],
-  agents: string[]
+  _agents: string[]
 ) {
   const sc = getSectorContent(sector);
   const primaryMetric = sc.metrics[0] || 'Performance Score';
   const secondaryMetric = sc.metrics[1] || 'Operational Health';
-  const topAgent = agents[0] || 'Chief Executive';
   const docSuffix = companyName.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 20);
 
   return {

@@ -563,7 +563,6 @@ export function verifySimulationRecord(
   const decisionDetails = simulationResult?.decisionDetails || '';
   const scenarios = simulationResult?.scenarios || {};
   const uncertaintyRange = simulationResult?.uncertaintyRange || {};
-  const math = simulationResult?.monteCarloMath || {};
 
   // Scenario leaves
   const scenarioKeys = Object.keys(scenarios);

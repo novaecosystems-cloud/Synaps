@@ -1,9 +1,9 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createGroq } from '@ai-sdk/groq';
 import { createOpenAI } from '@ai-sdk/openai';
-import { generateText, generateObject, streamText, LanguageModel, Schema } from 'ai';
+import { generateText, generateObject, streamText, LanguageModel } from 'ai';
 import { z } from 'zod';
-import { inspectResponse } from '@/lib/ai-firewall';
+import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
 
 // Helper to get active language models with available API keys
 function getAvailableLanguageModels(): { name: string; model: LanguageModel }[] {
@@ -87,6 +87,7 @@ export async function generateTextWithAISDK(options: {
     throw new Error('No AI provider API keys configured in environment');
   }
 
+  const promptText = options.prompt ? inspectPrompt(options.prompt).sanitizedPrompt : options.prompt;
   let lastError: Error | null = null;
 
   for (const { name, model } of models) {
@@ -94,7 +95,7 @@ export async function generateTextWithAISDK(options: {
       const result = await generateText({
         model,
         system: options.system,
-        prompt: options.prompt,
+        prompt: promptText,
         messages: options.messages,
       } as any);
 
@@ -126,6 +127,7 @@ export async function generateObjectWithAISDK<T>(options: {
     throw new Error('No AI provider API keys configured in environment');
   }
 
+  const promptText = options.prompt ? inspectPrompt(options.prompt).sanitizedPrompt : options.prompt;
   let lastError: Error | null = null;
 
   for (const { name, model } of models) {
@@ -134,7 +136,7 @@ export async function generateObjectWithAISDK<T>(options: {
         model,
         schema: options.schema,
         system: options.system,
-        prompt: options.prompt,
+        prompt: promptText,
         messages: options.messages,
       } as any);
 
@@ -165,11 +167,12 @@ export async function streamTextWithAISDK(options: {
     throw new Error('No AI provider API keys configured in environment');
   }
 
+  const promptText = options.prompt ? inspectPrompt(options.prompt).sanitizedPrompt : options.prompt;
   const primaryModel = models[0];
   return streamText({
     model: primaryModel.model,
     system: options.system,
-    prompt: options.prompt,
+    prompt: promptText,
     messages: options.messages,
   } as any);
 }

@@ -6,7 +6,7 @@ import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { getEnterpriseRiskDashboard } from '@/lib/risk-prediction-engine';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     let organizationId = 'default_org';
 

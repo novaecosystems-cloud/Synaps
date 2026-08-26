@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
   if (auth instanceof NextResponse) return auth;
   const { searchParams } = new URL(req.url);
   const clauseType = searchParams.get('clauseType') as any ?? 'INDEMNITY';
-  const orgId = searchParams.get('orgId');
 
   const validTypes = ['INDEMNITY', 'LIABILITY_CAP', 'TERMINATION', 'GOVERNING_LAW', 'DATA_PRIVACY'];
   if (!validTypes.includes(clauseType)) {

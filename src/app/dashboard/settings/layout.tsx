@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Bell, Shield, Users, MonitorSmartphone, Building, Key, Database, Activity, Lock, BrainCircuit, Settings } from 'lucide-react';
+import { Shield, Users, Building, Key, Database, Activity, Lock, BrainCircuit, Settings } from 'lucide-react';
 import React from 'react';
 
 const workspaceLinks = [

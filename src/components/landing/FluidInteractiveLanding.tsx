@@ -1,44 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowRight,
-  ArrowUpRight,
-  ShieldCheck,
-  FileText,
-  Search,
-  Database,
-  GitBranch,
-  AlertTriangle,
-  Scale,
-  Cpu,
-  Layers,
-  ChevronDown,
-  Globe,
-  Users,
-  CheckCircle2,
-  Sparkles,
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Zap,
-  TrendingUp,
-  MessageSquare,
-  Command,
-  Sliders,
-  Copy,
-  Check
-} from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Search, GitBranch, Scale, Cpu, ChevronDown, CheckCircle2, Sparkles, Volume2, VolumeX, Zap, Copy, Check } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
 import Link from 'next/link';
 import Lenis from 'lenis';
 import { useAuth } from '@/context/AuthContext';
-import { saveGuestSimulationState, isGuestUser } from '@/lib/guest-simulation-store';
+import { saveGuestSimulationState } from '@/lib/guest-simulation-store';
 
 import { HoverExpand, HoverExpandItem } from '@/components/ui/HoverExpand';
 import { FluidCanvas } from '@/components/ui/FluidCanvas';
@@ -105,21 +76,19 @@ const DASHBOARD_4K_ITEMS: HoverExpandItem[] = [
 export default function FluidInteractiveLanding() {
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [signInPrompt, setSignInPrompt] = useState({
+  const signInPrompt = {
     title: 'Save Simulation Results',
     subtitle: 'Sign in to save your simulation results and unlock 50 daily boardroom runs',
-  });
+  };
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [selectedPromptIdx, setSelectedPromptIdx] = useState(0);
   const [typedPrompt, setTypedPrompt] = useState(SAMPLE_PROMPTS[0]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [activeTab, setActiveTab] = useState<'parser' | 'search' | 'decision' | 'memory'>('parser');
   const [copiedText, setCopiedText] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const promptInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize Lenis Smooth Scroll
   useEffect(() => {

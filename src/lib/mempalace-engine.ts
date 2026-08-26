@@ -7,9 +7,6 @@
  * spatial retrieval, and semantic indexing.
  */
 
-import prisma from '@/lib/prisma';
-import { generateEmbedding } from '@/lib/embeddings';
-
 export interface MemPalaceRoom {
   id: string;
   name: string;
@@ -147,7 +144,7 @@ ${lociFormatted}
 `;
   }
 
-  private getFallbackLoci(query: string): MemLocus[] {
+  private getFallbackLoci(_query?: string): MemLocus[] {
     return [
       {
         id: 'loc_def_1',

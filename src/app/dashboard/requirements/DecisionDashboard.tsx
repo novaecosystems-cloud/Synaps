@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2, CheckCircle, XCircle, AlertTriangle, Play, ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
 
 export default function DecisionDashboard({ documentId }: { documentId: string }) {

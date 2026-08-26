@@ -1,18 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Building2, Users, ShieldAlert, Sparkles, CheckCircle2, 
-  AlertTriangle, Loader2, ArrowRight, MessageSquare, Scale, 
-  DollarSign, Cpu, Activity, Briefcase, FileText, ChevronRight, X,
-  Compass, Flame, Zap, Award, Layers, Download, CheckSquare, Send, Check,
-  RotateCcw, RefreshCw, Video, Edit3
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
+import { Building2, Users, Sparkles, CheckCircle2, AlertTriangle, Loader2, FileText, ChevronRight, X, Flame, Zap, Award, Download, CheckSquare, Check, RotateCcw, Video, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
-import { SkiperLoopLoader } from '@/components/ui/SkiperLoopLoader';
 import { downloadAsPDF } from '@/lib/export-helpers';
 import { verifyBoardroomRecord } from '@/lib/dgcl-merkle';
 import { useOrgProfile } from '@/context/OrgProfileContext';
@@ -43,12 +34,7 @@ import {
 } from '@/lib/viewmodel-cache';
 import { IsolatedErrorBoundary } from '@/components/ui/error-boundary';
 import { BoardroomSkeleton } from '@/components/ui/skeleton';
-import { 
-  offlineFetch, 
-  isOffline, 
-  showOfflineToast, 
-  enqueueBoardroomVote 
-} from '@/lib/offline-sync-queue';
+import { offlineFetch } from '@/lib/offline-sync-queue';
 import { ExecutiveMotivationWidget } from '@/components/dashboard/ExecutiveMotivationWidget';
 
 export default function BoardroomPage() {

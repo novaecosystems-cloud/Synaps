@@ -11,7 +11,7 @@ import {
 
 export async function POST(req: NextRequest) {
   // ── 1. Auth Guard ─────────────────────────────────────────────────────────
-  const auth = await resolveAuthContext(req);
+  await resolveAuthContext(req);
 
   // ── 2. Rate Limit: 10 plan executions per minute ──────────────────────────
   const ip = getRateLimitKey(req);

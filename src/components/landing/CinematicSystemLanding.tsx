@@ -1,29 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowRight,
-  ArrowUpRight,
-  ShieldCheck,
-  FileText,
-  Lock,
-  Sparkles,
-  CheckCircle2,
-  Cpu,
-  Layers,
-  Search,
-  Database,
-  GitBranch,
-  AlertTriangle,
-  Scale,
-  Zap,
-  Check,
-  ChevronRight
-} from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ShieldCheck, FileText, Sparkles, Cpu, Layers, GitBranch } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
 import Link from 'next/link';
 import Lenis from 'lenis';

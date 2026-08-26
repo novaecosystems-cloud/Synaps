@@ -100,9 +100,8 @@ export class ClauseBenchmarker {
     const snippetText = cleanedText.slice(0, 500);
 
     // Upsert: if same clause hash already exists, increment occurrence count
-    let clause;
     try {
-      clause = await prisma.anonymizedClause.upsert({
+      await prisma.anonymizedClause.upsert({
         where: { hash },
         update: {
           occurrenceCount: { increment: 1 },
@@ -229,9 +228,8 @@ export class DecisionMemoryLoop {
       `Decision feedback received: ${feedback.userAction}${feedback.userOverrideReason ? ` — ${feedback.userOverrideReason}` : ''}`
     );
 
-    let entry;
     try {
-      entry = await prisma.decisionMemoryEntry.create({
+      await prisma.decisionMemoryEntry.create({
         data: {
           organizationId: feedback.orgId,
           agentRole: feedback.agentRole,
@@ -318,9 +316,8 @@ export class AuditLedger {
     const rawData = JSON.stringify({ orgId, eventType, payload, timestamp, previousHash });
     const currentHash = createHash('sha256').update(rawData).digest('hex');
 
-    let entry;
     try {
-      entry = await prisma.auditLedgerEntry.create({
+      await prisma.auditLedgerEntry.create({
         data: {
           organizationId: orgId,
           eventType,

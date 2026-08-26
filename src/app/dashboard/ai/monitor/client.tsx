@@ -1,16 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  ShieldCheck, AlertTriangle, FileText, Database, Sparkles, 
-  TrendingUp, Search, ExternalLink, Info, CheckCircle2, RefreshCw, XCircle, Loader2, Radio, Layers, Calculator
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShieldCheck, FileText, Search, Loader2, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 export default function AIMonitorClient() {
   const [analytics, setAnalytics] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
 
   // Evaluator Stage State
   const [query, setQuery] = useState('What is our auto-renewal cancellation notice period in enterprise contracts?');
@@ -28,8 +24,6 @@ export default function AIMonitorClient() {
         }
       } catch (e) {
         console.error("Failed to load confidence analytics:", e);
-      } finally {
-        setLoading(false);
       }
     }
     fetchAnalytics();
@@ -209,8 +203,13 @@ export default function AIMonitorClient() {
               {evalReport.citations?.map((cite: any) => (
                 <div 
                   key={cite.id}
-                  onClick={() => setSelectedCitation(cite)}
-                  className="p-4 bg-base-200/50 hover:bg-base-200 border border-base-300 rounded-2xl transition-all cursor-pointer space-y-2 group"
+                  onClick={() => setSelectedCitation(selectedCitation?.id === cite.id ? null : cite)}
+                  className={cn(
+                    "p-4 border rounded-2xl transition-all cursor-pointer space-y-2 group",
+                    selectedCitation?.id === cite.id
+                      ? "bg-indigo-500/10 border-indigo-500 ring-1 ring-indigo-500/30"
+                      : "bg-base-200/50 hover:bg-base-200 border-base-300"
+                  )}
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <span className="text-xs font-bold text-base-content group-hover:text-indigo-400 transition-colors">

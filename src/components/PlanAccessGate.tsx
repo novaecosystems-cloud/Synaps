@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Lock, Sparkles, Zap, ShieldAlert, ArrowRight } from 'lucide-react';
+import { Lock, Sparkles, Zap, ArrowRight } from 'lucide-react';
 import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
 
 interface PlanRequirement {

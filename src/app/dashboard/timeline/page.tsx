@@ -1,11 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  GitCommit, GitBranch, Calendar, Filter, FileText, Users, 
-  CheckCircle2, Loader2, RefreshCw, ShieldAlert, ChevronRight, 
-  ArrowUpRight, X, Sparkles, AlertTriangle, Layers, Tag, ExternalLink
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { GitCommit, GitBranch, Calendar, FileText, Loader2, RefreshCw, ShieldAlert, ArrowUpRight, X, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';

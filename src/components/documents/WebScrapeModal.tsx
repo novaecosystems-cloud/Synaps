@@ -1,10 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { 
-  Globe, X, Loader2, CheckCircle2, ArrowRight, Sparkles, 
-  FileText, ExternalLink, ShieldCheck, Zap, Layers 
-} from "lucide-react";
+import { useState } from 'react';
+import { Globe, X, Loader2, CheckCircle2, Zap } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface WebScrapeModalProps {

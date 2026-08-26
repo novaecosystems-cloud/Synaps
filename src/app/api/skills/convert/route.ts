@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuthForLLM } from '@/lib/api-security';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
-import { AgentSkillPackage, SkillDecisionRule, SkillAntiPattern, SkillChapter } from '@/lib/book-to-skill';
+import { AgentSkillPackage } from '@/lib/book-to-skill';
 
 export async function POST(req: NextRequest) {
   const auth = await requireAuthForLLM(req);

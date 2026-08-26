@@ -6,7 +6,7 @@ import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { generateChiefOfStaffBriefing } from '@/lib/chief-of-staff';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('synaps-session')?.value;

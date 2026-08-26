@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 // ─── Custom Loop Hook ────────────────────────────────────────────────────────

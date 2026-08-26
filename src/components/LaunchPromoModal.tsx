@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Sparkles, X, ArrowRight, ShieldCheck, Tag, Clock, Users } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sparkles, X, ArrowRight, ShieldCheck, Clock, Users } from 'lucide-react';
 import { getGumroadCheckoutUrl } from '@/lib/gumroad';
 import { isLaunchPromoValid, getLaunchPromoBadgeInfo, LAUNCH_PROMO_CONFIG } from '@/lib/launch-promo';
 
@@ -11,7 +11,7 @@ interface LaunchPromoModalProps {
 
 export default function LaunchPromoModal({ userPlan }: LaunchPromoModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [claimedCount, setClaimedCount] = useState(84); // 84 out of 100 slots claimed
+  const claimedCount = 84; // 84 out of 100 slots claimed
 
   useEffect(() => {
     // DO NOT show to MAX / Enterprise paid users

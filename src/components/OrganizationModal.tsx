@@ -1,14 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Building2, Plus, Search, ShieldCheck, Check, X, UserPlus, 
-  Users, Crown, ShieldAlert, Sparkles, Clock, LogOut, ChevronRight, 
-  Copy, CheckCircle2, UserCheck, UserX, AlertCircle, RefreshCw
-} from 'lucide-react';
+import { Building2, Plus, Search, ShieldCheck, X, UserPlus, Users, Sparkles, Copy, CheckCircle2, UserCheck, UserX, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface Member {
   id: string;

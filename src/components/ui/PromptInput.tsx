@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { Globe, AlignLeft, Sparkles, Zap } from "lucide-react";
+import { Globe, AlignLeft } from 'lucide-react';
 
 // ----------------------------------------------------------------------
 // Transition Physics

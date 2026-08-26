@@ -1,28 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  BookOpen,
-  Sparkles,
-  Zap,
-  ShieldCheck,
-  FileCode,
-  Layers,
-  ArrowRight,
-  Download,
-  Copy,
-  Check,
-  Plus,
-  RefreshCw,
-  Search,
-  Sliders,
-  FileText,
-  AlertTriangle,
-  CheckCircle2,
-  Terminal,
-  Activity,
-  Maximize2,
-} from 'lucide-react';
+import { useState } from 'react';
+import { BookOpen, Sparkles, Zap, Layers, Download, Copy, Check, Plus, RefreshCw, FileText, AlertTriangle, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AgentSkillPackage, PRESET_SKILLS } from '@/lib/book-to-skill';
 

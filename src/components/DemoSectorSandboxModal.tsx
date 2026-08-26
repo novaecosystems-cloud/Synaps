@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Sparkles, ShieldAlert, CheckCircle2, ArrowRight, FileText, 
-  Layers, Play, X, ExternalLink, Zap, RefreshCw, Scale, DollarSign, Cloud, HeartPulse, Cpu
-} from 'lucide-react';
+import { Sparkles, ShieldAlert, ArrowRight, FileText, Play, X, Zap, RefreshCw, Scale, DollarSign, Cloud, HeartPulse, Cpu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { FireworksBackground } from '@/components/ui/FireworksBackground';

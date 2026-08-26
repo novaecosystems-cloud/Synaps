@@ -1,12 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, CheckCircle2, AlertTriangle, Clock, Calendar, Plus, 
-  FileText, Sparkles, Loader2, RefreshCw, ShieldAlert, ArrowUpRight,
-  MessageSquare, UserCheck, CheckSquare, Target, ChevronRight, X
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
+import { Users, CheckCircle2, AlertTriangle, Calendar, Plus, FileText, Sparkles, Loader2, RefreshCw, ShieldAlert, UserCheck, CheckSquare, ChevronRight, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 

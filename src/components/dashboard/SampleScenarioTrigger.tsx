@@ -1,11 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Building2, Sparkles, Zap, ShieldAlert, ArrowRight, 
-  FileText, UploadCloud, CheckCircle2, TrendingUp, Scale,
-  Users, Activity, ChevronRight, Layers, Clock, Cpu
-} from 'lucide-react';
+import { useState } from 'react';
+import { Sparkles, Zap, ShieldAlert, ArrowRight, UploadCloud, CheckCircle2, Scale, Users, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';

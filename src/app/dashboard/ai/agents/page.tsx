@@ -1,10 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Globe, Search, ExternalLink, Bot, Plus, Puzzle, Workflow, BookText, 
-  Sparkles, CheckCircle2, ShieldCheck, Mail, Phone, Building2, RefreshCw, Loader2, ArrowRight
-} from 'lucide-react';
+import { useState } from 'react';
+import { Globe, Search, ExternalLink, Bot, Workflow, BookText, Sparkles, CheckCircle2, Mail, Phone, Building2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 

@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const _auth = await requireAuth(req);
   if (_auth instanceof NextResponse) return _auth;
   try {
-    const { email, docType, docTitle, lang, sections } = await req.json();
+    const { email, docTitle, sections } = await req.json();
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'A valid email address is required.' }, { status: 400 });

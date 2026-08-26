@@ -5,7 +5,6 @@ import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import { evaluateAnswerConfidence } from '@/lib/memory-confidence-engine';
-import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export async function POST(req: NextRequest) {
   try {

@@ -3,26 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { 
-  LayoutDashboard, 
-  FolderKanban, 
-  Settings, 
-  Search,
-  Globe,
-  LogOut,
-  ChevronRight,
-  ChevronDown,
-  Files,
-  Activity,
-  TrendingUp,
-  Menu,
-  ShieldAlert,
-  Sparkles,
-  ShieldCheck,
-  Zap,
-  Trophy,
-  Laptop
-} from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Settings, Search, Globe, LogOut, ChevronRight, ChevronDown, Files, TrendingUp, Menu, ShieldAlert, Sparkles, ShieldCheck, Zap, Laptop } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { logoutAction } from '@/app/actions/auth';
 import dynamic from 'next/dynamic';

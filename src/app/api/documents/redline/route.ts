@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { logDataInput } from '@/lib/dpdp-compliance';
-import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
+import { requireAuthForLLM } from '@/lib/api-security';
 import { deepCleanObjectSlop } from '@/lib/de-slop';
 
 export async function POST(req: NextRequest) {

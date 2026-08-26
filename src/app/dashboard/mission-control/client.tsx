@@ -1,11 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Radio, Play, Pause, Square, RefreshCw, Sparkles, CheckCircle2, 
-  AlertTriangle, Clock, Layers, ArrowRight, ShieldCheck, FileText, 
-  Lock, Cpu, Users, Zap, ExternalLink, ChevronRight, X, Loader2, Info
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Radio, Play, Pause, Square, Sparkles, CheckCircle2, Layers, ShieldCheck, FileText, Cpu, Users, Zap, ChevronRight, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';

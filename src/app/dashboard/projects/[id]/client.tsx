@@ -7,16 +7,7 @@ import { createTask } from '@/app/actions/task';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { TaskItem } from '@/components/projects/task-item';
-import { 
-  FolderKanban, 
-  CheckSquare, 
-  CircleDollarSign, 
-  ShieldAlert,
-  Calendar,
-  Users,
-  MoreVertical,
-  Activity
-} from 'lucide-react';
+import { CheckSquare, CircleDollarSign, ShieldAlert, Calendar, Users, MoreVertical, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 

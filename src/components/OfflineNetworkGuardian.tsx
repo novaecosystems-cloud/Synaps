@@ -1,18 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
-  WifiOff, 
-  Wifi, 
-  RefreshCw, 
-  Minimize2, 
-  Maximize2, 
-  Radio, 
-  Database, 
-  Cpu, 
-  CheckCircle2,
-  Clock
-} from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { WifiOff, RefreshCw, Minimize2, Maximize2, Radio, Database, Cpu, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
   drainOfflineQueue, 

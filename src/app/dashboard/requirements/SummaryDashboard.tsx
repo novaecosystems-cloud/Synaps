@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2, Play, Download, Printer, FileText, CheckCircle, AlertTriangle, TrendingUp, ShieldCheck } from 'lucide-react';
 
 export default function SummaryDashboard({ documentId }: { documentId: string }) {

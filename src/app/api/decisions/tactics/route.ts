@@ -6,7 +6,7 @@ import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     let orgId = 'default_org';
     try {

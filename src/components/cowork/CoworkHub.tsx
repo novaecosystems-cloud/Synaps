@@ -3,39 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import {
-  Users,
-  Plug,
-  Layers,
-  Sparkles,
-  Copy,
-  Check,
-  Play,
-  Terminal,
-  ShieldCheck,
-  Activity,
-  Globe,
-  Radio,
-  FileCode,
-  FolderLock,
-  Plus,
-  Send,
-  MessageSquare,
-  Bot,
-  ExternalLink,
-  Laptop,
-  Loader2,
-  Trash2,
-  Paperclip,
-  FolderPlus,
-  FileText,
-  Lock,
-  Unlock,
-  X,
-  Info,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+import { Users, Plug, Layers, Copy, Check, Play, Terminal, Radio, FileCode, FolderLock, Plus, Send, Bot, Loader2, Paperclip, FolderPlus, FileText, Lock, Unlock, X, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PRESET_SKILLS } from '@/lib/book-to-skill';
 
@@ -147,7 +115,6 @@ export default function CoworkHub() {
   });
 
   const [strictGrounding, setStrictGrounding] = useState(true);
-  const [showSourcesPanel, setShowSourcesPanel] = useState(true);
   const [showKnowledgeModal, setShowKnowledgeModal] = useState(false);
   const [dbDocs, setDbDocs] = useState<any[]>([]);
   const [loadingDbDocs, setLoadingDbDocs] = useState(false);

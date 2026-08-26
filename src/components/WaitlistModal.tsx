@@ -1,10 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Flame, Sparkles, X, CheckCircle2, ShieldCheck, Mail, ArrowRight, Loader2, Award 
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Flame, X, CheckCircle2, ShieldCheck, Mail, Loader2, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface WaitlistModalProps {

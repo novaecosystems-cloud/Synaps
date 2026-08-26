@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, Search, Filter, Download, ChevronLeft, ChevronRight, Activity, Calendar, User, Database, Printer, ShieldCheck, FileText } from 'lucide-react';
+import { Loader2, Search, Download, ChevronLeft, ChevronRight, Calendar, User, Database, Printer, ShieldCheck, FileText } from 'lucide-react';
 import { ThermalReceipt } from '@/components/ui/EnterpriseTactileSuite';
 import { downloadAsPDF } from '@/lib/export-helpers';
 import { MerkleTree } from '@/lib/dgcl-merkle';

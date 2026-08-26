@@ -8,7 +8,7 @@ const TEST_ORG = 'daam_test_org_synaps_001';
  * Full end-to-end test of all 4 DAAM pillars.
  * Tests each pillar sequentially and returns a detailed results report.
  */
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const results: Record<string, any> = {
     timestamp: new Date().toISOString(),
     testOrgId: TEST_ORG,

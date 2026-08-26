@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { OrgProfile, Sector, OrgSize, OrgPriority } from '@/lib/org-adaptive-content';
 
 interface OrgProfileContextValue {

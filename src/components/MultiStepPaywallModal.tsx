@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   X, Sparkles, ShieldCheck, Check, ArrowRight, Zap, RefreshCw, 
   HeartHandshake, ShieldAlert, Award, CheckCircle2, BrainCircuit, CreditCard, ShoppingBag
@@ -10,7 +10,6 @@ import { useOrgProfile } from '@/context/OrgProfileContext';
 import { Building2 } from 'lucide-react';
 import { getLemonSqueezyCheckoutUrl, triggerLemonSqueezyApiRefund } from '@/lib/lemonsqueezy';
 import { generateIdempotencyKey } from '@/lib/idempotency';
-import UpiPaymentModal from '@/components/UpiPaymentModal';
 
 interface MultiStepPaywallProps {
   isOpen: boolean;
@@ -57,17 +56,13 @@ export default function MultiStepPaywallModal({
   const [selectedPlan, setSelectedPlan] = useState<'pro' | 'enterprise'>(defaultPlan);
   const { profile } = useOrgProfile();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [userEmail, setUserEmail] = useState('');
   const [refundUserEmail, setRefundUserEmail] = useState('');
   const [refundReason, setRefundReason] = useState('');
   const [refundRequested, setRefundRequested] = useState(false);
   const [refundSubmitting, setRefundSubmitting] = useState(false);
-  const [noticeSubmitting, setNoticeSubmitting] = useState(false);
-  const [checkoutNoticeSent, setCheckoutNoticeSent] = useState(false);
   const [paymentSuccessState, setPaymentSuccessState] = useState(false);
   const [userRole, setUserRole] = useState<string>('MEMBER');
   const [creditLimit, setCreditLimit] = useState<number>(50);
-  const [showUpiModal, setShowUpiModal] = useState(false);
 
   useEffect(() => {
     const checkActivePlan = async () => {
@@ -115,7 +110,7 @@ export default function MultiStepPaywallModal({
   const currentPrice = prices[selectedPlan].discounted;
 
   const handleOpenLemonSqueezy = () => {
-    const checkoutUrl = getLemonSqueezyCheckoutUrl(selectedPlan, userEmail);
+    const checkoutUrl = getLemonSqueezyCheckoutUrl(selectedPlan);
     window.open(checkoutUrl, '_blank');
   };
 
@@ -125,35 +120,8 @@ export default function MultiStepPaywallModal({
     if (onSuccess) onSuccess();
   };
 
-  const handleSendPaymentNotice = async () => {
-    if (!userEmail.trim() || noticeSubmitting) return;
-
-    setNoticeSubmitting(true);
-    const idempKey = generateIdempotencyKey('pay_notice');
-
-    try {
-      await fetch('/api/settings/billing/upgrade', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Idempotency-Key': idempKey
-        },
-        body: JSON.stringify({
-          action: 'payment_notice',
-          userEmail: userEmail.trim(),
-          planId: selectedPlan,
-          idempotencyKey: idempKey
-        })
-      });
-    } catch (e) {}
-
-    setCheckoutNoticeSent(true);
-    setNoticeSubmitting(false);
-    triggerPaymentSuccessState();
-  };
-
   const handleRequestRefund = async () => {
-    const emailToUse = refundUserEmail.trim() || userEmail.trim();
+    const emailToUse = refundUserEmail.trim();
     if (!emailToUse || refundSubmitting) return;
     
     setRefundSubmitting(true);
@@ -184,7 +152,7 @@ export default function MultiStepPaywallModal({
     setRefundSubmitting(false);
   };
 
-  const activeEmailForRefund = refundUserEmail.trim() || userEmail.trim();
+  const activeEmailForRefund = refundUserEmail.trim();
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 font-sans animate-in fade-in duration-200">
@@ -273,7 +241,7 @@ export default function MultiStepPaywallModal({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-base-content/60">Account Email:</span>
-                  <span className="font-bold text-primary">{userEmail || 'Activated'}</span>
+                  <span className="font-bold text-primary">{refundUserEmail || 'Workspace Account'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-base-content/60">Status:</span>
@@ -706,12 +674,6 @@ export default function MultiStepPaywallModal({
           <span>Cancel Anytime • 14-Day Real Money Refund Guarantee</span>
         </div>
       </div>
-
-      <UpiPaymentModal 
-        isOpen={showUpiModal}
-        onClose={() => setShowUpiModal(false)}
-        planId={selectedPlan}
-      />
     </div>
   );
 }

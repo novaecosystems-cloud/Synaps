@@ -1,9 +1,8 @@
 'use server'
 
-import { PrismaClient } from '@prisma/client';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
-import { generateUploadUrl, generateDownloadUrl, deleteFile } from '@/lib/storage';
+import { generateUploadUrl, deleteFile } from '@/lib/storage';
 
 import prisma, { rawPrisma } from '@/lib/prisma';
 

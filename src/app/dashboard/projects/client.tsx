@@ -2,11 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Plus, Search, Filter, AlertTriangle, CheckCircle2, 
-  Clock, Shield, ArrowRight, ArrowLeft, Trash2, User,
-  Bot, Tag, Sparkles, RefreshCw, X, FileText, Check
-} from "lucide-react";
+import { Plus, Search, Filter, AlertTriangle, CheckCircle2, Clock, Shield, ArrowRight, ArrowLeft, Trash2, User, Bot, Sparkles, RefreshCw, X } from 'lucide-react';
 
 interface ActionTask {
   id: string;

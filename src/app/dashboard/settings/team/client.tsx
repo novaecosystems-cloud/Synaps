@@ -5,8 +5,6 @@ import { Role } from '@prisma/client';
 import { auth } from '@/lib/firebase';
 import { sendSignInLinkToEmail } from 'firebase/auth';
 import { updateMemberRole, removeMember, inviteMember, removeInvitation } from '@/app/actions/organization';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Link2, Copy, MoreHorizontal, Check, Loader2, X, Plus, Crown, ChevronDown, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';

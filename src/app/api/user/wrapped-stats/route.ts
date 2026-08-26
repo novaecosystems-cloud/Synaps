@@ -1,12 +1,11 @@
-﻿export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
-import { calculatePrimeRLM } from '@/lib/prime-rlm';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     let organizationId = 'no_org_fallback';
     let docCount = 12;
@@ -65,13 +64,6 @@ export async function GET(req: NextRequest) {
     // Mathematical Formula: T_saved = (D * 0.8h) + (Q * 0.25h) + (P * 0.05h)
     const hoursSavedRaw = (docCount * 0.8) + (totalQueries * 0.25) + (estimatedPages * 0.05);
     const hoursSaved = Math.max(3.5, parseFloat(hoursSavedRaw.toFixed(1)));
-
-    // 2. PRIME RLM Mathematical Process-Outcome Calculation
-    const primeWrappedStats = calculatePrimeRLM('WRAPPED_STATS', {
-      totalDocs: docCount,
-      totalDecisions,
-      confidenceAvg: 0.994,
-    });
 
     const consensusRate = totalDecisions > 0 
       ? Math.round((approvedDecisions / totalDecisions) * 100) 

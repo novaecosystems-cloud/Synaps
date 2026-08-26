@@ -1,12 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Terminal as TerminalIcon, Play, FileCode, Folder, Plus, RefreshCw, 
-  CheckCircle2, AlertTriangle, ShieldCheck, Cpu, HardDrive, Zap, 
-  ArrowRight, Copy, Check, Lock, Sparkles, Send, FileText
-} from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Terminal as TerminalIcon, Play, FileCode, Folder, RefreshCw, Cpu, Zap, ArrowRight, Copy, Check } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface VirtualFile {

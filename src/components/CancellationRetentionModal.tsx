@@ -1,10 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  ShieldAlert, AlertTriangle, Sparkles, Gift, PauseCircle, 
-  ArrowRight, X, HeartHandshake, CheckCircle2, Lock, Flame
-} from 'lucide-react';
+import { useState } from 'react';
+import { AlertTriangle, Sparkles, Gift, PauseCircle, X, CheckCircle2, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CancellationRetentionModalProps {

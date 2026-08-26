@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { ROLE_CREDIT_LIMITS } from '@/lib/ai-credit-limiter';
-import { checkIdempotency, saveIdempotencyResponse } from '@/lib/idempotency';
+import { checkIdempotency } from '@/lib/idempotency';
 
 /**
  * Gumroad Webhook Handler

@@ -1,19 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import {
-  ShieldCheck,
-  Zap,
-  ArrowRight,
-  FileText,
-  Mail,
-  CheckCircle2,
-  Lock,
-  Building2,
-  TrendingUp,
-  Cpu,
-  ArrowUpRight
-} from 'lucide-react';
+import { ShieldCheck, Lock, Building2, Cpu, ArrowUpRight } from 'lucide-react';
 import { getNewsletterMetadata } from '@/lib/openseo';
 import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
 

@@ -1,16 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  ShieldAlert, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, 
-  Sparkles, RefreshCw, Loader2, ArrowUpRight, Search, Filter, 
-  FileText, Info, Flame, ShieldCheck, DollarSign, Users, Clock, 
-  FileSignature, Scale, Lock, Copy, Layers, ChevronRight, X, Zap, Check, CheckSquare
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShieldAlert, TrendingUp, AlertTriangle, CheckCircle2, RefreshCw, Loader2, FileText, Flame, FileSignature, Scale, ChevronRight, X, Zap, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 
 export default function RiskCenterPage() {
   const [dashboardData, setDashboardData] = useState<any | null>(null);

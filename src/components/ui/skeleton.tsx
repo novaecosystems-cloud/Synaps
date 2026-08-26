@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Sparkles, Building2, Activity, Layers, Sliders, DollarSign, Users, ShieldAlert, Cpu } from "lucide-react"
+import { Building2, Activity } from 'lucide-react';
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   shimmer?: boolean

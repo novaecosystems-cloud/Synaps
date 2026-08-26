@@ -1,10 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Sparkles, CheckCircle2, Flame, Edit3, X, 
-  Tag, Loader2, ShieldCheck, Scale, AlertTriangle, ArrowRight 
-} from 'lucide-react';
+import { Sparkles, CheckCircle2, Flame, Edit3, X, Tag, Loader2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';

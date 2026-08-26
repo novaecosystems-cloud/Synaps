@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 

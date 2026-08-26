@@ -1,16 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  Search, BookOpen, ChevronLeft, ChevronRight, Download, RefreshCw,
-  GitCompare, Layers, Lock, ExternalLink, Info, Loader2, X,
-  Building2, Users, MapPin, Calendar, DollarSign, Mail, Percent,
-  Tag, AlignLeft, FileText, Hash, ArrowRight, Sparkles, Zap,
-  AlertTriangle, CheckCircle2, Target, List, ChevronDown, ChevronUp,
-  CornerDownRight, Globe, ScanLine, Filter, BookMarked, Eye, Cpu
-} from 'lucide-react';
+import { Search, BookOpen, ChevronLeft, ChevronRight, Download, GitCompare, ExternalLink, Loader2, X, Building2, Users, Calendar, DollarSign, Mail, Tag, AlignLeft, FileText, Sparkles, Zap, AlertTriangle, CheckCircle2, List, ChevronDown, ChevronUp, CornerDownRight, Globe, ScanLine, BookMarked, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 interface ClientProps {

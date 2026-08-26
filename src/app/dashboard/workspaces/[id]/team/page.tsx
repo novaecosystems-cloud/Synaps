@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Users, Shield, Plus, UserPlus } from "lucide-react";
+import { useState } from 'react';
+import { Users, Shield, UserPlus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 export default function WorkspaceTeamPage() {

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, X, RefreshCw, ExternalLink, Copy, Send, Mail } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, CheckCircle2, Loader2, Users, Zap, ShieldCheck, Crown, Bell, Check, Clock, X, RefreshCw, Copy, Send, Mail } from 'lucide-react';
 
 interface UserRow {
   id: string;

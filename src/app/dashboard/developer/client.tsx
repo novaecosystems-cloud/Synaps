@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Database, Search, Trash, Cpu, Loader2, ArrowRight, Zap, Sparkles, Layers } from 'lucide-react';
 
 export default function DeveloperClient({ initialStats }: { initialStats: any }) {
-  const [stats, setStats] = useState(initialStats);
+  const [stats] = useState(initialStats);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

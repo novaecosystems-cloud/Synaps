@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { regenerateSection } from '@/lib/proposal-engine';
 
 import prisma from '@/lib/prisma';
-import { requireAuth, requireAuthForLLM, assertOrgAccess } from '@/lib/api-security';
+import { requireAuthForLLM, assertOrgAccess } from '@/lib/api-security';
 
 export async function POST(req: NextRequest) {
   const _auth = await requireAuthForLLM(req);

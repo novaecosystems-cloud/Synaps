@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 /**
  * WebGL Fluid Canvas & Interactive Pointer Particle Trail

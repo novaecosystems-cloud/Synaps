@@ -1,10 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  ShieldCheck, UserCheck, FileText, Trash2, UserPlus, 
-  Send, AlertTriangle, CheckCircle2, Lock, ExternalLink, RefreshCw, Scale
-} from 'lucide-react';
+import React, { useState } from 'react';
+import { ShieldCheck, FileText, Trash2, UserPlus, Send, AlertTriangle, CheckCircle2, ExternalLink, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DPDP_GRIEVANCE_OFFICER, SUB_PROCESSOR_INVENTORY, calculateDPDPComplianceScore } from '@/lib/dpdp-constants';
 

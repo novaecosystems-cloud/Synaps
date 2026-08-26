@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Loader2, History, BrainCircuit, X, FileText, Folder, CheckSquare, Briefcase, Users, Building, ChevronRight } from 'lucide-react';
 

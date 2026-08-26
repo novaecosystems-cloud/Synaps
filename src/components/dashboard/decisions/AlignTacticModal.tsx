@@ -1,14 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  Sparkles, Sliders, Lock, Unlock, Check, X, 
-  Loader2, Scale, AlertTriangle, ShieldCheck, HelpCircle 
-} from 'lucide-react';
+import { Sliders, Check, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { CorporateTactic, TacticDomain, TacticStatus } from '@/lib/corporate-tactics';
+import { CorporateTactic, TacticStatus } from '@/lib/corporate-tactics';
 
 interface AlignTacticModalProps {
   tactic: CorporateTactic | null;

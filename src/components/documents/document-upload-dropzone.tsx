@@ -1,14 +1,9 @@
 'use client';
 
 import React, { useCallback, useState, useEffect } from 'react';
-import { 
-  UploadCloud, File as FileIcon, FileText, FileSpreadsheet, 
-  Image as ImageIcon, FileCode, Presentation, X, CheckCircle2, 
-  AlertCircle, Sparkles, ShieldCheck, Layers, Zap
-} from 'lucide-react';
+import { UploadCloud, File as FileIcon, FileText, FileSpreadsheet, Image as ImageIcon, FileCode, Presentation, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import { requestUploadUrl, confirmUpload } from '@/app/actions/document';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { CustomLoader } from '@/components/ui/custom-loader';
 
 interface DocumentUploadDropzoneProps {

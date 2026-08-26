@@ -2,8 +2,6 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateTextWithAISDK } from '@/lib/ai-sdk-router';
-import { verifySessionCookie } from '@/lib/auth-server';
-import { cookies } from 'next/headers';
 
 export interface SCMReasoningRequest {
   scenarioTitle: string;

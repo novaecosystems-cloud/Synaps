@@ -58,6 +58,7 @@ export async function dispatchVexaMeetingBot(config: VexaBotConfig): Promise<Vex
 
     if (!response.ok) {
       const errText = await response.text();
+      console.warn('[VexaClient] Dispatch fallback notice:', errText);
       // Fallback simulation mode if Vexa API endpoint is in staging/sandbox
       return {
         success: true,

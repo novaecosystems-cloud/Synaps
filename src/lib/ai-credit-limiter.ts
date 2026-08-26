@@ -1,4 +1,3 @@
-import prisma from '@/lib/prisma';
 import { decryptApiKey } from '@/lib/encryption';
 
 interface CreditLimitResult {

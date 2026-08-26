@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useBackgroundTasks, BackgroundTask } from '@/context/BackgroundTaskContext';
-import { Activity, CheckCircle2, AlertCircle, Download, FileText, Table, X } from 'lucide-react';
+import { useState } from 'react';
+import { useBackgroundTasks } from '@/context/BackgroundTaskContext';
+import { Activity, CheckCircle2, AlertCircle, FileText, Table } from 'lucide-react';
 
 export default function BackgroundTaskWidget() {
   const { tasks, runningCount, downloadTaskPDF, downloadTaskCSV, clearCompletedTasks } = useBackgroundTasks();

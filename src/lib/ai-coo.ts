@@ -2,7 +2,6 @@ import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { memPalaceEngine } from '@/lib/mempalace-engine';
 import { NOVA_DEMO_DOCUMENTS } from '@/lib/demo-data';
-import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {
@@ -65,7 +64,6 @@ export async function generateExecutiveBriefData(organizationId: string): Promis
   let projects: any[] = [];
   let decisions: any[] = [];
   let gaps: any[] = [];
-  let entities: any[] = [];
   let relationships: any[] = [];
 
   try {
@@ -109,16 +107,6 @@ export async function generateExecutiveBriefData(organizationId: string): Promis
     });
   } catch (e) {
     console.warn('[AI COO] Error fetching gaps:', e);
-  }
-
-  try {
-    entities = await prisma.graphEntity.findMany({
-      where: { organizationId },
-      take: 25,
-      orderBy: { updatedAt: 'desc' }
-    });
-  } catch (e) {
-    console.warn('[AI COO] Error fetching entities:', e);
   }
 
   try {

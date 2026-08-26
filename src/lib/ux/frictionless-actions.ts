@@ -16,8 +16,7 @@
 
 import prisma from '@/lib/prisma';
 import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
-import { sha256Sync, MerkleTree, canonicalizeJSON } from '@/lib/dgcl-merkle';
-import { createJiraIssue, JiraConfig } from '@/lib/jira-client';
+import { sha256Sync, canonicalizeJSON, MerkleTree } from '@/lib/dgcl-merkle';
 import { StructuralCausalModel } from '@/lib/causal/structural-causal-model';
 import { ENTERPRISE_INVARIANTS } from '@/lib/cross-silo-invariants';
 

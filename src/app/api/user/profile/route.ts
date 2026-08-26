@@ -10,7 +10,7 @@ import { verifySessionCookie } from '@/lib/auth-server';
  * Strictly fetches the authenticated user's own profile based on session cookie.
  * Prevents HTTP ID tampering / enumeration.
  */
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('synaps-session')?.value;

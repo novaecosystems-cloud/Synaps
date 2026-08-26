@@ -1,4 +1,4 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 import Papa from 'papaparse';
 
 import prisma from '@/lib/prisma';
@@ -88,7 +88,7 @@ export async function exportDocument(
   }
 }
 
-function generateMarkdown(title: string, data: any, type: string) {
+function generateMarkdown(title: string, data: any, _type?: string) {
   let md = `# ${title}\n\n`;
   if (Array.isArray(data)) {
     data.forEach((item, i) => {
@@ -113,7 +113,7 @@ function generateMarkdown(title: string, data: any, type: string) {
   return md;
 }
 
-async function generateDocx(title: string, data: any, type: string) {
+async function generateDocx(title: string, data: any, _type?: string) {
   const children: any[] = [
     new Paragraph({
       text: title,

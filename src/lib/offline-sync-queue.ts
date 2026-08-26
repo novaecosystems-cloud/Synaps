@@ -60,7 +60,6 @@ export type SyncEventListener = (
 
 // ── STORAGE CONSTANTS ────────────────────────────────────────────────────────
 const STORAGE_KEY = 'causarix_offline_action_queue_v1';
-const SYNC_METRICS_KEY = 'causarix_offline_sync_metrics_v1';
 const TOAST_COOLDOWN_MS = 8000;
 
 // In-memory fallback if localStorage is unavailable

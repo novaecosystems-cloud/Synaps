@@ -1,6 +1,6 @@
 'use server'
 
-import { PrismaClient, TaskStatus } from '@prisma/client';
+import { TaskStatus } from '@prisma/client';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 

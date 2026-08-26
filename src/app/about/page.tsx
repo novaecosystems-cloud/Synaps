@@ -1,24 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import {
-  ArrowUpRight,
-  ShieldCheck,
-  Cpu,
-  HardDrive,
-  Users,
-  ScanLine,
-  FileText,
-  Globe,
-  CheckCircle2,
-  Layers,
-  Code2,
-  Boxes,
-  Zap,
-  Lock,
-  ArrowRight,
-  Terminal,
-  Sparkles
-} from 'lucide-react';
+import { ArrowUpRight, ShieldCheck, Cpu, HardDrive, Users, ScanLine, FileText, Globe, Layers, Code2, Boxes, ArrowRight, Terminal } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {

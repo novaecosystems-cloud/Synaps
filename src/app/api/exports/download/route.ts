@@ -29,7 +29,6 @@ export async function GET(req: NextRequest) {
 
     // Since we are mocking storage, fileUrl currently holds the raw data (JSON/CSV) 
     // or a dummy link. If it's data URI or raw JSON, we can serve it directly.
-    const content = job.fileUrl;
     let contentType = 'application/octet-stream';
     const filename = `export_${job.type}_${job.id}.${job.format.toLowerCase()}`;
 

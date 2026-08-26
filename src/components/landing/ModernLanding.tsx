@@ -1,22 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  BrainCircuit,
-  ArrowRight,
-  Play,
-  X,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  Database,
-  ShieldCheck,
-  Zap,
-  ChevronDown,
-} from 'lucide-react';
+import { BrainCircuit, ArrowRight, Play, X, CheckCircle2, Clock, Database, ShieldCheck, Zap, ChevronDown } from 'lucide-react';
 
 /* ─── Film grain & grid line animations (CSS injected) ─── */
 const GLOBAL_STYLES = `

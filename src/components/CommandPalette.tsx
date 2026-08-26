@@ -2,47 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { 
-  Search, 
-  Command, 
-  X, 
-  ArrowRight, 
-  Sparkles, 
-  Building2, 
-  Activity, 
-  Video, 
-  BrainCircuit, 
-  Settings, 
-  Compass, 
-  FileText, 
-  Download, 
-  Sliders, 
-  Radio, 
-  Folder, 
-  CheckSquare, 
-  ShieldCheck, 
-  Layers, 
-  ExternalLink, 
-  CheckCircle2, 
-  Zap, 
-  TrendingUp, 
-  Cpu, 
-  FileCode, 
-  HelpCircle, 
-  Moon, 
-  Sun, 
-  History, 
-  CornerDownLeft, 
-  Laptop, 
-  Lock, 
-  Key, 
-  Briefcase, 
-  Users, 
-  Loader2,
-  Database,
-  GitBranch,
-  type LucideIcon
-} from 'lucide-react';
+import { Search, Command, X, ArrowRight, Sparkles, Building2, Activity, Video, BrainCircuit, Settings, Compass, FileText, Download, Sliders, Radio, Folder, CheckSquare, ShieldCheck, ExternalLink, Zap, TrendingUp, Cpu, FileCode, HelpCircle, Moon, Sun, History, CornerDownLeft, Lock, Key, Briefcase, Users, Loader2, Database } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { downloadAsPDF, downloadMasterAIReport } from '@/lib/export-helpers';

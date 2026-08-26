@@ -1,10 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, Radio, Sparkles, ShieldCheck, FileText, Database, 
-  TrendingUp, Scale, Cpu, Zap, RefreshCw, CheckCircle2, ChevronRight, X, Loader2, Info, Lock, Download
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Users, Radio, Sparkles, CheckCircle2, X, Loader2, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
@@ -13,7 +10,6 @@ import { MerkleTree } from '@/lib/dgcl-merkle';
 
 export default function DigitalTwinClient() {
   const [twins, setTwins] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
   // Simulation State
   const [scenarioPrompt, setScenarioPrompt] = useState('');
@@ -37,8 +33,6 @@ export default function DigitalTwinClient() {
         }
       } catch (e) {
         console.error("Failed to load Digital Twins:", e);
-      } finally {
-        setLoading(false);
       }
     }
     fetchTwins();

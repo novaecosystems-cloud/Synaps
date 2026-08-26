@@ -1,12 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  ShieldCheck, CheckCircle2, Copy, Check, X, 
-  Lock, FileCode, Layers, ExternalLink, Scale, Sparkles 
-} from 'lucide-react';
+import { useState } from 'react';
+import { ShieldCheck, CheckCircle2, Copy, Check, X, Lock, FileCode, Layers, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { DecisionLedgerItem } from '@/lib/corporate-tactics';
 
 interface MerkleProofModalProps {

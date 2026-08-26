@@ -3,7 +3,6 @@ export const dynamic = 'force-dynamic';
 import React from 'react';
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import ExecutiveDashboardClient from './ExecutiveDashboardClient';

@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
-import { requireAuth, requireAuthForLLM } from '@/lib/api-security';
+import { requireAuthForLLM } from '@/lib/api-security';
 
 // Organizational policy & decision memory profile state
 let founderCloneProfile = {

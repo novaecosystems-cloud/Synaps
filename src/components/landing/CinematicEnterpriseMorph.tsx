@@ -359,7 +359,11 @@ export default function CinematicEnterpriseMorph() {
             key={idx}
             onMouseEnter={() => setActivePanelHover(panel)}
             onMouseLeave={() => setActivePanelHover(null)}
-            className="text-[11px] font-mono font-semibold px-3 py-1.5 rounded-lg border transition-all cursor-pointer bg-slate-900/70 text-slate-300 border-slate-800 hover:border-emerald-500/50 hover:text-emerald-400"
+            className={`text-[11px] font-mono font-semibold px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+              activePanelHover === panel
+                ? 'border-emerald-500 text-emerald-400 bg-emerald-950/60 scale-105 shadow-md shadow-emerald-950/40'
+                : 'bg-slate-900/70 text-slate-300 border-slate-800 hover:border-emerald-500/50 hover:text-emerald-400'
+            }`}
           >
             ⌘ {panel}
           </span>

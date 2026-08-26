@@ -54,7 +54,7 @@ CREATE REL TABLE CAUSED_BY(FROM StrategicDecision TO ContractClause, varianceDel
 /**
  * Seeded Multi-Hop Causal Graph Data
  */
-const SEEDED_CAUSAL_GRAPH: {
+export const SEEDED_CAUSAL_GRAPH: {
   nodes: GraphNode[];
   edges: GraphRelationship[];
 } = {

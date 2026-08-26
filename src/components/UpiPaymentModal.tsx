@@ -1,11 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  QrCode, X, Copy, Check, Sparkles, ShieldCheck, 
-  Smartphone, ArrowRight, Zap, CheckCircle2, AlertCircle 
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { X, Copy, Check, Smartphone, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 interface UpiPaymentModalProps {
   isOpen: boolean;

@@ -11,7 +11,7 @@ export const LEMONSQUEEZY_CHECKOUT_URLS = {
   enterprise: 'https://novaverse33.gumroad.com/l/synaps'
 };
 
-export function getLemonSqueezyCheckoutUrl(planId: 'pro' | 'enterprise', userEmail?: string, discountCode: string = 'LAUNCH100'): string {
+export function getLemonSqueezyCheckoutUrl(_planId: 'pro' | 'enterprise', userEmail?: string, discountCode: string = 'LAUNCH100'): string {
   const baseUrl = discountCode 
     ? `https://novaverse33.gumroad.com/l/synaps/${encodeURIComponent(discountCode)}`
     : 'https://novaverse33.gumroad.com/l/synaps';
@@ -28,7 +28,7 @@ export function getLemonSqueezyCheckoutUrl(planId: 'pro' | 'enterprise', userEma
   return `${baseUrl}?${params.join('&')}`;
 }
 
-export async function triggerLemonSqueezyApiRefund(orderIdOrEmail: string, userEmail: string): Promise<{ success: boolean; message: string }> {
+export async function triggerLemonSqueezyApiRefund(_orderIdOrEmail: string, userEmail: string): Promise<{ success: boolean; message: string }> {
   const apiKey = process.env.LEMONSQUEEZY_API_KEY;
 
   if (!apiKey) {

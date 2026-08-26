@@ -1,12 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Compass, Sparkles, Loader2, Globe, Rocket, Briefcase, 
-  CheckCircle2, ShieldAlert, AlertTriangle, Users, DollarSign, 
-  Scale, FileText, ArrowRight, ChevronRight, Layers, Flame, 
-  Award, TrendingUp, Calendar, Zap, RefreshCw, SlidersHorizontal, Search, Check, HelpCircle
-} from 'lucide-react';
+import { useState } from 'react';
+import { Sparkles, Loader2, Globe, Rocket, Briefcase, CheckCircle2, AlertTriangle, DollarSign, ChevronRight, Layers, Flame, Award, TrendingUp, Zap, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';

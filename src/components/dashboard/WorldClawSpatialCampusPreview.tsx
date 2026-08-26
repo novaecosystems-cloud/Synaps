@@ -1,25 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Layers,
-  Sparkles,
-  RotateCcw,
-  Compass,
-  Cpu,
-  ShieldCheck,
-  Scale,
-  DollarSign,
-  Activity,
-  Maximize2,
-  Minimize2,
-  Eye,
-  Terminal,
-  ArrowRight,
-  ExternalLink,
-  Bot
-} from "lucide-react";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Sparkles, RotateCcw, Compass, Cpu, ShieldCheck, Scale, DollarSign, ArrowRight, Bot } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface SpatialRoom {

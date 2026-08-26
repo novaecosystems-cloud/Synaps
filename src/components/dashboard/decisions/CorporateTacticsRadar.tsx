@@ -1,14 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Compass, Sparkles, Sliders, ShieldCheck, CheckCircle2, 
-  Lock, Unlock, AlertTriangle, ArrowUpRight, Plus, Download, 
-  Layers, Filter, Scale, ExternalLink, Flame, Check, RefreshCw 
-} from 'lucide-react';
+import { useState } from 'react';
+import { Compass, Sliders, Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { CorporateTactic, TacticDomain, TacticStatus } from '@/lib/corporate-tactics';
+import { CorporateTactic, TacticDomain } from '@/lib/corporate-tactics';
 import { AlignTacticModal } from '@/components/dashboard/decisions/AlignTacticModal';
 import { AddTacticModal } from '@/components/dashboard/decisions/AddTacticModal';
 import { useToast } from '@/hooks/use-toast';

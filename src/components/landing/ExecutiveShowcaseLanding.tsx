@@ -4,24 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowUpRight,
-  ShieldCheck,
-  Zap,
-  Copy,
-  Check,
-  Sparkles,
-  Sliders,
-  ChevronRight,
-  Cpu,
-  Layers,
-  Database,
-  Scale,
-  Activity,
-  Globe,
-  Lock
-} from "lucide-react";
+import { ArrowUpRight, ShieldCheck, Zap, Copy, Check, Sparkles, ChevronRight, Cpu, Database, Activity } from 'lucide-react';
 import SignInModal from "@/components/SignInModal";
 import Link from "next/link";
 import Lenis from "lenis";

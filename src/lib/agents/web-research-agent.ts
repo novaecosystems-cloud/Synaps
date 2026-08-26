@@ -1,6 +1,5 @@
-﻿import { ReActAgent, AgentTool } from '@/lib/agents/react-engine';
+import { ReActAgent, AgentTool } from '@/lib/agents/react-engine';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
-import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export interface WebSearchResult {
   title: string;
@@ -148,7 +147,6 @@ export function buildWebResearchTools(): AgentTool[] {
         required: ['caseName']
       },
       execute: async ({ caseName }) => {
-        const query = `${caseName} legal case judgment precedent ruling court decision`;
         const prompt = `Perform legal case research on "${caseName}".
 Provide:
 1. Case Summary & Key Disputes

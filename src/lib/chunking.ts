@@ -1,5 +1,3 @@
-import { PrismaClient } from '@prisma/client';
-
 export interface ChunkOptions {
   chunkSize: number;
   chunkOverlap: number;

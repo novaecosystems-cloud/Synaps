@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Sparkles, Plus, Check, X, Loader2, ShieldCheck, Layers 
-} from 'lucide-react';
+import { useState } from 'react';
+import { Sparkles, Plus, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -25,7 +23,7 @@ export function AddTacticModal({ isOpen, onClose, onSuccess }: AddTacticModalPro
   const [triggerCondition, setTriggerCondition] = useState('');
   const [policyDirective, setPolicyDirective] = useState('');
   const [confidenceScore, setConfidenceScore] = useState(92);
-  const [status, setStatus] = useState<TacticStatus>('ACTIVE');
+  const status: TacticStatus = 'ACTIVE';
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 

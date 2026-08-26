@@ -1,17 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  BrainCircuit, ShieldAlert, CheckCircle2, AlertTriangle, Activity, 
-  HelpCircle, ChevronRight, FileText, Send, Sparkles, RefreshCw, 
-  Layers, ArrowUpRight, Clock, Building2, ExternalLink, X, MessageSquare,
-  TrendingUp, TrendingDown, Info, ShieldCheck, Flame, Scale, DollarSign,
-  Zap, UploadCloud, RotateCcw
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BrainCircuit, ShieldAlert, CheckCircle2, AlertTriangle, Activity, HelpCircle, FileText, Send, Sparkles, RefreshCw, Layers, ArrowUpRight, Building2, X, MessageSquare, Info, Flame, Scale, DollarSign, Zap, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { downloadAsPDF, downloadAsCSV } from '@/lib/export-helpers';
 import { ActiveKnowledgeSelector } from '@/components/ActiveKnowledgeSelector';
 import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
 import { TactileButton, ScrambleText } from '@/components/ui/EnterpriseTactileSuite';
@@ -32,11 +25,7 @@ import {
 } from '@/lib/org-adaptive-content';
 import { useAuth } from '@/context/AuthContext';
 import SignInModal from '@/components/SignInModal';
-import {
-  saveGuestSimulationState,
-  loadGuestSimulationState,
-  isGuestUser,
-} from '@/lib/guest-simulation-store';
+import { saveGuestSimulationState, loadGuestSimulationState } from '@/lib/guest-simulation-store';
 import { ExecutiveMotivationWidget } from '@/components/dashboard/ExecutiveMotivationWidget';
 
 interface Citation {
@@ -108,10 +97,10 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
   const [error, setError] = useState<string | null>(null);
   const [activeSampleScenarioId, setActiveSampleScenarioId] = useState<string | null>(null);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
-  const [signInPrompt, setSignInPrompt] = useState({
+  const signInPrompt = {
     title: 'Save Executive Briefing & Simulation',
     subtitle: 'Sign in to save your executive simulation results and unlock 50 daily boardroom runs',
-  });
+  };
 
   // ─── 60-SECOND AHA SIMULATION LAB STATE ──────────────────────────────────
   const [activeAhaScenario, setActiveAhaScenario] = useState<'mna' | 'sla' | 'boardroom'>('mna');

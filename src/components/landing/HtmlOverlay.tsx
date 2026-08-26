@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
-import { Play, X, Sparkles, BrainCircuit } from 'lucide-react';
+import { Play, X, BrainCircuit } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);

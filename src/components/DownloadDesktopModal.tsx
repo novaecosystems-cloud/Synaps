@@ -1,17 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import {
-  Download,
-  Laptop,
-  CheckCircle2,
-  ShieldCheck,
-  Zap,
-  Terminal,
-  ExternalLink,
-  Sparkles,
-  Command,
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Download, Laptop, ShieldCheck, Sparkles, Command } from 'lucide-react';
 
 export default function DownloadDesktopModal({
   isOpen,

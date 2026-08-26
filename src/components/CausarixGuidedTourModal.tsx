@@ -1,11 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Building2, Activity, CheckSquare, MessageSquare, 
-  ArrowRight, ArrowLeft, Check, Sparkles, X, Play, ShieldAlert, Cpu
-} from "lucide-react";
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Building2, Activity, CheckSquare, MessageSquare, ArrowRight, ArrowLeft, Check, X, Play } from 'lucide-react';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 

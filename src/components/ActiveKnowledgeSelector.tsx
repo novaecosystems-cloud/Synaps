@@ -1,10 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Database, FileText, Check, ChevronDown, Sparkles, SlidersHorizontal, 
-  RefreshCw, FileCode, FileSpreadsheet, FileImage, Folder, Trash2, Tag, Loader2 
-} from 'lucide-react';
+import { Database, FileText, Check, ChevronDown, Sparkles, SlidersHorizontal, RefreshCw, FileCode, FileSpreadsheet, FileImage, Folder, Trash2, Loader2 } from 'lucide-react';
 
 export interface DocumentItem {
   id: string;

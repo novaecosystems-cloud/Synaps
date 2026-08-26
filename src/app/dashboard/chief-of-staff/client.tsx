@@ -1,12 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  ShieldAlert, Sparkles, CheckCircle2, AlertTriangle, Clock, 
-  TrendingUp, TrendingDown, DollarSign, FileText, Calendar, 
-  Users, FolderKanban, Scale, Activity, ArrowRight, RefreshCw, 
-  Loader2, ShieldCheck, Zap, Info, Bell, Check, ChevronRight, Download
-} from 'lucide-react';
+import { useState } from 'react';
+import { Sparkles, AlertTriangle, DollarSign, FileText, Scale, Activity, ArrowRight, RefreshCw, Zap, Bell, Check, ChevronRight, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -55,7 +50,6 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
   const [briefing, setBriefing] = useState<any>(initialBriefing);
   const [monitoring, setMonitoring] = useState<any>(initialMonitoring);
   const [loading, setLoading] = useState(false);
-  const [selectedRec, setSelectedRec] = useState<any | null>(null);
   const [executedRecs, setExecutedRecs] = useState<Set<string>>(new Set());
 
   const refreshBriefing = async () => {
@@ -81,10 +75,6 @@ export default function ChiefOfStaffClient({ initialBriefing, initialMonitoring 
   const handleExecuteAction = (id: string) => {
     setExecutedRecs(prev => new Set(prev).add(id));
   };
-  const handleExecute = handleExecuteAction;
-
-  const criticalIssues = briefing?.todayPriorities?.filter((p: any) => p.urgency === 'CRITICAL') || [];
-  const urgentActions = briefing?.proactiveRecommendations?.filter((r: any) => r.urgency === 'CRITICAL' || r.urgency === 'HIGH') || [];
 
   const getUrgencyBadge = (urgency: string) => {
     switch (urgency) {

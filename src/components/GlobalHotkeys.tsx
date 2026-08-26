@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Sparkles, X, Keyboard, Search, Zap, Command, ArrowRight } from 'lucide-react';
+import { Sparkles, X, Keyboard, Search, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function GlobalHotkeys() {

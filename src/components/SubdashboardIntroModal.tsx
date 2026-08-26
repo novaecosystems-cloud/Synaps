@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Sparkles, CheckCircle2, X, ArrowRight, Zap, 
-  Lightbulb, ShieldCheck, HelpCircle, Compass
-} from "lucide-react";
+import { motion } from 'framer-motion';
+import { Sparkles, CheckCircle2, X, ArrowRight, Lightbulb } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { SUBDASHBOARD_GUIDES, SubdashboardGuide } from "@/lib/subdashboard-guides";
 

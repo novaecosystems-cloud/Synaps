@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateEmbedding, generateChatResponse } from '@/lib/embeddings';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
-import { ratelimit } from '@/lib/ratelimit';
 
 import prisma from '@/lib/prisma';
 import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';

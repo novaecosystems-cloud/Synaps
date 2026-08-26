@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveAuthContext, safeErrorResponse } from '@/lib/security';
-import {
-  evaluateHookJourney,
-  runSystemHookDiagnostics,
-  STANDARD_BENCHMARK_JOURNEYS,
-  UserJourneyInput,
-} from '@/lib/ux/hook-diagnostic';
+import { evaluateHookJourney, runSystemHookDiagnostics, UserJourneyInput } from '@/lib/ux/hook-diagnostic';
 import { hookModelEngine } from '@/lib/ux/hook-model-engine';
 
 export const dynamic = 'force-dynamic';

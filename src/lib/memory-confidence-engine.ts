@@ -1,6 +1,5 @@
-﻿import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
-import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 function parseSafeJson(content: string) {
   try {
@@ -307,12 +306,7 @@ ${meetingContext}`;
 /**
  * Returns Admin Confidence Analytics & Knowledge Health Telemetry
  */
-export async function getAdminConfidenceAnalytics(organizationId: string): Promise<AdminConfidenceAnalytics> {
-  let docCount = 0;
-  try {
-    docCount = await prisma.document.count({ where: { organizationId, isDeleted: false } });
-  } catch (e) {}
-
+export async function getAdminConfidenceAnalytics(_organizationId: string): Promise<AdminConfidenceAnalytics> {
   return {
     averageConfidencePercent: 94.2,
     totalQueriesEvaluated: 1420,

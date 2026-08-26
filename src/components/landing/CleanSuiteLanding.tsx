@@ -1,16 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import {
-  Search, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle,
-  FileText, Sparkles, Layers, Eye, Check, ExternalLink, ChevronRight,
-  ChevronDown, HelpCircle, Lock, Zap, FileSpreadsheet, Building2,
-  TrendingUp, Users, Clock, Award, Play, Star
-} from 'lucide-react';
+import { Search, ArrowRight, ShieldCheck, CheckCircle2, FileText, Sparkles, ExternalLink, ChevronDown, Lock, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 gsap.registerPlugin(ScrollTrigger);

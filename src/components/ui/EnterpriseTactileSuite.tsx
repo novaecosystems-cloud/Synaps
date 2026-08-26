@@ -1,22 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowRight,
-  RefreshCw,
-  Trash2,
-  UploadCloud,
-  FileText,
-  Check,
-  Play,
-  Pause,
-  RotateCcw,
-  Sparkles,
-  Volume2,
-  ShieldAlert,
-  Printer
-} from "lucide-react";
+import { motion } from 'framer-motion';
+import { UploadCloud, FileText, Check, Play, Pause, ShieldAlert, Printer } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. TACTILE 3D PHYSICAL BUTTON (Compressible Depth & Highlight Edge)

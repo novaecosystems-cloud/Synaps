@@ -1,6 +1,5 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
-import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 import { getDomainTrainingContext } from '@/lib/domain-datasets/universal-training-corpus';
 
 function parseSafeJson(content: string) {

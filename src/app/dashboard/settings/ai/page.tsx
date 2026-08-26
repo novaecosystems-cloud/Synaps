@@ -1,23 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  BrainCircuit,
-  CheckCircle2,
-  ShieldCheck,
-  Zap,
-  HardDrive,
-  Activity,
-  Globe,
-  Radio,
-  Server,
-  Terminal,
-  Lock,
-} from 'lucide-react';
+import { BrainCircuit, Terminal, Lock } from 'lucide-react';
 
 export default function AiSettings() {
   const [keys, setKeys] = useState({
@@ -33,18 +21,11 @@ export default function AiSettings() {
 
   // Live status telemetry
   const [colibriStatus, setColibriStatus] = useState<any>(null);
-  const [omniStatus, setOmniStatus] = useState<any>(null);
-  const [airGappedMode, setAirGappedMode] = useState(false);
 
   useEffect(() => {
     fetch('/api/settings/colibri')
       .then((r) => r.json())
       .then((d) => setColibriStatus(d))
-      .catch(() => {});
-
-    fetch('/api/settings/omniroute')
-      .then((r) => r.json())
-      .then((d) => setOmniStatus(d))
       .catch(() => {});
   }, []);
 

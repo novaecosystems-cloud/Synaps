@@ -1,5 +1,4 @@
-﻿import { invokeLLMWithFallback } from './llm-router';
-import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
+import { invokeLLMWithFallback } from './llm-router';
 
 const DEFAULT_SECTIONS = [
   "Executive Summary",
@@ -17,7 +16,7 @@ const DEFAULT_SECTIONS = [
   "Appendix"
 ];
 
-export async function generateProposalSections(documentId: string, requirementsText: string, gapsText: string, decisionText: string, mode: 'concise' | 'detailed' = 'detailed') {
+export async function generateProposalSections(_documentId: string, requirementsText: string, gapsText: string, decisionText: string, mode: 'concise' | 'detailed' = 'detailed') {
   const sectionsData: any[] = [];
 
   for (let i = 0; i < DEFAULT_SECTIONS.length; i++) {

@@ -543,7 +543,6 @@ export default function SynapsLanding() {
   // ── High-Performance 60fps Cursor Tracking & Zero University Spotlight ──────
   const ringRef = useRef<HTMLDivElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
-  const [showVideoBadge, setShowVideoBadge] = useState(true);
 
   useEffect(() => {
     let mouseX = -100;

@@ -3,13 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
 import * as THREE from 'three';
-import { 
-  X, ExternalLink, Send, FileText, FolderKanban, ShieldCheck,
-  Command, Network, BrainCircuit, Calendar, Tag, Layers, CheckCircle2,
-  HelpCircle, ArrowRight, Cpu, Zap, Users, Clock, History, AlertTriangle, Link2, Sparkles, FileCode, RefreshCw
-} from 'lucide-react';
+import { X, Send, FileText, FolderKanban, BrainCircuit, Calendar, CheckCircle2, ArrowRight, Zap, Users, Link2, Sparkles, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import SpriteText from 'three-spritetext';
 
@@ -32,7 +27,6 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [activeTab, setActiveTab] = useState<'summary' | 'docs' | 'people' | 'meetings' | 'projects' | 'decisions' | 'activity'>('summary');
   
-  const [hoverNode, setHoverNode] = useState<any | null>(null);
   const [hoverLink, setHoverLink] = useState<any | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -266,7 +260,6 @@ export function NetworkGraph({ data }: NetworkGraphProps) {
         }}
         onNodeClick={handleNodeClick}
         onLinkClick={handleLinkClick}
-        onNodeHover={(n: any) => setHoverNode(n)}
         onLinkHover={(l: any) => setHoverLink(l)}
         linkColor={(l: any) => (l === selectedLink || l === hoverLink ? '#818cf8' : 'rgba(99, 102, 241, 0.45)')}
         linkWidth={(l: any) => (l === selectedLink || l === hoverLink ? 3.5 : 1.8)}

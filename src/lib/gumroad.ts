@@ -5,7 +5,7 @@
 
 export const GUMROAD_PRODUCT_URL = 'https://novaverse33.gumroad.com/l/synaps';
 
-export function getGumroadCheckoutUrl(planId?: 'pro' | 'enterprise', userEmail?: string, discountCode: string = 'LAUNCH100'): string {
+export function getGumroadCheckoutUrl(_planId?: 'pro' | 'enterprise', userEmail?: string, discountCode: string = 'LAUNCH100'): string {
   const baseUrl = discountCode 
     ? `https://novaverse33.gumroad.com/l/synaps/${encodeURIComponent(discountCode)}`
     : GUMROAD_PRODUCT_URL;

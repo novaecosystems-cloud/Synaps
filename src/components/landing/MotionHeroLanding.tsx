@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, ShieldCheck, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
 
 export default function MotionHeroLanding() {

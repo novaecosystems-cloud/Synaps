@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Sparkles, ShieldCheck, Zap, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Zap, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 
 export interface LaptopMockupHeroProps {

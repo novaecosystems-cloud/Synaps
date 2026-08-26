@@ -5,36 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowUpRight,
-  ShieldCheck,
-  Zap,
-  Copy,
-  Check,
-  ChevronDown,
-  Globe,
-  Sparkles,
-  Plus,
-  Minus,
-  Search,
-  Cpu,
-  Activity,
-  Database,
-  ShoppingBag,
-  Tag,
-  XCircle,
-  CheckCircle2,
-  Scale,
-  FileText,
-  Layers,
-  ShieldAlert,
-  ArrowRight,
-  Eye,
-  Lock,
-  AlertTriangle,
-  CheckCheck,
-  Download
-} from "lucide-react";
+import { ArrowUpRight, Zap, Plus, Minus, Search, Cpu, Activity, Database, ShoppingBag, Tag, XCircle, CheckCircle2, Scale, Download } from 'lucide-react';
 import Link from "next/link";
 import Lenis from "lenis";
 import dynamic from "next/dynamic";
@@ -48,17 +19,8 @@ const CustomCursor = dynamic(() => import("@/components/ui/CustomCursor").then(m
 const AuroraBars = dynamic(() => import("@/components/ui/AuroraBars").then(m => m.AuroraBars), { ssr: false });
 const PixelLiquidBg = dynamic(() => import("@/components/ui/PixelLiquidBg").then(m => m.PixelLiquidBg), { ssr: false });
 
-import {
-  TactileButton,
-  ScrambleText,
-  ThermalReceipt,
-  HoldToConfirmButton,
-  MagneticDropZone,
-  CassetteAudioPlayer,
-} from "@/components/ui/EnterpriseTactileSuite";
 import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
 import { getGumroadCheckoutUrl } from "@/lib/gumroad";
-import { LAUNCH_PROMO_CONFIG, getLaunchPromoBadgeInfo } from "@/lib/launch-promo";
 import { LaptopMockupHero } from "@/components/landing/LaptopMockupHero";
 
 gsap.registerPlugin(ScrollTrigger);

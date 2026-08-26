@@ -1,6 +1,5 @@
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
-import { enrichAgentWithPrimeRLM } from '@/lib/prime-rlm';
 import { deepCleanObjectSlop } from '@/lib/de-slop';
 
 function parseSafeJson(content: string) {
@@ -143,6 +142,8 @@ export async function generateChiefOfStaffBriefing(organizationId: string): Prom
   const decContext = decisions.map(d => `• Decision: "${d.title}" (Status: ${d.status}, Recommendation: ${d.recommendation})`).join('\n');
   const meetingContext = meetings.map(m => `• Meeting: "${m.title}" (${new Date(m.date).toISOString().split('T')[0]}) — Summary: ${m.summary}`).join('\n');
   const riskContext = risks.map(r => `• Risk [${r.severity}]: "${r.title}" — ${r.description}`).join('\n');
+  const predContext = predictions.map(p => `• Prediction: "${p.title}" — ${p.description || ''}`).join('\n');
+  const timeContext = timelineEvents.map(t => `• Event: "${t.title}" (${t.eventDate ? new Date(t.eventDate).toISOString().split('T')[0] : ''})`).join('\n');
 
   const systemInstruction = `You are the Autonomous Chief of Staff AI for an enterprise.
 Your role is to proactively generate an executive briefing for C-level leadership.
@@ -176,7 +177,9 @@ ${docContext || 'No recent documents'}
 ${projContext || 'No recent projects'}
 ${decContext || 'No recent decisions'}
 ${meetingContext || 'No recent meetings'}
-${riskContext || 'No active risks'}`;
+${riskContext || 'No active risks'}
+${predContext || 'No active predictions'}
+${timeContext || 'No timeline events'}`;
 
   try {
     const rawContent = await invokeLLMWithFallback([

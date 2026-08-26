@@ -1,4 +1,4 @@
-import { sha256Sync, MerkleTree, canonicalizeJSON } from './dgcl-merkle';
+import { MerkleTree } from './dgcl-merkle';
 
 export interface PDFSection {
   heading: string;
@@ -102,7 +102,6 @@ export function downloadAsPDF(options: ExportPDFOptions) {
     title,
     subtitle,
     organizationName = 'SYNAPS AI ENTERPRISE',
-    filename = 'Synaps-AI-Report',
     sections,
     dgclSignature,
   } = options;

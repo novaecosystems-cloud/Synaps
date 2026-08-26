@@ -1,32 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import {
-  Award,
-  Flame,
-  Shield,
-  ShieldCheck,
-  Zap,
-  TrendingUp,
-  Scale,
-  Lock,
-  Users,
-  Cpu,
-  RefreshCw,
-  Sparkles,
-  ChevronRight,
-  AlertTriangle,
-  CheckCircle2,
-  HelpCircle,
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Award, Flame, ShieldCheck, Zap, Scale, Lock, Users, Cpu, RefreshCw, Sparkles, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  ExecutiveMotivationStatus,
-  DepartmentKey,
-  GovernanceBadge,
-  GovernanceActivityType,
-  DepartmentMultiplierDetail,
-} from '@/lib/gamification/motivation-engine';
+import { ExecutiveMotivationStatus, DepartmentKey, GovernanceActivityType, DepartmentMultiplierDetail } from '@/lib/gamification/motivation-engine';
 
 interface ExecutiveMotivationWidgetProps {
   variant?: 'full' | 'compact' | 'boardroom';

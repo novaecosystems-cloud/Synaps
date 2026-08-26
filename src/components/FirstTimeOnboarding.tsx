@@ -1,12 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Building2, Sparkles, ShieldCheck, Activity, Users, Globe, 
-  Layers, Compass, FileText, ArrowRight, CheckCircle2, X, Play,
-  HelpCircle, ChevronRight, ChevronLeft, Rocket, Lock
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Building2, Sparkles, ShieldCheck, Activity, FileText, CheckCircle2, X, ChevronRight, ChevronLeft, Rocket } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 

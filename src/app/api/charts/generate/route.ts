@@ -1,7 +1,8 @@
+import { inspectPrompt } from '@/lib/ai-firewall';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuthForLLM } from '@/lib/api-security';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
-import { ChartDefinition, validateChartARLM, PRESET_CHARTS } from '@/lib/chart-generator';
+import { ChartDefinition, validateChartARLM } from '@/lib/chart-generator';
 
 export async function POST(req: NextRequest) {
   const auth = await requireAuthForLLM(req);
@@ -46,9 +47,11 @@ Rules:
 3. If user requests a pie or donut chart, ensure the values represent valid proportions.
 4. Preferred chartType from user: ${chartType || 'auto-select best suited for the prompt'}.`;
 
+    const ingress = prompt ? inspectPrompt(prompt) : { sanitizedPrompt: '' };
+    const cleanPrompt = ingress.sanitizedPrompt || prompt || '';
     const userPrompt = rawDataText
-      ? `User Prompt: ${prompt || 'Visualize this data'}\n\nRaw Ingested Data:\n${rawDataText}`
-      : `User Prompt: ${prompt}`;
+      ? `User Prompt: ${cleanPrompt || 'Visualize this data'}\n\nRaw Ingested Data:\n${rawDataText}`
+      : `User Prompt: ${cleanPrompt}`;
 
     let parsedChart: any = null;
 

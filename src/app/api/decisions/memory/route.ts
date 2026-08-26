@@ -4,15 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
-import {
-  logDecisionToFlywheel,
-  updateDecisionFlywheelState,
-  listFlywheelDecisions,
-  distillCorporateTacticsProfile,
-  DecisionState,
-  ActorType,
-} from '@/lib/decision-memory-flywheel';
-import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
+import { logDecisionToFlywheel, updateDecisionFlywheelState, listFlywheelDecisions, DecisionState, ActorType } from '@/lib/decision-memory-flywheel';
+import { inspectPrompt } from '@/lib/ai-firewall';
 
 /**
  * GET /api/decisions/memory
@@ -182,8 +175,6 @@ export async function POST(req: NextRequest) {
       supersededByDecisionId,
       metadata,
     });
-
-    const egress = inspectResponse(JSON.stringify(recorded));
 
     return NextResponse.json({
       success: true,

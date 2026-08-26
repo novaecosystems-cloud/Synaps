@@ -8,7 +8,7 @@ import { generateDownloadUrl } from '@/lib/storage';
 import * as fs from 'fs';
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -35,7 +35,8 @@ export async function GET(
     const doc = await prisma.document.findFirst({
       where: {
         id: documentId,
-        isDeleted: false
+        isDeleted: false,
+        ...(organizationId ? { organizationId } : {})
       },
       include: {
         versions: { orderBy: { versionNum: 'desc' }, take: 1 },

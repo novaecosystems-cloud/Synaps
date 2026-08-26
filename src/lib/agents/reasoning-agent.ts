@@ -42,7 +42,6 @@ export async function runReasoningAgent(
   const executionSteps: any[] = [{ step: 'PRIME_RLM_INIT', rlmAddon }];
 
   // Determine intent routing
-  const isWebOnly = /research\s+([A-Z0-9\s]+v\s+[A-Z0-9\s]+)|what\s+happened\s+in\s+case|court\s+ruling/i.test(query) && !documentId;
   const isHybrid = /affect\s+this\s+contract|compare\s+our\s+agreement|similar\s+cases|concern\s+management|company\s+background/i.test(query) || !!documentId;
 
   let docResult: DocAgentResponse | null = null;

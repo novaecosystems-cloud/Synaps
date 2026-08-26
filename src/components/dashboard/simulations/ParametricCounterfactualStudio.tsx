@@ -1,14 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { 
-  Sliders, Activity, ShieldAlert, DollarSign, Scale, 
-  Cpu, FileText, CheckCircle2, AlertTriangle, ArrowRight, 
-  Play, RefreshCw, Send, Check, Sparkles, Terminal, Layers,
-  Globe2, BookOpen, UserCheck, Award, ArrowUpRight, Plus,
-  Trash2, HelpCircle, X, ChevronRight, BarChart3, BrainCircuit,
-  Zap, Compass, Download, Info
-} from 'lucide-react';
+import { Sliders, ShieldAlert, DollarSign, Scale, CheckCircle2, Sparkles, Terminal, Layers, Plus, X, BrainCircuit, Compass, Download, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { HoldToConfirmButton } from '@/components/ui/EnterpriseTactileSuite';
@@ -28,12 +21,7 @@ import {
   setCachedParametric,
 } from '@/lib/viewmodel-cache';
 import { IsolatedErrorBoundary } from '@/components/ui/error-boundary';
-import { 
-  offlineFetch, 
-  enqueueScenarioAdjustment, 
-  showOfflineToast, 
-  isOffline 
-} from '@/lib/offline-sync-queue';
+import { offlineFetch } from '@/lib/offline-sync-queue';
 
 export interface CustomParametricSlider {
   id: string;
@@ -446,7 +434,6 @@ export function ParametricCounterfactualStudio() {
   const [sliderValues, setSliderValues] = useState<Record<string, Record<string, number>>>(cachedParametric?.sliderValues || {});
 
   // Action Dispatch State
-  const [isDispatching, setIsDispatching] = useState(false);
   const [jiraIssueKey, setJiraIssueKey] = useState<string | null>(null);
 
   // Get active scenario
@@ -602,7 +589,6 @@ export function ParametricCounterfactualStudio() {
       return;
     }
 
-    setIsDispatching(true);
     try {
       const res = await offlineFetch('/api/integrations/jira', {
         method: 'POST',
@@ -631,8 +617,6 @@ ${currentScenario.deliberation.ceo.actionRoadmap.join('\n')}`
       }
     } catch (e) {
       setJiraIssueKey('KAN-12');
-    } finally {
-      setIsDispatching(false);
     }
   };
 

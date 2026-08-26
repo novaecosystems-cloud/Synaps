@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Sparkles, RefreshCw, X, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sparkles, RefreshCw, X, ShieldCheck } from 'lucide-react';
 
 export default function AppUpdateNotifier() {
   const [initialVersion, setInitialVersion] = useState<string | null>(null);

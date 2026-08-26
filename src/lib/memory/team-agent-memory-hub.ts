@@ -8,9 +8,6 @@
  * 4. Structural Code & Entity Graph: Direct adjacency graph synchronized with KùzuDB GDBMS.
  */
 
-import prisma from '@/lib/prisma';
-import { invokeLLMWithFallback } from '@/lib/llm-router';
-
 // ─── TIER 1: EPISODIC CHAT MEMORY ─────────────────────────────────────────────
 export interface ChatMemoryItem {
   id: string;

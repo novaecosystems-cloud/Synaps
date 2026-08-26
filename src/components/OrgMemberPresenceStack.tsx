@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { UserPresenceAvatar, PresenceStatus } from '@/components/ui/UserPresenceAvatar';
-import { Users, Sparkles, ChevronRight, X } from 'lucide-react';
+import { Users, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 

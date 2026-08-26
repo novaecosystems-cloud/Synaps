@@ -1,22 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  Database,
-  Cloud,
-  Globe,
-  GitBranch,
-  Plus,
-  RefreshCw,
-  ShieldCheck,
-  Lock,
-  Building,
-  MessageSquare,
-  Zap,
-  CheckCircle2,
-  AlertTriangle,
-  ExternalLink,
-} from "lucide-react";
+import { useState, useEffect } from 'react';
+import { Database, Cloud, RefreshCw, ShieldCheck, Lock, Building, MessageSquare, Zap, CheckCircle2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 

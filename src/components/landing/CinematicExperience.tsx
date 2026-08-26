@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, Suspense } from 'react';
+import { useEffect, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Preload, Loader } from '@react-three/drei';
 import SceneManager from './SceneManager';

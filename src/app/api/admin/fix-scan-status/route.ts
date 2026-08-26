@@ -1,13 +1,13 @@
 export const dynamic = 'force-dynamic';
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifySessionCookie } from '@/lib/auth-server';
 import prisma from '@/lib/prisma';
 
 // One-time migration endpoint: marks all PENDING-scanned documents as CLEAN
 // so the pipeline can proceed without a virus scanner webhook
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Auth: must be logged-in user
   const cookieStore = await cookies();
   const session = cookieStore.get('synaps-session')?.value;

@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST: Generate embeddings for chunks missing them
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const session = cookieStore.get('synaps-session')?.value;
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
 }
 
 // DELETE: Clear all embeddings
-export async function DELETE(request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const session = cookieStore.get('synaps-session')?.value;

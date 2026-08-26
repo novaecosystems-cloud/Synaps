@@ -1,11 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Search, SlidersHorizontal, Sparkles, ShieldCheck, 
-  BrainCircuit, ArrowUpRight, Filter, Sun, Moon, CheckCircle2,
-  FileText, Activity, Layers, Globe, ShieldAlert, Cpu, Eye, ExternalLink, Zap
-} from 'lucide-react';
+import { useState } from 'react';
+import { Search, Sparkles, ArrowUpRight, Sun, Moon, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';

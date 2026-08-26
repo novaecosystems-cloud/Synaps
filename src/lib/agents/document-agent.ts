@@ -1,9 +1,8 @@
-﻿import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { generateEmbedding } from '@/lib/embeddings';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { ReActAgent, AgentTool } from '@/lib/agents/react-engine';
-import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export interface DocumentCitation {
   documentId: string;
@@ -174,12 +173,12 @@ export function buildDocumentAgentTools(organizationId: string, currentDocumentI
         if (!docId) return { error: 'documentId required' };
 
         const chunks = await prisma.documentChunk.findMany({
-          where: { documentId: docId, pageNumber: Number(pageNumber) },
+          where: { documentId: docId, pageNumber: Number(pageNumber), organizationId },
           select: { id: true, text: true, section: true, chunkType: true, positionIdx: true },
           orderBy: { positionIdx: 'asc' }
         });
 
-        const doc = await prisma.document.findUnique({ where: { id: docId }, select: { name: true } });
+        const doc = await prisma.document.findFirst({ where: { id: docId, organizationId }, select: { name: true } });
 
         return {
           documentId: docId,
@@ -209,11 +208,11 @@ export function buildDocumentAgentTools(organizationId: string, currentDocumentI
         if (!docId) return { error: 'documentId required' };
 
         const chunks = await prisma.documentChunk.findMany({
-          where: { documentId: docId, pageNumber: Number(pageNumber) },
+          where: { documentId: docId, pageNumber: Number(pageNumber), organizationId },
           select: { text: true, section: true }
         });
 
-        const doc = await prisma.document.findUnique({ where: { id: docId }, select: { name: true } });
+        const doc = await prisma.document.findFirst({ where: { id: docId, organizationId }, select: { name: true } });
 
         return {
           citation: `[${doc?.name || 'Document'}, p.${pageNumber}]`,
@@ -410,12 +409,12 @@ export function buildDocumentAgentTools(organizationId: string, currentDocumentI
       },
       execute: async ({ doc1Id, doc2Id }) => {
         const [doc1, doc2] = await Promise.all([
-          prisma.document.findUnique({
-            where: { id: doc1Id },
+          prisma.document.findFirst({
+            where: { id: doc1Id, organizationId },
             include: { processedDoc: true, metadata: true }
           }),
-          prisma.document.findUnique({
-            where: { id: doc2Id },
+          prisma.document.findFirst({
+            where: { id: doc2Id, organizationId },
             include: { processedDoc: true, metadata: true }
           })
         ]);
@@ -463,7 +462,7 @@ Analyze:
         required: ['documentId', 'pageNumber', 'snippet']
       },
       execute: async ({ documentId, pageNumber, snippet }) => {
-        const doc = await prisma.document.findUnique({ where: { id: documentId }, select: { name: true } });
+        const doc = await prisma.document.findFirst({ where: { id: documentId, organizationId }, select: { name: true } });
         const docName = doc?.name || 'Document';
         return {
           formattedCitation: `[${docName}, p.${pageNumber}]`,

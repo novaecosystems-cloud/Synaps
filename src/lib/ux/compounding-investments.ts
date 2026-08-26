@@ -24,7 +24,7 @@ import {
   DecisionMemoryRecord, 
   distillCorporateTactics 
 } from '@/lib/decision-memory-flywheel';
-import { sha256Sync, canonicalizeJSON } from '@/lib/dgcl-merkle';
+import { sha256Sync } from '@/lib/dgcl-merkle';
 import { ExternalTriggerPayload } from '@/lib/ux/hook-triggers';
 
 // ─── INVESTMENT TYPES & SCHEMAS ───────────────────────────────────────────────

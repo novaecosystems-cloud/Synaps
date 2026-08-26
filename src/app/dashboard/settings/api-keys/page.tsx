@@ -1,10 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Key, ShieldCheck, Lock, Sparkles, CheckCircle2, 
-  Trash2, Eye, EyeOff, Save, Loader2, Zap, AlertTriangle 
-} from 'lucide-react';
+import { Key, ShieldCheck, Lock, CheckCircle2, Trash2, Eye, EyeOff, Save, Loader2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ApiKeysSettingsPage() {

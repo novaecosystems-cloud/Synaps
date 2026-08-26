@@ -1,32 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import {
-  Database,
-  Cloud,
-  FileText,
-  Activity,
-  MessageSquare,
-  CheckCircle2,
-  AlertCircle,
-  RefreshCw,
-  Settings,
-  Zap,
-  ShieldCheck,
-  ExternalLink,
-  Lock,
-  Search,
-  Filter,
-  ArrowUpRight,
-  TrendingUp,
-  Building,
-  Bell,
-  Cpu,
-  Layers,
-  Sparkles,
-  Send,
-  Plus
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Cloud, FileText, MessageSquare, CheckCircle2, AlertCircle, RefreshCw, Settings, Zap, ShieldCheck, Lock, Search, Filter, TrendingUp, Building, Layers, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 

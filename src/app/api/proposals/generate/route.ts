@@ -50,15 +50,15 @@ export async function POST(req: NextRequest) {
 
     // Fetch chunks for deep context
     const chunks = await prisma.documentChunk.findMany({
-      where: { documentId },
+      where: { documentId, organizationId: user.organizationId },
       take: 10,
       orderBy: { pageNumber: 'asc' }
     });
-    const docSummary = chunks.map(c => c.text).join('\n---\n').slice(0, 4000);
+    const chunkText = chunks.map(c => c.text).join('\n---\n').slice(0, 3000);
 
     const generatedSections = await generateProposalSections(
       documentId,
-      reqText || 'No specific requirements extracted.',
+      `${reqText || 'No specific requirements extracted.'}\n\nDocument Context:\n${chunkText}`,
       gapsText || 'No major gaps flagged.',
       decText || 'Standard proposal approval workflow.',
       (mode as any) || 'detailed'

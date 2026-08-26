@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader2, Play, Terminal, CheckCircle2, Circle, AlertCircle, Sparkles, BrainCircuit, Activity } from 'lucide-react';
 
 const AGENTS = [

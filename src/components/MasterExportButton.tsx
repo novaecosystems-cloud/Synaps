@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Download, FileText, Table, Sparkles, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { FileText, Table, Sparkles, ChevronDown } from 'lucide-react';
 import { downloadMasterAIReport } from '@/lib/export-helpers';
 
 export default function MasterExportButton() {

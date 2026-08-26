@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Play, Download, Printer, FileText, CheckCircle, Save, Sparkles, History, AlignLeft, RefreshCw, Send, ListTree, GitBranch } from 'lucide-react';
+import { Loader2, Play, Download, Printer, FileText, Sparkles, History, RefreshCw, ListTree, GitBranch } from 'lucide-react';
 import WorkflowPanel from './WorkflowPanel';
 
 export default function ProposalEditor({ documentId }: { documentId: string }) {

@@ -1,10 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Globe, Search, Sparkles, ShieldCheck, CheckCircle2, AlertTriangle, 
-  ExternalLink, FileCode, Sliders, RefreshCw, Loader2, Info, Copy, Check
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Globe, Search, Sparkles, ShieldCheck, CheckCircle2, ExternalLink, RefreshCw, Loader2, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';

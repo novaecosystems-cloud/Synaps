@@ -1,12 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  BrainCircuit, Sparkles, Send, FileText, Calendar, Scale, 
-  FolderKanban, CheckCircle2, ShieldAlert, Loader2, Info, 
-  Layers, ArrowRight, GitCommit, HelpCircle, ExternalLink, RefreshCw
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { BrainCircuit, Send, FileText, Calendar, Scale, ShieldAlert, Loader2, Info, Layers, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 

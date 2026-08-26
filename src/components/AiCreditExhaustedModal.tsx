@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Zap, Sparkles, Crown, X, ArrowRight, ShieldCheck, 
-  Clock, Tag, Check, Mail, HeartHandshake
-} from 'lucide-react';
+import { Zap, Sparkles, Crown, ArrowRight, Clock, Tag, Check, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 

@@ -1,31 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ArrowRight,
-  ArrowUpRight,
-  ShieldCheck,
-  FileText,
-  Search,
-  Database,
-  GitBranch,
-  AlertTriangle,
-  Scale,
-  Cpu,
-  Layers,
-  ChevronDown,
-  ExternalLink,
-  Globe,
-  Users,
-  CheckCircle2,
-  FileCheck,
-  Zap,
-  Sparkles
-} from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ShieldCheck, FileText, Search, Cpu, ChevronDown, Globe, Users } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
 import Link from 'next/link';
 import Lenis from 'lenis';
@@ -96,10 +75,7 @@ export default function KnowledgeIntelligenceLanding() {
   const [activeStep, setActiveStep] = useState(1);
 
   // Product Scene State
-  const [selectedDocPage, setSelectedDocPage] = useState(12);
-
-  // Agent Layer Active Demo
-  const [activeAgent, setActiveAgent] = useState<'review' | 'research' | 'document' | 'decision'>('review');
+  const selectedDocPage = 12;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);

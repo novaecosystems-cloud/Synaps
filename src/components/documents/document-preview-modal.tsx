@@ -2,7 +2,6 @@ import React from 'react';
 import { X, ExternalLink, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CustomLoader } from '@/components/ui/custom-loader';
-import { cn } from '@/lib/utils';
 
 interface DocumentPreviewModalProps {
   isOpen: boolean;

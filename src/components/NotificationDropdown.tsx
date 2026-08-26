@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, FileText, CheckCircle, BrainCircuit, Activity, FolderKanban, MoreVertical } from 'lucide-react';
+import { Bell, FileText, CheckCircle, BrainCircuit, Activity, FolderKanban } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import gsap from 'gsap';

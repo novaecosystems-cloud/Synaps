@@ -1,11 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  Search, ShieldCheck, CheckCircle2, Flame, Edit3, Clock, 
-  Layers, Lock, Filter, ExternalLink, ChevronRight, X, Scale, 
-  Sparkles, FileText, Users, ArrowUpRight, Check, AlertTriangle, Table as TableIcon, LayoutGrid 
-} from 'lucide-react';
+import { useState } from 'react';
+import { Search, ShieldCheck, CheckCircle2, Flame, Edit3, Clock, Lock, ChevronRight, X, Scale, Sparkles, FileText, Table as TableIcon, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { DecisionLedgerItem, DecisionAction } from '@/lib/corporate-tactics';

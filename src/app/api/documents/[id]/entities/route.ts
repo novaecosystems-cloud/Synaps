@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
-import { generateEmbedding } from '@/lib/embeddings';
 
 /**
  * GET /api/documents/[id]/entities
@@ -17,7 +16,7 @@ import { generateEmbedding } from '@/lib/embeddings';
  * falls back to regex-based extraction from chunks.
  */
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {

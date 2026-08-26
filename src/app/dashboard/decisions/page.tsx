@@ -1,13 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Scale, BrainCircuit, ShieldAlert, AlertTriangle, CheckCircle2, 
-  Sparkles, Search, Plus, FileText, Layers, History, RefreshCw, 
-  ChevronRight, ArrowUpRight, X, Loader2, Info, Flame, DollarSign,
-  Briefcase, CheckSquare, Edit3, Award, Users, TrendingUp, HelpCircle,
-  Clock, ArrowRight, Compass, ShieldCheck, Lock, Download, Sliders
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Scale, BrainCircuit, Sparkles, Search, History, X, Loader2, Flame, Award, TrendingUp, Compass, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -32,7 +26,6 @@ export default function DecisionsPage() {
   // Ledger & Tactics State
   const [ledgerDecisions, setLedgerDecisions] = useState<DecisionLedgerItem[]>([]);
   const [tactics, setTactics] = useState<CorporateTactic[]>([]);
-  const [analytics, setAnalytics] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,15 +62,13 @@ export default function DecisionsPage() {
     setLoading(true);
     setError(null);
     try {
-      const [resTactics, resLedger, resAnalytics] = await Promise.all([
+      const [resTactics, resLedger] = await Promise.all([
         fetch('/api/decisions/tactics'),
-        fetch('/api/decisions/memory'),
-        fetch('/api/decisions/analytics')
+        fetch('/api/decisions/memory')
       ]);
 
       const jsonTactics = await resTactics.json();
       const jsonLedger = await resLedger.json();
-      const jsonAnalytics = await resAnalytics.json();
 
       if (jsonTactics.success && Array.isArray(jsonTactics.data)) {
         setTactics(jsonTactics.data);
@@ -91,10 +82,6 @@ export default function DecisionsPage() {
         setLedgerDecisions(records);
       } else {
         setLedgerDecisions(CorporateTacticsEngine.getLedger());
-      }
-
-      if (jsonAnalytics.success) {
-        setAnalytics(jsonAnalytics.data);
       }
 
     } catch (err: any) {

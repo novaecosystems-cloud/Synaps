@@ -5,7 +5,6 @@ import {
   FileText, Database, Sparkles, Send, Loader2, Link2, 
   ChevronRight, BrainCircuit, Activity, FileCheck, ShieldAlert, X, Download
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useOrgProfile } from '@/context/OrgProfileContext';

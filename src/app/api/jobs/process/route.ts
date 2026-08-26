@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { generateDownloadUrl } from '@/lib/storage';
 import officeParser from 'officeparser';
 import { execSync } from 'child_process';

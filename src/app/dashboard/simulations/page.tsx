@@ -1,13 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Activity, Play, Sparkles, TrendingUp, TrendingDown, DollarSign, 
-  Users, Globe, UserMinus, Rocket, Building, Briefcase, ShieldAlert, 
-  Loader2, ArrowRight, Info, CheckCircle2, AlertTriangle, RefreshCw, 
-  Layers, ChevronRight, HelpCircle, Gauge, Sliders, CheckSquare, Zap, Check, Download, RotateCcw, Clock,
-  Flame, Edit3
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Activity, Play, Sparkles, TrendingUp, DollarSign, Users, Globe, UserMinus, Rocket, Building, Briefcase, ShieldAlert, Loader2, Info, CheckCircle2, Layers, HelpCircle, Gauge, Sliders, CheckSquare, Zap, Check, Download, RotateCcw, Clock, Flame, Edit3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -41,12 +35,7 @@ import {
 } from '@/lib/viewmodel-cache';
 import { IsolatedErrorBoundary } from '@/components/ui/error-boundary';
 import { SimulationStudioSkeleton } from '@/components/ui/skeleton';
-import { 
-  offlineFetch, 
-  enqueueScmSimulation, 
-  showOfflineToast, 
-  isOffline 
-} from '@/lib/offline-sync-queue';
+import { offlineFetch } from '@/lib/offline-sync-queue';
 
 const ParametricCounterfactualStudio = dynamic(
   () => import('@/components/dashboard/simulations/ParametricCounterfactualStudio').then(m => m.ParametricCounterfactualStudio),

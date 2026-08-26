@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, X, Sparkles, Check, ChevronRight } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 import { useRouter } from "next/navigation";
 
 export function AdaptiveEnterpriseOnboardingModal() {

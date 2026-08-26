@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from 'react';
 import { Database, FileText, UploadCloud, Search, Trash2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

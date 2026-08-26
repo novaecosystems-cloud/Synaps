@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { ShaderAnimation } from "@/components/ui/shader-animation";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from 'lucide-react';
 
 export function CausarixCinematicSplash({
   onComplete,

@@ -1,10 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Zap, ShieldCheck, Check, Sparkles, Building2, Crown, 
-  CreditCard, ArrowRight, CheckCircle2, HelpCircle, Layers, Globe, RefreshCw, HeartHandshake, Lock, Star, Scale
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Zap, Check, Sparkles, Crown, CreditCard, ArrowRight, CheckCircle2, Globe, HeartHandshake, Scale } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import MultiStepPaywallModal from '@/components/MultiStepPaywallModal';
@@ -60,11 +57,9 @@ export default function BillingPage() {
   const [currency, setCurrency] = useState<CurrencyCode>('USD');
   const [activePlanId, setActivePlanId] = useState<string>('free');
   const [selectedPaywallPlan, setSelectedPaywallPlan] = useState<'pro' | 'enterprise'>('pro');
-  const [userRole, setUserRole] = useState<string>('MEMBER');
   const [userCredits, setUserCredits] = useState<{ remaining: number; limit: number } | null>(null);
   const [showMultiStepPaywall, setShowMultiStepPaywall] = useState(false);
   const [showRetentionModal, setShowRetentionModal] = useState(false);
-  const [showUpiModal, setShowUpiModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const activeCurrency = CURRENCIES.find(c => c.code === currency) || CURRENCIES[0];
@@ -75,7 +70,6 @@ export default function BillingPage() {
       const data = await res.json();
       if (data.success && data.credits) {
         const role = (data.credits.role || 'MEMBER').toUpperCase();
-        setUserRole(role);
         setUserCredits({ remaining: data.credits.remaining, limit: data.credits.creditLimit });
         
         if (role === 'ADMIN') setActivePlanId('pro');
@@ -509,13 +503,6 @@ export default function BillingPage() {
           }}
         />
       )}
-
-      {/* Instant UPI QR Code Scanner Modal */}
-      <UpiPaymentModal
-        isOpen={showUpiModal}
-        onClose={() => setShowUpiModal(false)}
-        planId={selectedPaywallPlan}
-      />
 
     </div>
   );

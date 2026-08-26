@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, ShieldCheck, FileText, Lock, Sparkles, Plus, CheckCircle2, Globe, Cpu, Zap, Activity, Layers, Terminal, Command, Database, Share2, Code2 } from 'lucide-react';
+import { ArrowUpRight, ShieldCheck, FileText, Lock, Cpu, Zap, Database } from 'lucide-react';
 import SignInModal from '@/components/SignInModal';
 import SignInCardInline from '@/components/SignInCardInline';
 
@@ -18,7 +18,6 @@ const FLOATING_CARDS = [
 
 export default function MinimalistProductLanding() {
   const [showSignIn, setShowSignIn] = useState(false);
-  const [activeCard, setActiveCard] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 

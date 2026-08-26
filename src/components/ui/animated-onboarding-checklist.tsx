@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
-import { CheckCircle2, PlayCircle, Sparkles, ArrowRight } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { motion, Variants } from 'framer-motion';
+import { PlayCircle, Sparkles, ArrowRight } from 'lucide-react';
 import { IoMdCheckmark } from "react-icons/io";
 import { LuLoader } from "react-icons/lu";
 import { cn } from "@/lib/utils";

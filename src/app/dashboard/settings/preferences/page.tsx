@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Zap, Sparkles, Check, Clock, Brain } from 'lucide-react';
+import { Zap, Sparkles, Clock, Brain } from 'lucide-react';
 
 export default function PreferencesSettings() {
   const [focusMode, setFocusMode] = useState(true);

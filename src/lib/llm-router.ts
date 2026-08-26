@@ -2,7 +2,7 @@ import { Groq } from 'groq-sdk';
 import OpenAI from 'openai';
 import { ANTI_SLOP_SYSTEM_DIRECTIVE, cleanAISlop } from '@/lib/de-slop';
 import { EXECUTIVE_FOCUS_DIRECTIVE } from '@/lib/focus-mode';
-import { inspectResponse } from '@/lib/ai-firewall';
+import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
 
 export interface LLMProvider {
   name: string;
@@ -115,7 +115,7 @@ class LLMCircuitBreakerRegistry {
     }
   }
 
-  public recordFailure(providerName: string, error?: any) {
+  public recordFailure(providerName: string, _error?: any) {
     const stats = this.getStats(providerName);
     const now = Date.now();
     stats.totalRequests++;
@@ -444,7 +444,7 @@ if (geminiKeys.length > 0) {
   geminiKeys.forEach((key, index) => {
     providers.push({
       name: `Google Gemini (Key ${index + 1} - 2.5 Flash)`,
-      invoke: async (messages, options) => {
+      invoke: async (messages, _options) => {
         const promptText = messages.map((m: any) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
         
         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
@@ -636,7 +636,12 @@ export async function invokeLLMWithFallback(
 ): Promise<string> {
   let messages: any[] = [];
   if (Array.isArray(input)) {
-    messages = input;
+    messages = input.map(m => {
+      if (m.role === 'user' && typeof m.content === 'string') {
+        return { ...m, content: inspectPrompt(m.content).sanitizedPrompt };
+      }
+      return m;
+    });
   } else {
     const combinedSystemPrompt = [
       input.systemPrompt || '',
@@ -644,9 +649,11 @@ export async function invokeLLMWithFallback(
       EXECUTIVE_FOCUS_DIRECTIVE
     ].filter(Boolean).join('\n\n');
 
+    const sanitizedUserPrompt = inspectPrompt(input.userPrompt).sanitizedPrompt;
+
     messages = [
       { role: 'system', content: combinedSystemPrompt.trim() },
-      { role: 'user', content: input.userPrompt },
+      { role: 'user', content: sanitizedUserPrompt },
     ];
     if (input.temperature !== undefined) {
       options.temperature = input.temperature;

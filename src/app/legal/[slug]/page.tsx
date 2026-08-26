@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import { useState, use } from 'react';
 import { LEGAL_DOCUMENTS, LegalDoc } from '@/lib/legal-docs';
-import { 
-  FileText, Search, Printer, ArrowLeft, ShieldCheck, 
-  ChevronRight, Calendar, Info, Mail, Lock, ExternalLink
-} from 'lucide-react';
+import { Printer, ArrowLeft, ShieldCheck, Calendar, Mail } from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

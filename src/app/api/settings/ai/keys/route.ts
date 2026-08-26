@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 import { encryptApiKey, maskApiKey } from '@/lib/encryption';
 import { setCustomUserApiKey, getCustomUserApiKey } from '@/lib/ai-credit-limiter';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('synaps-session')?.value;

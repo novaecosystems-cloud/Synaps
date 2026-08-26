@@ -1,64 +1,25 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  BookOpen,
-  Headphones,
-  Play,
-  Pause,
-  RotateCcw,
-  Sparkles,
-  Plus,
-  FileText,
-  ShieldAlert,
-  Download,
-  Share2,
-  Volume2,
-  VolumeX,
-  FastForward,
-  CheckCircle2,
-  Clock,
-  Layers,
-  MessageSquare,
-  Search,
-  ExternalLink,
-  Copy,
-  Check,
-  Send,
-  Loader2,
-  Trash2,
-  Radio,
-} from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { BookOpen, Headphones, Play, Pause, RotateCcw, Sparkles, Plus, FileText, MessageSquare, Copy, Check, Radio } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  MatterNotebook,
-  NotebookSource,
-  AudioBriefing,
-  AudioBriefingDialogue,
-  PRESET_NOTEBOOKS,
-} from '@/lib/notebooks';
+import { MatterNotebook, NotebookSource, PRESET_NOTEBOOKS } from '@/lib/notebooks';
 
 export default function MatterNotebookStudio() {
   const [notebooks, setNotebooks] = useState<MatterNotebook[]>(PRESET_NOTEBOOKS);
   const [activeNotebookId, setActiveNotebookId] = useState<string>(PRESET_NOTEBOOKS[0].id);
-  const [activeTab, setActiveTab] = useState<'audio' | 'sources' | 'chat'>('audio');
 
   // Audio Playback State
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentDialogueIndex, setCurrentDialogueIndex] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
-  const [isMuted, setIsMuted] = useState(false);
-  const [elapsedSec, setElapsedSec] = useState(0);
   const [generatingAudio, setGeneratingAudio] = useState(false);
   const [copiedScript, setCopiedScript] = useState(false);
 
-  // New Source / Question Input
+  // New Source Input
   const [newSourceTitle, setNewSourceTitle] = useState('');
   const [newSourceContent, setNewSourceContent] = useState('');
   const [showAddSource, setShowAddSource] = useState(false);
-  const [chatQuestion, setChatQuestion] = useState('');
-  const [chatAnswers, setChatAnswers] = useState<Array<{ q: string; a: string; citations: string[] }>>([]);
-  const [askingChat, setAskingChat] = useState(false);
 
   const activeNotebook = notebooks.find((n) => n.id === activeNotebookId) || notebooks[0];
   const audioBriefing = activeNotebook.audioBriefing;
@@ -110,7 +71,6 @@ export default function MatterNotebookStudio() {
       } else {
         setIsPlaying(false);
         setCurrentDialogueIndex(0);
-        setElapsedSec(0);
       }
     };
 
@@ -139,7 +99,6 @@ export default function MatterNotebookStudio() {
   const handleRestart = () => {
     if (synthRef.current) synthRef.current.cancel();
     setCurrentDialogueIndex(0);
-    setElapsedSec(0);
     playDialogueStep(0);
   };
 
@@ -188,67 +147,6 @@ export default function MatterNotebookStudio() {
     setNewSourceTitle('');
     setNewSourceContent('');
     setShowAddSource(false);
-  };
-
-  // Grounded Source Chat
-  const handleAskQuestion = async () => {
-    if (!chatQuestion.trim()) return;
-    setAskingChat(true);
-    const q = chatQuestion;
-    setChatQuestion('');
-
-    try {
-      const allSourcesText = activeNotebook.sources
-        .map((s) => `[Source: ${s.title}]\n${s.content}`)
-        .join('\n\n');
-
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
-            {
-              role: 'system',
-              content: `You are Synaps Matter Studio AI. Answer the user's question strictly grounded on the provided source materials. Include clear citations formatted with brackets e.g. [Source Title].\n\nSOURCE MATERIALS:\n${allSourcesText}`,
-            },
-            {
-              role: 'user',
-              content: q,
-            },
-          ],
-        }),
-      });
-
-      let answer = '';
-      if (response.ok) {
-        const data = await response.json();
-        answer = data.content || data.reply || data.answer || data.message || '';
-      }
-
-      if (!answer) {
-        answer = `Analysis of "${q}": Based on the verified source documents in this Matter Notebook, the provisions have been corroborated with standard evidentiary safeguards.`;
-      }
-
-      setChatAnswers((prev) => [
-        ...prev,
-        {
-          q,
-          a: answer,
-          citations: activeNotebook.sources.map((s) => s.title),
-        },
-      ]);
-    } catch (err: any) {
-      setChatAnswers((prev) => [
-        ...prev,
-        {
-          q,
-          a: `Error consulting notebook sources: ${err.message}`,
-          citations: ['Error'],
-        },
-      ]);
-    } finally {
-      setAskingChat(false);
-    }
   };
 
   // Copy Script

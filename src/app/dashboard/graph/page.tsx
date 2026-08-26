@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Loader2, RefreshCw, Network, Compass, Sparkles, Layers } from 'lucide-react';
+import { Loader2, RefreshCw, Network, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IsolatedErrorBoundary } from '@/components/ui/error-boundary';
 

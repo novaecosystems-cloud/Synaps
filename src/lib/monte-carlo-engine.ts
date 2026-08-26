@@ -9,8 +9,7 @@
  * 5. Cumulative Distribution Function (CDF) and Kernel Density Estimation for Histogram distribution
  * All calculations PRIME-RLM process-verified with 0.00% math drift invariant assertions.
  */
-import { calculatePrimeRLM } from '@/lib/prime-rlm';
-import { roundDoublePrecision, assertZeroMathDrift } from '@/lib/causal/structural-causal-model';
+import { roundDoublePrecision } from '@/lib/causal/structural-causal-model';
 
 export interface MonteCarloInput {
   baseRevenue: number;         // Base Annual Revenue in $

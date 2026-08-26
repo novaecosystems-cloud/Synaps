@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Video, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Video, Sparkles } from 'lucide-react';
 import { useSearchParams, usePathname } from 'next/navigation';
 
 export default function DemoHeaderBadge() {

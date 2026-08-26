@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { syncUserAction, loginAction } from '@/app/actions/auth';
-import prisma from '@/lib/prisma';
-import { cookies } from 'next/headers';
+
 
 export async function POST(req: Request) {
   if (process.env.NEXT_PUBLIC_PLAYWRIGHT_TEST !== 'true') {

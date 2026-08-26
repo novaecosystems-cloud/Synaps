@@ -1,7 +1,6 @@
 import React from 'react';
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { MoreVertical, Settings, Trash2, Edit2, Users, UsersRound } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export interface ActionMenuProps {
   onEdit?: () => void;

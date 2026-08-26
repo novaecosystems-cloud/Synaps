@@ -6,15 +6,6 @@ import { ratelimit } from '@/lib/ratelimit';
 import { cookies } from 'next/headers';
 import { verifySessionCookie } from '@/lib/auth-server';
 
-const AGENTS = [
-  { id: 'doc_analyst', name: 'Document Analyst', action: 'Analyzing raw document structure...' },
-  { id: 'req_analyst', name: 'Requirement Analyst', action: 'Extracting and categorizing requirements...' },
-  { id: 'comp_analyst', name: 'Compliance Analyst', action: 'Checking requirements against Knowledge Base...' },
-  { id: 'risk_analyst', name: 'Risk Analyst', action: 'Identifying gaps and formulating mitigations...' },
-  { id: 'exec_reviewer', name: 'Executive Reviewer', action: 'Evaluating risks for Go/No-Go decision...' },
-  { id: 'prop_writer', name: 'Proposal Writer', action: 'Drafting multi-section business proposal...' }
-];
-
 export async function POST(req: NextRequest) {
   const { documentId, mode = 'detailed' } = await req.json();
   if (!documentId) return NextResponse.json({ error: 'Missing documentId' }, { status: 400 });

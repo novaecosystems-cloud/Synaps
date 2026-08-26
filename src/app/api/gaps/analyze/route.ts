@@ -6,7 +6,6 @@ import { analyzeGaps } from '@/lib/embeddings';
 import { verifySessionCookie } from '@/lib/auth-server';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
-import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
 
 export async function POST(req: NextRequest) {
   try {

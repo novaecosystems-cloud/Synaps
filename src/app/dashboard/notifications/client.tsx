@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Loader2, Bell, CheckCircle, FileText, BrainCircuit, Activity, FolderKanban, Settings, Mail, Smartphone, Send, MessageSquare, Zap, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Loader2, Bell, CheckCircle, FileText, BrainCircuit, Activity, FolderKanban, Settings, Send, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function NotificationsClient({ userId, organizationId }: { userId: string, organizationId: string }) {
   const [activeTab, setActiveTab] = useState<'ALL' | 'UNREAD' | 'DIGEST' | 'SETTINGS'>('UNREAD');
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [prefs, setPrefs] = useState<any>(null);
 
   // Executive Digest Dispatch State
@@ -29,7 +28,6 @@ export default function NotificationsClient({ userId, organizationId }: { userId
   }, [activeTab]);
 
   const fetchNotifications = async () => {
-    setLoading(true);
     try {
       const url = activeTab === 'UNREAD' 
         ? `/api/notifications?userId=${userId}&organizationId=${organizationId}&unreadOnly=true`
@@ -41,13 +39,10 @@ export default function NotificationsClient({ userId, organizationId }: { userId
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchPreferences = async () => {
-    setLoading(true);
     try {
       const res = await fetch(`/api/notifications/preferences?userId=${userId}`);
       if (res.ok) {
@@ -56,8 +51,6 @@ export default function NotificationsClient({ userId, organizationId }: { userId
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 

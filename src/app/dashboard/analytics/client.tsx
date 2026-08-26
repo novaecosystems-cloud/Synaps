@@ -1,13 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, 
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area
-} from 'recharts';
-import { Download, FileText, Calendar, Activity, FolderKanban, AlertTriangle, ShieldCheck, Database, FileSpreadsheet, BrainCircuit, CheckSquare } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { Download, FileText, Activity, FolderKanban, AlertTriangle, ShieldCheck, Database, FileSpreadsheet, BrainCircuit, CheckSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Label, ProgressBar, RangeCalendar } from "@heroui/react";
+import { ProgressBar, RangeCalendar } from '@heroui/react';
 import { parseDate } from "@internationalized/date";
 import { IsolatedErrorBoundary } from '@/components/ui/error-boundary';
 

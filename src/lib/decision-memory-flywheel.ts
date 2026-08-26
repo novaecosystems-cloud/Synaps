@@ -26,7 +26,6 @@
 
 import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
-import { enrichAgentWithPrimeRLM } from '@/lib/prime-rlm';
 import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
 import { MerkleTree, canonicalizeJSON, sha256Sync } from '@/lib/dgcl-merkle';
 
