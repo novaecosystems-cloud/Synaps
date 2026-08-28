@@ -82,28 +82,8 @@ cd Synaps
 npm install
 ```
 
-### 2. Configure Environment (`.env.local`)
-```env
-# Database
-DATABASE_URL="postgresql://user:password@host/neondb?sslmode=require"
-
-# AI Models
-GEMINI_API_KEY="AIzaSy..."
-MOONSHOT_API_KEY="sk-..."
-
-# Vexa Meeting Intelligence (Hybrid Privacy Scribe Bot)
-VEXA_BOT_API_KEY="vxa_bot_..."
-VEXA_TRANSCRIPTION_API_KEY="vxa_tx_..."
-
-# Atlassian Jira Cloud Integration
-JIRA_DOMAIN="https://your-domain.atlassian.net"
-JIRA_EMAIL="your-email@example.com"
-JIRA_API_TOKEN="ATATT3xFfGF0..."
-JIRA_PROJECT_KEY="KAN"
-
-# Google Workspace / Drive
-GOOGLE_DRIVE_API_KEY="AIzaSy..."
-```
+### 2. Configure Environment
+Create a `.env.local` file with your database connection string, AI model API keys, and integration credentials.
 
 ### 3. Run Development Server
 ```bash
