@@ -218,7 +218,7 @@ Causarix conducted cross-document reasoning across all ingested ${companyName} b
                     <p className="text-sm leading-relaxed font-medium">{msg.content}</p>
                   ) : (
                     <div className="flex flex-col gap-4">
-                      <div className="prose prose-sm max-w-none text-base-content">
+                      <div className="prose prose-sm max-w-none text-base-content font-sans leading-relaxed prose-p:my-2.5 prose-p:leading-relaxed prose-headings:font-bold prose-headings:text-base-content prose-h2:text-base prose-h3:text-sm prose-ul:my-2 prose-ul:pl-4 prose-li:my-0.5 prose-strong:font-semibold prose-strong:text-primary">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {msg.content}
                         </ReactMarkdown>
@@ -399,7 +399,7 @@ Causarix conducted cross-document reasoning across all ingested ${companyName} b
                   <p className="text-sm font-medium text-primary animate-pulse">Synthesizing {companyName} knowledge documents...</p>
                 </div>
               ) : (
-                <div className="prose prose-sm max-w-none text-base-content">
+                <div className="prose prose-sm max-w-none text-base-content font-sans leading-relaxed prose-p:my-2.5 prose-p:leading-relaxed prose-headings:font-bold prose-headings:text-base-content prose-h2:text-base prose-h3:text-sm prose-ul:my-2 prose-ul:pl-4 prose-li:my-0.5 prose-strong:font-semibold">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {reportContent}
                   </ReactMarkdown>

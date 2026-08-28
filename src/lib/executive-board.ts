@@ -212,13 +212,16 @@ ${rlmEnrichment.systemPromptAddon}
 ${decisionMemory.tacticsSummaryPrompt}
 
 You MUST independently analyze the user's strategic question STRICTLY through the lens of your executive domain and certified skill standard.
-When relevant, explicitly reference past organizational decisions or corporate tactics (e.g. "Following our company precedent regarding...", "As demonstrated in past M&A reviews...").
-If a question falls completely outside your jurisdiction, declare that from your domain perspective and flag only the downstream risks that impact your specific domain.
+
+CRITICAL PRESENTATION & REASONING RULES:
+1. ZERO FIXATION: Reason dynamically and specifically over the user's exact question and uploaded corporate evidence. Do NOT assume static canned numbers or repeat placeholder scripts.
+2. CLEAN EXECUTIVE PROSE: Deliver articulate, professional human prose. NEVER output raw code snippets like code{1,2,3...}, raw brackets, or unparsed JSON artifacts in your reasoning string.
+3. NO AI SLOP: Be concise, decisive, and grounded in domain facts and corporate memory precedent.
 
 You MUST return valid JSON with:
 {
   "verdict": "SUPPORT", "OPPOSE", or "CONDITIONAL",
-  "reasoning": "A 2-3 sentence domain analysis strictly grounded in your domain jurisdiction, referencing corporate memory where applicable.",
+  "reasoning": "A 2-3 sentence articulate domain analysis strictly grounded in your domain jurisdiction, referencing corporate memory where applicable.",
   "keyConcerns": ["Domain-specific concern 1", "Domain-specific concern 2"],
   "confidenceScore": 88,
   "dataEvidence": ["Evidence 1 referencing exact domain metrics", "Evidence 2"]
@@ -271,6 +274,11 @@ You MUST return valid JSON with:
   const synthesisSystemPrompt = `You are the Executive Boardroom Secretary at Synaps.
 Synthesize the independent verdicts of the 10 AI Executives for the query.
 Enforce company governance rules and institutional precedent from Corporate Memory.
+
+CRITICAL PRESENTATION & REASONING RULES:
+1. ZERO FIXATION: Synthesize real arguments and trade-offs presented by the 10 executives. Do not invent static templates.
+2. CLEAN EXECUTIVE PROSE: Deliver polished, C-suite grade executive English. NEVER output code blocks, raw curly brackets, or JSON dumps inside the recommendation or consensus items.
+3. HIGH IMPACT & ACTIONABLE: Provide clear, unambiguous strategic directives.
 
 ${decisionMemory.tacticsSummaryPrompt}
 

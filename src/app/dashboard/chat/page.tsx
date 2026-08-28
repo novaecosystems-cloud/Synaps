@@ -325,8 +325,8 @@ export default function TeamStreamChatPage() {
                       </span>
                     </div>
 
-                    {/* Message Content with Markdown */}
-                    <div className="text-xs sm:text-[13px] text-slate-200 leading-relaxed prose prose-invert prose-p:my-1 prose-pre:my-1 prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800 max-w-none">
+                    {/* Message Content with Markdown & Elegant Executive Typography */}
+                    <div className="text-xs sm:text-[13.5px] text-slate-200 font-sans tracking-normal leading-relaxed prose prose-invert prose-p:my-2 prose-p:leading-relaxed prose-headings:text-white prose-headings:font-bold prose-h2:text-sm sm:prose-h2:text-base prose-h2:mt-3 prose-h2:mb-1.5 prose-h3:text-xs sm:prose-h3:text-sm prose-h3:mt-2 prose-h3:mb-1 prose-ul:my-2 prose-ul:pl-4 prose-li:my-0.5 prose-strong:text-cyan-300 prose-strong:font-semibold prose-code:text-cyan-300 prose-code:bg-slate-900/80 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:border prose-code:border-slate-800 prose-pre:my-2 prose-pre:bg-slate-950/90 prose-pre:border prose-pre:border-slate-800/80 max-w-none">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {msg.content}
                       </ReactMarkdown>

@@ -78,7 +78,7 @@ export async function runReasoningAgent(
   }
 
   // Step 3: Reasoning Synthesis Engine (Combine Internal + External)
-  const synthesisPrompt = `You are SYNAPS Autonomous Multi-Agent Reasoning Engine.
+  const synthesisPrompt = `You are Causarix Autonomous Multi-Agent Reasoning Engine.
 You must synthesize findings from the Internal Document Agent and the External Web Research Agent to provide an authoritative, evidence-backed answer.
 
 Query: "${query}"
@@ -91,13 +91,16 @@ ${webResult ? `--- EXTERNAL WEB RESEARCH FINDINGS ---
 ${webResult.answer}
 Web Sources: ${JSON.stringify(webResult.sources)}` : ''}
 
-Instruction:
-1. Provide a comprehensive, structured synthesis.
-2. If comparing a legal precedent or web case (e.g. ABC v XYZ) against an uploaded contract, explain EXACTLY how the case ruling affects specific clauses in the uploaded agreement.
-3. Include Dual Citations:
+CRITICAL PRESENTATION & REASONING RULES:
+1. ZERO FIXATION: Reason strictly over the actual evidence provided above and the user's specific query. Do not invent static placeholders.
+2. CLEAN EXECUTIVE PROSE (NO CODE ARTIFACTS): Deliver articulate, high-authority Markdown prose. NEVER output raw code snippets like code{1,2,3...}, raw curly braces, or unparsed JSON artifacts to the user.
+3. TYPOGRAPHIC SPACING & READABILITY:
+   - Use clean Markdown headers (##, ###) with breathable paragraph spacing.
+   - Use structured bullet points with bold leading phrases.
+4. CITATION FIDELITY:
    - Internal Document Citations: [Document Name, p.N]
    - External Web Citations: [Source Title](URL)
-4. Highlight key management risks or legal precedents established.`;
+5. Highlight key management risks, Delaware DGCL § 141 implications, and statutory precedents.`;
 
   const synthesisAnswer = await invokeLLMWithFallback([
     { role: 'system', content: 'You are the Chief Enterprise Reasoning & Dual-Domain Intelligence Officer.' },
