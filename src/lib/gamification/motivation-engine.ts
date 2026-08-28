@@ -419,11 +419,30 @@ export class MotivationEngine {
   ): AdaptiveBalancerState {
     const departments = ALL_DEPARTMENTS;
     const totalActions = departments.reduce((sum, d) => sum + (counts[d] || 0), 0);
-    const meanActivity = totalActions / departments.length;
+    const meanActivity = totalActions > 0 ? totalActions / departments.length : 1;
 
     let highestMultiplier = 1.0;
-    let priorityDept: DepartmentKey = 'Cyber Risk';
+    let priorityDept: DepartmentKey = 'Legal';
     const departmentMultipliers: Record<DepartmentKey, DepartmentMultiplierDetail> = {} as any;
+
+    if (totalActions === 0) {
+      for (const dept of departments) {
+        departmentMultipliers[dept] = {
+          department: dept,
+          multiplier: 1.0,
+          actionCount: 0,
+          status: 'BALANCED',
+          sharePercentage: 12,
+        };
+      }
+      return {
+        activeMultiplier: 1.0,
+        priorityDepartment: 'Legal',
+        priorityFocusReason: 'Begin your first departmental governance review to activate adaptive incentives.',
+        departmentMultipliers,
+        giniInequalityIndex: 0.0,
+      };
+    }
 
     for (const dept of departments) {
       const c = counts[dept] || 0;

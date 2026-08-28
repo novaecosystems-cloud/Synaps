@@ -91,6 +91,12 @@ export function LearnDecisionFeedbackModal({
       const json = await res.json();
 
       if (json.success) {
+        // Broadcast update event to all active dashboard widgets
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('causarix:decision-updated', { detail: json }));
+          window.dispatchEvent(new Event('focus'));
+        }
+
         // Display exact toast notification required by Task 16
         toast({
           title: "Decision recorded to organizational memory.",

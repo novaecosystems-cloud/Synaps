@@ -42,6 +42,9 @@ function playPaymentSuccessChime() {
     // Play crisp ascending two-note chime (E5 -> A5)
     playNote(659.25, 0, 0.25);
     playNote(880.00, 0.15, 0.45);
+    setTimeout(() => {
+      ctx.close().catch(() => {});
+    }, 700);
   } catch (e) {}
 }
 
@@ -63,6 +66,14 @@ export default function MultiStepPaywallModal({
   const [paymentSuccessState, setPaymentSuccessState] = useState(false);
   const [userRole, setUserRole] = useState<string>('MEMBER');
   const [creditLimit, setCreditLimit] = useState<number>(50);
+
+  useEffect(() => {
+    if (isOpen) {
+      setStep(initialStep);
+      setPaymentSuccessState(false);
+      setRefundRequested(false);
+    }
+  }, [isOpen, initialStep]);
 
   useEffect(() => {
     const checkActivePlan = async () => {
