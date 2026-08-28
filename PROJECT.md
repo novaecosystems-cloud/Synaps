@@ -1,7 +1,7 @@
 # Project: CAUSARIX™ Sovereign Causal Decision Operating System
 
 ## Architecture Overview
-CAUSARIX™ is an institutional Causal Decision Operating System combining a 10-Agent Autonomous Boardroom, SCM Counterfactual Simulation Studio (0.00% math drift), Hybrid Privacy Meeting Scribe (Vexa AI with instant cloud wipe), and Delaware DGCL § 141 SHA-256 Merkle Proof audit trails.
+CAUSARIX™ is an institutional Causal Decision Operating System combining a 10-Agent Autonomous Boardroom, SCM Counterfactual Simulation Studio (0.00% math drift), Decision Memory Flywheel & Corporate Tactics Learning Center, Adaptive Governance Motivation Engine (GAME), Hooked UX Habit Loop, Hybrid Privacy Meeting Scribe (Vexa AI with instant cloud wipe), and Delaware DGCL § 141 SHA-256 Merkle Proof audit trails.
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -12,15 +12,19 @@ CAUSARIX™ is an institutional Causal Decision Operating System combining a 10-
 |  - Global Power-User Hotkeys (Cmd+Enter, Esc, ?, GlobalHotkeys.tsx)               |
 |  - Theme-Adaptive Shimmer Skeleton Screens (skeleton.tsx)                         |
 |  - 0ms Back-Navigation SWR/Memory Cache (viewmodel-cache.ts)                       |
+|  - Hooked UX 4-Phase Habit Engine (Trigger -> Action -> Reward -> Investment)     |
 +-----------------------------------------------------------------------------------+
 |  Security & Egress Layer:                                                         |
 |  - Strict Security Headers (2-Yr HSTS, CSP, X-Frame-Options in middleware.ts)    |
 |  - In-Flight AI Application Firewall (ai-firewall.ts)                             |
 |  - LLM Circuit Breakers with Jittered Backoff (llm-router.ts)                     |
+|  - Zero-Fixation & Executive Prose Standards (No Code/Bracket Leakage)            |
 +-----------------------------------------------------------------------------------+
 |  Engines & Connectors:                                                            |
 |  - 10-Agent Boardroom Quorum Deliberation & Dialectic Debate                      |
 |  - SCM Monte Carlo Simulation Engine (0.00% math drift assertion)                 |
+|  - Decision Memory Flywheel & Corporate Tactics Distillation (/dashboard/decisions)|
+|  - Adaptive Motivation Engine (GAME Departmental Multipliers & Fiduciary Streaks) |
 |  - Vexa Meeting Intelligence (Hybrid Privacy Scribe Bot with Instant Remote Wipe) |
 |  - Google Workspace / Drive & Atlassian Jira Cloud Connectors                     |
 +-----------------------------------------------------------------------------------+

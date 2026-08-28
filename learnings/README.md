@@ -20,6 +20,8 @@ This folder explains every feature, engine, and technical superpower inside **Ca
 | **[Chapter 08](./08_THE_BRAIN_THAT_NEVER_FORGETS_ELI5.md)** | 🧠 The Brain That Never Forgets | How the AI remembers accepted/rejected decisions and learns company tactics. |
 | **[Chapter 09](./09_ADAPTIVE_GOALS_AND_MOTIVATION_ELI5.md)** | 🎮 The Smart Game with Bonus Stars | How the GAME motivation engine prevents departmental blind spots. |
 | **[Chapter 10](./10_THE_HABIT_LOOP_AND_HOOKED_UX_ELI5.md)** | 🪝 The Secret Habit Loop | How Hooked UX turns governance into an effortless, anxiety-relieving daily routine. |
+| **[Chapter 11](./11_PROMPT_ENGINEERING_AND_NO_SLOP_ELI5.md)** | 🎩 The Clean Speaking Detective | How Causarix banned robot slop, code leaks, and fake placeholders for neat executive prose. |
+| **[Chapter 12](./12_VIDEO_AND_3D_MOCKUP_STUDIO_ELI5.md)** | 🎥 The Magic Movie Studio | How we track 3D laptop screens, fit cards like a glove, and render kinetic videos. |
 
 ---
 
