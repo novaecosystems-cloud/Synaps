@@ -40,7 +40,18 @@ In the 10-Agent Boardroom, each digital twin independently evaluates strategic d
 3. **Zero-Fixation & Grounding Invariant:** No synthetic mock strings or hardcoded answers. All outputs must be derived dynamically from organization documents or live inputs.
 4. **Security & Redaction:** All outbound agent streams must pass through `inspectResponse()` in [`src/lib/ai-firewall.ts`](file:///D:/Synaps/src/lib/ai-firewall.ts).
 
-<!-- BEGIN:nextjs-agent-rules -->
+---
+
+## 4. Production Scaling Invariants (Vibecode-to-Enterprise Standard)
+
+When implementing new features or refactoring, subagents must follow these five production rules:
+1. **Durable Asynchronous Queues:** Long-running multi-agent loops (>15s) must not block synchronous serverless routes; dispatch via background jobs and stream updates via SSE/WebSockets.
+2. **PostgreSQL RLS & Foreign Key Integrity:** Always enforce `organizationId` and verify parent user entities prior to document/task writes.
+3. **Structured Zod Contracts:** All digital twin outputs must conform to validated Zod schemas (`response_format: { type: "json_schema" }`).
+4. **Layout-Aware PDF Ingestion:** Ensure document chunking retains paragraph and page coordinate metadata for pinpoint citations.
+5. **Air-Gapped Local Model Parity:** Ensure all features function seamlessly with local Ollama endpoints and within the Electron standalone executable.
+
+---
 
 # This is NOT the Next.js you know
 
