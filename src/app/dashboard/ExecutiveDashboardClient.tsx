@@ -346,9 +346,7 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
       </div>
 
       {dashboardView === 'matters' ? (
-        <div className="rounded-3xl overflow-hidden border border-slate-800/60 shadow-2xl">
-          <CausarixExecutiveMatterCockpit />
-        </div>
+        <CausarixExecutiveMatterCockpit userName={userName} />
       ) : (
         <>
       
