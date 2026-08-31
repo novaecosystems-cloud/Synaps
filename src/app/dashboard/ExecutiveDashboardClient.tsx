@@ -29,6 +29,7 @@ import { saveGuestSimulationState, loadGuestSimulationState, isGuestUser } from 
 import { ExecutiveMotivationWidget } from '@/components/dashboard/ExecutiveMotivationWidget';
 import { downloadAsPDF } from '@/lib/export-helpers';
 import { verifyBoardroomRecord, verifySimulationRecord } from '@/lib/dgcl-merkle';
+import { CausarixExecutiveMatterCockpit } from '@/components/dashboard/CausarixExecutiveMatterCockpit';
 
 interface Citation {
   documentId?: string;
@@ -98,6 +99,7 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [activeSampleScenarioId, setActiveSampleScenarioId] = useState<string | null>(null);
+  const [dashboardView, setDashboardView] = useState<'matters' | 'brief'>('matters');
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const signInPrompt = {
     title: 'Save Executive Briefing & Simulation',
@@ -308,6 +310,47 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
 
   return (
     <div className="w-full space-y-8 font-sans pb-16">
+      
+      {/* ── TOP VIEW SWITCHER TABS ────────────────────────────────────────── */}
+      <div className="flex items-center justify-between bg-slate-900/90 border border-slate-800/80 p-1.5 rounded-2xl shadow-md">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setDashboardView('matters')}
+            className={cn(
+              "px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer",
+              dashboardView === 'matters'
+                ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+            )}
+          >
+            <Scale className="w-3.5 h-3.5" />
+            <span>Strategic Matters & Cases (Cockpit)</span>
+          </button>
+          <button
+            onClick={() => setDashboardView('brief')}
+            className={cn(
+              "px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer",
+              dashboardView === 'brief'
+                ? "bg-cyan-500 text-black shadow-md shadow-cyan-500/20"
+                : "text-slate-400 hover:text-white hover:bg-slate-800/60"
+            )}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Executive Brief & SCM Scanner</span>
+          </button>
+        </div>
+
+        <span className="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold">
+          <CheckCircle2 className="w-3 h-3" /> DGCL § 141 Safe Harbor Active
+        </span>
+      </div>
+
+      {dashboardView === 'matters' ? (
+        <div className="rounded-3xl overflow-hidden border border-slate-800/60 shadow-2xl">
+          <CausarixExecutiveMatterCockpit />
+        </div>
+      ) : (
+        <>
       
       {/* ACTIVE SAMPLE SCENARIO NOTIFICATION BANNER */}
       {activeSampleScenarioId && (
@@ -944,6 +987,8 @@ export default function ExecutiveDashboardClient({ userName }: { userName: strin
             </Link>
           </div>
         </div>
+      )}
+        </>
       )}
 
       {/* Mandatory Legal Agreement Modal on Dashboard Load */}

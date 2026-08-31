@@ -66,6 +66,7 @@ const sidebarSections: MenuSection[] = [
     title: 'COMMAND CENTER',
     items: [
       { name: 'Executive Overview', href: '/dashboard', icon: LayoutDashboard },
+      { name: 'Strategic Matters & Cases', href: '/dashboard/matters', icon: FolderKanban, badge: 'PRO' },
       { name: 'Web Search & AI Chat', href: '/dashboard/chat', icon: Globe },
     ]
   },
