@@ -12,11 +12,15 @@ import {
   Clock, 
   CheckCircle2, 
   ChevronDown, 
-  ShieldCheck,
-  Sparkles,
-  Zap,
-  Lock,
-  ArrowUpRight
+  ShieldCheck, 
+  Sparkles, 
+  Zap, 
+  Lock, 
+  ArrowUpRight,
+  TrendingUp,
+  Cpu,
+  Layers,
+  DollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -29,7 +33,8 @@ interface StrategicMatter {
   assignee: {
     name: string;
     role: string;
-    avatar: string;
+    badge: string;
+    badgeColor: string;
   };
   due: string;
 }
@@ -43,7 +48,8 @@ const CAUSARIX_MATTERS: StrategicMatter[] = [
     assignee: {
       name: 'General Counsel',
       role: 'Legal & DGCL § 141',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+      badge: 'GC',
+      badgeColor: 'from-amber-500 to-orange-600 text-white',
     },
     due: 'Jun 12'
   },
@@ -55,7 +61,8 @@ const CAUSARIX_MATTERS: StrategicMatter[] = [
     assignee: {
       name: 'Chief Financial Officer',
       role: 'EBITDA & Runway',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+      badge: 'CFO',
+      badgeColor: 'from-emerald-500 to-teal-700 text-white',
     },
     due: 'Jun 15'
   },
@@ -67,7 +74,8 @@ const CAUSARIX_MATTERS: StrategicMatter[] = [
     assignee: {
       name: 'Chief Compliance Officer',
       role: 'Regulatory & Privacy',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+      badge: 'CCO',
+      badgeColor: 'from-cyan-500 to-blue-600 text-white',
     },
     due: 'Jun 20'
   },
@@ -79,7 +87,8 @@ const CAUSARIX_MATTERS: StrategicMatter[] = [
     assignee: {
       name: 'Chief Operating Officer',
       role: 'Operations & SLAs',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      badge: 'COO',
+      badgeColor: 'from-indigo-500 to-purple-600 text-white',
     },
     due: 'May 30'
   },
@@ -91,7 +100,8 @@ const CAUSARIX_MATTERS: StrategicMatter[] = [
     assignee: {
       name: 'Chief Technology Officer',
       role: 'Architecture & WAF',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+      badge: 'CTO',
+      badgeColor: 'from-blue-600 to-indigo-700 text-white',
     },
     due: 'Jul 2'
   }
@@ -139,25 +149,29 @@ const EXECUTIVE_DIGITAL_TWINS = [
   {
     name: 'General Counsel',
     role: 'Legal & Delaware DGCL § 141',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    badge: 'GC',
+    badgeColor: 'from-amber-500 to-orange-600 text-white',
     online: true
   },
   {
     name: 'Chief Financial Officer (CFO)',
     role: 'EBITDA & SCM Runway',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    badge: 'CFO',
+    badgeColor: 'from-emerald-500 to-teal-700 text-white',
     online: true
   },
   {
     name: 'Chief Technology Officer (CTO)',
     role: 'Architecture & AI-WAF',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    badge: 'CTO',
+    badgeColor: 'from-blue-600 to-indigo-700 text-white',
     online: true
   },
   {
     name: 'Chief Operating Officer (COO)',
     role: 'Operations & Vendor SLAs',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    badge: 'COO',
+    badgeColor: 'from-indigo-500 to-purple-600 text-white',
     online: true
   }
 ];
@@ -322,12 +336,10 @@ export function CausarixExecutiveMatterCockpit({ userName = 'Shourya Shetty' }: 
                     </td>
                     <td className="py-3.5 px-3">
                       <div className="flex items-center gap-2">
-                        <img 
-                          src={item.assignee.avatar} 
-                          alt={item.assignee.name} 
-                          title={`${item.assignee.name} (${item.assignee.role})`}
-                          className="w-6 h-6 rounded-full object-cover ring-1 ring-slate-200 dark:ring-slate-700"
-                        />
+                        {/* Domain Monogram Badge (No stock human photos) */}
+                        <div className={cn("w-6 h-6 rounded-lg bg-gradient-to-br flex items-center justify-center font-mono font-black text-[10px] shadow-sm shrink-0", item.assignee.badgeColor)}>
+                          {item.assignee.badge}
+                        </div>
                         <span className="text-slate-700 dark:text-slate-300 font-medium text-[11px]">{item.assignee.name}</span>
                       </div>
                     </td>
@@ -427,11 +439,10 @@ export function CausarixExecutiveMatterCockpit({ userName = 'Shourya Shetty' }: 
               {EXECUTIVE_DIGITAL_TWINS.map((member) => (
                 <div key={member.name} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <img 
-                      src={member.avatar} 
-                      alt={member.name} 
-                      className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200 dark:ring-slate-700"
-                    />
+                    {/* Domain Monogram Badge (No stock human photos) */}
+                    <div className={cn("w-8 h-8 rounded-xl bg-gradient-to-br flex items-center justify-center font-mono font-black text-xs shadow-sm shrink-0", member.badgeColor)}>
+                      {member.badge}
+                    </div>
                     <div>
                       <p className="text-xs font-semibold text-slate-900 dark:text-white">{member.name}</p>
                       <p className="text-[11px] text-slate-400">{member.role}</p>
