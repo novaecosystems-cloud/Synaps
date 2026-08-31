@@ -39,3 +39,13 @@ In the 10-Agent Boardroom, each digital twin independently evaluates strategic d
 2. **File Scope Partitioning:** Subagents must strictly respect their assigned domain boundaries.
 3. **Zero-Fixation & Grounding Invariant:** No synthetic mock strings or hardcoded answers. All outputs must be derived dynamically from organization documents or live inputs.
 4. **Security & Redaction:** All outbound agent streams must pass through `inspectResponse()` in [`src/lib/ai-firewall.ts`](file:///D:/Synaps/src/lib/ai-firewall.ts).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

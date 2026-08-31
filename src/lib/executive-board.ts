@@ -4,6 +4,10 @@ import { memPalaceEngine } from '@/lib/mempalace-engine';
 import { enrichAgentWithPrimeRLM } from '@/lib/prime-rlm';
 import { getRelevantDecisionMemory } from '@/lib/decision-memory-flywheel';
 import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
+import {
+  verifyBoardroomRecord,
+  DGCLVerificationResult,
+} from '@/lib/security/merkle-hash';
 
 function parseSafeJson(content: string) {
   try {
@@ -44,6 +48,7 @@ export interface BoardMeetingResult {
   synthesis: BoardSynthesis;
   timestamp: string;
   merkleProvenanceHash?: string;
+  dgclVerification?: DGCLVerificationResult;
 }
 
 const EXECUTIVE_PROFILES = [
@@ -327,11 +332,18 @@ You MUST return valid JSON with:
     };
   }
 
+  const dgclVerification = verifyBoardroomRecord({
+    executives,
+    synthesis,
+    question: sanitizedQuery,
+  });
+
   return {
     query: sanitizedQuery,
     executives,
     synthesis,
     timestamp: new Date().toISOString(),
-    merkleProvenanceHash: decisionMemory.merkleProvenanceHash
+    merkleProvenanceHash: decisionMemory.merkleProvenanceHash,
+    dgclVerification,
   };
 }

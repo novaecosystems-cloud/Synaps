@@ -9,138 +9,153 @@ export function ShaderAnimation() {
     camera: THREE.Camera;
     scene: THREE.Scene;
     renderer: THREE.WebGLRenderer;
-    uniforms: any;
+    uniforms: {
+      time: { type: string; value: number };
+      resolution: { type: string; value: THREE.Vector2 };
+    };
     animationId: number;
   } | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
     const container = containerRef.current;
+    if (!container) return;
 
-    // Vertex shader
+    // Check if WebGL is supported
+    const isWebGLSupported = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        return !!(
+          window.WebGLRenderingContext &&
+          (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+        );
+      } catch (e) {
+        return false;
+      }
+    };
+
+    if (!isWebGLSupported()) {
+      console.warn("[ShaderAnimation] WebGL not supported on this context, using CSS fallback.");
+      return;
+    }
+
     const vertexShader = `
       void main() {
         gl_Position = vec4( position, 1.0 );
       }
     `;
 
-    // Fragment shader
     const fragmentShader = `
-      #define TWO_PI 6.2831853072
-      #define PI 3.14159265359
-
-      precision highp float;
       uniform vec2 resolution;
       uniform float time;
 
-      void main(void) {
-        vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-        float t = time*0.05;
-        float lineWidth = 0.002;
+      void main() {
+        vec2 p = -1.0 + 2.0 * gl_FragCoord.xy / resolution.xy;
+        float a = time * 40.0;
+        float d, e, f, g = 1.0 / 40.0, h, i, r, q;
 
-        vec3 color = vec3(0.0);
-        for(int j = 0; j < 3; j++){
-          for(int i=0; i < 5; i++){
-            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
-          }
-        }
-        
-        gl_FragColor = vec4(color[0],color[1],color[2],1.0);
+        e = 400.0 * (p.x * 0.5 + 0.5);
+        f = 400.0 * (p.y * 0.5 + 0.5);
+        i = 200.0 + sin(e * g + a / 150.0) * 20.0;
+        d = 200.0 + cos(f * g / 2.0) * 18.0 + cos(e * g) * 7.0;
+        r = sqrt(pow(abs(i - e), 2.0) + pow(abs(d - f), 2.0));
+        q = f / r;
+        e = (r * cos(q)) - a / 2.0;
+        f = (r * sin(q)) - a / 2.0;
+        d = sin(e * g) * 176.0 + sin(e * g) * 164.0 + r;
+        h = ((f + d) + a / 2.0) * g;
+        i = cos(h + r * p.x / 1.3) * (e + e + a) + cos(q + g * 6.0) * (r + h / 3.0);
+        h = sin(f * g) * 144.0 - sin(e * g) * 212.0 * p.x;
+        h = (h + (f - e) * q + sin(r - (a + h) / 7.0) * 10.0 + i / 4.0) * g;
+        i += cos(h * 2.3 * sin(a / 350.0 - q)) * 184.0 * sin(q - (r * 4.3 + a / 12.0) * g) + tan(r * g + h) * 184.0 * cos(r * g + h);
+        i = mod(i / 5.6, 256.0) / 64.0;
+        if (i < 0.0) i += 4.0;
+        if (i >= 2.0) i = 4.0 - i;
+        d = r / 350.0;
+        d += sin(d * d * 8.0) * 0.52;
+        f = (sin(a * g) + 1.0) / 2.0;
+        gl_FragColor = vec4(vec3(f * i / 1.6, i / 2.0 + d / 13.0, i) * d * p.x + vec3(i / 1.3 + d / 8.0, i / 2.0 + d / 18.0, i) * d * (1.0 - p.x), 1.0);
       }
     `;
 
-    // Initialize Three.js scene
-    const camera = new THREE.Camera();
-    camera.position.z = 1;
+    try {
+      // Initialize Three.js scene safely
+      const camera = new THREE.Camera();
+      camera.position.z = 1;
 
-    const scene = new THREE.Scene();
-    const geometry = new THREE.PlaneGeometry(2, 2);
+      const scene = new THREE.Scene();
+      const geometry = new THREE.PlaneGeometry(2, 2);
 
-    const uniforms = {
-      time: { type: "f", value: 1.0 },
-      resolution: { type: "v2", value: new THREE.Vector2() },
-    };
+      const uniforms = {
+        time: { type: "f", value: 1.0 },
+        resolution: { type: "v2", value: new THREE.Vector2() },
+      };
 
-    const material = new THREE.ShaderMaterial({
-      uniforms: uniforms,
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-    });
+      const material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+      });
 
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    container.appendChild(renderer.domElement);
+      container.appendChild(renderer.domElement);
 
-    // Handle window resize
-    const onWindowResize = () => {
-      if (!container) return;
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      renderer.setSize(width, height);
-      uniforms.resolution.value.x = renderer.domElement.width;
-      uniforms.resolution.value.y = renderer.domElement.height;
-    };
+      // Handle window resize
+      const onWindowResize = () => {
+        if (!container || !renderer.domElement) return;
+        const width = container.clientWidth || window.innerWidth;
+        const height = container.clientHeight || window.innerHeight;
+        renderer.setSize(width, height);
+        uniforms.resolution.value.x = renderer.domElement.width;
+        uniforms.resolution.value.y = renderer.domElement.height;
+      };
 
-    // Initial resize
-    onWindowResize();
-    window.addEventListener("resize", onWindowResize, false);
+      onWindowResize();
+      window.addEventListener("resize", onWindowResize, false);
 
-    // Animation loop
-    const animate = () => {
-      const animationId = requestAnimationFrame(animate);
-      uniforms.time.value += 0.05;
-      renderer.render(scene, camera);
+      // Animation loop
+      let animId = 0;
+      const animate = () => {
+        animId = requestAnimationFrame(animate);
+        uniforms.time.value += 0.05;
+        renderer.render(scene, camera);
 
-      if (sceneRef.current) {
-        sceneRef.current.animationId = animationId;
-      }
-    };
-
-    // Store scene references for cleanup
-    sceneRef.current = {
-      camera,
-      scene,
-      renderer,
-      uniforms,
-      animationId: 0,
-    };
-
-    // Start animation
-    animate();
-
-    // Cleanup function
-    return () => {
-      window.removeEventListener("resize", onWindowResize);
-
-      if (sceneRef.current) {
-        cancelAnimationFrame(sceneRef.current.animationId);
-
-        if (container && sceneRef.current.renderer.domElement) {
-          container.removeChild(sceneRef.current.renderer.domElement);
+        if (sceneRef.current) {
+          sceneRef.current.animationId = animId;
         }
+      };
 
-        sceneRef.current.renderer.dispose();
-        geometry.dispose();
-        material.dispose();
-      }
-    };
+      animate();
+
+      sceneRef.current = {
+        camera,
+        scene,
+        renderer,
+        uniforms,
+        animationId: animId,
+      };
+
+      return () => {
+        window.removeEventListener("resize", onWindowResize);
+        if (animId) cancelAnimationFrame(animId);
+        if (renderer && renderer.domElement && container.contains(renderer.domElement)) {
+          container.removeChild(renderer.domElement);
+          renderer.dispose();
+        }
+      };
+    } catch (err) {
+      console.warn("[ShaderAnimation] Graceful fallback activated:", err);
+    }
   }, []);
 
   return (
     <div
       ref={containerRef}
-      className="w-full h-full min-h-[300px]"
-      style={{
-        background: "#000",
-        overflow: "hidden",
-      }}
+      className="w-full h-full absolute inset-0 overflow-hidden bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-950/20 via-black to-black"
     />
   );
 }
-
-export default ShaderAnimation;

@@ -2,7 +2,7 @@
   "benchmarkMetadata": {
     "totalInstancesEvaluated": 1000,
     "framework": "Stanford HELM + Pearl Structural Causal Model (SCM) Protocol",
-    "evaluationDate": "2026-08-20T13:57:51.601Z",
+    "evaluationDate": "2026-08-30T17:54:38.358Z",
     "statisticalSignificance": "p < 0.0001 (Two-Tailed Paired Student t-Test)",
     "confidenceLevel": "99.9%"
   },

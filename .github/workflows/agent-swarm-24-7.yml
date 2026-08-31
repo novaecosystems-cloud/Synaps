@@ -1,0 +1,40 @@
+name: 24/7 Autonomous Causarix Sentinel & Lead Swarm
+
+on:
+  schedule:
+    # Runs every hour, 24 hours a day, 7 days a week (100% Free in GitHub Cloud)
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allows manual 1-click trigger
+
+jobs:
+  hourly-patrol:
+    name: Hourly Health, Bug Audit & Lead Patrol
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci --prefer-offline || npm install
+
+      - name: 🤖 Execute 24/7 Agent Swarm Patrol
+        env:
+          TARGET_WEBSITE_URL: ${{ secrets.TARGET_WEBSITE_URL || 'https://causarix.com' }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          # Fonoster Programmable Telecommunications (SMS & Emergency Voice)
+          FONOSTER_ENDPOINT: ${{ secrets.FONOSTER_ENDPOINT || 'https://api.fonoster.com/v1beta1/sms' }}
+          FONOSTER_ACCESS_KEY_ID: ${{ secrets.FONOSTER_ACCESS_KEY_ID }}
+          FONOSTER_ACCESS_KEY_SECRET: ${{ secrets.FONOSTER_ACCESS_KEY_SECRET }}
+          FONOSTER_FROM_NUMBER: ${{ secrets.FONOSTER_FROM_NUMBER }}
+          FONOSTER_TO_NUMBER: ${{ secrets.FONOSTER_TO_NUMBER }}
+        run: npx tsx scripts/agent-sentry-runner.ts
