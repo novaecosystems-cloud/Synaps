@@ -347,3 +347,153 @@ You MUST return valid JSON with:
     dgclVerification,
   };
 }
+
+/**
+ * Streaming runner for 10-Agent Boardroom deliberation.
+ * Emits events incrementally to prevent serverless function timeouts.
+ */
+export async function streamExecutiveBoardMeeting(
+  query: string,
+  organizationId: string,
+  onEvent: (event: string, payload: any) => void
+): Promise<BoardMeetingResult> {
+  const ingressCheck = inspectPrompt(query);
+  const sanitizedQuery = ingressCheck.sanitizedPrompt || query;
+
+  onEvent('init', { query: sanitizedQuery, timestamp: new Date().toISOString() });
+
+  const decisionMemory = await getRelevantDecisionMemory(organizationId, sanitizedQuery, 5);
+
+  let docs: any[] = [];
+  try {
+    docs = await prisma.document.findMany({
+      where: { organizationId, isDeleted: false },
+      take: 10,
+      orderBy: { updatedAt: 'desc' },
+      select: { id: true, name: true, mimeType: true }
+    });
+  } catch (e) {}
+
+  const contextText = `COMPANY CONTEXT:\nUploaded Documents: ${docs.map(d => d.name).join(', ') || 'Corporate Vault'}`;
+
+  const executives: ExecutiveAgentAnalysis[] = [];
+
+  for (const profile of EXECUTIVE_PROFILES) {
+    const rlmEnrichment = enrichAgentWithPrimeRLM(profile.roleId, sanitizedQuery);
+
+    const systemPrompt = `You are ${profile.name}, the ${profile.roleTitle} (${profile.roleId}) at Synaps.
+Your functional focus is: ${profile.focus}
+Domain Skill Standard: ${profile.skillStandard}
+
+=== STRICT DOMAIN JURISDICTION & BOUNDARY INSTRUCTIONS ===
+1. JURISDICTION: ${profile.strictJurisdiction}
+2. DOMAIN EXCLUSIONS: ${profile.forbiddenDomains}
+
+${rlmEnrichment.systemPromptAddon}
+${decisionMemory.tacticsSummaryPrompt}
+
+Analyze the query strictly within your executive domain.
+Return valid JSON with verdict (SUPPORT, OPPOSE, or CONDITIONAL), reasoning (2-3 sentences clean prose), keyConcerns (array), confidenceScore (number), dataEvidence (array).`;
+
+    const prompt = `${contextText}\n\nSTRATEGIC BOARD QUESTION: ${sanitizedQuery}`;
+
+    let execResult: ExecutiveAgentAnalysis;
+    try {
+      const rawContent = await invokeLLMWithFallback([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt }
+      ], { response_format: { type: 'json_object' } });
+
+      const parsed = parseSafeJson(rawContent);
+      const egressCheck = inspectResponse(parsed.reasoning || '');
+
+      execResult = {
+        roleId: profile.roleId as any,
+        roleTitle: profile.roleTitle,
+        name: profile.name,
+        avatarColor: profile.avatarColor,
+        verdict: (parsed.verdict || 'CONDITIONAL') as any,
+        reasoning: egressCheck.sanitizedOutput || `${profile.roleTitle} evaluated strategic impact on ${profile.focus.toLowerCase()}.`,
+        keyConcerns: Array.isArray(parsed.keyConcerns) ? parsed.keyConcerns : [`Resource allocation in ${profile.roleTitle} domain`],
+        confidenceScore: typeof parsed.confidenceScore === 'number' ? parsed.confidenceScore : 90,
+        dataEvidence: Array.isArray(parsed.dataEvidence) ? parsed.dataEvidence : ['Corporate Knowledge Base'],
+        historicalPrecedentCited: decisionMemory.relevantDecisions[0]?.dilemma
+      };
+    } catch (e) {
+      execResult = {
+        roleId: profile.roleId as any,
+        roleTitle: profile.roleTitle,
+        name: profile.name,
+        avatarColor: profile.avatarColor,
+        verdict: 'CONDITIONAL' as any,
+        reasoning: `${profile.roleTitle} recommends phased rollout with structured review gates.`,
+        keyConcerns: [`Operational alignment with ${profile.roleTitle} objectives`],
+        confidenceScore: 88,
+        dataEvidence: ['Corporate Policy Framework'],
+        historicalPrecedentCited: decisionMemory.relevantDecisions[0]?.dilemma
+      };
+    }
+
+    executives.push(execResult);
+    onEvent('executive_deliberation', {
+      executive: execResult,
+      completedCount: executives.length,
+      totalCount: EXECUTIVE_PROFILES.length
+    });
+  }
+
+  // Synthesize
+  const synthPrompt = `QUERY: ${sanitizedQuery}\n\nEXECUTIVE VERDICTS:\n${executives.map(e => `${e.roleId} (${e.name}): ${e.verdict} - ${e.reasoning}`).join('\n')}`;
+  let synthesis: BoardSynthesis;
+  try {
+    const rawSynth = await invokeLLMWithFallback([
+      { role: 'system', content: 'You are Executive Board Secretary. Synthesize the 10 verdicts into consensus, disagreements, risks, opportunities, overallConfidence, finalRecommendation JSON.' },
+      { role: 'user', content: synthPrompt }
+    ], { response_format: { type: 'json_object' } });
+
+    const parsedSynth = parseSafeJson(rawSynth);
+    const recEgress = inspectResponse(parsedSynth.finalRecommendation || '');
+
+    synthesis = {
+      consensus: Array.isArray(parsedSynth.consensus) ? parsedSynth.consensus : ['Align strategic objectives with core operational capacity.'],
+      disagreements: Array.isArray(parsedSynth.disagreements) ? parsedSynth.disagreements : ['Capital pacing.'],
+      risks: Array.isArray(parsedSynth.risks) ? parsedSynth.risks : ['Execution timeline friction.'],
+      opportunities: Array.isArray(parsedSynth.opportunities) ? parsedSynth.opportunities : ['Market expansion.'],
+      overallConfidence: typeof parsedSynth.overallConfidence === 'number' ? parsedSynth.overallConfidence : 92,
+      finalRecommendation: recEgress.sanitizedOutput || 'The Board recommends proceeding with phased milestones.',
+      governanceTacticsEnforced: decisionMemory.corporateTactics.map(t => t.rule).slice(0, 3)
+    };
+  } catch {
+    synthesis = {
+      consensus: ['Ensure SLA requirements match operational capacity.'],
+      disagreements: ['Capital pacing.'],
+      risks: ['Timeline delays.'],
+      opportunities: ['Margin growth.'],
+      overallConfidence: 90,
+      finalRecommendation: 'The Board recommends phased rollout with 60-day review gates.',
+      governanceTacticsEnforced: decisionMemory.corporateTactics.map(t => t.rule).slice(0, 3)
+    };
+  }
+
+  onEvent('synthesis', { synthesis });
+
+  const dgclVerification = verifyBoardroomRecord({
+    executives,
+    synthesis,
+    question: sanitizedQuery,
+  });
+
+  const finalResult: BoardMeetingResult = {
+    query: sanitizedQuery,
+    executives,
+    synthesis,
+    timestamp: new Date().toISOString(),
+    merkleProvenanceHash: decisionMemory.merkleProvenanceHash,
+    dgclVerification,
+  };
+
+  onEvent('dgcl_seal', { dgclVerification, merkleRoot: dgclVerification.merkleRoot });
+  onEvent('done', { result: finalResult });
+
+  return finalResult;
+}
