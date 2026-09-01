@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Enforce Credit Limits
+    // AI Credit Quota
     try {
       const { checkAndConsumeAiCredits, extractClientIp } = await import(
         '@/lib/ai-credit-limiter'
@@ -74,7 +74,6 @@ export async function POST(req: NextRequest) {
       organizationId
     );
 
-    // Setup Server-Sent Events (SSE) Stream
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       start(controller) {
@@ -141,7 +140,7 @@ export async function POST(req: NextRequest) {
           streamExecutiveBoardMeeting(query, organizationId, sessionId)
             .catch((err) => {
               boardroomStore.pushEvent(sessionId, 'error', {
-                message: err.message || 'Stream processing failed',
+                message: err.message || 'Deliberation failed',
               });
             })
             .finally(() => {
@@ -218,11 +217,13 @@ export async function GET(req: NextRequest) {
         sendRaw(`${idPrefix}event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`);
       };
 
+      // Replay all events since lastEventId
       const unacknowledged = session.eventBuffer.filter((e) => e.id > lastEventId);
       for (const ev of unacknowledged) {
         sendEvent(ev.event, ev.payload, ev.id);
       }
 
+      // If already complete, finish immediately
       if (session.status === 'completed' || session.status === 'failed') {
         try {
           controller.close();
@@ -230,6 +231,7 @@ export async function GET(req: NextRequest) {
         return;
       }
 
+      // Otherwise subscribe to live stream
       const unsubscribe = boardroomStore.subscribe(
         sessionId,
         (event, payload, eventId) => {

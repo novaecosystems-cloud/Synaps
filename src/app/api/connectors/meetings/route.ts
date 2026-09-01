@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import prisma, { ensureTenantHierarchy } from '@/lib/prisma';
 import { resolveAuthContext } from '@/lib/security';
 import { dispatchVexaMeetingBot, fetchAndScrubTranscript, purgeVexaRemoteData } from '@/lib/vexa-client';
 import { extractGraphFromDocument } from '@/lib/memory-graph';
@@ -10,40 +10,12 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: NextRequest) {
   try {
     const auth = await resolveAuthContext(req);
-    let orgId = auth.orgId !== 'no_org_fallback' ? auth.orgId : undefined;
-    if (!orgId) {
-      const firstOrg = await prisma.organization.findFirst({ select: { id: true } });
-      orgId = firstOrg?.id;
-    }
-
-    let ownerId = auth.userId;
-    let existingUser = ownerId && ownerId !== 'no_auth' && ownerId !== 'system' && ownerId !== 'demo-user'
-      ? await prisma.user.findUnique({ where: { id: ownerId }, select: { id: true } })
-      : null;
-
-    if (!existingUser) {
-      existingUser = orgId
-        ? await prisma.user.findFirst({ where: { organizationId: orgId }, select: { id: true } })
-        : null;
-      if (!existingUser) {
-        existingUser = await prisma.user.findFirst({ select: { id: true } });
-      }
-      if (!existingUser) {
-        existingUser = await prisma.user.upsert({
-          where: { email: 'system@causarix.ai' },
-          update: {},
-          create: {
-            id: 'system_default_user',
-            email: 'system@causarix.ai',
-            name: 'Causarix System',
-            role: 'OWNER',
-            organizationId: orgId,
-          },
-          select: { id: true },
-        });
-      }
-    }
-    const targetOwnerId = existingUser.id;
+    const initialOrgId = auth.orgId !== 'no_org_fallback' ? auth.orgId : undefined;
+    
+    // Resolve valid parent tenant hierarchy to eliminate P2003 FK violations
+    const hierarchy = await ensureTenantHierarchy(initialOrgId, auth.userId);
+    const orgId = hierarchy.organizationId;
+    const targetOwnerId = hierarchy.userId;
 
     const body = await req.json().catch(() => ({}));
     const { action, meetingUrl, meetingId, botName } = body;
@@ -85,7 +57,7 @@ export async function POST(req: NextRequest) {
       const sanitizedText = transcriptResult.transcript;
       const title = `[Meeting] Executive Transcript (${new Date().toLocaleDateString()})`;
 
-      // Create Document in Database Vault with verified owner
+      // Create Document in Database Vault with verified owner & organizationId
       const doc = await prisma.document.create({
         data: {
           name: title,
@@ -97,16 +69,17 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Generate Chunks for RAG Vector Search
+      // Generate Chunks for RAG Vector Search with schema-compliant positionIdx & organizationId
       try {
         const chunks = generateChunks(sanitizedText, { chunkSize: 1000, chunkOverlap: 200 });
         if (chunks.length > 0) {
           await prisma.documentChunk.createMany({
             data: chunks.map((c, idx) => ({
+              organizationId: orgId,
               documentId: doc.id,
               text: c.text,
               pageNumber: c.pageNumber || 1,
-              chunkIndex: idx,
+              positionIdx: idx,
               tokenCount: c.tokenCount,
             })),
           });
@@ -181,4 +154,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }
-
