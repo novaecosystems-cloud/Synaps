@@ -44,12 +44,13 @@ In the 10-Agent Boardroom, each digital twin independently evaluates strategic d
 
 ## 4. Production Scaling Invariants (Vibecode-to-Enterprise Standard)
 
-When implementing new features or refactoring, subagents must follow these five production rules:
+When implementing new features or refactoring, subagents must follow these six production rules:
 1. **Durable Asynchronous Queues:** Long-running multi-agent loops (>15s) must not block synchronous serverless routes; dispatch via background jobs and stream updates via SSE/WebSockets.
 2. **PostgreSQL RLS & Foreign Key Integrity:** Always enforce `organizationId` and verify parent user entities prior to document/task writes.
 3. **Structured Zod Contracts:** All digital twin outputs must conform to validated Zod schemas (`response_format: { type: "json_schema" }`).
 4. **Layout-Aware PDF Ingestion:** Ensure document chunking retains paragraph and page coordinate metadata for pinpoint citations.
 5. **Air-Gapped Local Model Parity:** Ensure all features function seamlessly with local Ollama endpoints and within the Electron standalone executable.
+6. **Cursor-Inspired Multi-Model & Shadow Sandbox:** Partition domain reasoning across specialized adapters (`Legal`, `Finance`, `SCM`) and execute shadow verification (deterministic math & AI-WAF secret checks) prior to UI rendering.
 
 ---
 
