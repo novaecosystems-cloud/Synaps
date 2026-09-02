@@ -26,6 +26,7 @@ const m2TenantSuite = require('./m2-challenger-tenant.test');
 const m2MerkleSuite = require('./m2-challenger-merkle.test');
 const m3Suite = require('./m3-pdf-firewall-scm.test');
 const m4Suite = require('./m4-global-dataset-train.test');
+const m5Suite = require('./m5-triad-models.test');
 
 function parseArgs(args = []) {
   const options = {
@@ -53,7 +54,7 @@ async function main(cliArgs = process.argv.slice(2)) {
   const overallStart = Date.now();
 
   console.log(`\n${colors.cyan}${colors.bright}======================================================================`);
-  console.log(`🧪 CAUSARIX ENTERPRISE COMPREHENSIVE TEST SUITE (TIERS 1-5 + M1-M4)`);
+  console.log(`🧪 CAUSARIX ENTERPRISE COMPREHENSIVE TEST SUITE (TIERS 1-5 + M1-M5)`);
   console.log(`======================================================================${colors.reset}\n`);
 
   const allSuites = [
@@ -70,6 +71,7 @@ async function main(cliArgs = process.argv.slice(2)) {
     { tier: 11, name: 'Milestone 2: DGCL 141 Merkle Proof Integrity', suite: m2MerkleSuite, targetCount: 53 },
     { tier: 12, name: 'Milestone 3: Layout PDF, AI-WAF & SCM', suite: m3Suite, targetCount: 31 },
     { tier: 13, name: 'Milestone 4: Global Datasets & Training', suite: m4Suite, targetCount: 7 },
+    { tier: 14, name: 'Milestone 5: Triad Models On-Disk', suite: m5Suite, targetCount: 7 },
   ];
 
   const suitesToRun = options.tiers
