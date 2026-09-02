@@ -1,4 +1,4 @@
-﻿# CAUSARIX™
+# CAUSARIX™ (formerly Synaps)
 
 [![Production Live](https://img.shields.io/badge/Production-Live_v3.5-blue.svg)](https://causarix.vercel.app)
 [![Interactive Sandbox](https://img.shields.io/badge/Sandbox-Zero_Login_Demo-black.svg)](https://causarix.vercel.app/demo)
@@ -8,7 +8,7 @@
 [![Test Coverage](https://img.shields.io/badge/Tests-413/413_Passing_(100%25)-brightgreen.svg)](./tests)
 [![License](https://img.shields.io/badge/License-Proprietary_Commercial-red.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
 
-**CAUSARIX™** is an institutional Causal Decision Operating System and Neuro-Symbolic Governance Platform. Engineered for corporate boards, general counsels, financial risk officers, and high-stakes decision-makers, Causarix bridges enterprise contracts, financial balance sheets, operational telemetry, and executive deliberations into verifiable 10-agent boardroom quorum debates, counterfactual risk simulations, Delaware DGCL § 141 safe-harbor Merkle audit ledgers, and automated mitigation dispatches.
+**CAUSARIX™ (formerly Synaps)** is an institutional Causal Decision Operating System and Neuro-Symbolic Governance Platform. Engineered for corporate boards, general counsels, financial risk officers, and high-stakes decision-makers, Causarix bridges enterprise contracts, financial balance sheets, operational telemetry, and executive deliberations into verifiable 10-agent boardroom quorum debates, counterfactual risk simulations, Delaware DGCL § 141 safe-harbor Merkle audit ledgers, and automated mitigation dispatches.
 
 ---
 
