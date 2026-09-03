@@ -184,5 +184,10 @@
       "icon": "public/favicon.ico",
       "category": "Office"
     }
+  },
+  "overrides": {
+    "pdfjs-dist": "^6.2.108",
+    "undici": ">=6.21.1",
+    "uuid": "^11.1.1"
   }
 }
