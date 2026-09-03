@@ -1,4 +1,5 @@
 import { MerkleTree } from './dgcl-merkle';
+import { CAUSARIX_QR_BASE64 } from './causarix-qr-base64';
 
 export interface PDFSection {
   heading: string;
@@ -27,6 +28,25 @@ export interface ExportPDFOptions {
   filename?: string;
   sections: PDFSection[];
   dgclSignature?: boolean | DgclSignatureOptions;
+  isFreeTier?: boolean;
+}
+
+/**
+ * Determines whether the current user is on the Free Tier (no paid plan)
+ */
+export function isFreeUserTier(): boolean {
+  if (typeof window === 'undefined') return true;
+  try {
+    const plan = localStorage.getItem('causarix_plan') || localStorage.getItem('user_plan') || localStorage.getItem('subscription_tier');
+    if (plan && ['PRO', 'ENTERPRISE', 'SOVEREIGN', 'MAX', 'SCALE'].includes(plan.toUpperCase())) {
+      return false;
+    }
+    const role = localStorage.getItem('user_role');
+    if (role && ['OWNER', 'LEADER'].includes(role.toUpperCase())) {
+      return false;
+    }
+  } catch (e) {}
+  return true;
 }
 
 /**
@@ -104,7 +124,10 @@ export function downloadAsPDF(options: ExportPDFOptions) {
     organizationName = 'SYNAPS AI ENTERPRISE',
     sections,
     dgclSignature,
+    isFreeTier,
   } = options;
+
+  const isFree = isFreeTier !== undefined ? isFreeTier : isFreeUserTier();
 
   const printWindow = window.open('', '_blank', 'width=900,height=1000');
   if (!printWindow) {
@@ -255,6 +278,29 @@ export function downloadAsPDF(options: ExportPDFOptions) {
         ${sectionsHtml}
 
         ${dgclHtml}
+
+        ${isFree ? `
+        <div class="free-tier-watermark" style="margin-top: 32px; padding: 14px 18px; border: 1.5px dashed #06b6d4; border-radius: 12px; background: #f8fafc; display: flex; align-items: center; justify-content: space-between; page-break-inside: avoid; box-sizing: border-box; font-family: 'Inter', sans-serif;">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <img src="${CAUSARIX_QR_BASE64}" alt="Causarix QR Code" style="width: 66px; height: 66px; border-radius: 8px; border: 1px solid #cbd5e1; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.06);" />
+            <div>
+              <div style="font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">
+                🏛️ AUDITED BY CAUSARIX™ FIDUCIARY AI (FREE TIER)
+              </div>
+              <div style="font-size: 11px; color: #475569; margin-top: 3px; max-width: 520px; line-height: 1.4;">
+                Scan with your phone camera to stress-test corporate decisions, simulate cash runway ruin, or verify statutory Delaware DGCL § 141 safe harbor.
+              </div>
+              <div style="font-size: 10px; color: #0891b2; font-weight: 700; margin-top: 4px;">
+                👉 Go to <strong>causarix.vercel.app</strong> · Upgrade for unbranded exports
+              </div>
+            </div>
+          </div>
+          <div style="text-align: right; font-size: 9px; color: #64748b; font-family: 'JetBrains Mono', monospace; flex-shrink: 0; padding-left: 12px; border-left: 1px solid #e2e8f0;">
+            <span style="background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700;">FREE AUDIT</span><br />
+            <span style="color: #059669; font-weight: 700; display: inline-block; margin-top: 4px;">Delaware § 141</span>
+          </div>
+        </div>
+        ` : ''}
 
         <div class="footer">
           <span>CONFIDENTIAL & PROPRIETARY — SYNAPS AI DECISION ENGINE</span>

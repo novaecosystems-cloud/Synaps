@@ -1,207 +1,120 @@
----
+﻿---
+license: apache-2.0
 base_model: Qwen/Qwen2.5-7B-Instruct
-library_name: peft
-pipeline_tag: text-generation
 tags:
-- base_model:adapter:Qwen/Qwen2.5-7B-Instruct
+- finance
+- corporate-finance
+- gaap
+- ifrs
+- ebitda-runway
+- cashflow-sensitivity
+- peft
 - lora
-- transformers
+- causarix
+language:
+- en
+pipeline_tag: text-generation
+library_name: peft
 ---
 
-# Model Card for Model ID
-
-<!-- Provide a quick summary of what the model is/does. -->
-
-
-
-## Model Details
-
-### Model Description
-
-<!-- Provide a longer summary of what this model is. -->
-
-
-
-- **Developed by:** [More Information Needed]
-- **Funded by [optional]:** [More Information Needed]
-- **Shared by [optional]:** [More Information Needed]
-- **Model type:** [More Information Needed]
-- **Language(s) (NLP):** [More Information Needed]
-- **License:** [More Information Needed]
-- **Finetuned from model [optional]:** [More Information Needed]
-
-### Model Sources [optional]
-
-<!-- Provide the basic links for the model. -->
-
-- **Repository:** [More Information Needed]
-- **Paper [optional]:** [More Information Needed]
-- **Demo [optional]:** [More Information Needed]
-
-## Uses
-
-<!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
-
-### Direct Use
-
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
-
-[More Information Needed]
-
-### Downstream Use [optional]
-
-<!-- This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/app -->
-
-[More Information Needed]
-
-### Out-of-Scope Use
-
-<!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
-
-[More Information Needed]
-
-## Bias, Risks, and Limitations
-
-<!-- This section is meant to convey both technical and sociotechnical limitations. -->
-
-[More Information Needed]
-
-### Recommendations
-
-<!-- This section is meant to convey recommendations with respect to the bias, risk, and technical limitations. -->
-
-Users (both direct and downstream) should be made aware of the risks, biases and limitations of the model. More information needed for further recommendations.
-
-## How to Get Started with the Model
-
-Use the code below to get started with the model.
-
-[More Information Needed]
-
-## Training Details
-
-### Training Data
-
-<!-- This should link to a Dataset Card, perhaps with a short stub of information on what the training data is all about as well as documentation related to data pre-processing or additional filtering. -->
-
-[More Information Needed]
-
-### Training Procedure
-
-<!-- This relates heavily to the Technical Specifications. Content here should link to that section when it is relevant to the training procedure. -->
-
-#### Preprocessing [optional]
-
-[More Information Needed]
-
-
-#### Training Hyperparameters
-
-- **Training regime:** [More Information Needed] <!--fp32, fp16 mixed precision, bf16 mixed precision, bf16 non-mixed precision, fp16 non-mixed precision, fp8 mixed precision -->
-
-#### Speeds, Sizes, Times [optional]
-
-<!-- This section provides information about throughput, start/end time, checkpoint size if relevant, etc. -->
-
-[More Information Needed]
-
-## Evaluation
-
-<!-- This section describes the evaluation protocols and provides the results. -->
-
-### Testing Data, Factors & Metrics
-
-#### Testing Data
-
-<!-- This should link to a Dataset Card if possible. -->
-
-[More Information Needed]
-
-#### Factors
-
-<!-- These are the things the evaluation is disaggregating by, e.g., subpopulations or domains. -->
-
-[More Information Needed]
-
-#### Metrics
-
-<!-- These are the evaluation metrics being used, ideally with a description of why. -->
-
-[More Information Needed]
-
-### Results
-
-[More Information Needed]
-
-#### Summary
-
-
-
-## Model Examination [optional]
-
-<!-- Relevant interpretability work for the model goes here -->
-
-[More Information Needed]
-
-## Environmental Impact
-
-<!-- Total emissions (in grams of CO2eq) and additional considerations, such as electricity usage, go here. Edit the suggested text below accordingly -->
-
-Carbon emissions can be estimated using the [Machine Learning Impact calculator](https://mlco2.github.io/impact#compute) presented in [Lacoste et al. (2019)](https://arxiv.org/abs/1910.09700).
-
-- **Hardware Type:** [More Information Needed]
-- **Hours used:** [More Information Needed]
-- **Cloud Provider:** [More Information Needed]
-- **Compute Region:** [More Information Needed]
-- **Carbon Emitted:** [More Information Needed]
-
-## Technical Specifications [optional]
-
-### Model Architecture and Objective
-
-[More Information Needed]
-
-### Compute Infrastructure
-
-[More Information Needed]
-
-#### Hardware
-
-[More Information Needed]
-
-#### Software
-
-[More Information Needed]
-
-## Citation [optional]
-
-<!-- If there is a paper or blog post introducing the model, the APA and Bibtex information for that should go in this section. -->
-
-**BibTeX:**
-
-[More Information Needed]
-
-**APA:**
-
-[More Information Needed]
-
-## Glossary [optional]
-
-<!-- If relevant, include terms and calculations in this section that can help readers understand the model or model card. -->
-
-[More Information Needed]
-
-## More Information [optional]
-
-[More Information Needed]
-
-## Model Card Authors [optional]
-
-[More Information Needed]
-
-## Model Card Contact
-
-[More Information Needed]
-### Framework versions
-
-- PEFT 0.19.1
+# 💰 Causarix Global Finance 7B LoRA (Qwen 2.5 7B-Instruct Adapter)
+
+[![Base Model](https://img.shields.io/badge/Base_Model-Qwen_2.5_7B_Instruct-blue.svg)](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct)
+[![Framework](https://img.shields.io/badge/PEFT-LoRA_r16_a32-orange.svg)](https://github.com/huggingface/peft)
+[![Specialization](https://img.shields.io/badge/Domain-US_GAAP_&_IFRS_Accounting-emerald.svg)](https://causarix.vercel.app)
+[![Platform](https://img.shields.io/badge/Platform-CAUSARIX™_OS-indigo.svg)](https://causarix.vercel.app)
+
+**`causarix-global-finance-7b-lora`** is an institutional financial reasoning adapter fine-tuned on top of **Qwen 2.5 7B-Instruct**. It serves as the primary **Chief Financial Officer (CFO) & Quant Risk Brain** of the [Causarix Sovereign Operating System](https://causarix.vercel.app).
+
+Engineered to eliminate numerical hallucinations and arithmetic drift, this model specializes in analyzing enterprise balance sheets, pro-forma EBITDA drag, debt covenants, revenue recognition compliance, and cash runway sensitivity under macroeconomic stress.
+
+---
+
+## 🎯 Model Capabilities & Specialization
+
+### 1. 📊 US GAAP & International IFRS Standards
+* **Revenue Recognition (ASC 606 / IFRS 15):** Audits multi-element software and SaaS subscription contracts for performance obligations and deferred revenue recognition.
+* **Lease Accounting (ASC 842 / IFRS 16):** Evaluates operating vs finance lease balance sheet capitalization and EBITDA distortive impacts.
+* **OECD Transfer Pricing & BEPS:** Models arm's-length intercompany transactions, tax nexus exposure, and cross-border currency hedging sensitivity.
+
+### 2. 📉 Pro-Forma EBITDA & Cash Runway Drag
+* Quantifies the true balance sheet drag of high-interest credit lines, capex overruns, and deferred vendor liabilities.
+* Accurately calculates Value-at-Risk (VaR95) and Conditional Value-at-Risk (CVaR95) when paired with the Causarix C++ Box-Muller simulation kernel.
+
+### 3. 🏢 M&A Diligence & Capital Allocation
+* Audits target acquisition pro-formas for EBITDA adjustments, working capital pegs, and post-merger integration costs.
+* Validates board decisions against fiduciary capital preservation rules (mandating minimum 20% liquid cash buffers).
+
+---
+
+## 💻 Quickstart: How to Run Inference
+
+### Using Transformers & PEFT
+
+```python
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
+base_model_id = "Qwen/Qwen2.5-7B-Instruct"
+lora_model_id = "Causarix/causarix-global-finance-7b-lora"
+
+# 1. Load Base Tokenizer & Model
+tokenizer = AutoTokenizer.from_pretrained(base_model_id)
+base_model = AutoModelForCausalLM.from_pretrained(
+    base_model_id,
+    torch_dtype=torch.float16,
+    device_map="auto"
+)
+
+# 2. Attach Causarix Finance LoRA Adapter
+model = PeftModel.from_pretrained(base_model, lora_model_id)
+model.eval()
+
+# 3. Prompt the Finance Brain
+prompt = """<|im_start|>system
+You are the Chief Financial Officer (CFO) in the Causarix Corporate Governance Engine. 
+Evaluate the revenue recognition impact under ASC 606 and cash runway sensitivity.<|im_end|>
+<|im_start|>user
+We signed a $12M multi-year contract: $4M upfront for customization, $8M in annual SaaS licenses over 2 years. Customization delivers standalone value. How should revenue be recognized under ASC 606, and what is our adjusted EBITDA impact?<|im_end|>
+<|im_start|>assistant
+"""
+
+inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+with torch.no_grad():
+    outputs = model.generate(**inputs, max_new_tokens=512, temperature=0.2)
+
+response = tokenizer.decode(outputs[0][inputs.input_ids.shape[1]:], skip_special_tokens=True)
+print(response)
+```
+
+---
+
+## 🔬 Training Specifications
+
+* **Base Foundation:** `Qwen/Qwen2.5-7B-Instruct`
+* **Fine-Tuning Architecture:** QLoRA (Quantized Low-Rank Adaptation)
+* **LoRA Hyperparameters:**
+  * **Rank ($r$):** 16
+  * **Alpha ($\alpha$):** 32
+  * **Dropout:** 0.05
+  * **Target Modules:** `q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`
+* **Dataset:** 3,000 corporate finance, GAAP/IFRS, and numerical stress-testing pairs from SEC 10-K disclosures, FinQA, and synthetic balance sheet shocks.
+* **Quantization:** 4-bit NormalFloat (NF4) during training; fp16 adapter weights stored in `.safetensors`.
+
+---
+
+## 📜 Citation & License
+
+* **License:** Apache 2.0
+* **Organization:** [Causarix Technologies](https://causarix.vercel.app)
+* **Citation:**
+```bibtex
+@misc{causarix2026finance,
+  author = {Causarix Technologies},
+  title = {Causarix Global Finance 7B: Autonomous GAAP/IFRS & Financial Stress Reasoning Adapter},
+  year = {2026},
+  publisher = {Hugging Face},
+  howpublished = {\url{https://huggingface.co/Causarix/causarix-global-finance-7b-lora}}
+}
+```

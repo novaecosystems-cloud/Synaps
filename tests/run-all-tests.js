@@ -29,6 +29,7 @@ const m4Suite = require('./m4-global-dataset-train.test');
 const m5Suite = require('./m5-triad-models.test');
 const m6Suite = require('./m6-rlvr-rewards.test');
 const m7Suite = require('./m7-native-sync.test');
+const m8Suite = require('./m8-free-tier-watermark.test');
 
 function parseArgs(args = []) {
   const options = {
@@ -76,6 +77,7 @@ async function main(cliArgs = process.argv.slice(2)) {
     { tier: 14, name: 'Milestone 5: Triad Models On-Disk', suite: m5Suite, targetCount: 7 },
     { tier: 15, name: 'Milestone 6: RLVR Rewards & Penalties', suite: m6Suite, targetCount: 9 },
     { tier: 16, name: 'Milestone 7: Native Jira & Slack Sync', suite: m7Suite, targetCount: 5 },
+    { tier: 17, name: 'Milestone 8: Free Tier QR Watermark', suite: m8Suite, targetCount: 5 },
   ];
 
   const suitesToRun = options.tiers
