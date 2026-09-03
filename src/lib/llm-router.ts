@@ -288,9 +288,52 @@ async function executeProviderWithResilience(
   return null;
 }
 
-// ─── PROVIDER REGISTRATION ───────────────────────────────────────────────────
-
 const providers: LLMProvider[] = [];
+
+// ─── 0. HUGGING FACE CLOUD INFERENCE (Causarix/causarix-global-7b-lora) ─────
+const hfToken = process.env.HF_TOKEN || process.env.HUGGINGFACE_TOKEN;
+if (hfToken) {
+  providers.push({
+    name: 'Hugging Face (Causarix-Global-Legal-7B)',
+    invoke: async (messages, options) => {
+      const prompt = messages.map((m: any) => `<|im_start|>${m.role}\n${m.content}<|im_end|>`).join('\n') + '\n<|im_start|>assistant\n';
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+
+      try {
+        const res = await fetch('https://api-inference.huggingface.co/models/Causarix/causarix-global-7b-lora', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${hfToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            inputs: prompt,
+            parameters: {
+              max_new_tokens: options?.max_tokens || 512,
+              temperature: options?.temperature || 0.2,
+              return_full_text: false,
+            },
+          }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeout);
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Hugging Face HTTP ${res.status}: ${errText}`);
+        }
+
+        const data = await res.json();
+        const text = Array.isArray(data) ? (data[0]?.generated_text || '') : (data.generated_text || '');
+        return text;
+      } catch (e: any) {
+        clearTimeout(timeout);
+        throw new Error(`HF Inference error: ${e.message}`);
+      }
+    },
+  });
+}
 
 // ─── 0. LOCAL SOVEREIGN OLLAMA (100% Air-Gapped Local Model on D:\OllamaModels) ──
 const OLLAMA_URL = 'http://127.0.0.1:11434/api/chat';
