@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { resolveAuthContext, safeErrorResponse } from "@/lib/security";
 import { inspectResponse } from "@/lib/ai-firewall";
+import { dispatchSyncEvent } from "@/lib/internal-sync-mesh";
 
 export const dynamic = "force-dynamic";
 
@@ -231,6 +232,12 @@ export async function POST(req: NextRequest) {
       updatedAt: newTask.updatedAt.toISOString(),
     };
 
+    dispatchSyncEvent({
+      eventType: "TASK_CREATED",
+      origin: "JIRA_KANBAN",
+      data: formatted,
+    }).catch((e) => console.warn("[Sync Mesh Dispatch Warning]:", e));
+
     return NextResponse.json({
       success: true,
       task: formatted,
@@ -309,6 +316,12 @@ export async function PATCH(req: NextRequest) {
       createdAt: updated.createdAt.toISOString(),
       updatedAt: updated.updatedAt.toISOString(),
     };
+
+    dispatchSyncEvent({
+      eventType: updated.status === "DONE" ? "TASK_RESOLVED" : "TASK_UPDATED",
+      origin: "JIRA_KANBAN",
+      data: formatted,
+    }).catch((e) => console.warn("[Sync Mesh Dispatch Warning]:", e));
 
     return NextResponse.json({
       success: true,

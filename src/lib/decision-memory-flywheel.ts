@@ -28,6 +28,7 @@ import prisma from '@/lib/prisma';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
 import { MerkleTree, canonicalizeJSON, sha256Sync } from '@/lib/dgcl-merkle';
+import { dispatchSyncEvent } from '@/lib/internal-sync-mesh';
 
 // ─── TYPES & SCHEMAS ───────────────────────────────────────────────────────────
 
@@ -672,6 +673,13 @@ export async function logDecisionToFlywheel(input: LogDecisionInput): Promise<De
   // 7. Egress Firewall Sanitize before returning
   const egressDilemma = inspectResponse(record.dilemma);
   record.dilemma = egressDilemma.sanitizedOutput;
+
+  // 8. Dispatch into Reactive Mesh (Auto-notifies Jira & Slack)
+  dispatchSyncEvent({
+    eventType: "DECISION_SEALED",
+    origin: "BOARDROOM_QUORUM",
+    data: record,
+  }).catch((e) => console.warn("[Sync Mesh Dispatch Warning]:", e));
 
   return record;
 }

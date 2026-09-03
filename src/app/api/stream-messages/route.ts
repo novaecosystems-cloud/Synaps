@@ -9,10 +9,7 @@ import {
 import { inspectPrompt, inspectResponse } from "@/lib/ai-firewall";
 
 import { invokeLLMWithFallback } from "@/lib/llm-router";
-
-// ── In-memory store — starts 100% EMPTY for all channels.
-// ZERO hardcoded seed messages — users start with a clean, blank channel.
-let inMemoryMessages: Record<string, any[]> = {};
+import { getChatStore, dispatchSyncEvent } from "@/lib/internal-sync-mesh";
 
 // ── Content length guard: 4 KB max per message ───────────────────────────────
 const MAX_MESSAGE_BYTES = 4 * 1024;
@@ -46,7 +43,8 @@ export async function GET(req: NextRequest) {
 
   // Sanitize channelId — alphanumeric and dashes only
   const cleanChannelId = channelId.replace(/[^a-zA-Z0-9-_]/g, "").slice(0, 64);
-  const messages = inMemoryMessages[cleanChannelId] || [];
+  const chatStore = getChatStore();
+  const messages = chatStore[cleanChannelId] || [];
 
   return NextResponse.json({ success: true, channelId: cleanChannelId, messages });
 }
@@ -75,8 +73,9 @@ export async function POST(req: NextRequest) {
 
     // Sanitize channelId — alphanumeric and dashes only
     const cleanChannelId = (channelId || "general").replace(/[^a-zA-Z0-9-_]/g, "").slice(0, 64);
-    if (!inMemoryMessages[cleanChannelId]) {
-      inMemoryMessages[cleanChannelId] = [];
+    const chatStore = getChatStore();
+    if (!chatStore[cleanChannelId]) {
+      chatStore[cleanChannelId] = [];
     }
 
     // ── AI FIREWALL: INGRESS INSPECTION ────────────────────────────────────
@@ -104,7 +103,18 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString()
     };
 
-    inMemoryMessages[cleanChannelId].push(userMessage);
+    chatStore[cleanChannelId].push(userMessage);
+
+    // ── REACTIVE MESH DISPATCH: NOTIFY JIRA & BOARDROOM ──────────────────────
+    dispatchSyncEvent({
+      eventType: "CHAT_COMMAND",
+      origin: "SLACK_CHAT",
+      data: {
+        content: cleanContent,
+        authorName: userMessage.authorName,
+        channelId: cleanChannelId
+      }
+    }).catch((e) => console.warn("[Sync Mesh Dispatch Warning]:", e));
 
     // ── AI Agent @mentions OR Autonomous Macro-style Interventions ─────────────
     let aiResponse: any = null;
@@ -142,14 +152,14 @@ export async function POST(req: NextRequest) {
         timestamp: new Date().toISOString()
       };
 
-      inMemoryMessages[cleanChannelId].push(aiResponse);
+      chatStore[cleanChannelId].push(aiResponse);
     }
 
     return NextResponse.json({
       success: true,
       userMessage,
       aiResponse,
-      messages: inMemoryMessages[cleanChannelId]
+      messages: chatStore[cleanChannelId]
     });
   } catch (error: any) {
     console.error("[Stream Messages Error]:", error);
