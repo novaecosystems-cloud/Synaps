@@ -81,6 +81,7 @@ const sidebarSections: MenuSection[] = [
           { name: 'Mission Control', href: '/dashboard/mission-control' },
           { name: 'Chief of Staff', href: '/dashboard/chief-of-staff' },
           { name: 'AI Boardroom', href: '/dashboard/boardroom', badge: 'PRO' },
+          { name: 'AGI Executive Studio', href: '/dashboard/agi-studio', badge: 'PRO' },
           { name: 'Digital Twin OS', href: '/dashboard/digital-twin', badge: 'MAX' },
           { name: 'Strategy Studio', href: '/dashboard/strategy', badge: 'PRO' },
           { name: 'Chart Studio (ARLM)', href: '/dashboard/charts', badge: 'PRO' },

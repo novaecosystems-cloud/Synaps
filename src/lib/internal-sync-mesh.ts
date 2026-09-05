@@ -613,3 +613,28 @@ export async function dispatchSyncEvent<T = any>(
     return { success: false, eventId, traceId, actionsTaken };
   }
 }
+
+export interface InternalSyncMeshClient {
+  <T = any>(event: SyncEventPayload<T>): Promise<SyncDispatchResult>;
+  dispatch: typeof dispatchSyncEvent;
+  dispatchSyncEvent: typeof dispatchSyncEvent;
+  reset: typeof resetSyncMesh;
+  getChatStore: typeof getChatStore;
+}
+
+/**
+ * Unified Causarix Internal Sync Mesh interface.
+ * Can be called directly as `internalSyncMesh(event)` or `internalSyncMesh.dispatch(event)`.
+ */
+export const internalSyncMesh: InternalSyncMeshClient = Object.assign(
+  async function internalSyncMesh<T = any>(event: SyncEventPayload<T>) {
+    return dispatchSyncEvent(event);
+  },
+  {
+    dispatch: dispatchSyncEvent,
+    dispatchSyncEvent,
+    reset: resetSyncMesh,
+    getChatStore,
+  }
+);
+
