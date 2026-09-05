@@ -80,3 +80,16 @@ Desktop Binary: D:\Synaps\Causarix.exe & Launch-Causarix.bat
   * Dynamic key dispatcher `<CausarixFeatureIcon name="..." />` for scalable integration across command palettes, sidebars, and dashboard cards.
   * Interactive modal viewer: `src/components/icons/CausarixIconShowcaseModal.tsx`.
 
+## 9. Codebase Security Hardening & Cryptographic Integrity (Skylos Audit)
+- **Static Analysis & Security Audit**: Audited 624 source files using Skylos 4.35.0 static analyzer.
+- **Timing-Attack Resistance**:
+  * Added universal constant-time `timingSafeEqual()` in `src/lib/dgcl-merkle.ts`.
+  * Hardened Delaware DGCL § 141 Merkle proof validation (`verifyProof`), hash chain linkage checks (`verifyChain`), and Data Moat ledger chain verification (`DataMoatLedger.verifyChain`).
+- **Cryptographic Digest Upgrades**:
+  * Upgraded all legacy MD5 hashing in timeline commit events, meeting intelligence, and decision intelligence to FIPS-compliant SHA-256 (`crypto.createHash('sha256')`).
+- **PRNG & Entropy Hardening**:
+  * Replaced `Math.random()` with `crypto.randomUUID()` in `src/lib/memory/team-agent-memory-hub.ts`.
+- **UTF-8 Encoding Sanitization**:
+  * Cleaned UTF-8 Byte Order Marks (`\ufeff`) across all 10 Python pipeline and data harvesting scripts in `scripts/`.
+- **Verification**: Zero TypeScript errors (`npx tsc --noEmit`) and 442/442 test suite green (`node tests/run-all-tests.js`).
+

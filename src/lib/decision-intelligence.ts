@@ -128,7 +128,7 @@ EXPECTED OUTCOME: ${input.expectedOutcome || 'N/A'}`;
     });
 
     // Create Git commit event in Organization Timeline
-    const shortHash = crypto.createHash('md5').update(`dec-${decision.id}`).digest('hex').substring(0, 7);
+    const shortHash = crypto.createHash('sha256').update(`dec-${decision.id}`).digest('hex').substring(0, 7);
     await prisma.timelineEvent.create({
       data: {
         organizationId,

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 ─────────────────────────────────────────────────────────────────────────────
 CAUSARIX™ GLOBAL MULTI-JURISDICTIONAL DATASET BUILDER & HARVESTER

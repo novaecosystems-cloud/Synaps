@@ -96,7 +96,7 @@ RULES:
   const followUps = Array.isArray(aiResult.followUps) ? aiResult.followUps : [];
 
   let meetingId = `meeting_${Date.now()}`;
-  let shortHash = crypto.createHash('md5').update(`${title}-${Date.now()}`).digest('hex').substring(0, 7);
+  let shortHash = crypto.createHash('sha256').update(`${title}-${Date.now()}`).digest('hex').substring(0, 7);
 
   // Save Meeting Record in Database with graceful error handling
   try {

@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 ─────────────────────────────────────────────────────────────────────────────
 CAUSARIX™ GLOBAL TRIAD 1-CLICK FREE TRAINING SCRIPT (UNSLOTH + QWEN 2.5 7B)

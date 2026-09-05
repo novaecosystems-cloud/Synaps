@@ -138,6 +138,26 @@ export function sha256Sync(input: string | Uint8Array): string {
 }
 
 /**
+ * Universal constant-time string and cryptographic hash comparison.
+ * Prevents side-channel timing attacks across all browser and Node.js environments.
+ */
+export function timingSafeEqual(a: string, b: string): boolean {
+  if (typeof a !== 'string' || typeof b !== 'string') {
+    return false;
+  }
+  const aBuf = new TextEncoder().encode(a.toLowerCase());
+  const bBuf = new TextEncoder().encode(b.toLowerCase());
+  if (aBuf.length !== bBuf.length) {
+    return false;
+  }
+  let diff = 0;
+  for (let i = 0; i < aBuf.length; i++) {
+    diff |= aBuf[i] ^ bBuf[i];
+  }
+  return diff === 0;
+}
+
+/**
  * Universal async SHA-256 with fallback to synchronous engine.
  */
 export async function sha256Async(input: string | Uint8Array): Promise<string> {
@@ -310,7 +330,7 @@ export class MerkleTree {
       }
     }
 
-    return currentHash === expectedRoot;
+    return timingSafeEqual(currentHash, expectedRoot);
   }
 
   public verifyAll(): boolean {
@@ -422,7 +442,7 @@ export class DGCLHashChain {
       const current = this.chain[i];
       const previous = this.chain[i - 1];
 
-      if (current.previousBlockHash !== previous.blockHash) {
+      if (!timingSafeEqual(current.previousBlockHash, previous.blockHash)) {
         return {
           isValid: false,
           brokenIndex: i,
@@ -434,7 +454,7 @@ export class DGCLHashChain {
 
       const expectedBlockContent = `${current.index}:${current.timestamp}:${current.eventType}:${current.payloadSummary}:${current.merkleRoot}:${previous.blockHash}`;
       const expectedHash = sha256Sync(expectedBlockContent);
-      if (current.blockHash !== expectedHash) {
+      if (!timingSafeEqual(current.blockHash, expectedHash)) {
         return {
           isValid: false,
           brokenIndex: i,

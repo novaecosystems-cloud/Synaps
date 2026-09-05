@@ -71,7 +71,7 @@ export async function getOrganizationTimelineData(
     const items: TimelineCommitItem[] = [];
 
     for (const d of docs) {
-      const shortHash = crypto.createHash('md5').update(`doc-${d.id}`).digest('hex').substring(0, 7);
+      const shortHash = crypto.createHash('sha256').update(`doc-${d.id}`).digest('hex').substring(0, 7);
       items.push({
         id: `synth-doc-${d.id}`,
         commitHash: shortHash,
@@ -85,7 +85,7 @@ export async function getOrganizationTimelineData(
     }
 
     for (const p of projects) {
-      const shortHash = crypto.createHash('md5').update(`proj-${p.id}`).digest('hex').substring(0, 7);
+      const shortHash = crypto.createHash('sha256').update(`proj-${p.id}`).digest('hex').substring(0, 7);
       items.push({
         id: `synth-proj-${p.id}`,
         commitHash: shortHash,
@@ -98,7 +98,7 @@ export async function getOrganizationTimelineData(
     }
 
     for (const dec of decisions) {
-      const shortHash = crypto.createHash('md5').update(`dec-${dec.id}`).digest('hex').substring(0, 7);
+      const shortHash = crypto.createHash('sha256').update(`dec-${dec.id}`).digest('hex').substring(0, 7);
       items.push({
         id: `synth-dec-${dec.id}`,
         commitHash: shortHash,
@@ -118,7 +118,7 @@ export async function getOrganizationTimelineData(
 
   return dbEvents.map(e => ({
     id: e.id,
-    commitHash: crypto.createHash('md5').update(`event-${e.id}`).digest('hex').substring(0, 7),
+    commitHash: crypto.createHash('sha256').update(`event-${e.id}`).digest('hex').substring(0, 7),
     title: e.title,
     description: e.description,
     category: e.category,

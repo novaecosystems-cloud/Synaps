@@ -76,3 +76,5 @@ dist-electron/
 *.zip
 
 .vercel
+.skylos/
+skylos_audit_report.json

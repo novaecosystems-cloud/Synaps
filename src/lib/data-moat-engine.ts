@@ -25,6 +25,7 @@
 import { createHash } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { enrichAgentWithPrimeRLM, calculatePrimeRLM } from '@/lib/prime-rlm';
+import { timingSafeEqual } from '@/lib/dgcl-merkle';
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -359,7 +360,7 @@ export class AuditLedger {
     for (let i = 1; i < entries.length; i++) {
       const prev = entries[i - 1];
       const curr = entries[i];
-      if (curr.previousHash !== prev.currentHash) {
+      if (!timingSafeEqual(curr.previousHash, prev.currentHash)) {
         valid = false;
         firstBrokenAt = curr.id;
         break;

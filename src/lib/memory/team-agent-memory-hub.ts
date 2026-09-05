@@ -143,8 +143,11 @@ export class TeamAgentMemoryHub {
 
     // 1. Commit Chat Memory with importance scoring
     for (const log of deliberationLogs) {
+      const randSuffix = typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID().slice(0, 8)
+        : Math.random().toString(36).substring(2, 6);
       state.chatMemories.push({
-        id: `chat_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        id: `chat_${Date.now()}_${randSuffix}`,
         sessionId,
         agentRole: log.agent,
         message: log.statement,
