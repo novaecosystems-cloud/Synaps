@@ -23,6 +23,7 @@
  */
 
 import { sha256Sync } from "@/lib/dgcl-merkle";
+import { runMathMonteCarloSimulation } from "@/lib/monte-carlo-engine";
 
 // ─── 1. TYPE DEFINITIONS ───────────────────────────────────────────────────────
 
@@ -1406,6 +1407,41 @@ function buildPriceWarOrGenericDeliberation(
   const sessionId = `mcts-gen-${Date.now()}`;
   const timestamp = new Date().toISOString();
 
+  // ── Execute Live SCM Monte Carlo Box-Muller Simulation Engine ───────────────
+  const simA = runMathMonteCarloSimulation({
+    baseRevenue: 12_000_000,
+    growthRateMean: -0.22,
+    volatility: 0.35,
+    costRatioMean: 0.88,
+    costVolatility: 0.12,
+    numSimulations: Math.min(simulationsPerBranch, 10000),
+    seed: 0xCA75A819 + 1,
+  });
+
+  const simB = runMathMonteCarloSimulation({
+    baseRevenue: 12_000_000,
+    growthRateMean: -0.15,
+    volatility: 0.28,
+    costRatioMean: 0.82,
+    costVolatility: 0.10,
+    numSimulations: Math.min(simulationsPerBranch, 10000),
+    seed: 0xCA75A819 + 2,
+  });
+
+  const simC = runMathMonteCarloSimulation({
+    baseRevenue: 12_000_000,
+    growthRateMean: 0.14,
+    volatility: 0.12,
+    costRatioMean: 0.58,
+    costVolatility: 0.05,
+    numSimulations: Math.min(simulationsPerBranch, 10000),
+    seed: 0xCA75A819 + 3,
+  });
+
+  const cvarRiskA = Math.round((simA.cvar95 / simA.meanProjectedRevenue) * 100);
+  const cvarRiskB = Math.round((simB.cvar95 / simB.meanProjectedRevenue) * 100);
+  const cvarRiskC = Number(((simC.cvar95 / simC.meanProjectedRevenue) * 100).toFixed(1));
+
   const rootNode: MctsNode = {
     id: "node-root",
     label: `Root: ${dilemmaTitle.slice(0, 60)}`,
@@ -1440,7 +1476,7 @@ function buildPriceWarOrGenericDeliberation(
     priorScore: 0.2,
     valueScore: -0.68,
     ucb1Score: 0.46,
-    cvarDownsideRiskPercent: 64.0,
+    cvarDownsideRiskPercent: cvarRiskA || 64.0,
     expectedEbitdaImpact: "-$3.6M Gross Margin Collapse",
     runwayImpactMonths: -6.0,
     delawareChanceryExposureScore: 75,
@@ -1462,7 +1498,7 @@ function buildPriceWarOrGenericDeliberation(
     priorScore: 0.25,
     valueScore: -0.45,
     ucb1Score: 0.54,
-    cvarDownsideRiskPercent: 42.0,
+    cvarDownsideRiskPercent: cvarRiskB || 42.0,
     expectedEbitdaImpact: "-$2.4M Churn from Stale Roadmap",
     runwayImpactMonths: +2.0,
     delawareChanceryExposureScore: 50,
@@ -1485,7 +1521,7 @@ function buildPriceWarOrGenericDeliberation(
     priorScore: 0.55,
     valueScore: 0.92,
     ucb1Score: 1.94,
-    cvarDownsideRiskPercent: 3.8,
+    cvarDownsideRiskPercent: cvarRiskC || 3.8,
     expectedEbitdaImpact: "+$1.85M Net Enterprise Growth",
     runwayImpactMonths: +8.5,
     delawareChanceryExposureScore: 1,
@@ -1566,11 +1602,11 @@ def simulate_competitive_strategy(
       },
     ],
     monteCarloIterations: simulationsPerBranch,
-    projectedP50Return: "+$1.85M Value Protection",
-    projectedDownsideCVaR: "18.2 Months Runway Floor",
+    projectedP50Return: `+$${((simC.p50Expected - 12_000_000) / 1_000_000).toFixed(2)}M Value Protection`,
+    projectedDownsideCVaR: `${(simC.var95 / 1_000_000).toFixed(2)}M VaR95 Floor`,
     survivalProbability: 98.8,
     var95Confidence: "98.8% Fiduciary Certainty",
-    executionVerified: true,
+    executionVerified: simC.mathDriftInvariant.verified,
   };
 
   const leaf0 = sha256Sync(`DILEMMA:${dilemmaTitle}|ORG:${org}`);
@@ -1590,9 +1626,9 @@ def simulate_competitive_strategy(
       simulation: {
         cashRunwaySurvivalProbability: 0.81,
         insolvencyRisk: 0.19, // > 0.05, so pruned = true
-        medianEndingCash: 1_800_000,
-        var95CashReserve: 250_000,
-        zeroDriftVerified: true,
+        medianEndingCash: simA.medianProjectedRevenue,
+        var95CashReserve: simA.var95,
+        zeroDriftVerified: simA.mathDriftInvariant.verified,
       },
       fiduciary: {
         statutoryShieldStatus: "EXPOSED",
@@ -1613,9 +1649,9 @@ def simulate_competitive_strategy(
       simulation: {
         cashRunwaySurvivalProbability: 0.87,
         insolvencyRisk: 0.13, // > 0.05, so pruned = true
-        medianEndingCash: 2_900_000,
-        var95CashReserve: 750_000,
-        zeroDriftVerified: true,
+        medianEndingCash: simB.medianProjectedRevenue,
+        var95CashReserve: simB.var95,
+        zeroDriftVerified: simB.mathDriftInvariant.verified,
       },
       fiduciary: {
         statutoryShieldStatus: "LONG_TERM_IMPAIRMENT",
@@ -1636,9 +1672,9 @@ def simulate_competitive_strategy(
       simulation: {
         cashRunwaySurvivalProbability: 0.988,
         insolvencyRisk: 0.012, // 1.2% <= 0.05, non-pruned
-        medianEndingCash: 5_250_000,
-        var95CashReserve: 3_100_000,
-        zeroDriftVerified: true,
+        medianEndingCash: simC.medianProjectedRevenue,
+        var95CashReserve: simC.var95,
+        zeroDriftVerified: simC.mathDriftInvariant.verified,
       },
       fiduciary: {
         statutoryShieldStatus: "DGCL_141_INSULATED",
