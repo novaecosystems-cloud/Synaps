@@ -6,6 +6,8 @@
  * 30+ Generative AI models (Soul, Cinema Studio, Kling, Minimax Hailuo, Veo 2).
  */
 
+import { validateSafeUrl } from '@/lib/security';
+
 export interface HiggsfieldVideoRequest {
   prompt: string;
   model?: 'soul' | 'cinema-studio' | 'kling' | 'minimax-hailuo' | 'veo2';
@@ -48,8 +50,33 @@ export class HiggsfieldMCPEngine {
       };
     }
 
+    // SSRF & Safe URL Validation
+    const endpointCheck = validateSafeUrl(HiggsfieldMCPEngine.mcpEndpoint, {
+      allowLocalhost: process.env.NODE_ENV !== 'production'
+    });
+    if (!endpointCheck.valid) {
+      console.warn(`[Higgsfield MCP] Blocked invalid MCP endpoint: ${endpointCheck.error}`);
+      return {
+        jobId: `hg_job_${Date.now()}`,
+        status: 'FAILED',
+        modelUsed,
+        mcpServerStatus: 'MCP_BLOCKED_SSRF'
+      };
+    }
+
+    let safeReferenceImage: string | undefined = undefined;
+    if (request.referenceImageUrl) {
+      const refCheck = validateSafeUrl(request.referenceImageUrl, { allowLocalhost: false });
+      if (refCheck.valid) {
+        safeReferenceImage = refCheck.cleanUrl || request.referenceImageUrl;
+      } else {
+        console.warn(`[Higgsfield MCP] Blocked SSRF reference image URL: ${refCheck.error}`);
+      }
+    }
+
     try {
-      const res = await fetch(`${HiggsfieldMCPEngine.mcpEndpoint}/tools/generate_video`, {
+      const safeEndpoint = (endpointCheck.cleanUrl || HiggsfieldMCPEngine.mcpEndpoint).replace(/\/$/, '');
+      const res = await fetch(`${safeEndpoint}/tools/generate_video`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +88,7 @@ export class HiggsfieldMCPEngine {
           aspect_ratio: request.aspectRatio || '16:9',
           duration: request.durationSeconds || 10,
           camera_motion: request.cameraMotion || 'zoom_in',
-          reference_image: request.referenceImageUrl
+          reference_image: safeReferenceImage
         })
       });
 

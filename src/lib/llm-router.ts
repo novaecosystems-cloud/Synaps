@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { ANTI_SLOP_SYSTEM_DIRECTIVE, cleanAISlop } from '@/lib/de-slop';
 import { EXECUTIVE_FOCUS_DIRECTIVE } from '@/lib/focus-mode';
 import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
+import { validateSafeUrl } from '@/lib/security';
 
 export interface LLMProvider {
   name: string;
@@ -342,11 +343,15 @@ providers.push({
   name: 'Local Ollama Sovereign Engine (D:\\OllamaModels)',
   invoke: async (messages, options) => {
     const { temperature, max_tokens } = options || {};
+    const urlCheck = validateSafeUrl(OLLAMA_URL, { allowLocalhost: true });
+    if (!urlCheck.valid) {
+      throw new Error(`Local Ollama URL blocked (SSRF): ${urlCheck.error}`);
+    }
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
 
     try {
-      const res = await fetch(OLLAMA_URL, {
+      const res = await fetch(urlCheck.cleanUrl || OLLAMA_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -379,11 +384,16 @@ providers.push({
   name: 'Colibrì Sovereign MoE (Local 744B Air-Gapped Engine)',
   invoke: async (messages, options) => {
     const { response_format, temperature, max_tokens, ...rest } = options || {};
+    const urlCheck = validateSafeUrl(COLIBRI_URL, { allowLocalhost: true });
+    if (!urlCheck.valid) {
+      throw new Error(`Colibrì URL blocked (SSRF): ${urlCheck.error}`);
+    }
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
 
     try {
-      const res = await fetch(`${COLIBRI_URL}/chat/completions`, {
+      const safeColibriBase = (urlCheck.cleanUrl || COLIBRI_URL).replace(/\/$/, '');
+      const res = await fetch(`${safeColibriBase}/chat/completions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -414,12 +424,17 @@ providers.push({
   name: 'OmniRoute Gateway (Auto Free-Tier Aggregator)',
   invoke: async (messages, options) => {
     const { response_format, temperature, max_tokens, ...rest } = options || {};
+    const urlCheck = validateSafeUrl(OMNIROUTE_URL, { allowLocalhost: true });
+    if (!urlCheck.valid) {
+      throw new Error(`OmniRoute URL blocked (SSRF): ${urlCheck.error}`);
+    }
     
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000); // 12s timeout
 
     try {
-      const res = await fetch(`${OMNIROUTE_URL}/chat/completions`, {
+      const safeOmniBase = (urlCheck.cleanUrl || OMNIROUTE_URL).replace(/\/$/, '');
+      const res = await fetch(`${safeOmniBase}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -588,11 +603,25 @@ export async function checkColibriStatus(): Promise<{
   zeroCloudEgress: boolean;
   latencyMs?: number;
 }> {
+  const urlCheck = validateSafeUrl(COLIBRI_URL, { allowLocalhost: true });
+  if (!urlCheck.valid) {
+    return {
+      isOnline: false,
+      endpoint: COLIBRI_URL,
+      modelName: process.env.COLIBRI_MODEL || 'GLM-5.2-744B-int4 (Blocked)',
+      architecture: 'Mixture of Experts (Pure C Disk Streaming)',
+      totalExperts: 19456,
+      expertsStreamedFromDisk: true,
+      zeroCloudEgress: true,
+    };
+  }
+
   const start = Date.now();
   try {
+    const safeColibriBase = (urlCheck.cleanUrl || COLIBRI_URL).replace(/\/$/, '');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`${COLIBRI_URL}/models`, {
+    const res = await fetch(`${safeColibriBase}/models`, {
       signal: controller.signal,
     });
     clearTimeout(timeout);
@@ -635,11 +664,23 @@ export async function checkOmniRouteStatus(): Promise<{
   modelsCount: number;
   latencyMs?: number;
 }> {
+  const urlCheck = validateSafeUrl(OMNIROUTE_URL, { allowLocalhost: true });
+  if (!urlCheck.valid) {
+    return {
+      isOnline: false,
+      endpoint: OMNIROUTE_URL,
+      freeTokensEstimated: '~1.51 Billion / Month (Blocked)',
+      poolsCount: 42,
+      modelsCount: 495,
+    };
+  }
+
   const start = Date.now();
   try {
+    const safeOmniBase = (urlCheck.cleanUrl || OMNIROUTE_URL).replace(/\/$/, '');
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`${OMNIROUTE_URL}/models`, {
+    const res = await fetch(`${safeOmniBase}/models`, {
       signal: controller.signal,
     });
     clearTimeout(timeout);

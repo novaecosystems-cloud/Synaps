@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import OpenAI from 'openai';
 import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
+import { validateSafeUrl } from '@/lib/security';
 
 export type LLMProvider = 'gemini' | 'openai' | 'anthropic' | 'openrouter' | 'vercel-gateway' | 'ollama' | 'lmstudio' | 'kimi' | 'moonshot';
 
@@ -36,33 +37,38 @@ async function generateMultiLLMResponseRaw(
     const apiKey = config.apiKey || process.env.VERCEL_AI_GATEWAY_KEY || process.env.BLACKBOX_API_KEY;
     const model = config.model || 'blackbox/glm-5.2'; // 1M Token Context Window
     const gatewayUrl = config.baseUrl || 'https://ai-gateway.vercel.app/v1/chat/completions';
+    const urlCheck = validateSafeUrl(gatewayUrl, { allowLocalhost: false });
     
-    try {
-      const res = await fetch(gatewayUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {}),
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
-            { role: 'user', content: prompt }
-          ],
-        }),
-      });
+    if (!urlCheck.valid) {
+      console.warn(`[LLM Router] Vercel AI Gateway URL blocked (SSRF): ${urlCheck.error}`);
+    } else {
+      try {
+        const res = await fetch(urlCheck.cleanUrl || gatewayUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {}),
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
+              { role: 'user', content: prompt }
+            ],
+          }),
+        });
 
-      if (res.ok) {
-        const data = await res.json();
-        return {
-          text: data.choices?.[0]?.message?.content || 'No response from Vercel AI Gateway GLM-5.2',
-          provider: 'vercel-gateway',
-          model
-        };
+        if (res.ok) {
+          const data = await res.json();
+          return {
+            text: data.choices?.[0]?.message?.content || 'No response from Vercel AI Gateway GLM-5.2',
+            provider: 'vercel-gateway',
+            model
+          };
+        }
+      } catch (e: any) {
+        console.warn(`[LLM Router] Vercel AI Gateway GLM-5.2 error (${e.message}), falling back to Gemini...`);
       }
-    } catch (e: any) {
-      console.warn(`[LLM Router] Vercel AI Gateway GLM-5.2 error (${e.message}), falling back to Gemini...`);
     }
   }
 
@@ -70,21 +76,28 @@ async function generateMultiLLMResponseRaw(
   if (provider === 'ollama') {
     const baseUrl = config.baseUrl || process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
     const model = config.model || 'llama3';
-    try {
-      const res = await fetch(`${baseUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          prompt: systemPrompt ? `${systemPrompt}\n\nUser: ${prompt}` : prompt,
-          stream: false,
-        }),
-      });
-      if (!res.ok) throw new Error(`Ollama HTTP error ${res.status}`);
-      const data = await res.json();
-      return { text: data.response || 'No response from Ollama', provider: 'ollama', model };
-    } catch (e: any) {
-      console.warn(`[LLM Router] Ollama offline (${e.message}), falling back to Gemini...`);
+    const urlCheck = validateSafeUrl(baseUrl, { allowLocalhost: true });
+
+    if (!urlCheck.valid) {
+      console.warn(`[LLM Router] Ollama base URL blocked (SSRF): ${urlCheck.error}`);
+    } else {
+      try {
+        const safeBase = (urlCheck.cleanUrl || baseUrl).replace(/\/$/, '');
+        const res = await fetch(`${safeBase}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model,
+            prompt: systemPrompt ? `${systemPrompt}\n\nUser: ${prompt}` : prompt,
+            stream: false,
+          }),
+        });
+        if (!res.ok) throw new Error(`Ollama HTTP error ${res.status}`);
+        const data = await res.json();
+        return { text: data.response || 'No response from Ollama', provider: 'ollama', model };
+      } catch (e: any) {
+        console.warn(`[LLM Router] Ollama offline (${e.message}), falling back to Gemini...`);
+      }
     }
   }
 
@@ -92,27 +105,34 @@ async function generateMultiLLMResponseRaw(
   if (provider === 'lmstudio') {
     const baseUrl = config.baseUrl || process.env.LMSTUDIO_BASE_URL || 'http://localhost:1234/v1';
     const model = config.model || 'local-model';
-    try {
-      const res = await fetch(`${baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          messages: [
-            ...(systemPrompt ? [{ role: 'system' }] : []),
-            { role: 'user', content: prompt }
-          ],
-        }),
-      });
-      if (!res.ok) throw new Error(`LM Studio HTTP error ${res.status}`);
-      const data = await res.json();
-      return {
-        text: data.choices?.[0]?.message?.content || 'No response from LM Studio',
-        provider: 'lmstudio',
-        model
-      };
-    } catch (e: any) {
-      console.warn(`[LLM Router] LM Studio offline (${e.message}), falling back to Gemini...`);
+    const urlCheck = validateSafeUrl(baseUrl, { allowLocalhost: true });
+
+    if (!urlCheck.valid) {
+      console.warn(`[LLM Router] LM Studio base URL blocked (SSRF): ${urlCheck.error}`);
+    } else {
+      try {
+        const safeBase = (urlCheck.cleanUrl || baseUrl).replace(/\/$/, '');
+        const res = await fetch(`${safeBase}/chat/completions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model,
+            messages: [
+              ...(systemPrompt ? [{ role: 'system' }] : []),
+              { role: 'user', content: prompt }
+            ],
+          }),
+        });
+        if (!res.ok) throw new Error(`LM Studio HTTP error ${res.status}`);
+        const data = await res.json();
+        return {
+          text: data.choices?.[0]?.message?.content || 'No response from LM Studio',
+          provider: 'lmstudio',
+          model
+        };
+      } catch (e: any) {
+        console.warn(`[LLM Router] LM Studio offline (${e.message}), falling back to Gemini...`);
+      }
     }
   }
 
@@ -172,23 +192,28 @@ async function generateMultiLLMResponseRaw(
     const apiKey = config.apiKey || process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY;
     if (apiKey) {
       const baseURL = config.baseUrl || process.env.MOONSHOT_BASE_URL || 'https://api.moonshot.cn/v1';
-      const model = config.model || 'kimi-k3';
-      const client = new OpenAI({ baseURL, apiKey });
-      try {
-        const completion = await client.chat.completions.create({
-          model,
-          messages: [
-            ...(systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : []),
-            { role: 'user' as const, content: prompt }
-          ],
-        });
-        return {
-          text: completion.choices[0]?.message?.content || '',
-          provider: 'moonshot',
-          model
-        };
-      } catch (e: any) {
-        console.warn(`[LLM Router] Moonshot/Kimi-K3 error (${e.message}), falling back to Gemini...`);
+      const urlCheck = validateSafeUrl(baseURL, { allowLocalhost: false });
+      if (!urlCheck.valid) {
+        console.warn(`[LLM Router] Moonshot base URL blocked (SSRF): ${urlCheck.error}`);
+      } else {
+        const model = config.model || 'kimi-k3';
+        const client = new OpenAI({ baseURL: urlCheck.cleanUrl || baseURL, apiKey });
+        try {
+          const completion = await client.chat.completions.create({
+            model,
+            messages: [
+              ...(systemPrompt ? [{ role: 'system' as const, content: systemPrompt }] : []),
+              { role: 'user' as const, content: prompt }
+            ],
+          });
+          return {
+            text: completion.choices[0]?.message?.content || '',
+            provider: 'moonshot',
+            model
+          };
+        } catch (e: any) {
+          console.warn(`[LLM Router] Moonshot/Kimi-K3 error (${e.message}), falling back to Gemini...`);
+        }
       }
     }
   }

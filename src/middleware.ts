@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { validateRedirectUrl } from '@/lib/security';
 
 const protectedRoutes = ['/dashboard', '/projects', '/knowledge'];
 const publicRoutes = ['/login', '/register'];
@@ -80,7 +81,10 @@ export function middleware(request: NextRequest) {
         const res = NextResponse.json({ success: false, error: 'Unauthorized. Admin session required.' }, { status: 401 });
         return applySecurityHeaders(res);
       }
-      const res = NextResponse.redirect(new URL('/login', request.url));
+      const safeRedirectPath = validateRedirectUrl(path, '/dashboard', request.url);
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', safeRedirectPath);
+      const res = NextResponse.redirect(loginUrl);
       return applySecurityHeaders(res);
     }
   }
@@ -100,15 +104,17 @@ export function middleware(request: NextRequest) {
       });
       return applySecurityHeaders(res);
     }
+    const safeRedirectPath = validateRedirectUrl(path, '/dashboard', request.url);
     const redirectUrl = new URL('/login', request.url);
-    redirectUrl.searchParams.set('redirect', path);
+    redirectUrl.searchParams.set('redirect', safeRedirectPath);
     const res = NextResponse.redirect(redirectUrl);
     return applySecurityHeaders(res);
   }
 
-  // 5. Redirect real authenticated users away from login/register to dashboard
+  // 5. Redirect real authenticated users away from login/register to dashboard or validated return URL
   if (isPublicRoute && session && !session.startsWith('TEST_TOKEN_')) {
-    const res = NextResponse.redirect(new URL('/dashboard', request.url));
+    const safeTarget = validateRedirectUrl(request.nextUrl.searchParams.get('redirect'), '/dashboard', request.url);
+    const res = NextResponse.redirect(new URL(safeTarget, request.url));
     return applySecurityHeaders(res);
   }
 

@@ -5,6 +5,7 @@
  */
 
 import { AgentTool } from '@/lib/agents/react-engine';
+import { validateScrapeUrl } from '@/lib/security';
 
 export interface WebSearchResult {
   title: string;
@@ -71,7 +72,10 @@ export async function agentWebSearch(query: string, maxResults = 5): Promise<Web
       }
 
       if (title && url) {
-        results.push({ title, url, snippet: snippet || title });
+        const urlCheck = validateScrapeUrl(url);
+        if (urlCheck.valid) {
+          results.push({ title, url: urlCheck.cleanUrl || url, snippet: snippet || title });
+        }
       }
     }
 
@@ -103,7 +107,13 @@ export async function agentWebSearch(query: string, maxResults = 5): Promise<Web
  */
 export async function agentReadWebPage(url: string, maxLength = 4000): Promise<{ url: string; content: string; title?: string }> {
   try {
-    const response = await fetch(url, {
+    const urlCheck = validateScrapeUrl(url);
+    if (!urlCheck.valid) {
+      return { url, content: `Error: Blocked URL (SSRF or invalid protocol): ${urlCheck.error || 'Invalid target URL'}` };
+    }
+    const safeUrl = urlCheck.cleanUrl || url;
+
+    const response = await fetch(safeUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) SynapsAgentReach/2.0',
         'Accept': 'text/html,application/xhtml+xml,text/plain'
@@ -111,14 +121,14 @@ export async function agentReadWebPage(url: string, maxLength = 4000): Promise<{
     });
 
     if (!response.ok) {
-      return { url, content: `Error: Received status ${response.status} when reading page.` };
+      return { url: safeUrl, content: `Error: Received status ${response.status} when reading page.` };
     }
 
     const html = await response.text();
 
     // Extract Title
     const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-    const title = titleMatch ? titleMatch[1].trim() : url;
+    const title = titleMatch ? titleMatch[1].trim() : safeUrl;
 
     // Strip scripts, styles, and tags
     let cleanText = html
@@ -133,7 +143,7 @@ export async function agentReadWebPage(url: string, maxLength = 4000): Promise<{
       cleanText = cleanText.substring(0, maxLength) + '...\n[Content truncated for memory safety]';
     }
 
-    return { url, title, content: cleanText };
+    return { url: safeUrl, title, content: cleanText };
 
   } catch (error: any) {
     return { url, content: `Failed to fetch URL content: ${error.message || String(error)}` };
@@ -146,6 +156,17 @@ export async function agentReadWebPage(url: string, maxLength = 4000): Promise<{
 export async function agentDiscoverContacts(domain: string): Promise<CompanyContactInfo> {
   const cleanDomain = domain.replace(/^https?:\/\//i, '').replace(/\/.*$/, '').toLowerCase();
   const targetUrl = `https://${cleanDomain}`;
+
+  const urlCheck = validateScrapeUrl(targetUrl);
+  if (!urlCheck.valid) {
+    return {
+      domain: cleanDomain,
+      emails: [],
+      phoneNumbers: [],
+      socialLinks: [],
+      foundUrls: []
+    };
+  }
 
   try {
     const page = await agentReadWebPage(targetUrl, 8000);

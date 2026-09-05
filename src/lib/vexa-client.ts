@@ -1,4 +1,5 @@
 import { inspectResponse } from './ai-firewall';
+import { validateSafeUrl } from './security';
 
 export interface VexaBotConfig {
   meetingUrl: string;
@@ -38,19 +39,41 @@ export async function dispatchVexaMeetingBot(config: VexaBotConfig): Promise<Vex
     return { success: false, error: 'Meeting URL is required' };
   }
 
+  // SSRF & Safe URL Validation
+  const meetingUrlCheck = validateSafeUrl(meetingUrl, { allowLocalhost: false });
+  if (!meetingUrlCheck.valid) {
+    return { success: false, error: `Invalid meeting URL (SSRF blocked): ${meetingUrlCheck.error}` };
+  }
+  const safeMeetingUrl = meetingUrlCheck.cleanUrl || meetingUrl;
+
+  let safeWebhookUrl: string | undefined = undefined;
+  if (config.webhookUrl) {
+    const webhookCheck = validateSafeUrl(config.webhookUrl, { allowLocalhost: false });
+    if (!webhookCheck.valid) {
+      return { success: false, error: `Invalid webhook URL (SSRF blocked): ${webhookCheck.error}` };
+    }
+    safeWebhookUrl = webhookCheck.cleanUrl || config.webhookUrl;
+  }
+
   // 1. Live Vexa Cloud Bot Dispatch (if API key is configured)
   if (VEXA_BOT_KEY) {
+    const baseCheck = validateSafeUrl(VEXA_BASE_URL, { allowLocalhost: false });
+    if (!baseCheck.valid) {
+      return { success: false, error: 'Invalid Vexa base URL configuration' };
+    }
+    const safeBaseUrl = (baseCheck.cleanUrl || VEXA_BASE_URL).replace(/\/$/, '');
+
     try {
-      const response = await fetch(`${VEXA_BASE_URL}/bots/dispatch`, {
+      const response = await fetch(`${safeBaseUrl}/bots/dispatch`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${VEXA_BOT_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          meeting_url: meetingUrl,
+          meeting_url: safeMeetingUrl,
           bot_name: config.botName || 'Causarix Boardroom Scribe',
-          webhook_url: config.webhookUrl,
+          webhook_url: safeWebhookUrl,
           language: config.language || 'en',
           recording_mode: 'transcript_only', // Privacy mode: Do not retain raw video
           auto_purge_remote: true, // Signal Vexa to delete remote audio upon completion
@@ -88,24 +111,30 @@ export async function dispatchVexaMeetingBot(config: VexaBotConfig): Promise<Vex
 export async function fetchAndScrubTranscript(meetingId: string): Promise<VexaMeetingResult> {
   let rawTranscript = '';
   let utterances: VexaTranscriptUtterance[] = [];
+  const safeMeetingId = encodeURIComponent((meetingId || '').replace(/[^a-zA-Z0-9_-]/g, ''));
 
   // 1. Attempt remote transcript fetch if live Vexa key exists and session was remote
-  if (VEXA_BOT_KEY && !meetingId.startsWith('vx_local_')) {
-    try {
-      const response = await fetch(`${VEXA_BASE_URL}/meetings/${meetingId}/transcript`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${VEXA_TX_KEY || VEXA_BOT_KEY}`,
-        },
-      });
+  if (VEXA_BOT_KEY && !meetingId.startsWith('vx_local_') && safeMeetingId) {
+    const baseCheck = validateSafeUrl(VEXA_BASE_URL, { allowLocalhost: false });
+    const safeBaseUrl = baseCheck.valid ? (baseCheck.cleanUrl || VEXA_BASE_URL).replace(/\/$/, '') : '';
 
-      if (response.ok) {
-        const data = await response.json();
-        rawTranscript = data.transcript || data.text || '';
-        utterances = data.utterances || [];
+    if (safeBaseUrl) {
+      try {
+        const response = await fetch(`${safeBaseUrl}/meetings/${safeMeetingId}/transcript`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${VEXA_TX_KEY || VEXA_BOT_KEY}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          rawTranscript = data.transcript || data.text || '';
+          utterances = data.utterances || [];
+        }
+      } catch (err: any) {
+        console.warn('[VexaClient] Remote transcript fetch notice:', err.message);
       }
-    } catch (err: any) {
-      console.warn('[VexaClient] Remote transcript fetch notice:', err.message);
     }
   }
 
@@ -170,8 +199,15 @@ export async function purgeVexaRemoteData(meetingId: string): Promise<boolean> {
   if (!VEXA_BOT_KEY || meetingId.startsWith('vx_local_')) {
     return true;
   }
+  const safeMeetingId = encodeURIComponent((meetingId || '').replace(/[^a-zA-Z0-9_-]/g, ''));
+  if (!safeMeetingId) return true;
+
+  const baseCheck = validateSafeUrl(VEXA_BASE_URL, { allowLocalhost: false });
+  if (!baseCheck.valid) return false;
+  const safeBaseUrl = (baseCheck.cleanUrl || VEXA_BASE_URL).replace(/\/$/, '');
+
   try {
-    const response = await fetch(`${VEXA_BASE_URL}/meetings/${meetingId}`, {
+    const response = await fetch(`${safeBaseUrl}/meetings/${safeMeetingId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${VEXA_BOT_KEY}`,

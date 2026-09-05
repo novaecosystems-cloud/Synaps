@@ -1,5 +1,8 @@
 import { ReActAgent, AgentTool } from '@/lib/agents/react-engine';
 import { invokeLLMWithFallback } from '@/lib/llm-router';
+import { validateScrapeUrl, sanitizeCommandArg } from '@/lib/security';
+
+export { sanitizeCommandArg };
 
 export interface WebSearchResult {
   title: string;
@@ -29,9 +32,9 @@ export interface CompanyResearchResult {
 }
 
 /**
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
- * PHASE 3 â€” WEB RESEARCH AGENT TOOLKIT
- * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PHASE 3 — WEB RESEARCH AGENT TOOLKIT
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 
 export function buildWebResearchTools(): AgentTool[] {
@@ -49,8 +52,9 @@ export function buildWebResearchTools(): AgentTool[] {
       },
       execute: async ({ query }) => {
         try {
+          const safeQuery = sanitizeCommandArg(query);
           // Use DuckDuckGo HTML/JSON search API or fallback web scraper
-          const encodedQuery = encodeURIComponent(query);
+          const encodedQuery = encodeURIComponent(safeQuery);
           const res = await fetch(`https://html.duckduckgo.com/html/?q=${encodedQuery}`, {
             headers: {
               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
@@ -58,7 +62,7 @@ export function buildWebResearchTools(): AgentTool[] {
           });
 
           if (!res.ok) {
-            return await fallbackWebSearch(query);
+            return await fallbackWebSearch(safeQuery);
           }
 
           const html = await res.text();
@@ -74,23 +78,26 @@ export function buildWebResearchTools(): AgentTool[] {
             const snippet = match[3].replace(/<[^>]+>/g, '').trim();
 
             if (title && cleanUrl.startsWith('http')) {
-              results.push({
-                title,
-                url: cleanUrl,
-                snippet,
-                authoritativeSource: extractDomain(cleanUrl)
-              });
+              const urlCheck = validateScrapeUrl(cleanUrl);
+              if (urlCheck.valid) {
+                results.push({
+                  title,
+                  url: urlCheck.cleanUrl || cleanUrl,
+                  snippet,
+                  authoritativeSource: extractDomain(cleanUrl)
+                });
+              }
             }
           }
 
           if (results.length === 0) {
-            return await fallbackWebSearch(query);
+            return await fallbackWebSearch(safeQuery);
           }
 
           return results;
         } catch (e: any) {
           console.warn('[Web Search Tool] Live fetch notice, using LLM synthesis fallback:', e.message);
-          return await fallbackWebSearch(query);
+          return await fallbackWebSearch(sanitizeCommandArg(query));
         }
       }
     },
@@ -108,7 +115,13 @@ export function buildWebResearchTools(): AgentTool[] {
       },
       execute: async ({ url }) => {
         try {
-          const res = await fetch(url, {
+          const urlCheck = validateScrapeUrl(url);
+          if (!urlCheck.valid) {
+            return { error: `Invalid or blocked URL (SSRF defense): ${urlCheck.error || 'Blocked URL'}` };
+          }
+          const safeUrl = urlCheck.cleanUrl || url;
+
+          const res = await fetch(safeUrl, {
             headers: {
               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
@@ -126,7 +139,7 @@ export function buildWebResearchTools(): AgentTool[] {
             .trim();
 
           return {
-            url,
+            url: safeUrl,
             content: text.substring(0, 3000)
           };
         } catch (e: any) {
@@ -147,7 +160,8 @@ export function buildWebResearchTools(): AgentTool[] {
         required: ['caseName']
       },
       execute: async ({ caseName }) => {
-        const prompt = `Perform legal case research on "${caseName}".
+        const safeCaseName = sanitizeCommandArg(caseName);
+        const prompt = `Perform legal case research on "${safeCaseName}".
 Provide:
 1. Case Summary & Key Disputes
 2. Chronological Case Timeline
@@ -161,12 +175,12 @@ Provide:
         ]);
 
         return {
-          caseName,
+          caseName: safeCaseName,
           legalAnalysis: analysis,
           authoritativeSources: [
-            { title: `${caseName} - Legal Information Institute`, url: `https://www.law.cornell.edu/search/site/${encodeURIComponent(caseName)}` },
-            { title: `${caseName} - CourtListener Case Law Database`, url: `https://www.courtlistener.com/?q=${encodeURIComponent(caseName)}` },
-            { title: `${caseName} - Justia Law Database`, url: `https://law.justia.com/search?q=${encodeURIComponent(caseName)}` }
+            { title: `${safeCaseName} - Legal Information Institute`, url: `https://www.law.cornell.edu/search/site/${encodeURIComponent(safeCaseName)}` },
+            { title: `${safeCaseName} - CourtListener Case Law Database`, url: `https://www.courtlistener.com/?q=${encodeURIComponent(safeCaseName)}` },
+            { title: `${safeCaseName} - Justia Law Database`, url: `https://law.justia.com/search?q=${encodeURIComponent(safeCaseName)}` }
           ]
         };
       }
@@ -184,7 +198,8 @@ Provide:
         required: ['companyName']
       },
       execute: async ({ companyName }) => {
-        const prompt = `Conduct background research on the company "${companyName}".
+        const safeCompanyName = sanitizeCommandArg(companyName);
+        const prompt = `Conduct background research on the company "${safeCompanyName}".
 Analyze:
 1. Company Overview & Industry Position
 2. Potential Management Concerns (regulatory, financial, operational)
@@ -198,11 +213,11 @@ Analyze:
         ]);
 
         return {
-          companyName,
+          companyName: safeCompanyName,
           research: researchText,
           sources: [
-            { title: `${companyName} - SEC EDGAR Filings`, url: `https://www.sec.gov/edgar/searchedgar/companysearch` },
-            { title: `${companyName} - OpenCorporates Directory`, url: `https://opencorporates.com/companies?q=${encodeURIComponent(companyName)}` }
+            { title: `${safeCompanyName} - SEC EDGAR Filings`, url: `https://www.sec.gov/edgar/searchedgar/companysearch` },
+            { title: `${safeCompanyName} - OpenCorporates Directory`, url: `https://opencorporates.com/companies?q=${encodeURIComponent(safeCompanyName)}` }
           ]
         };
       }
@@ -220,7 +235,8 @@ Analyze:
         required: ['clauseType']
       },
       execute: async ({ clauseType }) => {
-        const prompt = `Provide standard industry benchmark examples and publicly available sample language for a "${clauseType}" contract clause.
+        const safeClauseType = sanitizeCommandArg(clauseType);
+        const prompt = `Provide standard industry benchmark examples and publicly available sample language for a "${safeClauseType}" contract clause.
 Detail:
 1. Standard / Balanced Clause Language
 2. Pro-Vendor / Aggressive Clause Variant
@@ -233,7 +249,7 @@ Detail:
         ]);
 
         return {
-          clauseType,
+          clauseType: safeClauseType,
           benchmarkAnalysis: benchmarkText
         };
       }

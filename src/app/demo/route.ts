@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
+import { validateRedirectUrl } from '@/lib/security';
 
 /**
  * GET /demo & GET /demo/
@@ -230,7 +231,9 @@ Page 3: Risk Assessment for Jaipur and Delhi Hotel Property Renovations.`
     maxAge: 30 * 24 * 60 * 60 // 30 days
   });
 
-  // 5. Redirect to Dashboard with active demo session
-  return NextResponse.redirect(new URL('/dashboard', req.url));
+  // 5. Redirect to Dashboard (or validated return URL) with active demo session
+  const redirectParam = req.nextUrl.searchParams.get('redirect') || req.nextUrl.searchParams.get('returnUrl') || req.nextUrl.searchParams.get('next') || req.nextUrl.searchParams.get('to');
+  const safeTarget = validateRedirectUrl(redirectParam, '/dashboard', req.url);
+  return NextResponse.redirect(new URL(safeTarget, req.url));
 }
 

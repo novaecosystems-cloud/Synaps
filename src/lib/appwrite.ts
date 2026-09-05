@@ -6,6 +6,8 @@
  * It is NEVER exposed to the frontend/browser context or prefixed with NEXT_PUBLIC_.
  */
 
+import { validateSafeUrl } from '@/lib/security';
+
 export interface AppwriteConfig {
   endpoint: string;
   projectId: string;
@@ -33,6 +35,15 @@ export async function appwriteServerFetch<T = any>(
 ): Promise<{ success: boolean; data?: T; error?: string }> {
   try {
     const config = getAppwriteConfig();
+    const targetUrl = `${config.endpoint}${path}`;
+    const urlCheck = validateSafeUrl(targetUrl, { allowLocalhost: process.env.NODE_ENV !== 'production' });
+    if (!urlCheck.valid) {
+      return {
+        success: false,
+        error: `Invalid or unsafe Appwrite endpoint (SSRF blocked): ${urlCheck.error || 'Blocked target URL'}`,
+      };
+    }
+    const safeTargetUrl = urlCheck.cleanUrl || targetUrl;
     
     if (!config.apiKey && typeof window === 'undefined') {
       // Graceful fallback logging for optional Appwrite setup
@@ -50,7 +61,7 @@ export async function appwriteServerFetch<T = any>(
       requestHeaders['X-Appwrite-Key'] = config.apiKey;
     }
 
-    const response = await fetch(`${config.endpoint}${path}`, {
+    const response = await fetch(safeTargetUrl, {
       method: options.method || 'GET',
       headers: requestHeaders,
       body: options.body ? JSON.stringify(options.body) : undefined,

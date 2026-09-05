@@ -30,7 +30,9 @@ export async function createJiraIssue(config: JiraConfig, params: CreateJiraIssu
 }> {
   try {
     // 1. SSRF Validation
-    const urlCheck = validateScrapeUrl(config.domain);
+    const rawDomain = (config.domain || '').trim();
+    const formattedDomain = /^https?:\/\//i.test(rawDomain) ? rawDomain : `https://${rawDomain}`;
+    const urlCheck = validateScrapeUrl(formattedDomain);
     if (!urlCheck.valid) {
       return {
         success: false,
@@ -38,7 +40,7 @@ export async function createJiraIssue(config: JiraConfig, params: CreateJiraIssu
       };
     }
 
-    const cleanDomain = (urlCheck.cleanUrl || config.domain).replace(/\/$/, "");
+    const cleanDomain = (urlCheck.cleanUrl || formattedDomain).replace(/\/$/, "");
     const authHeader = Buffer.from(`${config.email}:${config.apiToken}`).toString("base64");
 
     // 2. AI Firewall Egress Scrubbing
