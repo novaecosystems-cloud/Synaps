@@ -72,3 +72,11 @@ Desktop Binary: D:\Synaps\Causarix.exe & Launch-Causarix.bat
 - **Strict Anonymity**: Absolute omission of all XPrize / competition mentions across all files, commits, and UI.
 - **Math Invariant**: 0.00% arithmetic drift on all SCM computations.
 - **Fiduciary Invariant**: Strict statutory pruning of insolvency risk > 5.00%.
+
+## 8. High-Visibility Feature Icon System (Koboyo-Inspired)
+- **Component Suite**: `src/components/icons/CausarixFeatureIcons.tsx` & `src/components/icons/index.ts`
+  * 32+ custom handcrafted SVG vector icons tailored to all platform features.
+  * Enhanced multi-layer cyber-fiduciary styling with dual-tone depth and high-contrast color coding (emerald, violet, cyan, amber, rose).
+  * Dynamic key dispatcher `<CausarixFeatureIcon name="..." />` for scalable integration across command palettes, sidebars, and dashboard cards.
+  * Interactive modal viewer: `src/components/icons/CausarixIconShowcaseModal.tsx`.
+
