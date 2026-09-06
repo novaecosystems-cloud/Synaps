@@ -4,7 +4,7 @@
     "synaps-one.vercel.app"
   ],
   "framework": "nextjs",
-  "buildCommand": "prisma generate && prisma db push --accept-data-loss && next build",
+  "buildCommand": "npx prisma generate && next build",
   "installCommand": "npm install",
   "outputDirectory": ".next",
   "regions": ["iad1"],
