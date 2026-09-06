@@ -16,7 +16,7 @@ export default async function DashboardPage() {
   const cookieStore = await cookies();
   const session = cookieStore.get('synaps-session')?.value;
   
-  let userName = 'Shourya Shetty';
+  let userName = 'Demo Administrator';
 
   if (session) {
     try {

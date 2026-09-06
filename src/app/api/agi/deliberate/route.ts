@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
 
     const {
       dilemma,
+      title,
       organizationName = defaultOrgName,
       riskTolerance = "BALANCED",
       initialCashRunwayMonths = 18,
@@ -80,6 +81,7 @@ export async function POST(req: NextRequest) {
     // 1. Invoke Autonomous Executive Reasoner (Tree-of-Thought MCTS + Qwen 2.5 Coder Simulation)
     const deliberationResult = await runAutonomousExecutiveReasoning({
       dilemma: dilemma.trim(),
+      title: title && typeof title === "string" ? title.trim() : undefined,
       organizationName: (organizationName || defaultOrgName).trim(),
       riskTolerance: normalizedRisk,
       initialCashRunwayMonths: normalizedRunway,

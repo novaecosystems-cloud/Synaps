@@ -895,7 +895,7 @@ export default function IntegrationsClient() {
                 <label className="font-bold block mb-1">Executive Recipient</label>
                 <input
                   type="text"
-                  defaultValue="+1 (555) 019-9000 (CEO Shourya)"
+                  defaultValue="+1 (555) 019-9000 (CEO Eleanor)"
                   id="wa_recipient"
                   className="w-full bg-base-200 border border-base-300 rounded-xl px-3 py-2 text-xs"
                 />

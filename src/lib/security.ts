@@ -8,9 +8,6 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verifySessionCookie } from "@/lib/auth-server";
-import prisma from "@/lib/prisma";
 
 // ── IN-MEMORY RATE LIMITER ──────────────────────────────────────────────────
 interface RateBucket {
@@ -414,6 +411,7 @@ export interface AuthContext {
 export async function resolveAuthContext(req: NextRequest): Promise<AuthContext> {
   let session: string | undefined;
   try {
+    const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
     session = cookieStore?.get("synaps-session")?.value;
   } catch {
@@ -428,11 +426,13 @@ export async function resolveAuthContext(req: NextRequest): Promise<AuthContext>
     return { userId: "demo-user", orgId: "no_org_fallback", isDemo: true };
   }
 
+  const { verifySessionCookie } = await import("@/lib/auth-server");
   const decoded = await verifySessionCookie(session);
   if (!decoded?.uid) {
     return { userId: "demo-user", orgId: "no_org_fallback", isDemo: true };
   }
 
+  const { default: prisma } = await import("@/lib/prisma");
   const u = await prisma.user.findUnique({ where: { id: decoded.uid } });
   return {
     userId: decoded.uid,

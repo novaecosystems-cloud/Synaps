@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
       displayPhoneNumber: rawConfig.displayPhoneNumber || "+1 (555) 019-2834 (Synaps AI COO)",
       verifyTokenMasked: "••••••••",
       accessTokenMasked: rawConfig.accessTokenEnc ? maskApiKey(decryptApiKey(rawConfig.accessTokenEnc)) : "••••••••",
-      executiveRecipients: rawConfig.executiveRecipients || ["+1 (555) 019-9000 (CEO Shourya)", "+1 (555) 019-9001 (COO Elena)"],
+      executiveRecipients: rawConfig.executiveRecipients || ["+1 (555) 019-9000 (CEO Eleanor)", "+1 (555) 019-9001 (COO Elena)"],
       alertThreshold: rawConfig.alertThreshold || "P0_AND_P1_CRITICAL",
       dailyDigestTime: rawConfig.dailyDigestTime || "08:00 UTC",
       webhookUrl: `${process.env.NEXTAUTH_URL || "https://synaps.ai"}/api/connectors/whatsapp`,
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
           {
             id: "msg-p0-891",
             type: "P0_RISK_ALERT",
-            recipient: "CEO Shourya (+1-555-019-9000)",
+            recipient: "CEO Eleanor (+1-555-019-9000)",
             title: "CRITICAL: Vendor Contract Indemnity Clause Flagged",
             dispatchedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
             status: "DELIVERED",

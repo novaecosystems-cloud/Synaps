@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { 
@@ -176,7 +176,7 @@ const EXECUTIVE_DIGITAL_TWINS = [
   }
 ];
 
-export function CausarixExecutiveMatterCockpit({ userName = 'Shourya Shetty' }: { userName?: string }) {
+export function CausarixExecutiveMatterCockpit({ userName = 'Demo Administrator' }: { userName?: string }) {
   const [filterType, setFilterType] = useState('All types');
   const [searchQuery, setSearchQuery] = useState('');
 

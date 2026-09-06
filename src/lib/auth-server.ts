@@ -62,7 +62,7 @@ export async function verifySessionCookie(sessionCookie: string) {
         return {
           uid: 'sovereign-admin',
           email: 'founder@causarix.ai',
-          name: 'Shourya Shetty',
+          name: 'Demo Administrator',
           picture: '',
           exp: Math.floor(Date.now() / 1000) + (30 * 86400)
         } as any;

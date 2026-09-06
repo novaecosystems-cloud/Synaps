@@ -4,7 +4,7 @@ import { requireAuthForLLM } from '@/lib/api-security';
 
 // Organizational policy & decision memory profile state
 let founderCloneProfile = {
-  founderName: 'Shourya Uday Shetty',
+  founderName: 'Executive Lead',
   role: 'Executive Lead',
   riskTolerance: 'BALANCED',
   communicationStyle: 'DIRECT & DATA-DRIVEN',

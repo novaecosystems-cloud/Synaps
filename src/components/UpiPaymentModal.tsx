@@ -14,7 +14,7 @@ export default function UpiPaymentModal({
   isOpen,
   onClose,
   planId = 'pro',
-  upiId = 'shourya@upi' // Easily configurable fallback
+  upiId = 'enterprise@upi' // Easily configurable fallback
 }: UpiPaymentModalProps) {
   const [copied, setCopied] = useState(false);
   const [utrNumber, setUtrNumber] = useState('');

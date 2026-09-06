@@ -15,7 +15,6 @@
  * 6. 0.00% Math Drift Invariant Assertion Suite (IEEE-754 double precision & causal conservation).
  */
 
-import { getRelevantDecisionMemory } from '@/lib/decision-memory-flywheel';
 import {
   sealCausalInvariantProof,
   MerkleTree,
@@ -749,10 +748,21 @@ export class StructuralCausalModel {
     const baseResult = this.computeCounterfactual(query);
 
     // Retrieve organization institutional memory & governance tactics
-    const decisionQuery = `Counterfactual intervention on ${query.interventionNodeId} affecting ${query.targetNodeId}`;
-    const memory = await getRelevantDecisionMemory(organizationId, decisionQuery, 3);
+    let tactics: string[] = [];
+    let provenanceHash = '';
 
-    const tactics = memory.corporateTactics.map(t => t.rule);
+    if (typeof window === 'undefined') {
+      try {
+        const { getRelevantDecisionMemory } = await import('@/lib/decision-memory-flywheel');
+        const decisionQuery = `Counterfactual intervention on ${query.interventionNodeId} affecting ${query.targetNodeId}`;
+        const memory = await getRelevantDecisionMemory(organizationId, decisionQuery, 3);
+        tactics = memory.corporateTactics.map(t => t.rule);
+        provenanceHash = memory.merkleProvenanceHash;
+      } catch {
+        // Fallback for isolated environments
+      }
+    }
+
     const precedentRec = baseResult.causalDelta > 0
       ? `Simulated counterfactual improves ${query.targetNodeId} by ${baseResult.percentChange}%. Adheres to company tactics (${tactics[0] || 'maintain risk limits'}).`
       : `Simulated intervention reduces ${query.targetNodeId} by ${Math.abs(baseResult.percentChange)}%. Flagged under corporate governance precedents.`;
@@ -761,7 +771,7 @@ export class StructuralCausalModel {
       ...baseResult,
       corporateMemoryTactics: tactics,
       precedentRecommendation: precedentRec,
-      memoryProvenanceHash: memory.merkleProvenanceHash,
+      memoryProvenanceHash: provenanceHash,
     };
   }
 }

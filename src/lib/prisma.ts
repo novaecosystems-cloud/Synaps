@@ -1,7 +1,24 @@
 import { PrismaClient, Prisma } from '@prisma/client';
-import { AsyncLocalStorage } from 'async_hooks';
-import { cookies } from 'next/headers';
-import { verifySessionCookie } from './auth-server';
+
+class FallbackAsyncLocalStorage<T> {
+  private store: T | undefined;
+  getStore(): T | undefined { return this.store; }
+  run<R>(store: T, callback: () => R): R {
+    const prev = this.store;
+    this.store = store;
+    try { return callback(); } finally { this.store = prev; }
+  }
+}
+
+const AsyncLocalStorageConstructor: any = typeof window === 'undefined'
+  ? (function() {
+      try {
+        return require('async_hooks').AsyncLocalStorage || FallbackAsyncLocalStorage;
+      } catch {
+        return FallbackAsyncLocalStorage;
+      }
+    })()
+  : FallbackAsyncLocalStorage;
 
 // ── 1. ENVIRONMENT & CONNECTION URL RESOLUTION ────────────────────────────────
 const envAny = process.env as any;
@@ -23,7 +40,7 @@ export interface TenantContextStore {
   isAdmin?: boolean;
 }
 
-export const tenantStorage = new AsyncLocalStorage<TenantContextStore>();
+export const tenantStorage = new AsyncLocalStorageConstructor();
 
 // ── 3. TENANT ISOLATION MODEL INVENTORY ──────────────────────────────────────
 const TENANT_MODELS = new Set([
@@ -187,7 +204,7 @@ function createResilientPrisma(client: any): PrismaClient {
                           id: 'sovereign-admin',
                           organizationId: 'org_sovereign_vault',
                           email: 'founder@causarix.ai',
-                          name: 'Shourya Shetty',
+                          name: 'Demo Administrator',
                           role: 'OWNER',
                           organization: { settings: { onboardingCompleted: true }, name: 'Causarix Sovereign Vault' },
                         };
@@ -382,6 +399,8 @@ export async function ensureTenantHierarchy(
 // ── 9. LEGACY AUTH & ORG HELPERS ─────────────────────────────────────────────
 export const getOrgId = async () => {
   try {
+    const { cookies } = await import('next/headers');
+    const { verifySessionCookie } = await import('./auth-server');
     const cookieStore = await cookies();
     const session = cookieStore.get('synaps-session')?.value;
     if (!session) return 'org_sovereign_vault';

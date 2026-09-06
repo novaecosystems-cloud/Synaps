@@ -27,7 +27,11 @@ import {
   ChevronRight,
   Share2,
   Users,
-  CheckSquare
+  CheckSquare,
+  Maximize2,
+  Minimize2,
+  Trash2,
+  Undo2
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -67,6 +71,13 @@ export default function AgiStudioPage() {
   const [copiedMerkle, setCopiedMerkle] = useState<boolean>(false);
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [nodeFilter, setNodeFilter] = useState<'ALL' | 'SELECTED' | 'PRUNED'>('ALL');
+
+  // Problem Formulation & Template Ingestion State
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [lastCustomDilemma, setLastCustomDilemma] = useState<string>('');
+  const [pendingTemplateIndex, setPendingTemplateIndex] = useState<number | null>(null);
+  const [showOverwriteModal, setShowOverwriteModal] = useState<boolean>(false);
+  const [showClearConfirmModal, setShowClearConfirmModal] = useState<boolean>(false);
 
   // Auto-run initial deliberation on load with dilemma [0]
   useEffect(() => {
@@ -164,10 +175,85 @@ export default function AgiStudioPage() {
     }
   }
 
+  const isCustomDilemma = Boolean(
+    dilemma.trim() && !PRELOADED_DILEMMAS.includes(dilemma as any)
+  );
+
+  const activeTemplateIndex = PRELOADED_DILEMMAS.findIndex((d) => d === dilemma);
+
   function handleSelectPreloadedDilemma(index: number) {
     const selected = PRELOADED_DILEMMAS[index];
-    setDilemma(selected);
-    handleRunDeliberation(selected);
+    if (dilemma === selected) {
+      return;
+    }
+    // Overwrite protection: confirm before replacing user-typed custom formulation
+    if (isCustomDilemma) {
+      setPendingTemplateIndex(index);
+      setShowOverwriteModal(true);
+    } else {
+      setDilemma(selected);
+      toast({
+        title: 'Template Loaded',
+        description: `Loaded ${index === 0 ? 'Scenario A' : index === 1 ? 'Scenario B' : 'Scenario C'}. Click "Deliberate Dilemma" to execute.`,
+      });
+    }
+  }
+
+  function confirmOverwriteTemplate() {
+    if (pendingTemplateIndex !== null) {
+      setLastCustomDilemma(dilemma);
+      const chosen = pendingTemplateIndex;
+      setDilemma(PRELOADED_DILEMMAS[chosen]);
+      setShowOverwriteModal(false);
+      setPendingTemplateIndex(null);
+      toast({
+        title: 'Template Loaded',
+        description: `Loaded ${chosen === 0 ? 'Scenario A' : chosen === 1 ? 'Scenario B' : 'Scenario C'}. Previous custom text saved to undo buffer.`,
+      });
+    }
+  }
+
+  function cancelOverwriteTemplate() {
+    setShowOverwriteModal(false);
+    setPendingTemplateIndex(null);
+  }
+
+  function handleClearDilemma() {
+    if (isCustomDilemma) {
+      setShowClearConfirmModal(true);
+    } else {
+      setDilemma('');
+    }
+  }
+
+  function confirmClearDilemma() {
+    setLastCustomDilemma(dilemma);
+    setDilemma('');
+    setShowClearConfirmModal(false);
+    toast({
+      title: 'Formulation Cleared',
+      description: 'Textarea cleared. Use Undo to restore your previous formulation.',
+    });
+  }
+
+  function handleRestoreCustomDilemma() {
+    if (lastCustomDilemma) {
+      setDilemma(lastCustomDilemma);
+      setLastCustomDilemma('');
+      toast({
+        title: 'Formulation Restored',
+        description: 'Restored your previous custom strategic dilemma.',
+      });
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (!isDeliberating && dilemma.trim()) {
+        handleRunDeliberation();
+      }
+    }
   }
 
   function handleCopyMerkle() {
@@ -384,111 +470,215 @@ export default function AgiStudioPage() {
         </div>
       </div>
 
-      {/* ── 2. DILEMMA INPUT COCKPIT & PRE-LOADED SCENARIOS ────────────────────── */}
+      {/* ── 2. DILEMMA INPUT COCKPIT & FORMULATION ENGINE ────────────────────── */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-5 md:p-6 shadow-xl space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <label className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            Executive Dilemma Under Fiduciary Deliberation
-          </label>
-          <span className="text-xs text-slate-400">
-            Select a high-stakes scenario below or formulate a custom dilemma
-          </span>
+        {/* Problem Formulation Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              Strategic Problem Formulation & Corporate Dilemma
+            </label>
+            {isCustomDilemma ? (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                Custom Formulation (Active)
+              </span>
+            ) : activeTemplateIndex !== -1 ? (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                Preset Scenario Template Loaded (Scenario {activeTemplateIndex === 0 ? 'A' : activeTemplateIndex === 1 ? 'B' : 'C'})
+              </span>
+            ) : (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                Empty
+              </span>
+            )}
+          </div>
+
+          {/* Action Toolbar: Undo, Clear, Expand/Collapse Toggle, Character Counter */}
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            {lastCustomDilemma && (
+              <button
+                type="button"
+                onClick={handleRestoreCustomDilemma}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/30 transition-colors"
+                title="Restore previous custom formulation"
+              >
+                <Undo2 className="w-3.5 h-3.5" />
+                <span>Undo</span>
+              </button>
+            )}
+
+            {dilemma.trim() && (
+              <button
+                type="button"
+                onClick={handleClearDilemma}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs rounded bg-slate-800/80 hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 border border-slate-700/60 hover:border-rose-800/50 transition-colors"
+                title="Clear dilemma formulation"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-colors"
+              title={isExpanded ? 'Collapse to compact view (4 rows / ~110px)' : 'Expand to full view (11 rows / ~280px)'}
+            >
+              {isExpanded ? (
+                <>
+                  <Minimize2 className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Compact</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Expand</span>
+                </>
+              )}
+            </button>
+
+            <span className="text-[11px] font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">
+              {dilemma.length} characters
+            </span>
+          </div>
         </div>
 
-        {/* 3 Pre-Loaded Real-World High-Stakes Dilemmas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* Pre-loaded 1: Tariff Shock */}
-          <button
-            type="button"
-            onClick={() => handleSelectPreloadedDilemma(0)}
-            className={`text-left p-3.5 rounded-lg border transition-all relative overflow-hidden group ${
-              dilemma === PRELOADED_DILEMMAS[0]
-                ? 'bg-cyan-950/30 border-cyan-500/60 ring-1 ring-cyan-500/40'
-                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-mono font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
-                <Zap className="w-3 h-3" />
-                Geopolitics & Supply Chain
-              </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                Scenario A
-              </span>
-            </div>
-            <h4 className="text-xs font-semibold text-white group-hover:text-cyan-200 leading-snug line-clamp-2">
-              Sudden 25% Tariff on EU Hardware Imports: Capex Freeze vs Supply Chain Onshoring
-            </h4>
-            <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
-              Evaluates gross margin erosion vs CHIPS Act Section 48D tax credit onshoring hedge.
-            </p>
-          </button>
-
-          {/* Pre-loaded 2: Patent Injunction */}
-          <button
-            type="button"
-            onClick={() => handleSelectPreloadedDilemma(1)}
-            className={`text-left p-3.5 rounded-lg border transition-all relative overflow-hidden group ${
-              dilemma === PRELOADED_DILEMMAS[1]
-                ? 'bg-indigo-950/30 border-indigo-500/60 ring-1 ring-indigo-500/40'
-                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-mono font-semibold text-indigo-400 uppercase tracking-wider flex items-center gap-1">
-                <Scale className="w-3 h-3" />
-                Delaware Chancery & IP
-              </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                Scenario B
-              </span>
-            </div>
-            <h4 className="text-xs font-semibold text-white group-hover:text-indigo-200 leading-snug line-clamp-2">
-              Hostile Patent Infringement Threat: Settle for $4M vs Fight in Delaware Chancery
-            </h4>
-            <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
-              Game-theoretic minimax: clean-room LSM design-around vs capitulation royalty.
-            </p>
-          </button>
-
-          {/* Pre-loaded 3: Macro Downturn */}
-          <button
-            type="button"
-            onClick={() => handleSelectPreloadedDilemma(2)}
-            className={`text-left p-3.5 rounded-lg border transition-all relative overflow-hidden group ${
-              dilemma === PRELOADED_DILEMMAS[2]
-                ? 'bg-emerald-950/30 border-emerald-500/60 ring-1 ring-emerald-500/40'
-                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-mono font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
-                <Activity className="w-3 h-3" />
-                Capital Structure & Runway
-              </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
-                Scenario C
-              </span>
-            </div>
-            <h4 className="text-xs font-semibold text-white group-hover:text-emerald-200 leading-snug line-clamp-2">
-              Macro Downturn: Cut Headcount 20% vs Extend Runway via Convertibles
-            </h4>
-            <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
-              36-month burn simulation: RIF talent loss vs $5M insider convertible note bridge.
-            </p>
-          </button>
-        </div>
-
-        {/* Text Input Area */}
+        {/* Dedicated Expandable Problem Formulation Textarea */}
         <div className="relative">
           <textarea
             value={dilemma}
             onChange={(e) => setDilemma(e.target.value)}
-            rows={3}
-            placeholder="Describe any strategic dilemma facing your enterprise (e.g. Capex allocation, regulatory antitrust inquiry, merger bid)..."
-            className="w-full bg-slate-950/90 border border-slate-800 rounded-lg p-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 resize-none font-sans"
+            onKeyDown={handleKeyDown}
+            rows={isExpanded ? 11 : 4}
+            placeholder={`Describe your enterprise's strategic dilemma, existential market shock, or fiduciary crossroads in detail...
+
+Key dimensions to specify:
+• Immediate financial stakes: Revenue at risk, cash burn rate, capex freeze, credit line covenants
+• Counterparties & Legal exposure: Key enterprise customer churn, DOJ/regulatory inquiry, patent litigation in Delaware Chancery
+• Fiduciary tradeoffs: Immediate emergency mitigation vs long-term equity preservation
+
+(e.g., 'Customer churn crisis: top 3 enterprise accounts representing $6.2M ARR threatening contract termination unless prices are slashed 35% and custom SLAs signed...')`}
+            className={`w-full bg-slate-950/90 border border-slate-800 rounded-lg p-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 resize-y min-h-[110px] max-h-[450px] font-sans leading-relaxed transition-all ${
+              isExpanded ? 'min-h-[280px]' : 'min-h-[110px]'
+            }`}
           />
+        </div>
+
+        {/* Quick-Start Scenario Templates */}
+        <div className="space-y-2 pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              Quick-Start Scenario Templates
+            </span>
+            <span className="text-[11px] text-slate-500">
+              Select a template to populate the formulation above (will not auto-run)
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {/* Pre-loaded 1: Tariff Shock */}
+            <button
+              type="button"
+              onClick={() => handleSelectPreloadedDilemma(0)}
+              className={`text-left p-3.5 rounded-lg border transition-all relative overflow-hidden group ${
+                dilemma === PRELOADED_DILEMMAS[0]
+                  ? 'bg-cyan-950/30 border-cyan-500/60 ring-1 ring-cyan-500/40 shadow-sm shadow-cyan-500/10'
+                  : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-mono font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
+                  <Zap className="w-3 h-3" />
+                  Geopolitics & Supply Chain
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                  Scenario A
+                </span>
+              </div>
+              <h4 className="text-xs font-semibold text-white group-hover:text-cyan-200 leading-snug line-clamp-2">
+                Sudden 25% Tariff on EU Hardware Imports: Capex Freeze vs Supply Chain Onshoring
+              </h4>
+              <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
+                Evaluates gross margin erosion vs CHIPS Act Section 48D tax credit onshoring hedge.
+              </p>
+              {dilemma === PRELOADED_DILEMMAS[0] && (
+                <div className="mt-2 text-[10px] font-mono text-cyan-400 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>Active In Cockpit</span>
+                </div>
+              )}
+            </button>
+
+            {/* Pre-loaded 2: Patent Injunction */}
+            <button
+              type="button"
+              onClick={() => handleSelectPreloadedDilemma(1)}
+              className={`text-left p-3.5 rounded-lg border transition-all relative overflow-hidden group ${
+                dilemma === PRELOADED_DILEMMAS[1]
+                  ? 'bg-indigo-950/30 border-indigo-500/60 ring-1 ring-indigo-500/40 shadow-sm shadow-indigo-500/10'
+                  : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-mono font-semibold text-indigo-400 uppercase tracking-wider flex items-center gap-1">
+                  <Scale className="w-3 h-3" />
+                  Delaware Chancery & IP
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                  Scenario B
+                </span>
+              </div>
+              <h4 className="text-xs font-semibold text-white group-hover:text-indigo-200 leading-snug line-clamp-2">
+                Hostile Patent Infringement Threat: Settle for $4M vs Fight in Delaware Chancery
+              </h4>
+              <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
+                Game-theoretic minimax: clean-room LSM design-around vs capitulation royalty.
+              </p>
+              {dilemma === PRELOADED_DILEMMAS[1] && (
+                <div className="mt-2 text-[10px] font-mono text-indigo-400 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>Active In Cockpit</span>
+                </div>
+              )}
+            </button>
+
+            {/* Pre-loaded 3: Macro Downturn */}
+            <button
+              type="button"
+              onClick={() => handleSelectPreloadedDilemma(2)}
+              className={`text-left p-3.5 rounded-lg border transition-all relative overflow-hidden group ${
+                dilemma === PRELOADED_DILEMMAS[2]
+                  ? 'bg-emerald-950/30 border-emerald-500/60 ring-1 ring-emerald-500/40 shadow-sm shadow-emerald-500/10'
+                  : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/40'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-mono font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                  <Activity className="w-3 h-3" />
+                  Capital Structure & Runway
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                  Scenario C
+                </span>
+              </div>
+              <h4 className="text-xs font-semibold text-white group-hover:text-emerald-200 leading-snug line-clamp-2">
+                Macro Downturn: Cut Headcount 20% vs Extend Runway via Convertibles
+              </h4>
+              <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
+                36-month burn simulation: RIF talent loss vs $5M insider convertible note bridge.
+              </p>
+              {dilemma === PRELOADED_DILEMMAS[2] && (
+                <div className="mt-2 text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>Active In Cockpit</span>
+                </div>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Controls Row: Risk Tolerance + Runway + Organization */}
@@ -568,23 +758,33 @@ export default function AgiStudioPage() {
             </span>
           </div>
 
-          <Button
-            onClick={() => handleRunDeliberation()}
-            disabled={isDeliberating}
-            className="w-full sm:w-auto bg-gradient-to-r from-cyan-600 via-indigo-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-semibold text-xs px-6 py-2.5 rounded-lg shadow-lg shadow-cyan-950/50 flex items-center justify-center gap-2"
-          >
-            {isDeliberating ? (
-              <>
-                <RotateCcw className="w-3.5 h-3.5 animate-spin" />
-                <span>Running MCTS Deliberation...</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Execute Autonomous Executive Deliberation</span>
-              </>
-            )}
-          </Button>
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <span className="hidden md:inline-flex items-center gap-1 text-[11px] font-mono text-slate-500">
+              Press
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400 text-[10px]">
+                Ctrl+Enter
+              </kbd>
+            </span>
+
+            <Button
+              onClick={() => handleRunDeliberation()}
+              disabled={isDeliberating || !dilemma.trim()}
+              className="w-full sm:w-auto bg-gradient-to-r from-cyan-600 via-indigo-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-semibold text-xs px-6 py-2.5 rounded-lg shadow-lg shadow-cyan-950/50 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isDeliberating ? (
+                <>
+                  <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Deliberating Dilemma...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Deliberate Dilemma</span>
+                  <ArrowRight className="w-3 h-3" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -678,7 +878,7 @@ export default function AgiStudioPage() {
             <div className="bg-slate-950/80 border border-slate-800/80 rounded-lg p-3">
               <div className="text-[11px] text-slate-400 font-medium">Winning Strategy</div>
               <div className="text-xs font-bold text-emerald-400 truncate mt-0.5">
-                {result.winningPath.label.replace('Strategy C: ', '')}
+                {result.winningPath.label.replace(/^Strategy\s+[A-Z]:\s*/i, '')}
               </div>
             </div>
             <div className="bg-slate-950/80 border border-slate-800/80 rounded-lg p-3">
@@ -1108,8 +1308,8 @@ export default function AgiStudioPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold">
-                      QWEN 2.5 CODER 32B-INSTRUCT
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold uppercase">
+                      {result.simulationModel.generator || 'Qwen 2.5 Coder 32B-Instruct'}
                     </span>
                     <span className="text-xs text-slate-400 font-mono">
                       0.00% Math Drift Verified · 10,000 Monte Carlo Iterations
@@ -1380,6 +1580,76 @@ export default function AgiStudioPage() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── OVERWRITE PROTECTION CONFIRMATION MODAL ────────────────────── */}
+      {showOverwriteModal && pendingTemplateIndex !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-2.5 text-amber-400">
+              <AlertTriangle className="w-5 h-5 shrink-0" />
+              <h3 className="text-sm font-bold text-white">Overwrite Custom Problem Formulation?</h3>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              You currently have a custom strategic dilemma formulated in the cockpit. Loading{' '}
+              <span className="font-semibold text-cyan-300">
+                {pendingTemplateIndex === 0 ? 'Scenario A (Tariff Shock)' : pendingTemplateIndex === 1 ? 'Scenario B (Patent Threat)' : 'Scenario C (Macro Downturn)'}
+              </span>{' '}
+              will populate the textarea with the template.
+            </p>
+            <div className="p-2.5 rounded bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-400 line-clamp-3">
+              &ldquo;{dilemma}&rdquo;
+            </div>
+            <p className="text-[11px] text-slate-400">
+              Your custom text will be saved in the undo buffer so you can restore it anytime.
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <Button
+                variant="outline"
+                onClick={cancelOverwriteTemplate}
+                className="text-xs border-slate-700 hover:bg-slate-800 text-slate-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmOverwriteTemplate}
+                className="text-xs bg-cyan-600 hover:bg-cyan-500 text-white font-semibold"
+              >
+                Load Template
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── CLEAR FORMULATION CONFIRMATION MODAL ───────────────────────── */}
+      {showClearConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-2.5 text-rose-400">
+              <AlertTriangle className="w-5 h-5 shrink-0" />
+              <h3 className="text-sm font-bold text-white">Clear Custom Formulation?</h3>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Are you sure you want to clear your current strategic dilemma formulation? Your text will be preserved in the undo buffer.
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <Button
+                variant="outline"
+                onClick={() => setShowClearConfirmModal(false)}
+                className="text-xs border-slate-700 hover:bg-slate-800 text-slate-300"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmClearDilemma}
+                className="text-xs bg-rose-600 hover:bg-rose-500 text-white font-semibold"
+              >
+                Clear Formulation
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

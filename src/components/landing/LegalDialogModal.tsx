@@ -585,6 +585,7 @@ export function LegalDialogModal({
       const existingLogs = JSON.parse(localStorage.getItem('synaps_audit_records_v1') || '[]');
       existingLogs.unshift(auditRecord);
       localStorage.setItem('synaps_audit_records_v1', JSON.stringify(existingLogs));
+      localStorage.setItem('synaps_legal_accepted_v1', 'true');
     } catch (e) {}
 
     // Dispatch to DB Audit Log API
@@ -1006,6 +1007,12 @@ export function LegalDialogModal({
                     >
                       <Download className="w-4 h-4" />
                       <span>Download Complete Legal Packet (PDF)</span>
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="px-6 py-2.5 rounded-xl bg-[#10b981] hover:bg-[#059669] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md flex items-center gap-2 whitespace-nowrap cursor-pointer"
+                    >
+                      <span>Enter Workspace →</span>
                     </button>
                   </div>
                 )}

@@ -32,6 +32,7 @@ const m7Suite = require('./m7-native-sync.test');
 const m8Suite = require('./m8-free-tier-watermark.test');
 const m9Suite = require('./m9-vc-distribution.test');
 const m10Suite = require('./m10-autonomous-agi-reasoner.test');
+const m10DynamicSuite = require('./m10-dynamic-deliberation.test');
 
 function parseArgs(args = []) {
   const options = {
@@ -82,6 +83,7 @@ async function main(cliArgs = process.argv.slice(2)) {
     { tier: 17, name: 'Milestone 8: Free Tier QR Watermark', suite: m8Suite, targetCount: 5 },
     { tier: 18, name: 'Milestone 9: VC Distribution & Diligence', suite: m9Suite, targetCount: 5 },
     { tier: 19, name: 'Milestone 10: Causarix Enterprise AGI Engine', suite: m10Suite, targetCount: 5 },
+    { tier: 20, name: 'Milestone 10: Dynamic Deliberation & SCM Synthesis', suite: m10DynamicSuite, targetCount: 30 },
   ];
 
   const suitesToRun = options.tiers

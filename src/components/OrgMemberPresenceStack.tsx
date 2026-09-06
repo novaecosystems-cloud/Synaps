@@ -19,7 +19,7 @@ export interface OrgMember {
 const DEFAULT_ORG_MEMBERS: OrgMember[] = [
   {
     id: 'mem_1',
-    name: 'Shourya (Owner)',
+    name: 'Executive Leader (Owner)',
     role: 'Founder & CEO',
     status: 'online',
     activeContext: 'Viewing Causal Studio'

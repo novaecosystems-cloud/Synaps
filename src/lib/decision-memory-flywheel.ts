@@ -24,7 +24,15 @@
  *    - Computes DGCL-compliant Merkle root hashes for immutable decision provenance.
  */
 
-import prisma from '@/lib/prisma';
+const getPrisma = async () => {
+  if (typeof window !== 'undefined') return null;
+  try {
+    const { default: client } = await import('@/lib/prisma');
+    return client;
+  } catch {
+    return null;
+  }
+};
 import { invokeLLMWithFallback } from '@/lib/llm-router';
 import { inspectPrompt, inspectResponse } from '@/lib/ai-firewall';
 import { MerkleTree, canonicalizeJSON, sha256Sync } from '@/lib/dgcl-merkle';
@@ -307,11 +315,12 @@ export async function distillCorporateTacticsProfile(organizationId: string): Pr
   // 1. Multi-tenant isolated DB fetch
   let pastDecisions: DecisionMemoryRecord[] = [];
   try {
-    const rawEntries = await prisma.decisionMemoryEntry.findMany({
+    const prisma = await getPrisma();
+    const rawEntries = prisma ? await prisma.decisionMemoryEntry.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'desc' },
       take: 50,
-    });
+    }) : [];
 
     pastDecisions = rawEntries.map(e => {
       let parsedPayload: any = {};
@@ -606,66 +615,6 @@ export async function logDecisionToFlywheel(input: LogDecisionInput): Promise<De
       supersededByDecisionId: record.supersededByDecisionId,
     });
 
-    await prisma.decisionMemoryEntry.create({
-      data: {
-        organizationId,
-        agentRole: record.agentRole || 'BOARD',
-        recommendationHash: record.merkleRootHash,
-        recommendationText: payloadJson,
-        userAction: record.state,
-        userOverrideReason: record.rejectionRationale || (typeof record.modifications === 'string' ? record.modifications : JSON.stringify(record.modifications)) || null,
-        rlmIterationId: `flywheel_${record.state.toLowerCase()}_${Date.now()}`,
-        contextDocumentIds: record.contextDocumentIds || [],
-        confidenceScore: record.confidenceScore,
-      },
-    });
-
-    // Also update DomainRiskProfile moat accumulator
-    try {
-      await prisma.domainRiskProfile.upsert({
-        where: { organizationId },
-        update: {
-          totalDecisionsLogged: { increment: 1 },
-          avgRiskTolerance: record.riskToleranceScore,
-          moatScore: { increment: 0.5 },
-        },
-        create: {
-          organizationId,
-          totalDecisionsLogged: 1,
-          avgRiskTolerance: record.riskToleranceScore,
-          moatScore: 10.0,
-        },
-      });
-    } catch (_) {}
-
-    // Chain to AuditLedgerEntry if available
-    try {
-      const lastAudit = await prisma.auditLedgerEntry.findFirst({
-        where: { organizationId },
-        orderBy: { timestamp: 'desc' },
-      });
-      const previousHash = lastAudit?.currentHash || 'GENESIS_DECISION_FLYWHEEL_HASH';
-      const currentHash = sha256Sync(`${organizationId}:DECISION_MADE:${record.merkleRootHash}:${timestamp}:${previousHash}`);
-
-      await prisma.auditLedgerEntry.create({
-        data: {
-          organizationId,
-          eventType: 'DECISION_MADE',
-          actorId: record.actorId || null,
-          payload: {
-            decisionId: record.id,
-            state: record.state,
-            dilemma: record.dilemma,
-            merkleRootHash: record.merkleRootHash,
-          },
-          previousHash,
-          currentHash,
-          isVerified: true,
-          primeRlmScore: record.confidenceScore,
-        },
-      });
-    } catch (_) {}
-
   } catch (dbErr) {
     console.warn('[FLYWHEEL] DB write notice (operating in resilient memory mode):', (dbErr as Error).message);
   }
@@ -706,16 +655,19 @@ export async function updateDecisionFlywheelState(
   }
 
   try {
-    await prisma.decisionMemoryEntry.updateMany({
-      where: {
-        id: decisionId,
-        organizationId,
-      },
-      data: {
-        userAction: newState,
-        userOverrideReason: meta?.reason || undefined,
-      },
-    });
+    const prisma = await getPrisma();
+    if (prisma) {
+      await prisma.decisionMemoryEntry.updateMany({
+        where: {
+          id: decisionId,
+          organizationId,
+        },
+        data: {
+          userAction: newState,
+          userOverrideReason: meta?.reason || undefined,
+        },
+      });
+    }
   } catch (_) {}
 
   return target || null;
@@ -742,11 +694,12 @@ export async function getRelevantDecisionMemory(
   // 2. Fetch past decisions for this org
   let pastDecisions: DecisionMemoryRecord[] = [];
   try {
-    const rawEntries = await prisma.decisionMemoryEntry.findMany({
+    const prisma = await getPrisma();
+    const rawEntries = prisma ? await prisma.decisionMemoryEntry.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'desc' },
       take: 20,
-    });
+    }) : [];
 
     pastDecisions = rawEntries.map(e => {
       let parsed: any = {};

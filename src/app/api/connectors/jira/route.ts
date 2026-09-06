@@ -325,7 +325,7 @@ export async function POST(req: NextRequest) {
             description: "Prime RLM flagged uncapped liability exposure in Q3 cloud vendor contract. Execute standard redline clause #402.",
             status: "P0_BLOCKER",
             priority: "P0",
-            assignee: "Legal: Shourya",
+            assignee: "Legal: General Counsel",
             causalityTag: "CSX-102",
           },
           {
