@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ─────────────────────────────────────────────────────────────────────────────
  * CAUSARIX™ MULTI-MODEL TRIAD ROUTER & ENGINE
  * ─────────────────────────────────────────────────────────────────────────────
@@ -14,7 +14,7 @@ import path from 'path';
 export interface TriadModelInfo {
   id: string;
   name: string;
-  domain: 'legal' | 'finance' | 'causal';
+  domain: 'legal' | 'finance' | 'causal' | 'strategy';
   path: string;
   isAvailable: boolean;
   sizeBytes: number;
@@ -25,7 +25,7 @@ export interface TriadModelInfo {
 export function getTriadModelsStatus(baseDir: string = process.cwd()): Record<string, TriadModelInfo> {
   const modelsDir = path.join(baseDir, 'models');
 
-  const models: Record<string, { name: string; domain: 'legal' | 'finance' | 'causal'; dirName: string; specs: string[] }> = {
+  const models: Record<string, { name: string; domain: 'legal' | 'finance' | 'causal' | 'strategy'; dirName: string; specs: string[] }> = {
     legal: {
       name: 'Causarix-Global-Legal (7B)',
       domain: 'legal',
@@ -43,6 +43,12 @@ export function getTriadModelsStatus(baseDir: string = process.cwd()): Record<st
       domain: 'causal',
       dirName: 'causarix-global-causal-7b-lora',
       specs: ['Judea Pearl SCM Do-Calculus Surgery', '10-Agent Boardroom Quorum Consensus', 'Delaware DGCL § 141 Merkle Proof Sealing', '0.00% Math Drift Invariant']
+    },
+    strategy: {
+      name: 'Causarix-Global-K2-Horizon (Strategy & MoVA)',
+      domain: 'strategy',
+      dirName: 'causarix-global-k2-horizon',
+      specs: ['Delaware DGCL § 141(e) Statutory Safe Harbor', 'MoVA Boardroom Arbitration & Consensus', 'Multi-Year Long-Horizon Trajectory Simulation', 'MCTS Insolvency Pruning (5.00% Drift Guard)']
     }
   };
 
@@ -68,7 +74,7 @@ export function getTriadModelsStatus(baseDir: string = process.cwd()): Record<st
       path: fullPath,
       isAvailable,
       sizeBytes,
-      parameters: '7.61B + 40.4MB LoRA',
+      parameters: cfg.domain === 'strategy' ? '0.9B + 56.0MB LoRA' : '7.61B + 40.4MB LoRA',
       specialization: cfg.specs
     };
   }
@@ -76,16 +82,37 @@ export function getTriadModelsStatus(baseDir: string = process.cwd()): Record<st
   return status;
 }
 
-export function routeDomainToTriadModel(query: string): 'legal' | 'finance' | 'causal' {
+export function routeDomainToTriadModel(query: string): 'legal' | 'finance' | 'causal' | 'strategy' {
+  if (typeof query !== 'string') return 'legal';
   const lower = query.toLowerCase();
 
+  // Strategy & Governance (K2-Horizon Quad-Core Engine)
+  if (
+    lower.includes('long-horizon') ||
+    lower.includes('long horizon') ||
+    lower.includes('mova') ||
+    lower.includes('trajectory') ||
+    lower.includes('fiduciary safe harbor') ||
+    lower.includes('statutory safe harbor') ||
+    lower.includes('business judgment rule') ||
+    lower.includes('insolvency pruning') ||
+    (lower.includes('dgcl') && (lower.includes('safe harbor') || lower.includes('safe-harbor') || lower.includes('boardroom') || lower.includes('consensus') || lower.includes('141(e)') || lower.includes('judgment')))
+  ) {
+    return 'strategy';
+  }
+
+  // Finance Brain
   if (lower.includes('ebitda') || lower.includes('gaap') || lower.includes('ifrs') || lower.includes('revenue') || lower.includes('balance sheet') || lower.includes('runway')) {
     return 'finance';
   }
 
+  // Causal Brain
   if (lower.includes('causal') || lower.includes('do-calculus') || lower.includes('counterfactual') || lower.includes('boardroom') || lower.includes('quorum') || lower.includes('merkle')) {
     return 'causal';
   }
 
   return 'legal'; // Default to legal & governance
 }
+
+export const routeDomainToQuadCoreModel = routeDomainToTriadModel;
+

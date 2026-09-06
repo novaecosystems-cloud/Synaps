@@ -157,6 +157,65 @@ def generate_causal_pair(idx):
         "output": output
     }
 
+def generate_k2_horizon_pair(idx):
+    scenarios = [
+        {
+            "title": "3-Year Enterprise Cloud Infrastructure Pivot & CapEx Amortization",
+            "horizon": "36 Months (12 Quarters)",
+            "stakeholders": {"CEO": "Aggressive Growth", "CFO": "Working Capital Preservation", "GC": "Data Sovereignty Compliance", "CRO": "Vendor Lock-in Downside"},
+            "confounding": "Global GPU Pricing Surges & Sovereign Cloud Mandates"
+        },
+        {
+            "title": "5-Year Strategic Cross-Border M&A Rollup & Equity Dilution",
+            "horizon": "60 Months (20 Quarters)",
+            "stakeholders": {"CEO": "Market Share Dominance", "CFO": "Debt Covenant & Interest Coverage", "GC": "Antitrust & CFIUS/DGCL Fiduciary Scrutiny", "CRO": "Culture & Talent Attrition"},
+            "confounding": "Interest Rate Volatility & Cross-Border Currency Headwinds"
+        },
+        {
+            "title": "4-Year Autonomous AI Workforce Integration & Operational Restructuring",
+            "horizon": "48 Months (16 Quarters)",
+            "stakeholders": {"CEO": "Operating Leverage Maximization", "CFO": "Severance vs OpEx Payback Period", "GC": "EU AI Act Human Oversight & Severance Law", "CRO": "Business Continuity Disruption"},
+            "confounding": "Regulatory Liability Shift & Workforce Unionization"
+        },
+        {
+            "title": "10-Year Global Intellectual Property Licensing & DGCL Fiduciary Moat",
+            "horizon": "120 Months (40 Quarters)",
+            "stakeholders": {"CEO": "Ecosystem Standard Monopoly", "CFO": "Tax Inversion & Transfer Pricing", "GC": "Delaware § 141 Director Liability Immunity", "CRO": "Patent Invalidation & Counterparty Default"},
+            "confounding": "International Bilateral Treaty Revisions & Sovereign AI Restrictions"
+        }
+    ]
+    sc = random.choice(scenarios)
+    instruction = f"Perform a {sc['horizon']} Long-Horizon Strategic Simulation and MoVA Boardroom Arbitration for: {sc['title']}."
+    input_text = (
+        f"Strategic Horizon: {sc['horizon']}\n"
+        f"Stakeholder Value Profiles: CEO ({sc['stakeholders']['CEO']}), CFO ({sc['stakeholders']['CFO']}), "
+        f"GC ({sc['stakeholders']['GC']}), CRO ({sc['stakeholders']['CRO']})\n"
+        f"Exogenous Confounders: {sc['confounding']}\n"
+        f"Simulation Budget: 10,000 MCTS Paths with 5.00% Insolvency Pruning Rule."
+    )
+    output = (
+        f"### CAUSARIX K2-HORIZON STRATEGIC REASONING & MoVA CONSENSUS\n"
+        f"**Scenario:** {sc['title']} [{sc['horizon']}]\n"
+        f"**Core Alignment:** Delaware DGCL § 141(e) Statutory Fiduciary Safe Harbor\n\n"
+        f"1. **Multi-Year Horizon Decomposition & Trajectory Modeling:**\n"
+        f"   - Year 1 (Execution Inception): Absorbs initial upfront CapEx; maintains minimum liquidity reserve of $4.8M.\n"
+        f"   - Year 2-3 (Compounding Scale): Unit economics expand by +380 bps; debt-to-EBITDA ratio stabilizes under 2.1x.\n"
+        f"   - Long-Horizon Value: Monte Carlo rollout across 10,000 trajectories yields 94.8% probability of achieving target enterprise value with 0.00% math drift.\n\n"
+        f"2. **MoVA (Mixture-of-Value Attention) Stakeholder Resolution:**\n"
+        f"   - Chief Financial Officer (CFO): Approved with phased tranche release linked to quarterly GAAP gross margin gates.\n"
+        f"   - General Counsel (GC): Approved with Delaware § 141 expert advisory memo cryptographically sealed.\n"
+        f"   - Chief Risk Officer (CRO): 4 branches pruned due to >5.00% insolvency exposure; surviving trajectory maintains zero debt default risk.\n\n"
+        f"3. **Fiduciary Execution & Merkle Root Seal:**\n"
+        f"   - Consensus Rating: 9.6/10 (Super-Majority Unanimous Board Resolution).\n"
+        f"   - Cryptographic Commitment: SHA-256 State Root sealed in constant-time Merkle tree."
+    )
+    return {
+        "id": f"K2_STRAT_{idx:04d}",
+        "instruction": instruction,
+        "input": input_text,
+        "output": output
+    }
+
 def main():
     print("=" * 70)
     print("🌍 BUILDING CAUSARIX GLOBAL MULTI-JURISDICTIONAL TRAINING DATASETS")
@@ -164,7 +223,7 @@ def main():
 
     # 1. Build Legal Dataset (3,000 items spanning 6 global jurisdictions)
     legal_file = DATA_DIR / "causarix_global_legal.jsonl"
-    print(f"\n[1/3] Generating {legal_file}...")
+    print(f"\n[1/4] Generating {legal_file}...")
     with open(legal_file, "w", encoding="utf-8") as f:
         count = 0
         for i in range(500):
@@ -176,7 +235,7 @@ def main():
 
     # 2. Build Finance Dataset (3,000 items spanning US GAAP, IFRS, OECD)
     finance_file = DATA_DIR / "causarix_global_finance.jsonl"
-    print(f"\n[2/3] Generating {finance_file}...")
+    print(f"\n[2/4] Generating {finance_file}...")
     with open(finance_file, "w", encoding="utf-8") as f:
         count = 0
         for i in range(1000):
@@ -188,17 +247,27 @@ def main():
 
     # 3. Build Causal & Boardroom Dataset (3,000 items)
     causal_file = DATA_DIR / "causarix_global_causal.jsonl"
-    print(f"\n[3/3] Generating {causal_file}...")
+    print(f"\n[3/4] Generating {causal_file}...")
     with open(causal_file, "w", encoding="utf-8") as f:
         for i in range(3000):
             pair = generate_causal_pair(i + 1)
             f.write(json.dumps(pair) + "\n")
     print(f"  ✔ Created 3000 SCM causal graph and boardroom consensus pairs.")
 
+    # 4. Build K2 Horizon Strategic Dataset (3,000 items)
+    k2_file = DATA_DIR / "causarix_k2_horizon_strategy.jsonl"
+    print(f"\n[4/4] Generating {k2_file} (Dedicated for K2 Horizon)...")
+    with open(k2_file, "w", encoding="utf-8") as f:
+        for i in range(3000):
+            pair = generate_k2_horizon_pair(i + 1)
+            f.write(json.dumps(pair) + "\n")
+    print(f"  ✔ Created 3000 K2 Horizon Strategic Reasoning pairs.")
+
     print("\n" + "=" * 70)
-    print("🎉 ALL 3 GLOBAL TRAINING DATASETS SUCCESSFULLY CREATED!")
+    print("🎉 ALL 4 TRAINING DATASETS SUCCESSFULLY CREATED!")
     print(f"📁 Output Directory: {DATA_DIR}")
     print("=" * 70)
 
 if __name__ == "__main__":
     main()
+

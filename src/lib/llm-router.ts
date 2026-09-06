@@ -291,6 +291,53 @@ async function executeProviderWithResilience(
 
 const providers: LLMProvider[] = [];
 
+// ─── 0. CAUSARIX K2-HORIZON SOVEREIGN STRATEGY & MoVA ENGINE ─────────────────
+const K2_HORIZON_ROUTER_URL = process.env.K2_HORIZON_API_URL || process.env.K2_HORIZON_BASE_URL || 'http://127.0.0.1:8082';
+
+providers.push({
+  name: 'Causarix K2-Horizon Sovereign Engine (DGCL § 141 / MoVA)',
+  invoke: async (messages, options) => {
+    const { response_format, temperature, max_tokens, ...rest } = options || {};
+    const urlCheck = validateSafeUrl(K2_HORIZON_ROUTER_URL, { allowLocalhost: true });
+    if (!urlCheck.valid) {
+      throw new Error(`K2-Horizon URL blocked (SSRF): ${urlCheck.error}`);
+    }
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const safeK2Base = (urlCheck.cleanUrl || K2_HORIZON_ROUTER_URL).replace(/\/$/, '');
+      const completionsUrl = safeK2Base.endsWith('/v1')
+        ? `${safeK2Base}/chat/completions`
+        : `${safeK2Base}/v1/chat/completions`;
+
+      const res = await fetch(completionsUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.K2_HORIZON_API_KEY || 'k2-horizon-local'}`,
+        },
+        body: JSON.stringify({
+          model: process.env.K2_HORIZON_MODEL || 'causarix-global-k2-horizon',
+          messages,
+          temperature: temperature ?? 0.2,
+          max_tokens: max_tokens ?? 2048,
+          ...rest,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error(`K2-Horizon returned HTTP ${res.status}`);
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content || '';
+    } catch (e: any) {
+      clearTimeout(timeout);
+      throw new Error(`K2-Horizon sovereign daemon offline: ${e.message}`);
+    }
+  },
+});
+
 // ─── 0. HUGGING FACE CLOUD INFERENCE (Causarix/causarix-global-7b-lora) ─────
 const hfToken = process.env.HF_TOKEN || process.env.HUGGINGFACE_TOKEN;
 if (hfToken) {
@@ -707,6 +754,8 @@ export async function checkOmniRouteStatus(): Promise<{
     modelsCount: 495,
   };
 }
+
+export { checkK2HorizonStatus } from '@/lib/llm-multi-router';
 
 /**
  * Executes LLM requests across an ultra-resilient multi-provider failover chain.
