@@ -2,7 +2,7 @@
 
 [![Production Live](https://img.shields.io/badge/Production-Live_v3.5-blue.svg)](https://causarix.vercel.app)
 [![Interactive Sandbox](https://img.shields.io/badge/Sandbox-Zero_Login_Demo-black.svg)](https://causarix.vercel.app/demo)
-[![Product Documentation](https://img.shields.io/badge/Documentation-v1.0_Live-blueviolet.svg)](https://causarix.vercel.app/docs)
+[![Product Documentation](https://img.shields.io/badge/Documentation-v1.0_Complete-blueviolet.svg)](./docs/PRODUCT_DOCUMENTATION.md)
 [![Triad Models](https://img.shields.io/badge/HuggingFace-Triad_7.6B_Models-orange.svg)](https://huggingface.co/Causarix/causarix-global-7b-lora)
 [![SCM Engine](https://img.shields.io/badge/SCM-Pearl_Do--Calculus-indigo.svg)](https://causarix.vercel.app/dashboard/simulations)
 [![Security Invariant](https://img.shields.io/badge/Compliance-Delaware_DGCL_§141(e)_Merkle-emerald.svg)](https://causarix.vercel.app/dashboard/compliance)
@@ -176,9 +176,10 @@ GRAND TOTAL                                   |    472 |    472 |      0 | ALL P
 
 ## 📖 Documentation & Links
 
-* **Live Platform:** [https://causarix.vercel.app](https://causarix.vercel.app)
-* **Zero-Login Interactive Demo:** [https://causarix.vercel.app/demo](https://causarix.vercel.app/demo)
-* **Product Documentation:** [https://causarix.vercel.app/docs](https://causarix.vercel.app/docs) or [`docs/PRODUCT_DOCUMENTATION.md`](./docs/PRODUCT_DOCUMENTATION.md)
+* **Product Documentation (Instant Full Guide):** [`docs/PRODUCT_DOCUMENTATION.md`](./docs/PRODUCT_DOCUMENTATION.md) (or [View on GitHub](https://github.com/novaecosystems-cloud/Synaps/blob/main/docs/PRODUCT_DOCUMENTATION.md))
+* **GitHub Repository:** [https://github.com/novaecosystems-cloud/Synaps](https://github.com/novaecosystems-cloud/Synaps)
+* **Zero-Login Interactive Demo:** [https://causarix.vercel.app/demo](https://causarix.vercel.app/demo) (or run locally: `npm run dev`)
+* **Live Web Platform:** [https://causarix.vercel.app](https://causarix.vercel.app)
 * **Contact & Enterprise Pilots:** `novaecosystems@gmail.com`
 
 ---
