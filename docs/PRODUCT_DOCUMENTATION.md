@@ -218,7 +218,7 @@ Users can query past decisions and ask "what if" — the engine replays the caus
 5. First live deliberation within week 1
 
 ### For Demo Access
-1. Visit `[your-deployment-url]/demo`
+1. Visit [https://causarix.vercel.app/demo](https://causarix.vercel.app/demo) (or locally at `http://localhost:3000/demo`)
 2. A demo workspace is automatically provisioned
 3. Navigate to **AGI Executive Studio**
 4. Type any corporate dilemma in the input field
