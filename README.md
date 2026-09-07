@@ -1,14 +1,15 @@
-﻿# CAUSARIX™ (formerly Synaps)
+# CAUSARIX™ (formerly Synaps)
 
 [![Production Live](https://img.shields.io/badge/Production-Live_v3.5-blue.svg)](https://causarix.vercel.app)
 [![Interactive Sandbox](https://img.shields.io/badge/Sandbox-Zero_Login_Demo-black.svg)](https://causarix.vercel.app/demo)
+[![Product Documentation](https://img.shields.io/badge/Documentation-v1.0_Live-blueviolet.svg)](https://causarix.vercel.app/docs)
 [![Triad Models](https://img.shields.io/badge/HuggingFace-Triad_7.6B_Models-orange.svg)](https://huggingface.co/Causarix/causarix-global-7b-lora)
 [![SCM Engine](https://img.shields.io/badge/SCM-Pearl_Do--Calculus-indigo.svg)](https://causarix.vercel.app/dashboard/simulations)
 [![Security Invariant](https://img.shields.io/badge/Compliance-Delaware_DGCL_§141(e)_Merkle-emerald.svg)](https://causarix.vercel.app/dashboard/compliance)
-[![Test Coverage](https://img.shields.io/badge/Tests-427/427_Passing_(100%25)-brightgreen.svg)](./tests)
+[![Test Coverage](https://img.shields.io/badge/Tests-472/472_Passing_(100%25)-brightgreen.svg)](./tests)
 [![License](https://img.shields.io/badge/License-Proprietary_Commercial-red.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
 
-**CAUSARIX™ (formerly Synaps)** is an institutional Decision Operating System and Fiduciary Governance Platform. Built for corporate boards, general counsels, enterprise risk leaders, and high-growth SMB founders, Causarix bridges corporate contracts, financial balance sheets, and operational realities into **adversarial 10-agent boardroom simulations**, **non-linear "what-if" crisis stress-testing**, **Delaware DGCL § 141 safe-harbor audit ledgers**, and **real-time bi-directional task execution**.
+**CAUSARIX™** is an institutional Decision Operating System and Fiduciary Governance Platform. Built for corporate boards, general counsels, enterprise risk leaders, and high-growth SMB founders, Causarix bridges corporate contracts, financial balance sheets, and operational realities into **freeform AGI dilemma deliberation**, **adversarial 10-agent boardroom simulations**, **dynamic Python mathematical modeling**, **Delaware DGCL § 141 safe-harbor Merkle audit ledgers**, and **real-time bi-directional task execution**.
 
 ---
 
@@ -24,67 +25,61 @@
 
 ### 3. 🚀 For SMB Founders & Fast-Growing Companies (US, India, Global)
 * **An On-Demand Institutional C-Suite:** Early-stage and mid-market founders cannot afford a $500,000/year executive bench. Causarix provides an instant, institutional-grade digital twin leadership team that reviews contracts, models cash runway burn, and evaluates growth decisions before capital is committed.
-* **Cash Runway & Crisis Resilience:** Allows founders to simulate real-world shocks—like a 30% drop in sales, a delayed Series A funding round, or a major supplier default—and shows exactly how many months of runway remain with 0.00% arithmetic drift.
+* **Cash Runway & Crisis Resilience:** Allows founders to simulate real-world shocks—like a 30% drop in sales, customer churn crisis, a delayed Series A funding round, or a major supplier default—and shows exactly how many months of runway remain with 0.00% arithmetic drift.
 
 ---
 
 ## 🧭 When to Choose Causarix vs. Traditional Alternatives
-
-To help leadership teams select the right software, here is an objective guide on when to use traditional tools versus when to deploy Causarix:
 
 | Scenario / Need | Traditional Tool | When to Use Traditional Tool | **When Leadership Chooses CAUSARIX™** |
 | :--- | :--- | :--- | :--- |
 | **Financial Planning & Forecasting** | **Anaplan / Workday Adaptive** | Routine budgeting, departmental spreadsheet rollups, and linear sales projections. | **Crisis & "What-If" Stress-Testing:** When the CFO needs to simulate supply chain shocks, black-swan market downturns, and non-linear cash ruin probabilities before committing capital. |
 | **Boardroom Operations** | **Diligent AI / Nasdaq Boardvantage** | Distributing meeting agendas, organizing PDF board packets, and storing signed corporate minutes. | **Adversarial Simulations & Legal Defense:** When directors need an active AI Red Team to challenge assumptions and require cryptographic Delaware DGCL § 141 proof of due diligence against shareholder lawsuits. |
 | **Contract Management** | **Ironclad / Robin AI / DocuSign** | Organizing contract archives, tracking renewals, and executing electronic signatures. | **Contract Ruin Risk & Liability Calculation:** When General Counsel needs to quantify the dollar-for-dollar downside of uncapped liability clauses and verify cross-border statutory compliance. |
+| **Legal AI & Copilots** | **Harvey AI / Spellbook** | Drafting boilerplate clauses and querying case law summaries. | **Executive Judgment & Strategic Deliberation:** Autonomous MCTS tree-of-thought, problem-specific quantitative simulation synthesis, and institutional decision memory. |
 
 ---
 
 ## 🏛️ Core Platform Capabilities
 
-### 1. 👥 10-Agent Autonomous Executive Boardroom (Real-Time SSE Streaming)
+### 1. 🧠 Dynamic AGI Executive Studio (Freeform Dilemma Ingestion)
+* **Arbitrary Dilemma Input:** Type in any strategic dilemma—contract breach, hostile takeover, sudden customer churn, supply chain tariff shock—without rigid templates.
+* **MCTS Tree-of-Thought Deliberation:** Dynamically constructs branching strategic decision trees, evaluating competing paths (e.g. renegotiate, litigate, restructure) against fiduciary duty-of-care, cash runway impact, and insolvency risk.
+* **On-the-Fly Quantitative Simulation Synthesis:** Automatically generates executable Python models (Monte Carlo, Geometric Brownian Motion, CVaR) with parameters extracted directly from the dilemma text.
+* **Delaware DGCL § 141 Cryptographic Merkle Sealing:** Cryptographically binds user text, synthesized simulation code, and winning decision into a tamper-proof 66-character SHA-256 Merkle root.
+
+### 2. 👥 10-Agent Autonomous Executive Boardroom (Real-Time SSE Streaming)
 * **Live Deliberation Streaming:** Emits incremental Server-Sent Events (SSE) from 10 distinct digital twin executives (`CEO`, `CFO`, `COO`, `CTO`, `General Counsel`, `CPO`, `CRO`, `CMO`, `Operations`, `Compliance`) to prevent serverless timeouts on complex quorums.
 * **Delaware DGCL § 141(e) Statutory Safe Harbor:** Binds every boardroom consensus to an immutable cryptographic SHA-256 Merkle root chain, protecting leadership under the Business Judgment Rule.
 * **Strict Zod Typed Contracts:** Enforces typed JSON output schemas with deterministic fallback repair loops to eliminate UI crashes.
 
-### 2. 🧠 Proprietary Triad Neural Network Architecture (7.61B + Multi-LoRA)
+### 3. 🧠 Proprietary Triad Neural Network Architecture (7.61B + Multi-LoRA)
 To eliminate catastrophic weight interference and domain hallucinations, Causarix partitions reasoning across **3 custom-trained neural adapters**:
 * **`Causarix-Global-Legal`:** Specializes in Delaware DGCL § 141, UK Companies Act 2006 § 172, EU CSDDD & GDPR Arts. 28/82, and India DPDP 2023. Hosted on [Hugging Face](https://huggingface.co/Causarix/causarix-global-7b-lora).
 * **`Causarix-Global-Finance`:** Specializes in US GAAP (ASC 606/842), IFRS 15/16, OECD transfer pricing, and pro-forma EBITDA runway drag.
 * **`Causarix-Global-Causal`:** Specializes in Judea Pearl SCM $do$-calculus graph surgery, multi-agent arbitration, and Delaware Merkle proof sealing.
 
-### 3. 📊 Structural Causal Model (SCM) & Counterfactual Studio
+### 4. 📊 Structural Causal Model (SCM) & Counterfactual Studio
 * **Interventional "What-If" Analysis:** Computes true causal interventional distributions $P(Y \mid do(X))$ rather than misleading correlations.
 * **0.00% Math Drift Causal Kernel:** Executes 10,000-iteration Box-Muller Gaussian simulations and Mulberry32 PRNG seed-locked draws with **verified 0.00% arithmetic drift**, eliminating numerical hallucinations.
 * **Value-at-Risk (VaR95 & CVaR95):** Delivers reproducible, audit-grade tail risk quantification for enterprise balance sheets.
 
-### 4. ⚡ Tri-Directional Reactive Sync Mesh (Native Jira ⟷ Native Slack ⟷ Boardroom)
+### 5. ⚡ Tri-Directional Reactive Sync Mesh (Native Jira ⟷ Native Slack ⟷ WhatsApp ⟷ Boardroom)
 * **Real-Time Cross-System Sync:** Changes in the native Kanban board (`/dashboard/projects`) immediately broadcast formatted audit cards into the native Team Stream (`/dashboard/chat`).
 * **Chat Command Actions:** Typing `@CTO fix database indexing` or `resolve CSX-101` in chat automatically updates the persistent database and Kanban cards.
-* **Infinite Loop Breaker:** Cryptographic event fingerprinting prevents circular trigger loops across systems.
+* **Omnichannel Board Alerts:** Winning resolutions automatically dispatch actionable tasks to Jira, executive summaries to Slack, and board-level digests to WhatsApp.
 
-### 5. 🔒 PostgreSQL Engine-Level Row-Level Security (RLS) & Multi-Tenancy
+### 6. 🔒 PostgreSQL Engine-Level Row-Level Security (RLS) & Multi-Tenancy
 * **Engine-Enforced Isolation:** Multi-tenancy is enforced directly at the PostgreSQL database engine layer via `SET LOCAL app.current_tenant_id` and strict RLS policies, guaranteeing zero cross-tenant data leaks.
 * **Tenant-Safe Context Middleware:** Validates organization boundaries across all queries, document ingestion vectors, and simulation records.
 
-### 6. 📑 Layout-Aware Evidentiary PDF Ingestion
+### 7. 📑 Layout-Aware Evidentiary PDF Ingestion
 * **Coordinate-Level OCR Ingestion:** Retains exact page numbers, paragraph indices, character offsets, and 2D bounding boxes for courtroom-admissible evidence citations.
 * **Bi-Directional AI Application Firewall (AI-WAF):** Real-time secret and PII scrubbers (12 secret key families, Luhn credit card validation, SSN regexes, and anti-prompt-injection shields).
 
-### 7. 💻 Air-Gapped Standalone Desktop Application (`Causarix.exe`)
+### 8. 💻 Air-Gapped Standalone Desktop Application (`Causarix.exe`)
 * **Zero-Cloud-Egress Mode:** Fully packaged Electron desktop shell designed for tier-1 banks, defense contractors, and elite law firms requiring 100% offline, on-premise execution.
 * **Single-Instance Locks & WebGL Acceleration:** Hardware-accelerated desktop experience with local SQLite event queuing.
-
----
-
-## 🌐 Enterprise Google Ecosystem & DeepMind Architecture Integration
-
-Causarix natively integrates with Google’s cloud, frontier AI, and workspace ecosystem to deliver enterprise-grade performance:
-
-* **Google Gemini & Vertex AI Foundation Models:** Powered by Google Gemini 2.0 Flash and Pro models as the primary high-throughput foundation intelligence engine for 10-agent boardroom dialectic arbitration, multi-document synthesis, and strict structured JSON schema generation.
-* **Google Workspace & Google Drive Connector:** Direct bi-directional API connector that securely ingests and vector-indexes enterprise contracts, financial balance sheets, and board packages directly from Google Drive with page-level coordinate tracking.
-* **Google Meet Real-Time Scribe Bot:** Connects directly into live Google Meet executive sessions to capture speaker-attributed transcripts, scrub PII in-flight via our AI-WAF, and dispatch consensus mitigation records.
-* **Google Cloud Platform (GCP) Readiness:** Built with containerized microservices ready for 1-click deployment on Google Kubernetes Engine (GKE), Cloud Run, and Vertex AI Model Garden endpoints.
 
 ---
 
@@ -94,10 +89,12 @@ Causarix natively integrates with Google’s cloud, frontier AI, and workspace e
 | :--- | :--- | :--- |
 | **Arithmetic Reliability** | 9% – 17% math drift on balance sheets | **0.00% Math Drift** via deterministic Box-Muller/Wasm kernel |
 | **Legal Defensibility** | Unstructured conversational text | **Delaware DGCL § 141** SHA-256 Merkle audit proofs |
+| **Reasoning Depth** | Shallow single-prompt completion | **Dynamic MCTS Tree-of-Thought** with causal pruning |
+| **Quantitative Rigor** | Hallucinated estimates | **Dynamic Python Simulation Synthesis** (Monte Carlo/GBM/CVaR) |
 | **Multi-Tenancy** | Application-level `where` filters | **PostgreSQL Engine-Level Row-Level Security (RLS)** |
 | **Model Specialization** | Monolithic generalist chatbot | **Triad Neural Networks** (Legal, Finance, Causal LoRAs) |
 | **Data Privacy** | Mandatory cloud retention | **100% Air-Gapped Desktop (`Causarix.exe`)** + Zero Cloud Egress |
-| **Automated Testing** | 0 tests (Vibecoded hopes) | **427 / 427 Automated Tests Passing Across 16 Tiers** |
+| **Automated Testing** | 0 tests (Vibecoded hopes) | **472 / 472 Automated Tests Passing Across 20 Tiers (100%)** |
 
 ---
 
@@ -115,16 +112,16 @@ Create a `.env.local` file with your database URL and credentials:
 ```bash
 DATABASE_URL="postgresql://user:password@localhost:5432/causarix"
 ```
-Run Prisma migrations to enable engine-level RLS:
+Generate Prisma artifacts:
 ```bash
-npx prisma migrate dev
+npx prisma generate
 ```
 
 ### 3. Run Development Web Server
 ```bash
 npm run dev
 ```
-Navigate to `http://localhost:3000` to launch the platform.
+Navigate to `http://localhost:3000` to launch the platform or `http://localhost:3000/docs` to view documentation.
 
 ### 4. Run Standalone Desktop Executable
 ```bash
@@ -137,9 +134,9 @@ Navigate to `http://localhost:3000` to launch the platform.
 
 ---
 
-## 🧪 Comprehensive Automated Test Battery (427 / 427 Tests)
+## 🧪 Comprehensive Automated Test Battery (472 / 472 Tests Passing)
 
-Execute the complete 16-tier enterprise test suite:
+Execute the complete 20-tier enterprise test suite:
 ```bash
 node tests/run-all-tests.js
 ```
@@ -166,10 +163,23 @@ Milestone 4: Global Datasets & Training       |      7 |      7 |      0 | PASS
 Milestone 5: Triad Models On-Disk             |      7 |      7 |      0 | PASS
 Milestone 6: RLVR Rewards & Penalties         |      9 |      9 |      0 | PASS
 Milestone 7: Native Jira & Slack Sync         |      5 |      5 |      0 | PASS
+Milestone 8: Free Tier QR Watermark           |      5 |      5 |      0 | PASS
+Milestone 9: VC Distribution & Diligence      |      5 |      5 |      0 | PASS
+Milestone 10: Causarix Enterprise AGI Engine  |      5 |      5 |      0 | PASS
+Milestone 10: Dynamic Deliberation & SCM      |     30 |     30 |      0 | PASS
 ─────────────────────────────────────────────────────────────────────────────
-GRAND TOTAL                                   |    427 |    427 |      0 | ALL PASS
+GRAND TOTAL                                   |    472 |    472 |      0 | ALL PASS
 ======================================================================
 ```
+
+---
+
+## 📖 Documentation & Links
+
+* **Live Platform:** [https://causarix.vercel.app](https://causarix.vercel.app)
+* **Zero-Login Interactive Demo:** [https://causarix.vercel.app/demo](https://causarix.vercel.app/demo)
+* **Product Documentation:** [https://causarix.vercel.app/docs](https://causarix.vercel.app/docs) or [`docs/PRODUCT_DOCUMENTATION.md`](./docs/PRODUCT_DOCUMENTATION.md)
+* **Contact & Enterprise Pilots:** `novaecosystems@gmail.com`
 
 ---
 
