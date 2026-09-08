@@ -37,12 +37,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { downloadAsPDF, PDFSection } from '@/lib/export-helpers';
 import {
-  runAutonomousExecutiveReasoning,
   MctsDeliberationResult,
   MctsNode,
   RiskTolerance,
-  PRELOADED_DILEMMAS
-} from '@/lib/autonomous-executive-reasoner';
+  PRELOADED_DILEMMAS,
+  buildClientFallbackDeliberation,
+} from '@/lib/autonomous-executive-types';
 import { useOrgProfile } from '@/context/OrgProfileContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -143,13 +143,13 @@ export default function AgiStudioPage() {
         }
       }
 
-      // 2. Client-side fallback if API is unreachable or during offline execution
-      const fallbackResult = await runAutonomousExecutiveReasoning({
-        dilemma: targetDilemma,
+      // 2. Client-side deterministic fallback if API is unreachable or during offline execution
+      const fallbackResult = buildClientFallbackDeliberation(
+        targetDilemma,
         organizationName,
         riskTolerance,
-        initialCashRunwayMonths,
-      });
+        initialCashRunwayMonths
+      );
 
       setResult(fallbackResult);
       setSelectedNode(fallbackResult.winningPath);
@@ -161,12 +161,12 @@ export default function AgiStudioPage() {
     } catch (err: any) {
       console.error('Deliberation error:', err);
       // Emergency local fallback
-      const localResult = await runAutonomousExecutiveReasoning({
-        dilemma: targetDilemma,
+      const localResult = buildClientFallbackDeliberation(
+        targetDilemma,
         organizationName,
         riskTolerance,
-        initialCashRunwayMonths,
-      });
+        initialCashRunwayMonths
+      );
       setResult(localResult);
       setSelectedNode(localResult.winningPath);
       setDeliberationStep(5);

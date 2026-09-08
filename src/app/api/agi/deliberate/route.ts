@@ -2,12 +2,17 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { runAutonomousExecutiveReasoning, RiskTolerance } from "@/lib/autonomous-executive-reasoner";
+import {
+  getDeliberationCacheKey,
+  getCachedDeliberation,
+  setCachedDeliberation,
+} from "@/lib/autonomous-executive-cache";
 import { internalSyncMesh } from "@/lib/internal-sync-mesh";
 import { resolveAuthContext } from "@/lib/security";
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- * CAUSARIX AGI DELIBERATION API ROUTE
+ * CAUSARIX AGI DELIBERATION API ROUTE (STAGE 3 MERKLE CACHE ENHANCED)
  * ─────────────────────────────────────────────────────────────────────────────
  * POST /api/agi/deliberate
  *
@@ -20,11 +25,11 @@ import { resolveAuthContext } from "@/lib/security";
  * }
  *
  * 1. Validates executive dilemma payload.
- * 2. Invokes runAutonomousExecutiveReasoning (MCTS Tree-of-Thought search,
- *    Qwen 2.5 Coder simulation synthesis, and Delaware Merkle tree sealing).
- * 3. Dispatches the winning decision to internalSyncMesh for bi-directional
- *    Jira Kanban task spawning and Slack #boardroom-alerts broadcast.
- * 4. Returns { success: true, data: MctsDeliberationResult }.
+ * 2. Checks high-speed deterministic Merkle-keyed simulation cache (sub-12ms).
+ * 3. On cache miss: Invokes runAutonomousExecutiveReasoning (MCTS Tree-of-Thought search,
+ *    mathematical simulation synthesis, and Delaware Merkle tree sealing).
+ * 4. Dispatches winning decision to internalSyncMesh for Jira Kanban and Slack broadcast.
+ * 5. Returns { success: true, data: MctsDeliberationResult, cached: boolean }.
  */
 
 export async function POST(req: NextRequest) {
@@ -78,16 +83,42 @@ export async function POST(req: NextRequest) {
       ? Number(initialCashRunwayMonths)
       : 18;
 
-    // 1. Invoke Autonomous Executive Reasoner (Tree-of-Thought MCTS + Qwen 2.5 Coder Simulation)
+    const targetOrg = (organizationName || defaultOrgName).trim();
+    const cleanDilemma = dilemma.trim();
+
+    // 1. Stage 3 Scaling: Check Merkle-Keyed Simulation Cache
+    const cacheKey = getDeliberationCacheKey(cleanDilemma, targetOrg, normalizedRisk, normalizedRunway);
+    const cachedResult = await getCachedDeliberation(cacheKey);
+
+    if (cachedResult) {
+      return NextResponse.json(
+        {
+          success: true,
+          data: cachedResult,
+          cached: true,
+        },
+        {
+          headers: {
+            "X-Causarix-Cache": "HIT",
+            "X-Causarix-Cache-Key": cacheKey,
+          },
+        }
+      );
+    }
+
+    // 2. Invoke Autonomous Executive Reasoner (Tree-of-Thought MCTS + Mathematical Simulation)
     const deliberationResult = await runAutonomousExecutiveReasoning({
-      dilemma: dilemma.trim(),
+      dilemma: cleanDilemma,
       title: title && typeof title === "string" ? title.trim() : undefined,
-      organizationName: (organizationName || defaultOrgName).trim(),
+      organizationName: targetOrg,
       riskTolerance: normalizedRisk,
       initialCashRunwayMonths: normalizedRunway,
     });
 
-    // 2. Dispatch the winning decision to internalSyncMesh (Jira + Slack + Boardroom bus)
+    // 3. Store in Merkle-Keyed Simulation Cache for instant repeated lookups
+    await setCachedDeliberation(cacheKey, deliberationResult, 3600);
+
+    // 4. Dispatch the winning decision to internalSyncMesh (Jira + Slack + Boardroom bus)
     try {
       await internalSyncMesh({
         origin: "BOARDROOM_QUORUM",
@@ -110,11 +141,20 @@ export async function POST(req: NextRequest) {
       console.warn("[AGI Deliberate API] Non-fatal internalSyncMesh warning:", meshErr);
     }
 
-    // 3. Return canonical MctsDeliberationResult
-    return NextResponse.json({
-      success: true,
-      data: deliberationResult,
-    });
+    // 5. Return canonical MctsDeliberationResult
+    return NextResponse.json(
+      {
+        success: true,
+        data: deliberationResult,
+        cached: false,
+      },
+      {
+        headers: {
+          "X-Causarix-Cache": "MISS",
+          "X-Causarix-Cache-Key": cacheKey,
+        },
+      }
+    );
   } catch (error: any) {
     console.error("[AGI Deliberate API Error]:", error);
     return NextResponse.json(

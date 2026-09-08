@@ -171,6 +171,7 @@ model Project {
 
   @@index([organizationId])
   @@index([ownerId])
+  @@index([organizationId, status, createdAt])
 }
 
 model ProjectMember {
@@ -211,6 +212,7 @@ model ProjectTask {
 
   @@index([projectId])
   @@index([organizationId])
+  @@index([organizationId, status, createdAt])
 }
 
 model TaskNote {
@@ -548,6 +550,8 @@ model Decision {
 
   @@index([organizationId])
   @@index([projectId])
+  @@index([organizationId, status, createdAt])
+  @@index([organizationId, createdAt])
 }
 
 model ExecutiveSummary {
@@ -680,6 +684,8 @@ model AuditLog {
   @@index([organizationId])
   @@index([entityId])
   @@index([action])
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@index([organizationId, action, createdAt])
 }
 
 enum NotificationType {
