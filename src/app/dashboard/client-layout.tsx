@@ -225,8 +225,23 @@ export default function ClientLayout({ children, user }: { children: React.React
   };
 
   const handleLogout = async () => {
-    await logoutAction();
-    router.push('/login');
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('synaps_demo_user');
+        localStorage.removeItem('causarix_demo_session');
+        document.cookie = 'synaps-session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+      }
+      await fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {});
+      await logoutAction().catch(() => {});
+      const { auth } = await import('@/lib/firebase');
+      if (auth) {
+        await auth.signOut().catch(() => {});
+      }
+    } catch (e) {
+      console.warn('[LOGOUT] Non-fatal cleanup issue:', e);
+    } finally {
+      window.location.href = '/login';
+    }
   };
 
   // Global ESC / causarix-close-modals listener

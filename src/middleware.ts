@@ -68,6 +68,12 @@ export function middleware(request: NextRequest) {
     return applySecurityHeaders(res);
   }
 
+  // 1b. Fast edge redirect for authenticated or demo visitors opening root / (re-opening window/tab)
+  if (path === '/' && session && session.length > 5 && !request.nextUrl.searchParams.has('landing') && !request.nextUrl.searchParams.has('preview')) {
+    const res = NextResponse.redirect(new URL('/dashboard', request.url));
+    return applySecurityHeaders(res);
+  }
+
   // 2. Allow Legal pages
   if (path.startsWith('/legal')) {
     const res = NextResponse.next();

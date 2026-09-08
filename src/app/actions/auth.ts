@@ -34,6 +34,13 @@ export async function loginAction(idToken: string) {
 
 export async function logoutAction() {
   const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, '', {
+    maxAge: 0,
+    path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
   cookieStore.delete(SESSION_COOKIE_NAME);
   return { success: true };
 }

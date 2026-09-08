@@ -35,6 +35,7 @@ const m10Suite = require('./m10-autonomous-agi-reasoner.test');
 const m10DynamicSuite = require('./m10-dynamic-deliberation.test');
 const m12OnboardingSuite = require('./m12-apple-onboarding.test');
 const m13Suite = require('./m13-merkle-cache-indexes.test');
+const m14Suite = require('./m14-auth-persistence-navigation.test');
 
 function parseArgs(args = []) {
   const options = {
@@ -88,6 +89,7 @@ async function main(cliArgs = process.argv.slice(2)) {
     { tier: 20, name: 'Milestone 10: Dynamic Deliberation & SCM Synthesis', suite: m10DynamicSuite, targetCount: 30 },
     { tier: 21, name: 'Milestone 12: Zero-Friction Apple-Grade Onboarding', suite: m12OnboardingSuite, targetCount: 17 },
     { tier: 22, name: 'Milestone 13: System Scaling, Merkle Caching & Prisma Composite Indexes', suite: m13Suite, targetCount: 19 },
+    { tier: 23, name: 'Milestone 14: Auth Persistence, Root Navigation & Demo Integrity', suite: m14Suite, targetCount: 11 },
   ];
 
   const suitesToRun = options.tiers

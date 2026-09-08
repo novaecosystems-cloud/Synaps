@@ -119,3 +119,22 @@ export async function POST(req: NextRequest) {
     return response;
   }
 }
+
+// DELETE: Revoke and invalidate session cookie
+export async function DELETE(req: NextRequest) {
+  const response = NextResponse.json({
+    success: true,
+    message: 'Session revoked successfully.',
+  });
+
+  response.cookies.set('synaps-session', '', {
+    maxAge: 0,
+    path: '/',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+
+  return response;
+}
+
