@@ -18,6 +18,7 @@ const FluidCanvas = dynamic(() => import("@/components/ui/FluidCanvas").then(m =
 const CustomCursor = dynamic(() => import("@/components/ui/CustomCursor").then(m => m.CustomCursor), { ssr: false });
 const AuroraBars = dynamic(() => import("@/components/ui/AuroraBars").then(m => m.AuroraBars), { ssr: false });
 const PixelLiquidBg = dynamic(() => import("@/components/ui/PixelLiquidBg").then(m => m.PixelLiquidBg), { ssr: false });
+const AcidSquares = dynamic(() => import("@/components/ui/AcidSquares"), { ssr: false });
 
 import { HoverExpand, HoverExpandItem } from "@/components/ui/HoverExpand";
 import { getGumroadCheckoutUrl } from "@/lib/gumroad";
@@ -387,13 +388,31 @@ export default function CausarixEnterpriseLanding() {
 
       {/* ── HERO SECTION TAILORED TO CAUSARIX ───────────────────────────────── */}
       <section className="relative pt-40 pb-28 px-6 sm:px-12 max-w-6xl mx-auto text-center space-y-8 z-10">
-        {/* Interactive Aurora Bars Animated Background */}
-        <div className="absolute inset-0 -z-10 opacity-40 overflow-hidden pointer-events-auto rounded-3xl">
-          <AuroraBars
-            barCount={32}
-            speed={0.6}
-            colors={["#fc4778", "#ff7a00", "#00f0ff", "#38bdf8", "transparent"]}
-            blur={3}
+        {/* Interactive AcidSquares WebGL Animated Background (Causarix Brand Palette Preserved) */}
+        <div className="absolute inset-0 -z-10 opacity-35 overflow-hidden pointer-events-auto rounded-3xl" style={{ width: '100%', height: '100%', position: 'absolute' }}>
+          <AcidSquares
+            color1="#0284c7"
+            color2="#fc4778"
+            color3="#ffffff"
+            detail="medium"
+            speed={0.7}
+            waveDepth={1}
+            zoom={1.3}
+            density={10}
+            glow={1}
+            exposure={2700}
+            spread={0.3}
+            stepSize={0.002}
+            colorShift={0}
+            contrast={1}
+            brightness={1}
+            opacity={1}
+            mouseInteraction={true}
+            mouseStrength={0.1}
+            mouseRadius={0.35}
+            blur={0}
+            grain={true}
+            grainIntensity={0.05}
           />
         </div>
 
