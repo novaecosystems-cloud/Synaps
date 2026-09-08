@@ -33,6 +33,7 @@ const m8Suite = require('./m8-free-tier-watermark.test');
 const m9Suite = require('./m9-vc-distribution.test');
 const m10Suite = require('./m10-autonomous-agi-reasoner.test');
 const m10DynamicSuite = require('./m10-dynamic-deliberation.test');
+const m12OnboardingSuite = require('./m12-apple-onboarding.test');
 
 function parseArgs(args = []) {
   const options = {
@@ -84,6 +85,7 @@ async function main(cliArgs = process.argv.slice(2)) {
     { tier: 18, name: 'Milestone 9: VC Distribution & Diligence', suite: m9Suite, targetCount: 5 },
     { tier: 19, name: 'Milestone 10: Causarix Enterprise AGI Engine', suite: m10Suite, targetCount: 5 },
     { tier: 20, name: 'Milestone 10: Dynamic Deliberation & SCM Synthesis', suite: m10DynamicSuite, targetCount: 30 },
+    { tier: 21, name: 'Milestone 12: Zero-Friction Apple-Grade Onboarding', suite: m12OnboardingSuite, targetCount: 17 },
   ];
 
   const suitesToRun = options.tiers

@@ -6,7 +6,7 @@
 [![Triad Models](https://img.shields.io/badge/HuggingFace-Triad_7.6B_Models-orange.svg)](https://huggingface.co/Causarix/causarix-global-7b-lora)
 [![SCM Engine](https://img.shields.io/badge/SCM-Pearl_Do--Calculus-indigo.svg)](https://causarix.vercel.app/dashboard/simulations)
 [![Security Invariant](https://img.shields.io/badge/Compliance-Delaware_DGCL_§141(e)_Merkle-emerald.svg)](https://causarix.vercel.app/dashboard/compliance)
-[![Test Coverage](https://img.shields.io/badge/Tests-472/472_Passing_(100%25)-brightgreen.svg)](./tests)
+[![Test Coverage](https://img.shields.io/badge/Tests-489/489_Passing_(100%25)-brightgreen.svg)](./tests)
 [![License](https://img.shields.io/badge/License-Proprietary_Commercial-red.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
 
 **CAUSARIX™** is an institutional Decision Operating System and Fiduciary Governance Platform. Built for corporate boards, general counsels, enterprise risk leaders, and high-growth SMB founders, Causarix bridges corporate contracts, financial balance sheets, and operational realities into **freeform AGI dilemma deliberation**, **adversarial 10-agent boardroom simulations**, **dynamic Python mathematical modeling**, **Delaware DGCL § 141 safe-harbor Merkle audit ledgers**, and **real-time bi-directional task execution**.
@@ -94,7 +94,7 @@ To eliminate catastrophic weight interference and domain hallucinations, Causari
 | **Multi-Tenancy** | Application-level `where` filters | **PostgreSQL Engine-Level Row-Level Security (RLS)** |
 | **Model Specialization** | Monolithic generalist chatbot | **Triad Neural Networks** (Legal, Finance, Causal LoRAs) |
 | **Data Privacy** | Mandatory cloud retention | **100% Air-Gapped Desktop (`Causarix.exe`)** + Zero Cloud Egress |
-| **Automated Testing** | 0 tests (Vibecoded hopes) | **472 / 472 Automated Tests Passing Across 20 Tiers (100%)** |
+| **Automated Testing** | 0 tests (Vibecoded hopes) | **489 / 489 Automated Tests Passing Across 21 Tiers (100%)** |
 
 ---
 
@@ -167,8 +167,9 @@ Milestone 8: Free Tier QR Watermark           |      5 |      5 |      0 | PASS
 Milestone 9: VC Distribution & Diligence      |      5 |      5 |      0 | PASS
 Milestone 10: Causarix Enterprise AGI Engine  |      5 |      5 |      0 | PASS
 Milestone 10: Dynamic Deliberation & SCM      |     30 |     30 |      0 | PASS
+Milestone 12: Zero-Friction Apple Onboarding  |     17 |     17 |      0 | PASS
 ─────────────────────────────────────────────────────────────────────────────
-GRAND TOTAL                                   |    472 |    472 |      0 | ALL PASS
+GRAND TOTAL                                   |    489 |    489 |      0 | ALL PASS
 ======================================================================
 ```
 

@@ -13,9 +13,6 @@ import DashboardSkeleton from '@/components/DashboardSkeleton';
 import { BackgroundTaskProvider } from '@/context/BackgroundTaskContext';
 import { SynapsVectorLogo } from '@/components/SynapsVectorLogo';
 
-const MultiStepPaywallModal = dynamic(() => import('@/components/MultiStepPaywallModal'), { ssr: false });
-const LaunchPromoModal = dynamic(() => import('@/components/LaunchPromoModal'), { ssr: false });
-const SynapsWrappedModal = dynamic(() => import('@/components/SynapsWrappedModal'), { ssr: false });
 const DownloadDesktopModal = dynamic(() => import('@/components/DownloadDesktopModal'), { ssr: false });
 const CausarixGuidedTourModal = dynamic(() => import('@/components/CausarixGuidedTourModal'), { ssr: false });
 const CausarixCinematicSplash = dynamic(() => import('@/components/CausarixCinematicSplash'), { ssr: false });
@@ -26,18 +23,8 @@ const BackgroundTaskWidget = dynamic(() => import('@/components/BackgroundTaskWi
 
 const NotificationDropdown = dynamic(() => import('@/components/NotificationDropdown'), { ssr: false });
 const GlobalSearch = dynamic(() => import('@/components/GlobalSearch').then(mod => mod.GlobalSearch), { ssr: false });
-const OnboardingHints = dynamic(() => import('@/components/onboarding').then(mod => mod.OnboardingHints), { ssr: false });
-const TourGuide = dynamic(() => import('@/components/TourGuide'), { ssr: false });
 const OrganizationModal = dynamic(() => import('@/components/OrganizationModal'), { ssr: false });
-const AdaptiveEnterpriseOnboardingModal = dynamic(() => import('@/components/AdaptiveEnterpriseOnboardingModal'), { ssr: false });
-const SubdashboardIntroModal = dynamic(() => import('@/components/SubdashboardIntroModal'), { ssr: false });
-const AiCreditBadge = dynamic(() => import('@/components/AiCreditBadge'), { ssr: false });
-const AiCreditExhaustedModal = dynamic(() => import('@/components/AiCreditExhaustedModal'), { ssr: false });
-const DemoHeaderBadge = dynamic(() => import('@/components/DemoHeaderBadge'), { ssr: false });
 const DailyWorkdayBriefModal = dynamic(() => import('@/components/DailyWorkdayBriefModal'), { ssr: false });
-const TimedUsagePaywallModal = dynamic(() => import('@/components/TimedUsagePaywallModal'), { ssr: false });
-const DemoSectorSandboxModal = dynamic(() => import('@/components/DemoSectorSandboxModal'), { ssr: false });
-const OrgMemberPresenceStack = dynamic(() => import('@/components/OrgMemberPresenceStack'), { ssr: false });
 
 const PlanAccessGate = dynamic(() => import('@/components/PlanAccessGate'), { ssr: false });
 const SovereignOfflineModeToggle = dynamic(() => import('@/components/SovereignOfflineModeToggle'), { ssr: false });
@@ -63,88 +50,36 @@ type MenuSection = {
 
 const sidebarSections: MenuSection[] = [
   {
-    title: 'COMMAND CENTER',
+    title: 'COMMAND',
     items: [
       { name: 'Executive Overview', href: '/dashboard', icon: LayoutDashboard },
-      { name: 'Strategic Matters & Cases', href: '/dashboard/matters', icon: FolderKanban, badge: 'PRO' },
+      { name: 'Strategic Matters', href: '/dashboard/matters', icon: FolderKanban, badge: 'PRO' },
+    ]
+  },
+  {
+    title: 'DELIBERATION & AGI',
+    items: [
+      { name: 'AGI Executive Studio', href: '/dashboard/agi-studio', icon: Sparkles, badge: 'PRO' },
+      { name: '10-Agent Boardroom', href: '/dashboard/boardroom', icon: ShieldCheck, badge: 'PRO' },
+      { name: 'Digital Twin OS', href: '/dashboard/digital-twin', icon: Laptop, badge: 'MAX' },
       { name: 'Web Search & AI Chat', href: '/dashboard/chat', icon: Globe },
     ]
   },
   {
-    title: 'AI & EXECUTIVE SUITE',
+    title: 'SIMULATION & GOVERNANCE',
     items: [
-      { 
-        name: 'AI Intelligence', 
-        icon: Sparkles,
-        children: [
-          { name: 'AI Chat & Web Search', href: '/dashboard/chat' },
-          { name: 'Mission Control', href: '/dashboard/mission-control' },
-          { name: 'Chief of Staff', href: '/dashboard/chief-of-staff' },
-          { name: 'AI Boardroom', href: '/dashboard/boardroom', badge: 'PRO' },
-          { name: 'AGI Executive Studio', href: '/dashboard/agi-studio', badge: 'PRO' },
-          { name: 'Digital Twin OS', href: '/dashboard/digital-twin', badge: 'MAX' },
-          { name: 'Strategy Studio', href: '/dashboard/strategy', badge: 'PRO' },
-          { name: 'Chart Studio (ARLM)', href: '/dashboard/charts', badge: 'PRO' },
-          { name: 'Matter Notebooks & Audio', href: '/dashboard/notebooks', badge: 'PRO' },
-          { name: 'Playbook to Skill (24x RAG)', href: '/dashboard/skills', badge: 'PRO' },
-          { name: 'Cowork & MCP Den', href: '/dashboard/cowork', badge: 'PRO' },
-          { name: 'Enterprise Assistant', href: '/dashboard/assistant' },
-          { name: 'AI Workflows', href: '/dashboard/workspace' },
-          { name: 'Agent Computer (Sandbox)', href: '/dashboard/computer', badge: 'PRO' },
-        ]
-      },
+      { name: 'Counterfactual SCM', href: '/dashboard/simulations', icon: TrendingUp, badge: 'MAX' },
+      { name: 'DGCL § 141 Safe Harbor', href: '/dashboard/decisions', icon: ShieldAlert },
+      { name: 'Decision Memory Graph', href: '/dashboard/graph', icon: Zap, badge: 'PRO' },
     ]
   },
   {
-    title: 'GOVERNANCE & RISK',
+    title: 'OPERATIONS & SYNC',
     items: [
-      {
-        name: 'Risk & Decisions',
-        icon: ShieldAlert,
-        children: [
-          { name: 'Risk Center', href: '/dashboard/risk-center', badge: 'MAX' },
-          { name: 'Decision Memory', href: '/dashboard/decisions' },
-          { name: 'Simulation Engine', href: '/dashboard/simulations', badge: 'MAX' },
-          { name: 'Memory Graph', href: '/dashboard/graph', badge: 'PRO' },
-        ]
-      }
-    ]
-  },
-  {
-    title: 'OPERATIONS',
-    items: [
-      { 
-        name: 'Projects & Tasks', 
-        icon: FolderKanban,
-        children: [
-          { name: 'All Projects', href: '/dashboard/projects' },
-          { name: 'Requirements Matrix', href: '/dashboard/requirements' },
-          { name: 'Meetings', href: '/dashboard/meetings' },
-          { name: 'Org Timeline', href: '/dashboard/timeline' },
-        ]
-      },
-      { 
-        name: 'Documents & Knowledge', 
-        icon: Files,
-        children: [
-          { name: 'Library', href: '/dashboard/documents' },
-          { name: 'Export History', href: '/dashboard/exports' },
-        ]
-      },
-      { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, badge: 'PRO' },
-    ]
-  },
-  {
-    title: 'ADMINISTRATION',
-    items: [
-      { 
-        name: 'System Admin', 
-        icon: Settings,
-        children: [
-          { name: 'Plans & Billing', href: '/dashboard/settings/billing' },
-          { name: 'Audit Logs & Proofs', href: '/dashboard/audit' },
-        ]
-      },
+      { name: 'Projects & Tasks', href: '/dashboard/projects', icon: FolderKanban },
+      { name: 'Document Library', href: '/dashboard/documents', icon: Files },
+      { name: 'Integrations & Sync', href: '/dashboard/integrations', icon: Settings },
+      { name: 'Plans & Billing', href: '/dashboard/settings/billing', icon: Settings },
     ]
   }
 ];
@@ -255,15 +190,33 @@ export default function ClientLayout({ children, user }: { children: React.React
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isOrgModalOpen, setIsOrgModalOpen] = useState(false);
-  const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
-  const [isWrappedModalOpen, setIsWrappedModalOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [isDailyBriefOpen, setIsDailyBriefOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
 
-    const handleSplashComplete = () => {
+  // Splash screen: guard with sessionStorage to prevent repeatedly delaying web dashboard reloads
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const splashShown = sessionStorage.getItem('causarix_splash_shown');
+        const isBypassed = localStorage.getItem('causarix_onboarding_completed') === 'true' ||
+          window.location.search.includes('nosplash');
+
+        if (!splashShown && !isBypassed) {
+          sessionStorage.setItem('causarix_splash_shown', 'true');
+          setShowSplash(true);
+        } else {
+          sessionStorage.setItem('causarix_splash_shown', 'true');
+        }
+      }
+    } catch {
+      // Ignore in restricted storage environments
+    }
+  }, []);
+
+  const handleSplashComplete = () => {
     setShowSplash(false);
     setShowSkeleton(true);
     setTimeout(() => {
@@ -276,36 +229,11 @@ export default function ClientLayout({ children, user }: { children: React.React
     router.push('/login');
   };
 
-  // PRO & MAX Feature Access Gate — server-side isPremium flag (NOT localStorage)
-  // SECURITY FIX: localStorage is trivially clearable in DevTools/Incognito.
-  // We now rely on the server-verified user.isPremium flag and user.role from the DB session.
-  useEffect(() => {
-    const PRO_MAX_ROUTES = [
-      '/dashboard/boardroom',
-      '/dashboard/digital-twin',
-      '/dashboard/simulations',
-      '/dashboard/strategy',
-      '/dashboard/graph',
-      '/dashboard/risk-center'
-    ];
-
-    const isGuest = user?.email?.includes('guest') || user?.email?.includes('demo') || user?.email?.includes('apex');
-    const isProMaxRoute = PRO_MAX_ROUTES.some(r => pathname.startsWith(r));
-
-    // Only block guests on PRO/MAX routes. Paying users (isPremium) always pass.
-    if (isGuest && isProMaxRoute && !user?.isPremium) {
-      // Server-validated: isPremium comes from DB session, not localStorage
-      setIsPaywallModalOpen(true);
-    }
-  }, [pathname, user?.email, user?.isPremium]);
-
   // Global ESC / causarix-close-modals listener
   useEffect(() => {
     const handleCloseAll = () => {
       setIsMobileMenuOpen(false);
       setIsOrgModalOpen(false);
-      setIsPaywallModalOpen(false);
-      setIsWrappedModalOpen(false);
       setIsDownloadModalOpen(false);
       setIsDailyBriefOpen(false);
       setIsTourOpen(false);
@@ -522,43 +450,18 @@ export default function ClientLayout({ children, user }: { children: React.React
         </div>
       </main>
 
-      {/* Global Modals & Hints */}
+      {/* Modals triggered exclusively on explicit user interaction */}
       <GlobalSearch />
       <CausarixGuidedTourModal isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
       <DailyWorkdayBriefModal 
         isOpenOverride={isDailyBriefOpen} 
         onCloseOverride={() => setIsDailyBriefOpen(false)} 
       />
-      <LaunchPromoModal userPlan={user?.isPremium ? 'max' : 'free'} />
-      <MultiStepPaywallModal 
-        isOpen={isPaywallModalOpen} 
-        onClose={() => setIsPaywallModalOpen(false)} 
-        initialStep={2}
-      />
-      <SynapsWrappedModal
-        isOpen={isWrappedModalOpen}
-        onClose={() => setIsWrappedModalOpen(false)}
-      />
       <DownloadDesktopModal
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
       />
-      <TimedUsagePaywallModal 
-        userPlan={user?.isPremium ? 'max' : 'free'} 
-        userEmail={user?.email} 
-        isPremium={user?.isPremium} 
-      />
-      <DemoSectorSandboxModal />
-      {pathname !== '/demo' && (
-        <>
-          <OnboardingHints />
-          <TourGuide />
-          <OrganizationModal isOpen={isOrgModalOpen} onClose={() => setIsOrgModalOpen(false)} />
-          <AdaptiveEnterpriseOnboardingModal />
-          <SubdashboardIntroModal />
-          <AiCreditExhaustedModal />
-        </>
-      )}
+      <OrganizationModal isOpen={isOrgModalOpen} onClose={() => setIsOrgModalOpen(false)} />
     </div>
     </BackgroundTaskProvider>
   );
