@@ -110,13 +110,17 @@ suite.test('M14.EDGE.1: Edge middleware redirects authenticated visitor on root 
   // ═══════════════════════════════════════════════════════════════════════════
   // Tier 2: Server Root Page Session Verification
   // ═══════════════════════════════════════════════════════════════════════════
-  suite.test('M14.PAGE.1: src/app/page.tsx source imports session verification & redirect', async () => {
+  suite.test('M14.PAGE.1: src/app/page.tsx & scm-lab source import session verification & redirect', async () => {
     const pageSrc = fs.readFileSync(path.resolve(__dirname, '../src/app/page.tsx'), 'utf8');
     expect(pageSrc).toContain('verifySessionCookie');
     expect(pageSrc).toContain('redirect');
     expect(pageSrc).toContain('synaps-session');
     expect(pageSrc).toContain('/dashboard');
     expect(pageSrc).toContain('landing');
+
+    const scmLabSrc = fs.readFileSync(path.resolve(__dirname, '../src/app/dashboard/scm-lab/page.tsx'), 'utf8');
+    expect(scmLabSrc).toContain('redirect');
+    expect(scmLabSrc).toContain('/dashboard/simulations');
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -131,7 +135,7 @@ suite.test('M14.EDGE.1: Edge middleware redirects authenticated visitor on root 
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);
-    expect(body.message).toContain('Session revoked');
+    expect(body.message).toContain('Session cleared');
     const setCookie = res.headers.get('set-cookie');
     expect(setCookie).toContain('synaps-session=');
     expect(setCookie).toContain('Max-Age=0');
@@ -162,6 +166,7 @@ suite.test('M14.EDGE.1: Edge middleware redirects authenticated visitor on root 
     expect(layoutSrc).toContain('DELETE');
     expect(layoutSrc).toContain('logoutAction');
     expect(layoutSrc).toContain('synaps_demo_user');
+    expect(layoutSrc).toContain('DEMO_SESSION_demo-user');
   });
 
   suite.test('M14.LOGOUT.2: src/context/AuthContext.tsx handleLogout clears session cookies and storage', async () => {
@@ -170,6 +175,7 @@ suite.test('M14.EDGE.1: Edge middleware redirects authenticated visitor on root 
     expect(authCtxSrc).toContain('logoutAction');
     expect(authCtxSrc).toContain('synaps-session=');
     expect(authCtxSrc).toContain('synaps_demo_user');
+    expect(authCtxSrc).toContain('DEMO_SESSION_demo-user');
   });
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -7,8 +7,8 @@ import CausarixEnterpriseLanding from '@/components/landing/CausarixEnterpriseLa
 import { getOpenSEOMetadata } from '@/lib/openseo';
 
 export const metadata = getOpenSEOMetadata({
-  title: 'CAUSARIX™ — Causal Decision OS & 10-Agent Boardroom',
-  description: 'CAUSARIX transforms complex corporate document libraries and contracts into Delaware DGCL § 141 redlines, 10-Agent Boardroom Quorum, and stochastic SCM simulations with 0.00% math drift.',
+  title: 'CAUSARIX™ — Autonomous Contract Redliner & Fiduciary Risk Auditor',
+  description: 'Upload any vendor agreement, SaaS SLA, or NDA. Detect toxic indemnification traps, unilateral liabilities, and get attorney-grade redlines with Delaware DGCL § 141 safe-harbor compliance.',
 });
 
 export default async function RootPage({

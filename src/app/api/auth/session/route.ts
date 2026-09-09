@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const response = NextResponse.json({
     success: true,
-    message: 'Session revoked successfully.',
+    message: 'Session cleared',
   });
 
   response.cookies.set('synaps-session', '', {

@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('synaps_demo_user');
         localStorage.removeItem('causarix_demo_session');
+        localStorage.removeItem('DEMO_SESSION_demo-user');
         document.cookie = 'synaps-session=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
       }
       await fetch('/api/auth/session', { method: 'DELETE' }).catch(() => {});

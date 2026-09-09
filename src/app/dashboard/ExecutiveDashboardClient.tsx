@@ -41,6 +41,7 @@ import { ExecutiveMotivationWidget } from '@/components/dashboard/ExecutiveMotiv
 import { downloadAsPDF } from '@/lib/export-helpers';
 import { LegalDialogModal, LegalDocType } from '@/components/landing/LegalDialogModal';
 import SignInModal from '@/components/SignInModal';
+import { ContractRedlineStudio } from '@/components/legal/ContractRedlineStudio';
 
 // ─── TYPES & INTERFACES ────────────────────────────────────────────────────────
 
@@ -494,6 +495,7 @@ export default function ExecutiveDashboardClient({ userName = 'Demo Administrato
   // Manual legal dialog trigger only (zero auto-popping modals on mount)
   const [manualLegalDoc, setManualLegalDoc] = useState<LegalDocType | null>(null);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState<boolean>(false);
+  const [dashboardView, setDashboardView] = useState<'contract_redliner' | 'boardroom'>('contract_redliner');
 
   // ─── 1. INITIAL MOUNT: READ ONBOARDING DATA (WITHOUT POPPING MODALS) ─────────
   useEffect(() => {
@@ -677,6 +679,32 @@ export default function ExecutiveDashboardClient({ userName = 'Demo Administrato
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          {/* ─── PRIMARY VIEW TOGGLE (FOCUSED LEGAL REDLINER vs BOARDROOM) ─── */}
+          <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-inner">
+            <button
+              onClick={() => setDashboardView('contract_redliner')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                dashboardView === 'contract_redliner'
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/25'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Scale className="w-3.5 h-3.5" />
+              <span>Contract Redliner</span>
+              <span className="px-1.5 py-0.5 rounded-full bg-blue-400/20 text-[9px] font-mono uppercase tracking-wider">Primary</span>
+            </button>
+            <button
+              onClick={() => setDashboardView('boardroom')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                dashboardView === 'boardroom'
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/25'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>10-Agent Boardroom</span>
+            </button>
+          </div>
           <button
             onClick={() => setActiveDrawer('fiduciary')}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold tracking-[-0.01em] transition-all cursor-pointer border border-slate-200/60 dark:border-slate-700/60"
@@ -703,10 +731,14 @@ export default function ExecutiveDashboardClient({ userName = 'Demo Administrato
         </div>
       </div>
 
-      {/* ────────────────────────────────────────────────────────────────────── */}
-      {/* ── PRIMARY HERO: THE EXECUTIVE DILEMMA COMPOSER ─────────────────────── */}
-      {/* ────────────────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 p-6 sm:p-8 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.3)] space-y-6">
+      {dashboardView === 'contract_redliner' ? (
+        <ContractRedlineStudio companyName={companyName} />
+      ) : (
+        <>
+          {/* ────────────────────────────────────────────────────────────────────── */}
+          {/* ── PRIMARY HERO: THE EXECUTIVE DILEMMA COMPOSER ─────────────────────── */}
+          {/* ────────────────────────────────────────────────────────────────────── */}
+          <section className="relative overflow-hidden rounded-3xl bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200/60 dark:border-slate-800/60 p-6 sm:p-8 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.3)] space-y-6">
         
         {/* Subtle Ambient Refraction */}
         <div className="absolute top-0 right-1/4 w-80 h-80 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -1247,6 +1279,8 @@ export default function ExecutiveDashboardClient({ userName = 'Demo Administrato
           </div>
         </div>
       </section>
+    </>
+  )}
 
       {/* ────────────────────────────────────────────────────────────────────── */}
       {/* ── PROGRESSIVE DISCLOSURE SLIDE-OVER DRAWER (SHEET) ────────────────── */}
