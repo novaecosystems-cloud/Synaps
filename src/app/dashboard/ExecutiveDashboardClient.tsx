@@ -679,55 +679,21 @@ export default function ExecutiveDashboardClient({ userName = 'Demo Administrato
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
-          {/* ─── PRIMARY VIEW TOGGLE (FOCUSED LEGAL REDLINER vs BOARDROOM) ─── */}
-          <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 shadow-inner">
+          {/* ─── PRIMARY VIEW TOGGLE (ACCESSIBLE VIA ADVANCED SIMULATION VAULT) ─── */}
+          {dashboardView === 'boardroom' ? (
             <button
               onClick={() => setDashboardView('contract_redliner')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                dashboardView === 'contract_redliner'
-                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/25'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-              }`}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all cursor-pointer shadow-sm shadow-blue-500/25"
             >
-              <Scale className="w-3.5 h-3.5" />
-              <span>Contract Redliner</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-blue-400/20 text-[9px] font-mono uppercase tracking-wider">Primary</span>
+              <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+              <span>Back to Contract Redliner</span>
             </button>
-            <button
-              onClick={() => setDashboardView('boardroom')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                dashboardView === 'boardroom'
-                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/25'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>10-Agent Boardroom</span>
-            </button>
-          </div>
-          <button
-            onClick={() => setActiveDrawer('fiduciary')}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold tracking-[-0.01em] transition-all cursor-pointer border border-slate-200/60 dark:border-slate-700/60"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
-            <span>Fiduciary Audit</span>
-          </button>
-
-          <button
-            onClick={() => setActiveDrawer('simulation')}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold tracking-[-0.01em] transition-all cursor-pointer border border-slate-200/60 dark:border-slate-700/60"
-          >
-            <Code className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Python SCM Model</span>
-          </button>
-
-          <Link
-            href="/dashboard/boardroom"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold tracking-[-0.01em] shadow-sm shadow-blue-500/20 transition-all cursor-pointer"
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>10-Agent Boardroom</span>
-          </Link>
+          ) : (
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 text-[11px] font-mono text-slate-500 dark:text-slate-400">
+              <Scale className="w-3.5 h-3.5 text-blue-500" />
+              <span>Autonomous Contract Redliner</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1546,6 +1512,48 @@ export default function ExecutiveDashboardClient({ userName = 'Demo Administrato
           </>
         )}
       </AnimatePresence>
+
+      {/* ─── DISCREET SECONDARY FOOTER: ADVANCED SIMULATION VAULT ─── */}
+      <footer className="pt-8 mt-12 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <div className="flex items-center gap-2 font-mono text-[11px]">
+          <Lock className="w-3.5 h-3.5 text-slate-400" />
+          <span>Sovereign Fiduciary Core · Delaware DGCL § 141 Safe Harbor Verified</span>
+        </div>
+
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={() => setDashboardView(dashboardView === 'contract_redliner' ? 'boardroom' : 'contract_redliner')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-mono transition-all border border-slate-200/60 dark:border-slate-700/60 cursor-pointer"
+          >
+            <Users className="w-3 h-3 text-blue-500" />
+            <span>Advanced Simulation Vault</span>
+            <span className="text-[10px] text-slate-400">
+              ({dashboardView === 'contract_redliner' ? 'Open 10-Agent Boardroom' : 'Return to Contract Redliner'})
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveDrawer('fiduciary')}
+            className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
+          >
+            Fiduciary Audit
+          </button>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <button
+            onClick={() => setActiveDrawer('simulation')}
+            className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
+          >
+            Python SCM Model
+          </button>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <Link
+            href="/dashboard/boardroom"
+            className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            Full Boardroom Route
+          </Link>
+        </div>
+      </footer>
 
       {/* ────────────────────────────────────────────────────────────────────── */}
       {/* ── MODALS (USER-INITIATED ONLY — ZERO AUTO-POPPING ON LOAD) ─────────── */}

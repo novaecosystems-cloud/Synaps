@@ -19,26 +19,40 @@ import {
   ChevronDown,
   CheckCircle2,
   XCircle,
-  FileCheck
+  FileCheck,
+  Printer,
+  X,
+  Flame,
+  Briefcase
 } from 'lucide-react';
-import { PRELOADED_CONTRACTS, ContractAnalysisResult, RedlineFinding } from '@/app/api/legal/redline/route';
+import {
+  PRELOADED_CONTRACTS,
+  ContractAnalysisResult,
+  RedlineFinding,
+  NegotiationStance,
+  getAdaptedFindings
+} from '@/app/api/legal/redline/route';
 
 export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }: { companyName?: string }) {
   const [selectedPreset, setSelectedPreset] = useState<'vendor_saas' | 'founder_ip' | 'nda' | 'custom'>('vendor_saas');
+  const [selectedStance, setSelectedStance] = useState<NegotiationStance>('founder_protective');
   const [contractText, setContractText] = useState<string>(PRELOADED_CONTRACTS.vendor_saas.sampleText);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [isExportingDocx, setIsExportingDocx] = useState<boolean>(false);
+  const [showScorecardModal, setShowScorecardModal] = useState<boolean>(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedMerkle, setCopiedMerkle] = useState<boolean>(false);
 
-  // Initialize with the preloaded analysis of the default contract
+  // Initialize with the preloaded analysis of the default contract & stance
   const [analysisResult, setAnalysisResult] = useState<ContractAnalysisResult | null>(() => {
     const preset = PRELOADED_CONTRACTS.vendor_saas;
     return {
       contractTitle: preset.title,
       contractType: preset.type,
+      negotiationStance: 'founder_protective',
       overallRiskScore: 88,
       riskCategory: 'CRITICAL',
-      executiveSummary: 'REJECT / REDLINE REQUIRED: Contract contains 2 CRITICAL fiduciary hazards, including uncapped liability and asymmetric indemnity. Signing in current form forfeits Delaware DGCL § 141 safe harbor protections.',
+      executiveSummary: '[FOUNDER-PROTECTIVE STANCE] REJECT / REDLINE REQUIRED: Contract contains 2 CRITICAL fiduciary hazards, including uncapped liability and asymmetric indemnity. Signing in current form forfeits Delaware DGCL § 141 safe harbor protections.',
       delawareSafeHarborStatus: 'NON_COMPLIANT',
       findings: preset.presetFindings,
       merkleAudit: {
@@ -54,12 +68,22 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
     setSelectedPreset(key);
     const preset = PRELOADED_CONTRACTS[key];
     setContractText(preset.sampleText);
-    runAnalysis(preset.sampleText, key);
+    runAnalysis(preset.sampleText, key, selectedStance);
   };
 
-  const runAnalysis = async (textToAnalyze?: string, targetType?: string) => {
+  const handleSelectStance = (stance: NegotiationStance) => {
+    setSelectedStance(stance);
+    runAnalysis(contractText, selectedPreset, stance);
+  };
+
+  const runAnalysis = async (
+    textToAnalyze?: string,
+    targetType?: string,
+    targetStance?: NegotiationStance
+  ) => {
     const text = textToAnalyze !== undefined ? textToAnalyze : contractText;
     const type = targetType || selectedPreset;
+    const stance = targetStance || selectedStance;
 
     if (!text.trim()) return;
 
@@ -71,7 +95,9 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
         body: JSON.stringify({
           contractText: text,
           contractType: type,
-          companyName
+          companyName,
+          stance,
+          negotiationStance: stance
         })
       });
 
@@ -83,6 +109,50 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
       console.error('Failed to run contract redline analysis:', err);
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleDownloadDocx = async () => {
+    if (!analysisResult) return;
+    setIsExportingDocx(true);
+    try {
+      const res = await fetch('/api/legal/export-docx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contractTitle: analysisResult.contractTitle,
+          contractType: analysisResult.contractType,
+          negotiationStance: selectedStance,
+          overallRiskScore: analysisResult.overallRiskScore,
+          riskCategory: analysisResult.riskCategory,
+          executiveSummary: analysisResult.executiveSummary,
+          delawareSafeHarborStatus: analysisResult.delawareSafeHarborStatus,
+          findings: analysisResult.findings,
+          merkleAudit: analysisResult.merkleAudit,
+          companyName,
+          contractText
+        })
+      });
+
+      if (!res.ok) throw new Error('Failed to generate Word document');
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const sanitizedTitle = (analysisResult.contractTitle || 'Contract')
+        .replace(/[^a-zA-Z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .slice(0, 30);
+      a.download = `Causarix-Redlined-${sanitizedTitle}-${selectedStance}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to export docx:', err);
+    } finally {
+      setIsExportingDocx(false);
     }
   };
 
@@ -98,7 +168,7 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
     setTimeout(() => setCopiedMerkle(false), 2500);
   };
 
-  const handleExportPrint = () => {
+  const handlePrintScorecard = () => {
     if (typeof window !== 'undefined') {
       window.print();
     }
@@ -107,11 +177,36 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
   return (
     <div className="w-full space-y-8 font-sans antialiased text-slate-900 dark:text-slate-100">
       
+      {/* ─── PRINT CSS STYLES FOR 1-PAGE SCORECARD ──────────────────────────── */}
+      <style jsx global>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          #fiduciary-printable-scorecard, #fiduciary-printable-scorecard * {
+            visibility: visible;
+          }
+          #fiduciary-printable-scorecard {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 16px;
+            background: white !important;
+            color: black !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+
       {/* ─── HERO HEADER ──────────────────────────────────────────────────────── */}
       <div className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 p-6 sm:p-8 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.25)] space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 dark:bg-blue-500/15 border border-blue-500/20 text-xs font-mono font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
                 <Scale className="w-3.5 h-3.5" />
                 Autonomous Contract Fiduciary Redliner
@@ -128,13 +223,100 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Action Buttons: Native Word Docx & 1-Page Scorecard */}
+          <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={handleExportPrint}
+              onClick={() => setShowScorecardModal(true)}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all border border-slate-200/60 dark:border-slate-700/60 cursor-pointer shadow-sm"
+              title="View & Print 1-Page Fiduciary Scorecard"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export Legal Audit Brief</span>
+              <FileCheck className="w-3.5 h-3.5 text-blue-500" />
+              <span>1-Page Fiduciary Scorecard</span>
+            </button>
+
+            <button
+              onClick={handleDownloadDocx}
+              disabled={isExportingDocx || !analysisResult}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-sm shadow-blue-500/25 cursor-pointer disabled:opacity-50"
+              title="Download real Word docx with strikethroughs, insertions & margin comments"
+            >
+              {isExportingDocx ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Generating Word Doc...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Redlined Word Doc (.docx)</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* ─── NEGOTIATION STANCE SELECTOR (FEATURE B) ─────────────────────────── */}
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/60 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Scale className="w-4 h-4 text-blue-500" />
+            <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              Negotiation Stance:
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:w-auto">
+            {/* 1. Founder-Protective */}
+            <button
+              onClick={() => handleSelectStance('founder_protective')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border text-left ${
+                selectedStance === 'founder_protective'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-500/25'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+              <div>
+                <div className="font-bold">Founder-Protective</div>
+                <div className={`text-[10px] ${selectedStance === 'founder_protective' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  Max shield &amp; strike non-competes
+                </div>
+              </div>
+            </button>
+
+            {/* 2. Balanced Commercial */}
+            <button
+              onClick={() => handleSelectStance('balanced_commercial')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border text-left ${
+                selectedStance === 'balanced_commercial'
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-500/25'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              <Briefcase className="w-3.5 h-3.5 shrink-0" />
+              <div>
+                <div className="font-bold">Balanced Commercial</div>
+                <div className={`text-[10px] ${selectedStance === 'balanced_commercial' ? 'text-indigo-100' : 'text-slate-400'}`}>
+                  Deal velocity &amp; standard caps
+                </div>
+              </div>
+            </button>
+
+            {/* 3. Enterprise Hardball */}
+            <button
+              onClick={() => handleSelectStance('enterprise_hardball')}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border text-left ${
+                selectedStance === 'enterprise_hardball'
+                  ? 'bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-500/25'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              <Flame className="w-3.5 h-3.5 shrink-0" />
+              <div>
+                <div className="font-bold">Enterprise Hardball</div>
+                <div className={`text-[10px] ${selectedStance === 'enterprise_hardball' ? 'text-rose-100' : 'text-slate-400'}`}>
+                  Aggressive buyer power stance
+                </div>
+              </div>
             </button>
           </div>
         </div>
@@ -213,7 +395,7 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <p className="text-[11px] text-slate-400">
-            💡 <b>Tip:</b> Paste any section or click one of the 3 preloaded samples above to test with zero typing.
+            💡 <b>Tip:</b> Paste any section or click one of the 3 preloaded samples above to test with zero typing. Stance applies instantly.
           </p>
 
           <button
@@ -344,6 +526,9 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
                 <span className="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-xs font-mono font-semibold text-slate-700 dark:text-slate-300">
                   {analysisResult.findings.length}
                 </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 uppercase">
+                  {selectedStance.replace('_', ' ')}
+                </span>
               </h3>
             </div>
 
@@ -400,7 +585,7 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-mono font-bold uppercase text-emerald-600 dark:text-emerald-400 tracking-wider flex items-center gap-1.5">
                             <ShieldCheck className="w-3.5 h-3.5" />
-                            Attorney-Grade Fiduciary Redline
+                            Attorney-Grade Fiduciary Redline ({selectedStance.replace('_', ' ')})
                           </span>
                           <button
                             onClick={() => handleCopyRedline(finding)}
@@ -441,6 +626,227 @@ export function ContractRedlineStudio({ companyName = 'Apex Global Enterprise' }
         </div>
       )}
 
+      {/* ─── 1-PAGE PRINTABLE FIDUCIARY SCORECARD MODAL (FEATURE C) ─────────── */}
+      <AnimatePresence>
+        {showScorecardModal && analysisResult && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/70 backdrop-blur-md overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6"
+            >
+              {/* Modal Top Bar (Hidden in Print) */}
+              <div className="no-print flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+                <div className="flex items-center gap-2">
+                  <FileCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <span className="font-bold text-sm tracking-tight">1-Page Executive Fiduciary Scorecard</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handlePrintScorecard}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all shadow-sm cursor-pointer"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Print Scorecard (PDF)</span>
+                  </button>
+
+                  <button
+                    onClick={handleDownloadDocx}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all border border-slate-200/60 dark:border-slate-700/60 cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download .docx</span>
+                  </button>
+
+                  <button
+                    onClick={() => setShowScorecardModal(false)}
+                    className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* ─── PRINTABLE DOCUMENT BODY (OPTIMIZED FOR 1-PAGE OUTPUT) ──── */}
+              <div id="fiduciary-printable-scorecard" className="space-y-6 bg-white text-slate-900 p-2 sm:p-4 rounded-2xl">
+                
+                {/* Scorecard Header */}
+                <div className="border-b-2 border-slate-900 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Scale className="w-5 h-5 text-blue-700" />
+                      <span className="font-mono text-xs font-black uppercase tracking-widest text-blue-900">
+                        Causarix Sovereign Fiduciary OS
+                      </span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 mt-1">
+                      DELAWARE DGCL § 141 EXECUTIVE FIDUCIARY SCORECARD
+                    </h2>
+                    <p className="text-xs font-medium text-slate-600 mt-0.5">
+                      Statutory Director Safe Harbor Audit &amp; Legal Liability Certification
+                    </p>
+                  </div>
+
+                  <div className="text-left sm:text-right text-xs font-mono">
+                    <div className="font-bold text-slate-900">{companyName}</div>
+                    <div className="text-slate-500">Date: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+                    <div className="text-blue-700 font-bold uppercase mt-1">
+                      Stance: {selectedStance.replace('_', ' ')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Top Metrics Row */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] font-mono uppercase font-bold text-slate-500 block">
+                      Legal Exposure Score
+                    </span>
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <span className={`text-2xl font-black ${
+                        analysisResult.riskCategory === 'CRITICAL'
+                          ? 'text-rose-600'
+                          : analysisResult.riskCategory === 'HIGH'
+                          ? 'text-amber-600'
+                          : 'text-emerald-600'
+                      }`}>
+                        {analysisResult.overallRiskScore}
+                      </span>
+                      <span className="text-xs font-mono text-slate-400">/ 100</span>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold uppercase text-slate-600">
+                      {analysisResult.riskCategory} RISK
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] font-mono uppercase font-bold text-slate-500 block">
+                      DGCL § 141 Safe Harbor
+                    </span>
+                    <div className="mt-1 font-bold text-xs">
+                      {analysisResult.delawareSafeHarborStatus === 'PROTECTED' ? (
+                        <span className="text-emerald-700 flex items-center gap-1">
+                          <CheckCircle2 className="w-4 h-4" /> PROTECTED
+                        </span>
+                      ) : (
+                        <span className="text-rose-700 flex items-center gap-1">
+                          <XCircle className="w-4 h-4" /> NON-COMPLIANT
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-500 block mt-1">
+                      Business Judgment Rule Standard
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] font-mono uppercase font-bold text-slate-500 block">
+                      Audited Agreement
+                    </span>
+                    <div className="mt-1 text-xs font-bold text-slate-900 truncate">
+                      {analysisResult.contractTitle}
+                    </div>
+                    <span className="text-[10px] text-slate-500 block mt-1">
+                      {analysisResult.findings.length} Fiduciary Findings
+                    </span>
+                  </div>
+                </div>
+
+                {/* Executive Directive */}
+                <div className="p-3.5 rounded-xl bg-blue-50/90 border border-blue-200 text-xs text-blue-950 space-y-1">
+                  <div className="font-bold uppercase tracking-wider font-mono text-[10px] text-blue-800">
+                    Executive Action Directive:
+                  </div>
+                  <p className="leading-relaxed font-medium">
+                    {analysisResult.executiveSummary}
+                  </p>
+                </div>
+
+                {/* Findings Matrix Table */}
+                <div className="space-y-2">
+                  <div className="text-xs font-bold font-mono uppercase tracking-wider text-slate-700">
+                    Fiduciary Risk &amp; Recommended Redlines Summary
+                  </div>
+
+                  <div className="border border-slate-200 rounded-xl overflow-hidden">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-100 border-b border-slate-200 font-mono text-[11px] text-slate-700">
+                          <th className="py-2 px-3 font-bold">#</th>
+                          <th className="py-2 px-3 font-bold">Clause &amp; Hazard</th>
+                          <th className="py-2 px-3 font-bold">Risk</th>
+                          <th className="py-2 px-3 font-bold">Recommended Fiduciary Redline ({selectedStance.replace('_', ' ')})</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {analysisResult.findings.map((f, i) => (
+                          <tr key={f.id} className="align-top">
+                            <td className="py-2 px-3 font-mono text-slate-500 font-bold">{i + 1}</td>
+                            <td className="py-2 px-3 font-bold text-slate-900 max-w-[140px]">
+                              {f.clauseType}
+                              <div className="text-[10px] font-normal text-slate-500 mt-0.5">
+                                {f.legalAnalysis.slice(0, 85)}...
+                              </div>
+                            </td>
+                            <td className="py-2 px-3 font-mono text-[10px] whitespace-nowrap">
+                              <span className={`px-2 py-0.5 rounded font-bold ${
+                                f.riskLevel === 'CRITICAL'
+                                  ? 'bg-rose-100 text-rose-700'
+                                  : f.riskLevel === 'HIGH'
+                                  ? 'bg-amber-100 text-amber-700'
+                                  : 'bg-emerald-100 text-emerald-700'
+                              }`}>
+                                {f.riskLevel}
+                              </span>
+                            </td>
+                            <td className="py-2 px-3 font-mono text-[11px] text-slate-800 leading-snug">
+                              {f.recommendedRedline}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Merkle Cryptographic Seal & Sign-off */}
+                <div className="pt-3 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block">
+                      Cryptographic Audit Seal (SHA-256)
+                    </span>
+                    <div className="font-mono text-[10px] text-slate-600 break-all p-2 rounded bg-slate-50 border border-slate-200">
+                      {analysisResult.merkleAudit.merkleRoot}
+                    </div>
+                    <span className="text-[9px] text-slate-400 block">
+                      Leaves: {analysisResult.merkleAudit.leafCount} · Timestamp: {analysisResult.merkleAudit.auditTimestamp}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="border border-dashed border-slate-300 p-2 rounded-lg flex flex-col justify-between">
+                      <span className="font-bold text-slate-700 text-[10px]">Reviewing Counsel:</span>
+                      <div className="border-b border-slate-400 mt-4 mb-1" />
+                      <span className="text-[9px] text-slate-400">Date &amp; Signature</span>
+                    </div>
+
+                    <div className="border border-dashed border-slate-300 p-2 rounded-lg flex flex-col justify-between">
+                      <span className="font-bold text-slate-700 text-[10px]">Board DGCL § 141 Sign-Off:</span>
+                      <div className="border-b border-slate-400 mt-4 mb-1" />
+                      <span className="text-[9px] text-slate-400">Date &amp; Signature</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
+
