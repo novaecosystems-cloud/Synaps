@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -20,9 +20,16 @@ import {
   Wallet,
   ArrowRight,
   Fingerprint,
+  XCircle,
+  Info,
 } from "lucide-react";
+import { encodeFunctionData } from "viem";
 import { ARBITRUM_AIP_PRESETS, ArbitrumAipPreset } from "@/data/mock-arbitrum-aips";
 import { prepareArbitrumSeal, formatArbiscanTxUrl, ArbitrumSealingPackage } from "@/lib/web3-arbitrum-bridge";
+import registryArtifact from "@/contracts/ArbitrumFiduciaryRegistry.json";
+
+const ARBITRUM_SEPOLIA_CHAIN_ID_HEX = "0x66eee"; // 421614
+const ARBITRUM_SEPOLIA_CHAIN_ID_DEC = 421614;
 
 export default function ArbitrumGovernancePage() {
   const [selectedPreset, setSelectedPreset] = useState<ArbitrumAipPreset>(ARBITRUM_AIP_PRESETS[0]);
@@ -32,15 +39,19 @@ export default function ArbitrumGovernancePage() {
 
   // Web3 State
   const [isConnected, setIsConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("0x4838B106FCe9647Bdf1E7877BF73cE8B0BAD5f97");
+  const [walletAddress, setWalletAddress] = useState("");
   const [isConnecting, setIsConnecting] = useState(false);
+  const [walletError, setWalletError] = useState<string | null>(null);
+  const [networkMismatch, setNetworkMismatch] = useState(false);
 
   // Execution State
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationComplete, setSimulationComplete] = useState(true);
   const [isSealing, setIsSealing] = useState(false);
+  const [sealingError, setSealingError] = useState<string | null>(null);
   const [sealedPackage, setSealedPackage] = useState<ArbitrumSealingPackage | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [isRealOnChain, setIsRealOnChain] = useState(false);
 
   // Dynamic Metrics
   const activeTitle = isCustom ? customTitle || "Custom Treasury Proposal" : selectedPreset.title;
@@ -48,23 +59,107 @@ export default function ArbitrumGovernancePage() {
   const activeAmount = isCustom ? "Variable Allocation" : selectedPreset.amountArb;
   const activeAipNumber = isCustom ? "CUSTOM-AIP" : selectedPreset.aipNumber;
 
-  const handleConnectWallet = async () => {
-    setIsConnecting(true);
-    // Support window.ethereum if available, otherwise activate demo delegate address
+  // Listen for account or chain changes if provider is present
+  useEffect(() => {
     if (typeof window !== "undefined" && (window as any).ethereum) {
-      try {
-        const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
-        if (accounts && accounts[0]) {
+      const eth = (window as any).ethereum;
+
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (!accounts || accounts.length === 0) {
+          setIsConnected(false);
+          setWalletAddress("");
+        } else {
+          setIsConnected(true);
           setWalletAddress(accounts[0]);
+          setWalletError(null);
         }
-      } catch {
-        // user rejected or error, use fallback
-      }
+      };
+
+      const handleChainChanged = (chainId: string) => {
+        if (chainId === ARBITRUM_SEPOLIA_CHAIN_ID_HEX || parseInt(chainId, 16) === ARBITRUM_SEPOLIA_CHAIN_ID_DEC) {
+          setNetworkMismatch(false);
+        } else {
+          setNetworkMismatch(true);
+        }
+      };
+
+      eth.on?.("accountsChanged", handleAccountsChanged);
+      eth.on?.("chainChanged", handleChainChanged);
+
+      return () => {
+        eth.removeListener?.("accountsChanged", handleAccountsChanged);
+        eth.removeListener?.("chainChanged", handleChainChanged);
+      };
     }
-    setTimeout(() => {
-      setIsConnected(true);
+  }, []);
+
+  const handleConnectWallet = async () => {
+    setWalletError(null);
+    setIsConnecting(true);
+
+    if (typeof window === "undefined" || !(window as any).ethereum) {
+      setWalletError("No Web3 wallet (Rabby or MetaMask) found. Please install a browser wallet extension.");
       setIsConnecting(false);
-    }, 600);
+      return;
+    }
+
+    try {
+      const eth = (window as any).ethereum;
+      const accounts = await eth.request({ method: "eth_requestAccounts" });
+
+      if (!accounts || accounts.length === 0) {
+        throw new Error("No account returned from wallet.");
+      }
+
+      setWalletAddress(accounts[0]);
+      setIsConnected(true);
+      setWalletError(null);
+
+      // Check chain ID and prompt switch if not Arbitrum Sepolia
+      try {
+        const currentChain = await eth.request({ method: "eth_chainId" });
+        if (currentChain !== ARBITRUM_SEPOLIA_CHAIN_ID_HEX && parseInt(currentChain, 16) !== ARBITRUM_SEPOLIA_CHAIN_ID_DEC) {
+          setNetworkMismatch(true);
+          await eth.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: ARBITRUM_SEPOLIA_CHAIN_ID_HEX }],
+          });
+          setNetworkMismatch(false);
+        }
+      } catch (switchErr: any) {
+        if (switchErr.code === 4902) {
+          try {
+            await eth.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: ARBITRUM_SEPOLIA_CHAIN_ID_HEX,
+                  chainName: "Arbitrum Sepolia",
+                  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+                  rpcUrls: ["https://sepolia-rollup.arbitrum.io/rpc"],
+                  blockExplorerUrls: ["https://sepolia.arbiscan.io"],
+                },
+              ],
+            });
+            setNetworkMismatch(false);
+          } catch {
+            setNetworkMismatch(true);
+          }
+        } else {
+          setNetworkMismatch(true);
+        }
+      }
+    } catch (err: any) {
+      setIsConnected(false);
+      setWalletAddress("");
+      if (err.code === 4001 || err.message?.toLowerCase().includes("user rejected") || err.message?.toLowerCase().includes("denied")) {
+        setWalletError("Wallet connection was cancelled or rejected by user.");
+      } else {
+        setWalletError(err.message || "Failed to connect wallet.");
+      }
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   const handleRunSimulation = () => {
@@ -72,6 +167,7 @@ export default function ArbitrumGovernancePage() {
     setSimulationComplete(false);
     setSealedPackage(null);
     setTxHash(null);
+    setSealingError(null);
 
     setTimeout(() => {
       setIsSimulating(false);
@@ -79,7 +175,15 @@ export default function ArbitrumGovernancePage() {
     }, 1800);
   };
 
-  const handleSealToArbitrum = async () => {
+  // 1. Real On-Chain Settlement (Requires connected wallet and user approval)
+  const handleSealToArbitrumOnChain = async () => {
+    setSealingError(null);
+
+    if (!isConnected || !walletAddress) {
+      setSealingError("Please connect your Rabby/MetaMask wallet first to sign and submit this on-chain transaction.");
+      return;
+    }
+
     setIsSealing(true);
 
     const sealingPackage = prepareArbitrumSeal({
@@ -96,33 +200,84 @@ export default function ArbitrumGovernancePage() {
         driftPercent: 0.00,
         var95: selectedPreset.sampleScm.var95,
         cvar95: selectedPreset.sampleScm.cvar95,
-        seed: `SYNAPS_SEPOLIA_${Date.now()}`,
+        seed: `CAUSARIX_SEPOLIA_${Date.now()}`,
       },
     });
 
-    // If MetaMask is installed, prompt for on-chain signature/transaction
-    if (typeof window !== "undefined" && (window as any).ethereum && isConnected) {
-      try {
-        const provider = (window as any).ethereum;
-        // Request signature of Merkle Root as Proof of Diligence
-        await provider.request({
-          method: "personal_sign",
-          params: [
-            `Attestation of Fiduciary Due Diligence (Delaware DGCL § 141(e))\nProposal: ${activeAipNumber}\nMerkle Root: ${sealingPackage.merkleRoot}\nRuin Probability: ${sealingPackage.ruinProbability}%\nChain: Arbitrum Sepolia (421614)`,
-            walletAddress,
-          ],
-        });
-      } catch {
-        // User rejected signature, proceed with deterministic simulation hash
-      }
-    }
+    try {
+      const eth = (window as any).ethereum;
 
-    setTimeout(() => {
-      const mockTx = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`;
-      setTxHash(mockTx);
+      // Encode function call with real ABI
+      const callData = encodeFunctionData({
+        abi: registryArtifact.abi,
+        functionName: "sealDeliberation",
+        args: [
+          sealingPackage.proposalHash,
+          sealingPackage.merkleRoot,
+          sealingPackage.ruinProbability,
+          sealingPackage.consensusScore,
+          sealingPackage.ipfsReportUri,
+        ],
+      });
+
+      // Prompt actual transaction in Rabby/MetaMask
+      const hash = await eth.request({
+        method: "eth_sendTransaction",
+        params: [
+          {
+            from: walletAddress,
+            to: sealingPackage.contractAddress,
+            data: callData,
+          },
+        ],
+      });
+
+      if (!hash) {
+        throw new Error("No transaction hash returned from wallet.");
+      }
+
+      setTxHash(hash);
       setSealedPackage(sealingPackage);
+      setIsRealOnChain(true);
+      setSealingError(null);
+    } catch (err: any) {
+      if (err.code === 4001 || err.message?.toLowerCase().includes("user rejected") || err.message?.toLowerCase().includes("denied")) {
+        setSealingError("Transaction Cancelled: You closed or rejected the transaction in your wallet. Nothing was submitted.");
+      } else {
+        setSealingError(`Transaction Error: ${err.message || "Failed to submit transaction to Arbitrum Sepolia."}`);
+      }
+      setSealedPackage(null);
+      setTxHash(null);
+    } finally {
       setIsSealing(false);
-    }, 1500);
+    }
+  };
+
+  // 2. Offline / Zero-Gas Simulation (Explicitly labeled as simulation preview)
+  const handleSimulateDryRun = () => {
+    setSealingError(null);
+    const sealingPackage = prepareArbitrumSeal({
+      proposalId: activeAipNumber,
+      title: activeTitle,
+      description: activeSummary,
+      cfoAnalysis: selectedPreset.cfoBaseline,
+      legalAnalysis: selectedPreset.legalBaseline,
+      securityAnalysis: selectedPreset.securityBaseline,
+      ruinProbability: selectedPreset.defaultRuinProbability,
+      consensusScore: selectedPreset.defaultConsensusScore,
+      scmParams: {
+        iterations: 10000,
+        driftPercent: 0.00,
+        var95: selectedPreset.sampleScm.var95,
+        cvar95: selectedPreset.sampleScm.cvar95,
+        seed: `CAUSARIX_SIM_${Date.now()}`,
+      },
+    });
+
+    const mockTx = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`;
+    setTxHash(mockTx);
+    setSealedPackage(sealingPackage);
+    setIsRealOnChain(false);
   };
 
   return (
@@ -178,6 +333,34 @@ export default function ArbitrumGovernancePage() {
             </a>
           </div>
         </div>
+
+        {/* Alerts for Wallet Error or Network Mismatch */}
+        {walletError && (
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 p-3 rounded-lg bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <XCircle className="h-4 w-4 text-rose-400 shrink-0" />
+              <span>{walletError}</span>
+            </div>
+            <button onClick={() => setWalletError(null)} className="text-slate-400 hover:text-white text-xs">
+              Dismiss
+            </button>
+          </motion.div>
+        )}
+
+        {networkMismatch && isConnected && (
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-3 p-3 rounded-lg bg-amber-950/40 border border-amber-500/40 text-amber-300 text-xs flex items-center gap-2"
+          >
+            <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+            <span>Wallet connected to another network. Please switch to <strong>Arbitrum Sepolia (Chain ID: 421614)</strong> to submit transactions.</span>
+          </motion.div>
+        )}
       </div>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -402,42 +585,81 @@ export default function ArbitrumGovernancePage() {
               <span className="text-xs font-mono text-emerald-400">Arbitrum Sepolia</span>
             </div>
 
-            <p className="text-xs text-slate-400">
-              Anchors the 5-leaf Merkle root into the <code className="text-sky-300 font-mono">ArbitrumFiduciaryRegistry</code> smart contract on Arbitrum Sepolia. Generates an immutable, courtroom-admissible record protecting delegates and foundation directors.
-            </p>
+            {/* Error Notification if user closes or rejects popup */}
+            {sealingError && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3.5 rounded-xl bg-rose-950/50 border border-rose-500/50 text-rose-300 text-xs flex items-start gap-2.5"
+              >
+                <XCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <div className="font-semibold text-rose-200">Transaction Failed / Rejected</div>
+                  <div className="text-[11px] text-rose-300/90">{sealingError}</div>
+                </div>
+              </motion.div>
+            )}
 
-            <button
-              onClick={handleSealToArbitrum}
-              disabled={isSealing}
-              className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 transition-all disabled:opacity-50"
-            >
-              {isSealing ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  <span>Submitting to Arbitrum Sepolia RPC...</span>
-                </>
-              ) : (
-                <>
-                  <Lock className="h-4 w-4" />
-                  <span>Seal Deliberation to Arbitrum</span>
-                </>
-              )}
-            </button>
+            <div className="space-y-2.5">
+              <button
+                onClick={handleSealToArbitrumOnChain}
+                disabled={isSealing}
+                className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 transition-all disabled:opacity-50"
+              >
+                {isSealing ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <span>Awaiting Signature in Rabby / MetaMask...</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-4 w-4" />
+                    <span>Seal to Arbitrum Sepolia (Send On-Chain Tx)</span>
+                  </>
+                )}
+              </button>
 
-            {/* Confirmed Proof Card */}
+              <button
+                onClick={handleSimulateDryRun}
+                className="w-full py-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-slate-200 text-xs font-mono flex items-center justify-center gap-1.5 transition-all"
+              >
+                <span>🧪 Dry-Run Simulation (Zero Gas / No Wallet Required)</span>
+              </button>
+            </div>
+
+            {/* Confirmed Proof Card (Only renders on legitimate completion) */}
             {sealedPackage && txHash && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-5 rounded-xl bg-emerald-950/30 border border-emerald-500/40 space-y-3"
+                className={`p-5 rounded-xl border space-y-3 ${
+                  isRealOnChain
+                    ? "bg-emerald-950/30 border-emerald-500/40"
+                    : "bg-amber-950/20 border-amber-500/40"
+                }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-emerald-400 font-semibold text-xs">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>Sealed On-Chain on Arbitrum Sepolia</span>
+                  <div className="flex items-center gap-2 font-semibold text-xs">
+                    {isRealOnChain ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                        <span className="text-emerald-400">Broadcasted On-Chain to Arbitrum Sepolia</span>
+                      </>
+                    ) : (
+                      <>
+                        <Info className="h-4 w-4 text-amber-400" />
+                        <span className="text-amber-400">Local Off-Chain Simulation (Unsigned)</span>
+                      </>
+                    )}
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
-                    Confirmed
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded ${
+                      isRealOnChain
+                        ? "bg-emerald-500/20 text-emerald-300"
+                        : "bg-amber-500/20 text-amber-300"
+                    }`}
+                  >
+                    {isRealOnChain ? "On-Chain Confirmed" : "Dry-Run Preview"}
                   </span>
                 </div>
 
@@ -460,16 +682,22 @@ export default function ArbitrumGovernancePage() {
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between">
-                  <a
-                    href={formatArbiscanTxUrl(txHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-sky-400 hover:text-sky-300 font-medium transition-colors"
-                  >
-                    <span>View Transaction on Arbiscan</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
+                <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                  {isRealOnChain ? (
+                    <a
+                      href={formatArbiscanTxUrl(txHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-sky-400 hover:text-sky-300 font-medium transition-colors"
+                    >
+                      <span>View Live Transaction on Arbiscan</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : (
+                    <span className="text-xs text-amber-400/80 font-mono">
+                      Simulation Hash: {txHash.slice(0, 14)}...
+                    </span>
+                  )}
 
                   <span className="text-[10px] text-slate-500 font-mono">
                     Statutory Safe Harbor DGCL § 141(e)
