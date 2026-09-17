@@ -352,13 +352,13 @@ export default function CausarixEnterpriseLanding() {
 
         {/* Menu Actions */}
         <nav className="flex items-center gap-3 pointer-events-auto">
-          <button
-            onClick={() => setIsDownloadModalOpen(true)}
-            className="px-4 py-2.5 rounded-full border border-neutral-300 bg-white/90 hover:bg-[#0f0f11] hover:text-white text-[#0f0f11] font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm hidden sm:flex items-center gap-1.5"
+          <Link
+            href="/dashboard/governance"
+            className="px-4 py-2.5 rounded-full border border-sky-400/40 bg-sky-950/20 hover:bg-sky-600 hover:text-white text-sky-900 font-mono text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Download .exe</span>
-          </button>
+            <Zap className="w-3.5 h-3.5 text-sky-600" />
+            <span>⚡ Arbitrum Oracle</span>
+          </Link>
 
           <a
             href="#pricing"
@@ -418,37 +418,46 @@ export default function CausarixEnterpriseLanding() {
 
         {/* Sovereign Causal Intelligence OS Transition Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0f0f11] text-white font-mono text-[11px] font-black uppercase tracking-wider shadow-lg">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>SOVEREIGN CAUSAL INTELLIGENCE OS · CAUSARIX™ (FORMERLY SYNAPS)</span>
+          <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+          <span>ARBITRUM BUILDATHON · ON-CHAIN FIDUCIARY ORACLE · LIVE ON SEPOLIA & STYLUS WASM</span>
         </div>
 
         {/* Badges Ticker */}
         <ul className="flex items-center justify-center flex-wrap gap-4 font-mono text-xs font-extrabold uppercase tracking-wider text-[#18181b]">
+          <li className="flex items-center gap-2"><span>ARBITRUM SEPOLIA (421614)</span><span className="w-1.5 h-1.5 rounded-full bg-sky-500" /></li>
+          <li className="flex items-center gap-2"><span>STYLUS WASM VERIFIER (RUST)</span><span className="w-1.5 h-1.5 rounded-full bg-sky-500" /></li>
+          <li className="flex items-center gap-2"><span>DELAWARE DGCL § 141 SAFE-HARBOR</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
           <li className="flex items-center gap-2"><span>PEARL DO-CALCULUS SCM</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
-          <li className="flex items-center gap-2"><span>4-TIER AGENT MEMORY HUB</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
-          <li className="flex items-center gap-2"><span>10-AGENT BOARDROOM QUORUM</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
-          <li className="flex items-center gap-2"><span>1,000-TEST HELM EVALUATED</span><span className="w-1.5 h-1.5 rounded-full bg-[#fc4778]" /></li>
-          <li><span>ZERO HALLUCINATIONS</span></li>
+          <li><span>0.00% MATH DRIFT</span></li>
         </ul>
 
         {/* Hero Title */}
         <h1 className="font-serif text-4xl sm:text-7xl font-extrabold text-[#0f0f11] tracking-tight leading-[1.08] max-w-5xl mx-auto">
-          Causal Decision Operating System for Enterprise
+          Causal Decision Operating System for Enterprise & Arbitrum DAOs
         </h1>
 
         <p className="text-[#18181b] font-sans text-lg sm:text-2xl max-w-3xl mx-auto font-semibold leading-relaxed">
-          CAUSARIX (powered by the Synaps™ Causal Intelligence Core) turns scattered corporate contracts, financials, and communications into 100% citation-grounded boardroom deliberations and automated Delaware redlines.
+          CAUSARIX™ stress-tests multi-million dollar DAO proposals, treasury allocations, and contracts using an adversarial 3-Agent Risk Council, 0.00% math drift SCM simulations, and cryptographic Delaware DGCL § 141 proofs sealed on Arbitrum.
         </p>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
           <Link
+            href="/dashboard/governance"
+            className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl hover:scale-[1.03] cursor-pointer"
+            title="Launch Arbitrum DAO Risk Cockpit and Live On-Chain Sealing"
+          >
+            <Zap className="w-4 h-4 text-white fill-white" />
+            <span>⚡ Launch Arbitrum DAO Oracle (Live dApp)</span>
+          </Link>
+
+          <Link
             href="/demo"
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#00e5ff] to-cyan-400 hover:from-cyan-300 hover:to-[#00e5ff] text-black font-mono font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl hover:scale-[1.03] cursor-pointer"
+            className="w-full sm:w-auto px-7 py-4 rounded-full bg-[#00e5ff]/20 hover:bg-[#00e5ff] text-[#0f0f11] hover:text-black border border-[#00e5ff]/60 font-mono font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
             title="Try 60-Second Live Demo Without Signing In"
           >
-            <Zap className="w-4 h-4 text-black fill-black" />
-            <span>⚡ Try Live Demo (No Login · 2 Free Runs)</span>
+            <span>Try Fast Demo</span>
+            <ArrowUpRight className="w-4 h-4" />
           </Link>
 
           <button

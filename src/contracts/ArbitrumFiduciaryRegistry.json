@@ -1,0 +1,401 @@
+{
+  "contractName": "ArbitrumFiduciaryRegistry",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "proposalHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "merkleRoot",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sealer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "ruinProbability",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "consensusScore",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "ipfsReportUri",
+          "type": "string"
+        }
+      ],
+      "name": "DeliberationSealed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "delegate",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "proposalHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "merkleRoot",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ProofOfDiligenceAttested",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "allProposalHashes",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "delegateProposals",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
+        }
+      ],
+      "name": "getLatestSeals",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "proposalHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "merkleRoot",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint8",
+              "name": "ruinProbability",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "consensusScore",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "sealer",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "ipfsReportUri",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "exists",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct ArbitrumFiduciaryRegistry.FiduciarySeal[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "delegate",
+          "type": "address"
+        }
+      ],
+      "name": "getProposalsByDelegate",
+      "outputs": [
+        {
+          "internalType": "bytes32[]",
+          "name": "",
+          "type": "bytes32[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getSealsCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "proposalHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "merkleRoot",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "ruinProbability",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "consensusScore",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "ipfsReportUri",
+          "type": "string"
+        }
+      ],
+      "name": "sealDeliberation",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "seals",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "proposalHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "merkleRoot",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "ruinProbability",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "consensusScore",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "sealer",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "ipfsReportUri",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "exists",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSeals",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "proposalHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "expectedRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "verifyDeliberation",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isValid",
+          "type": "bool"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "proposalHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "merkleRoot",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint8",
+              "name": "ruinProbability",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "consensusScore",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "sealer",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "ipfsReportUri",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "exists",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct ArbitrumFiduciaryRegistry.FiduciarySeal",
+          "name": "seal",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x6080604052348015600e575f5ffd5b50610f5c8061001c5f395ff3fe608060405234801561000f575f5ffd5b5060043610610090575f3560e01c8063933d3a6f11610063578063933d3a6f14610128578063a432769014610149578063aa60928914610151578063d9ff054e14610171578063dee783ab14610179575f5ffd5b80630349f9d1146100945780631457ff2d146100c457806363b06f7a146100e55780636433964414610105575b5f5ffd5b6100a76100a2366004610a07565b61018c565b6040516100bb989796959493929190610a4c565b60405180910390f35b6100d76100d2366004610aa9565b610269565b6040516100bb929190610b47565b6100f86100f3366004610b84565b6103d6565b6040516100bb9190610ba4565b610118610113366004610bf6565b61043f565b60405190151581526020016100bb565b61013b610136366004610c97565b6107a6565b6040519081526020016100bb565b60025461013b565b61016461015f366004610a07565b6107d1565b6040516100bb9190610cbf565b61013b5f5481565b61013b610187366004610a07565b6109e8565b600160208190525f9182526040909120805491810154600282015460038301546004840154600585018054949560ff8086169661010090960416946001600160a01b03909316929091906101df90610d22565b80601f016020809104026020016040519081016040528092919081815260200182805461020b90610d22565b80156102565780601f1061022d57610100808354040283529160200191610256565b820191905f5260205f20905b81548152906001019060200180831161023957829003601f168201915b5050506006909301549192505060ff1688565b60408051610100810182525f8082526020820181905291810182905260608082018390526080820183905260a0820183905260c082015260e081018290525f8481526001602081815260409283902083516101008082018652825482529382015492810192909252600281015460ff808216958401959095529290920490921660608301526003810154608083015260048101546001600160a01b031660a083015260058101805460c08401919061032090610d22565b80601f016020809104026020016040519081016040528092919081815260200182805461034c90610d22565b80156103975780601f1061036e57610100808354040283529160200191610397565b820191905f5260205f20905b81548152906001019060200180831161037a57829003601f168201915b50505091835250506006919091015460ff16151560209091015260e08101519091506103c5575f91506103cf565b8281602001511491505b9250929050565b6001600160a01b0381165f9081526003602090815260409182902080548351818402810184019094528084526060939283018282801561043357602002820191905f5260205f20905b81548152602001906001019080831161041f575b50505050509050919050565b5f8661048a5760405162461bcd60e51b8152602060048201526015602482015274092dcecc2d8d2c840e0e4dee0dee6c2d840d0c2e6d605b1b60448201526064015b60405180910390fd5b856104cd5760405162461bcd60e51b8152602060048201526013602482015272125b9d985b1a59081b595c9adb19481c9bdbdd606a1b6044820152606401610481565b60648560ff1611156105215760405162461bcd60e51b815260206004820152601f60248201527f5275696e2070726f626162696c697479206d757374206265203c3d20313030006044820152606401610481565b60648460ff1611156105755760405162461bcd60e51b815260206004820152601e60248201527f436f6e73656e7375732073636f7265206d757374206265203c3d2031303000006044820152606401610481565b5f8781526001602052604090206006015460ff166105d357600280546001810182555f9182527f405787fa12a823e0f2b7631cc41b3ba8828b3321ca811111fa75cd3aa3bb5ace01889055805490806105cd83610d6e565b91905055505b6040518061010001604052808881526020018781526020018660ff1681526020018560ff168152602001428152602001336001600160a01b0316815260200184848080601f0160208091040260200160405190810160405280939291908181526020018383808284375f9201829052509385525050600160209384018190528b835280845260409283902085518155938501519084015550820151600282018054606085015160ff9081166101000261ffff199092169316929092179190911790556080820151600382015560a08201516004820180546001600160a01b039092166001600160a01b031990921691909117905560c082015160058201906106db9082610df1565b5060e091909101516006909101805460ff1916911515919091179055335f8181526003602090815260408083208054600181018255908452919092200189905551879089907f87aaae80970b543eda62f2e8bf4f0118c458be85c07554728c965a474baa617f90610755908a908a9042908b908b90610eb0565b60405180910390a460408051878152426020820152889133917f1a515ac78811b01ef2dca71694c9c1bbc8bf5a7b18dfc1972befa4bc8040ddce910160405180910390a35060019695505050505050565b6003602052815f5260405f2081815481106107bf575f80fd5b905f5260205f20015f91509150505481565b600254606090808311156107e3578092505b5f8367ffffffffffffffff8111156107fd576107fd610d86565b60405190808252806020026020018201604052801561086957816020015b60408051610100810182525f808252602080830182905292820181905260608083018290526080830182905260a0830182905260c083015260e082015282525f1990920191018161081b5790505b5090505f5b848110156109e0575f600282610885600187610ef9565b61088f9190610ef9565b8154811061089f5761089f610f12565b5f918252602080832090910154808352600180835260409384902084516101008082018752825482529282015494810194909452600281015460ff808216968601969096529190910490931660608301526003830154608083015260048301546001600160a01b031660a083015260058301805491945091929160c084019161092790610d22565b80601f016020809104026020016040519081016040528092919081815260200182805461095390610d22565b801561099e5780601f106109755761010080835404028352916020019161099e565b820191905f5260205f20905b81548152906001019060200180831161098157829003601f168201915b50505091835250506006919091015460ff16151560209091015283518490849081106109cc576109cc610f12565b60209081029190910101525060010161086e565b509392505050565b600281815481106109f7575f80fd5b5f91825260209091200154905081565b5f60208284031215610a17575f5ffd5b5035919050565b5f81518084528060208401602086015e5f602082860101526020601f19601f83011685010191505092915050565b88815287602082015260ff8716604082015260ff8616606082015284608082015260018060a01b03841660a082015261010060c08201525f610a92610100830185610a1e565b905082151560e08301529998505050505050505050565b5f5f60408385031215610aba575f5ffd5b50508035926020909101359150565b805182526020810151602083015260ff604082015116604083015260ff6060820151166060830152608081015160808301525f60a0820151610b1660a08501826001600160a01b03169052565b5060c082015161010060c0850152610b32610100850182610a1e565b905060e08301516109e060e086018215159052565b8215158152604060208201525f610b616040830184610ac9565b949350505050565b80356001600160a01b0381168114610b7f575f5ffd5b919050565b5f60208284031215610b94575f5ffd5b610b9d82610b69565b9392505050565b602080825282518282018190525f918401906040840190835b81811015610bdb578351835260209384019390920191600101610bbd565b509095945050505050565b803560ff81168114610b7f575f5ffd5b5f5f5f5f5f5f60a08789031215610c0b575f5ffd5b8635955060208701359450610c2260408801610be6565b9350610c3060608801610be6565b9250608087013567ffffffffffffffff811115610c4b575f5ffd5b8701601f81018913610c5b575f5ffd5b803567ffffffffffffffff811115610c71575f5ffd5b896020828401011115610c82575f5ffd5b60208201935080925050509295509295509295565b5f5f60408385031215610ca8575f5ffd5b610cb183610b69565b946020939093013593505050565b5f602082016020835280845180835260408501915060408160051b8601019250602086015f5b82811015610d1657603f19878603018452610d01858351610ac9565b94506020938401939190910190600101610ce5565b50929695505050505050565b600181811c90821680610d3657607f821691505b602082108103610d5457634e487b7160e01b5f52602260045260245ffd5b50919050565b634e487b7160e01b5f52601160045260245ffd5b5f60018201610d7f57610d7f610d5a565b5060010190565b634e487b7160e01b5f52604160045260245ffd5b601f821115610dec5782821115610dec57805f5260205f20601f840160051c6020851015610dc557505f5b90810190601f840160051c035f5b81811015610de8575f83820155600101610dd3565b5050505b505050565b815167ffffffffffffffff811115610e0b57610e0b610d86565b610e1f81610e198454610d22565b84610d9a565b6020601f821160018114610e51575f8315610e3a5750848201515b5f19600385901b1c1916600184901b178455610ea9565b5f84815260208120601f198516915b82811015610e805787850151825560209485019460019092019101610e60565b5084821015610e9d57868401515f19600387901b60f8161c191681555b505060018360011b0184555b5050505050565b60ff8616815260ff8516602082015283604082015260806060820152816080820152818360a08301375f81830160a090810191909152601f909201601f19160101949350505050565b81810381811115610f0c57610f0c610d5a565b92915050565b634e487b7160e01b5f52603260045260245ffdfea2646970667358221220d112c86d1b273d55291ed8866e02cc4cc8e6ea042ff4ba4a69d0fa26c8a00abe64736f6c63430008250033",
+  "compilerVersion": "0.8.37+commit.f401782d.Emscripten.clang",
+  "compiledAt": "2026-09-17T01:23:22.874Z"
+}

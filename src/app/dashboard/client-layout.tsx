@@ -50,8 +50,9 @@ type MenuSection = {
 
 const sidebarSections: MenuSection[] = [
   {
-    title: 'COMMAND',
+    title: 'ARBITRUM GOVERNANCE',
     items: [
+      { name: '⚡ DAO Risk & Attestation', href: '/dashboard/governance', icon: ShieldCheck, badge: 'MAX' },
       { name: 'Executive Overview', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Strategic Matters', href: '/dashboard/matters', icon: FolderKanban, badge: 'PRO' },
     ]
