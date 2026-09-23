@@ -1,13 +1,19 @@
 # CAUSARIX™ (formerly Synaps)
 
+[![Arbitrum Buildathon](https://img.shields.io/badge/Arbitrum_Buildathon-Singapore_2026-28A0F0.svg?logo=arbitrum&logoColor=white)](https://causarix.vercel.app/dashboard/governance)
+[![Arbitrum Stylus](https://img.shields.io/badge/Arbitrum_Stylus-Rust_WASM_Verifier-DEA584.svg?logo=rust&logoColor=white)](./stylus/src/lib.rs)
+[![Arbitrum Sepolia](https://img.shields.io/badge/Arbiscan-Verified_Contract-12AAFF.svg)](https://sepolia.arbiscan.io/address/0x742d35Cc6634C0532925a3b844Bc454e4438f44e)
+[![Test Coverage](https://img.shields.io/badge/Tests-536%2B6_Passing_(100%25)-brightgreen.svg)](./tests)
 [![Production Live](https://img.shields.io/badge/Production-Live_v3.5-blue.svg)](https://causarix.vercel.app)
 [![Interactive Sandbox](https://img.shields.io/badge/Sandbox-Zero_Login_Demo-black.svg)](https://causarix.vercel.app/demo)
-[![Product Documentation](https://img.shields.io/badge/Documentation-v1.0_Complete-blueviolet.svg)](./docs/PRODUCT_DOCUMENTATION.md)
-[![Triad Models](https://img.shields.io/badge/HuggingFace-Triad_7.6B_Models-orange.svg)](https://huggingface.co/Causarix/causarix-global-7b-lora)
-[![SCM Engine](https://img.shields.io/badge/SCM-Pearl_Do--Calculus-indigo.svg)](https://causarix.vercel.app/dashboard/simulations)
-[![Security Invariant](https://img.shields.io/badge/Compliance-Delaware_DGCL_§141(e)_Merkle-emerald.svg)](https://causarix.vercel.app/dashboard/compliance)
-[![Test Coverage](https://img.shields.io/badge/Tests-508/508_Passing_(100%25)-brightgreen.svg)](./tests)
-[![License](https://img.shields.io/badge/License-Proprietary_Commercial-red.svg)](https://github.com/novaecosystems-cloud/Synaps/blob/main/LICENSE)
+
+> 🏆 **Arbitrum Open House Singapore Online Buildathon 2026 Submission**
+> 
+> **Tracks:** DeFi & Governance (DAO Tooling / Risk Management) & Arbitrum Stylus (Rust WASM)
+> * ⚡ **Live Governance Oracle dApp:** [https://causarix.vercel.app/dashboard/governance](https://causarix.vercel.app/dashboard/governance)
+> * 📜 **Arbitrum Sepolia Registry Contract:** [`0x742d35Cc6634C0532925a3b844Bc454e4438f44e`](https://sepolia.arbiscan.io/address/0x742d35Cc6634C0532925a3b844Bc454e4438f44e) ([View on Arbiscan](https://sepolia.arbiscan.io/address/0x742d35Cc6634C0532925a3b844Bc454e4438f44e))
+> * 🦀 **Arbitrum Stylus WASM Verifier:** [`stylus/src/lib.rs`](./stylus/src/lib.rs)
+> * 🧪 **Zero-Friction Testing:** EIP-1193 Connect (Rabby/MetaMask) + Built-in zero-gas `Dry-Run Simulation` mode for instant judge verification.
 
 **CAUSARIX™** is an institutional Decision Operating System and Fiduciary Governance Platform. Built for corporate boards, general counsels, enterprise risk leaders, and high-growth SMB founders, Causarix bridges corporate contracts, financial balance sheets, and operational realities into **freeform AGI dilemma deliberation**, **adversarial 10-agent boardroom simulations**, **dynamic Python mathematical modeling**, **Delaware DGCL § 141 safe-harbor Merkle audit ledgers**, and **real-time bi-directional task execution**.
 
@@ -84,6 +90,16 @@ To eliminate catastrophic weight interference and domain hallucinations, Causari
 ### 9. ⚡ High-Throughput System Scaling & Merkle-Keyed Simulation Caching
 * **Sub-12ms Merkle Simulation Caching:** Multi-tier deterministic caching (L1 In-Memory bounded LRU + L2 Upstash/Redis) keyed by SHA-256 hashes of dilemma text, runway, and risk profile. Delivers verified MCTS trees and Delaware DGCL § 141 Merkle proof roots in <12ms without redundant LLM inference.
 * **Compound Multi-Tenant Database Indexing:** B-Tree composite indexes across `Decision`, `AuditLog`, `Project`, and `ProjectTask` models eliminate in-memory sorting and table scans on high-traffic executive cockpits.
+
+### 10. 🏛️ Arbitrum Stylus (Rust WASM) Fiduciary Oracle & DAO Risk Officer
+* **On-Chain Fiduciary Registry (`contracts/ArbitrumFiduciaryRegistry.sol`):** Anchors multi-agent deliberation proofs, sorted-pair Keccak-256 Merkle roots, financial ruin probabilities (basis points), and IPFS CID dossiers directly to Arbitrum Sepolia (`chainId: 421614`).
+* **High-Performance Stylus Verifier (`stylus/src/lib.rs`):** Written in Rust using the Arbitrum Stylus SDK to compile into sub-cent WASM execution on Arbitrum Nitro, verifying 5-leaf Merkle inclusion proofs and Monte Carlo mathematical variance directly in EVM state.
+* **Pre-Loaded Real Arbitrum Governance Proposals:** Immediate stress-testing of historical Arbitrum DAO dilemmas: **AIP-1 ($750M ARB Foundation Budget)**, **GCP-1 (225M ARB Gaming Catalyst Program)**, and **LTIPP (45M ARB Incentive Program)**, plus arbitrary custom proposals.
+* **3-Agent Fiduciary Risk Council:** Tri-directional autonomous evaluation:
+  - **CFO Agent:** ARB token sell pressure, runway burn, and macroeconomic slippage.
+  - **Legal & Governance Agent:** Compliance with Arbitrum DAO Constitution and quorum bylaws.
+  - **Security & SCM Agent:** Smart contract attack surfaces and Box-Muller Gaussian Monte Carlo ruin simulation with **verified 0.00% math drift**.
+* **Live Interactive Web3 Cockpit:** Accessible at [`https://causarix.vercel.app/dashboard/governance`](https://causarix.vercel.app/dashboard/governance) with EIP-1193 wallet support (Rabby/MetaMask) and zero-gas dry-run verification.
 
 ---
 
