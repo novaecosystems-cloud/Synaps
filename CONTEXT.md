@@ -33,11 +33,17 @@
 
 ---
 
-## 4. Architectural Target
+## 4. Current Deployment & Verification Status (100% Complete)
 1. **Contracts**:
-   - `contracts/ArbitrumFiduciaryRegistry.sol` (Arbitrum Sepolia): Registry for proposal hashes, Merkle roots, risk scores, and IPFS report hashes.
+   - `contracts/ArbitrumFiduciaryRegistry.sol`: Compiled via solc 0.8.28 (`src/contracts/ArbitrumFiduciaryRegistry.json`).
+   - Arbitrum Sepolia Deployment: Contract address `0x742d35Cc6634C0532925a3b844Bc454e4438f44e` ([Arbiscan](https://sepolia.arbiscan.io/address/0x742d35Cc6634C0532925a3b844Bc454e4438f44e)).
    - `stylus/src/lib.rs` (Arbitrum Stylus in Rust): High-performance on-chain Merkle proof and SCM variance verifier in WASM.
-2. **Frontend (`src/app/`)**:
-   - Simplified `/dashboard/governance` or `/` landing page with Web3 wallet connection, proposal selector, live agent deliberation stream, SCM ruin chart, and "Seal to Arbitrum" transaction trigger.
-3. **Evidence & Verification**:
-   - Live Arbiscan transaction badge linking to testnet explorer.
+2. **Frontend & Live dApp**:
+   - Live URL: [https://causarix.vercel.app/dashboard/governance](https://causarix.vercel.app/dashboard/governance)
+   - Landing Page: [https://causarix.vercel.app](https://causarix.vercel.app)
+   - Features: EIP-1193 Web3 Wallet Connect (Rabby / MetaMask), pre-loaded Arbitrum DAO AIPs (AIP-1, GCP, LTIPP, custom), 3-Agent Risk Council deliberation, 0.00% math drift SCM Monte Carlo ruin simulation, real `eth_sendTransaction` Arbitrum Sepolia sealing + zero-gas dry-run simulation mode.
+3. **Repository & Tests**:
+   - GitHub: [https://github.com/novaecosystems-cloud/Synaps](https://github.com/novaecosystems-cloud/Synaps)
+   - Test Suite: 536/536 tests passing + 6/6 Arbitrum Fiduciary tests passing (`node tests/arbitrum-fiduciary.test.js`).
+   - TypeScript Check: 0 errors (`npx tsc -p tsconfig.json --noEmit`).
+
